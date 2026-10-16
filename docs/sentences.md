@@ -110,8 +110,9 @@ uncertainty and never expose raw provider error bodies or trigger automatic
 resubmission/spending.
 
 Question submission establishes `questionPending` before releasing the draft
-hold. It sends a conversation-only typed input with no assessment attempts;
-questions never count as translations/explanations. The adapter should emit
+hold. It prefers the current adapter's optional `askQuestion` conversation API,
+with a conversation-only typed-input fallback for earlier adapters; neither
+path creates assessment attempts. Questions never count as translations/explanations. The adapter should emit
 question intent before a question-directed final transcript, then a resolution
 intent after responding. An explicit "My question is resolved" action also
 releases the hold. In-call tables use scoped presentation holds and keep the
@@ -120,7 +121,9 @@ table is open; the hold blocks changing prompts rather than muting the call.
 
 Mock mode displays a persistent simulated-evidence notice and a mock oral-response
 textarea. This is a typed fixture, never microphone evidence. It forwards work
-to the injected mock adapter and does not grade it locally. Real mode has no
+to the injected mock adapter and does not grade it locally. With the current
+mock adapter, it registers an explicit acceptance fixture using `simulateUtterance`;
+the UI states that this is not an English evaluation. Real mode has no
 such input and rejects the mock submission method. IME composition blocks mock
 submission; nonempty drafts and focus hold manual advancement. No learner
 responses or scores are persisted.
@@ -170,3 +173,30 @@ evidence. Sentence advancement remains manual pending the separate EN-Q07
 decision. Canonical Atlas docs were not edited by this worker. Requested model
 routing was Sol 6.1/high/fast; this session does not expose a verifiable actual
 model/effort/speed receipt, and no substitution or additional agent is claimed.
+
+## Integration refresh amendment, 2026-10-16
+
+The integration base advanced during draft PR #4 creation to
+`34a5185a035e4c9df0b35af6b28356fbee6019b3`. Its voice/runtime/controller changes
+were read and additively merged at `fe33a32`; no published history was rewritten.
+The original feature commit `8b2a6d4bd8bc3a31e89daa24cc329b4205b7e550` and
+the preceding validation receipt remain available. This section supersedes the
+earlier combined-check counts for the refreshed candidate.
+
+The feature now supplies `onCancelHint` and cancels pending hints on disposal.
+It also queues cancellation when a generated hint is withheld by its stricter
+display envelope; actual audible adherence still requires provider evaluation.
+Questions use `voice.askQuestion` when provided, and mock textarea submissions
+register a known fixture with the actual mock adapter rather than submitting
+an unknown audio reference. Provider-pending and root presentation-hold events
+continue through the shared controller unchanged. Root connection/state replay
+is exercised with the actual `createSessionRuntime` and `createMockVoiceAdapter`.
+
+Refreshed results: 17 focused sentence tests pass; the combined check passes 91
+Node tests (two optional browser tests skipped), 21 Python content tests, strict
+TypeScript and the Vite build. The opted-in sentence browser check passes again
+at all four documented viewport sizes, with no page errors/external requests.
+These add actual root/mock orchestration evidence, not real speech, model or
+provider evidence. The final feature commit/PR metadata identifies this refreshed
+candidate. Owned paths remain unchanged; no provider/controller/root/configuration
+files were authored by EN-WP-06.

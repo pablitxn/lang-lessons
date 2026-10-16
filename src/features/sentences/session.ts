@@ -1,5 +1,6 @@
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
 import { SENTENCES } from '../../content';
+import { isMockVoiceAdapter } from '../../voice/mock';
 import { isQuiet, sameExercise, type Difficulty, type ExerciseContext, type LearnerInput,
   type SentenceEntry, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
 
@@ -116,6 +117,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   }
   controller = createAssessmentController({ context: context(first), allowMock: voice.mode === 'mock',
     ...(options.clock ? { clock: options.clock } : {}),
+    onCancelHint: () => voice.cancelPendingHints?.(),
     onContextChange: next => { hintLevel = 0; hintOrigin = 'none'; coachText = ''; voice.setContext(next); },
     onAdvance: snapshot => { options.onComplete(snapshot.exerciseId); startNext(); },
   });
@@ -176,6 +178,9 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       if (controller.applyHint({ ...event.hint, text: guarded.text })) {
         hintOrigin = guarded.fallback ? 'authored-fallback' : event.hint.source;
         if (guarded.fallback) notice = 'A reviewed meaning-focused prompt is shown because the generated hint could not be safely displayed.';
+        if (guarded.fallback) queueMicrotask(() => {
+          if (current(before) && controller.getSnapshot().hint?.requestId === event.hint.requestId) voice.cancelPendingHints?.();
+        });
         publish();
       }
       return;
@@ -222,11 +227,20 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       }
       const identity = controller.getSnapshot().context;
       controller.setInteraction({ questionPending: true });
-      submit({ ...identity, inputId: `question-${++sequence}`, kind: 'typed', text: text.trim(), attempts: [] }, identity);
+      if (voice.askQuestion) {
+        try { void voice.askQuestion({ ...identity, requestId: `question-${++sequence}`, text: text.trim() }).catch(() => reportFailure(identity)); }
+        catch { reportFailure(identity); }
+      } else submit({ ...identity, inputId: `question-${++sequence}`, kind: 'typed', text: text.trim(), attempts: [] }, identity);
     },
     resolveQuestion() { controller.setInteraction({ questionPending: false }); },
-    submitMockResponse(text) { return voice.mode === 'mock' && text.trim() !== ''
-      ? processResponse(text.trim(), `mock-utterance-${++sequence}`, false) : false; },
+    submitMockResponse(text) {
+      if (voice.mode !== 'mock' || !text.trim() || !readyForResponse()) return false;
+      if (isMockVoiceAdapter(voice)) {
+        try { voice.simulateUtterance(text.trim(), 'accepted'); return true; }
+        catch { reportFailure(controller.getSnapshot().context); return false; }
+      }
+      return processResponse(text.trim(), `mock-utterance-${++sequence}`, false);
+    },
     requestHint() {
       const snapshot = controller.getSnapshot();
       if (disposed || snapshot.completed || snapshot.sentenceStage === 'complete' || snapshot.hintPending
@@ -253,7 +267,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       if (!disposed && isQuiet(snapshot.interaction)) return startNext();
       notice = 'Finish the conversation or close the helper before changing prompts.'; publish(); return false;
     },
-    dispose() { if (disposed) return; disposed = true; unsubscribeVoice(); unsubscribeController(); controller.dispose(); listeners.clear(); },
+    dispose() { if (disposed) return; disposed = true; unsubscribeVoice(); unsubscribeController(); voice.cancelPendingHints?.(); controller.dispose(); listeners.clear(); },
   };
   return session;
 }
