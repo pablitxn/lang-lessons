@@ -1,0 +1,73 @@
+/* All selectors belong to this module; the foundation owns global styles. */
+.ll-mobile { --ll-ink: #172a2a; --ll-muted: #526160; --ll-line: #d7dfda; --ll-primary: #08675f; color: var(--ll-ink); font: 1rem/1.6 system-ui, sans-serif; min-width: 0; }
+.ll-mobile *, .ll-sheet * { box-sizing: border-box; }
+.ll-mobile h3, .ll-sheet h3 { margin: 0 0 12px; font-size: 1.1rem; line-height: 1.4; letter-spacing: -.02em; }
+.ll-mobile p { margin: 8px 0; }
+.ll-mobile :is(button, input, summary, a):focus-visible, .ll-sheet :is(button, [tabindex]):focus-visible { outline: 3px solid #08675f; outline-offset: 3px; }
+.ll-practice-grid { display: grid; gap: 24px; min-width: 0; }
+.ll-exercise, .ll-progress-region { min-width: 0; }
+.ll-button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; min-width: 48px; border: 1px solid #b6c3bc; background: #fff; color: #172a2a; border-radius: 12px; padding: 10px 14px; font: inherit; font-size: .875rem; line-height: 1.4; cursor: pointer; text-align: center; }
+.ll-button:hover:not(:disabled) { background: #eff5f0; }
+.ll-primary { background: #08675f; border-color: #08675f; color: #fff; }
+.ll-primary:hover:not(:disabled) { background: #07544e; }
+.ll-button:disabled { opacity: .65; cursor: default; }
+.ll-mobile .ll-kicker { color: #526160; font-size: .75rem; letter-spacing: .07em; text-transform: uppercase; font-weight: 650; }
+.ll-cue { background: #f0f5ef; border-radius: 16px; padding: 20px; margin-bottom: 24px; overflow-wrap: anywhere; }
+.ll-cue figure { margin: 0; }
+.ll-cue img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; border-radius: 10px; }
+.ll-cue figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; color: #526160; font-size: .75rem; }
+.ll-mobile .ll-base { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.2; font-weight: 600; margin: 8px 0; }
+.ll-mobile .ll-spanish { font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.45; margin: 8px 0; }
+.ll-field { margin: 0 0 20px; scroll-margin-block: 24px; }
+.ll-field label, .ll-question label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: 8px; }
+.ll-field-controls { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
+.ll-field-controls input { min-width: 0; flex: 1; width: 100%; min-height: 48px; border: 1px solid #84988d; border-radius: 12px; background: white; color: #172a2a; font: inherit; font-size: 1rem; padding: 10px 12px; }
+.ll-field-controls input::placeholder { color: #526160; }
+.ll-field-controls input[aria-invalid="true"] { border-color: #b42318; }
+.ll-field .ll-field-status { font-size: .875rem; color: #526160; margin: 4px 0 0; min-height: 1.6em; overflow-wrap: anywhere; }
+.ll-spelling { letter-spacing: .035em; overflow-wrap: anywhere; padding-top: 8px; color: #172a2a; font-weight: 600; }
+.ll-outcome-icon { margin-right: 8px; }
+.ll-mobile .ll-correct { color: #17643c; }
+.ll-mobile .ll-incorrect { color: #b42318; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.ll-sound-help { margin-top: 8px; }
+.ll-guide { padding: 16px; border-left: 3px solid #08675f; background: #eff5f0; border-radius: 0 12px 12px 0; overflow-wrap: anywhere; }
+.ll-guide .ll-button { margin-top: 8px; }
+.ll-mobile .ll-muted, .ll-sheet .ll-muted { font-size: .875rem; line-height: 1.6; color: #526160; }
+.ll-progress { background: #f7f8f5; border: 1px solid #d7dfda; border-radius: 16px; padding: 18px; }
+.ll-mobile .ll-progress-count { font-size: 1.4rem; font-weight: 600; margin-bottom: 12px; }
+.ll-progress-count span { font-size: .875rem; font-weight: 400; color: #526160; }
+.ll-progress progress { display: block; width: 100%; height: 8px; accent-color: #08675f; margin-bottom: 16px; }
+.ll-obligations { border-top: 1px solid #d7dfda; }
+.ll-obligations summary { display: list-item; cursor: pointer; padding: 12px 0; min-height: 48px; font-size: .875rem; }
+.ll-obligations summary > span { float: right; padding-left: 8px; }
+.ll-obligations ul { list-style: none; margin: 0; padding: 0 0 12px; }
+.ll-obligations li { display: flex; align-items: baseline; gap: 10px; padding: 8px 0; font-size: .875rem; }
+.ll-obligations li > div { min-width: 0; overflow-wrap: anywhere; }
+.ll-obligation-state { display: block; color: #526160; font-size: .75rem; }
+.ll-obligations li p { color: #526160; font-size: .75rem; }
+.ll-coach { border: 1px solid #d7dfda; border-radius: 16px; padding: 16px 20px; margin: 20px 0; background: #fff; overflow-wrap: anywhere; }
+.ll-dock { border-top: 1px solid #d7dfda; padding: 16px 0 max(8px, env(safe-area-inset-bottom)); margin-top: 24px; }
+.ll-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ll-voice-status { font-size: .875rem; }
+.ll-voice-status > span { color: #08675f; }
+.ll-voice-error { overflow-wrap: anywhere; color: #526160; }
+.ll-question { margin: 20px 0; }
+.ll-reference { margin-top: 12px; }
+.ll-sheet { color: #172a2a; font: 1rem/1.6 system-ui, sans-serif; border: 1px solid #d7dfda; border-radius: 20px; padding: 24px; width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; overscroll-behavior: contain; }
+.ll-sheet::backdrop { background: rgb(23 42 42 / .45); }
+.ll-sheet-heading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.ll-sheet-heading h3 { margin: 0; }
+.ll-sheet-controls { border-top: 1px solid #d7dfda; margin-top: 20px; padding-top: 12px; }
+.ll-table-scroll { width: 100%; overflow-x: auto; margin: 20px 0; }
+.ll-table-scroll table { width: 100%; border-collapse: collapse; text-align: left; font-size: .875rem; }
+.ll-table-scroll caption { text-align: left; font-weight: 600; padding-bottom: 12px; }
+.ll-table-scroll :is(th, td) { border-bottom: 1px solid #d7dfda; padding: 12px; vertical-align: top; }
+.ll-table-scroll thead { background: #f0f5ef; }
+.ll-completion { border-left: 3px solid #17643c; border-radius: 0 12px 12px 0; padding: 16px; background: #eff8f1; }
+.ll-mobile .ll-mock { padding: 10px 14px; border-radius: 10px; border: 1px solid #d7dfda; background: #f0f5ef; color: #526160; font-size: .75rem; margin-bottom: 20px; }
+.ll-sentence-stage { margin-bottom: 24px; }
+.ll-sentence-stage .ll-button { margin-top: 8px; }
+.ll-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (min-width: 960px) { .ll-practice-grid { grid-template-columns: minmax(0, 1fr) minmax(240px, .7fr); } }
+@media (max-width: 479px) { .ll-sheet { margin: auto 8px 8px; width: calc(100vw - 16px); padding: 16px; border-radius: 20px 20px 12px 12px; max-height: calc(100dvh - 16px); } .ll-cue { padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { .ll-mobile *, .ll-sheet * { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
