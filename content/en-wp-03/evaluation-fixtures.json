@@ -1,0 +1,1024 @@
+{
+  "schema_version": "en-wp-03/1",
+  "authorship": "authored-oracle-fixtures",
+  "execution_status": "not-runtime-evaluated",
+  "cases": [
+    {
+      "id": "forms-burn-burned-burned",
+      "area": "spelling",
+      "content_ref": "verb-burn",
+      "input": {
+        "past": "burned",
+        "participle": "burned"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-burn-burned-burnt",
+      "area": "spelling",
+      "content_ref": "verb-burn",
+      "input": {
+        "past": "burned",
+        "participle": "burnt"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-burn-burnt-burned",
+      "area": "spelling",
+      "content_ref": "verb-burn",
+      "input": {
+        "past": "burnt",
+        "participle": "burned"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-burn-burnt-burnt",
+      "area": "spelling",
+      "content_ref": "verb-burn",
+      "input": {
+        "past": "burnt",
+        "participle": "burnt"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-dream-dreamed-dreamed",
+      "area": "spelling",
+      "content_ref": "verb-dream",
+      "input": {
+        "past": "dreamed",
+        "participle": "dreamed"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-dream-dreamed-dreamt",
+      "area": "spelling",
+      "content_ref": "verb-dream",
+      "input": {
+        "past": "dreamed",
+        "participle": "dreamt"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-dream-dreamt-dreamed",
+      "area": "spelling",
+      "content_ref": "verb-dream",
+      "input": {
+        "past": "dreamt",
+        "participle": "dreamed"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "forms-dream-dreamt-dreamt",
+      "area": "spelling",
+      "content_ref": "verb-dream",
+      "input": {
+        "past": "dreamt",
+        "participle": "dreamt"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Both slots accept either standard variant independently."
+      }
+    },
+    {
+      "id": "be-past-was",
+      "area": "spelling",
+      "content_ref": "verb-be",
+      "input": {
+        "past": "was"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Either is a valid past form in an isolated spelling slot; sentence agreement is evaluated separately."
+      }
+    },
+    {
+      "id": "be-past-were",
+      "area": "spelling",
+      "content_ref": "verb-be",
+      "input": {
+        "past": "were"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Either is a valid past form in an isolated spelling slot; sentence agreement is evaluated separately."
+      }
+    },
+    {
+      "id": "bet-less-common",
+      "area": "spelling",
+      "content_ref": "verb-bet",
+      "input": {
+        "past": "betted",
+        "participle": "betted"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Less common does not mean ungrammatical."
+      }
+    },
+    {
+      "id": "buy-base-agreement",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "base",
+        "text": "He buys bread every morning."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Third-person agreement belongs to the base family."
+      }
+    },
+    {
+      "id": "be-base-agreement",
+      "area": "sentence_family",
+      "content_ref": "verb-be",
+      "input": {
+        "family": "base",
+        "text": "She is at home."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Suppletive present is is a legitimate base-family use."
+      }
+    },
+    {
+      "id": "buy-agreement-error",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "base",
+        "text": "He buy bread every morning."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "A finite affirmative clause with he needs agreement."
+      }
+    },
+    {
+      "id": "be-past-agreement-error",
+      "area": "sentence_family",
+      "content_ref": "verb-be",
+      "input": {
+        "family": "past",
+        "text": "They was at home yesterday."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Ordinary indicative they takes were in the reference curriculum; do not confuse dialect description with transcript uncertainty."
+      }
+    },
+    {
+      "id": "bare-pp",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "participle",
+        "text": "Bought."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "A bare participle is not the requested complete construction."
+      }
+    },
+    {
+      "id": "missing-auxiliary",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "participle",
+        "text": "He bought bread for lunch."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "A valid past clause does not demonstrate a participle construction."
+      }
+    },
+    {
+      "id": "malformed-pp",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "participle",
+        "text": "He has buy bread."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "The perfect auxiliary needs the participle here."
+      }
+    },
+    {
+      "id": "perfect-pp",
+      "area": "sentence_family",
+      "content_ref": "verb-buy",
+      "input": {
+        "family": "participle",
+        "text": "He has bought bread for lunch."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A complete perfect construction supplies the participle."
+      }
+    },
+    {
+      "id": "passive-pp",
+      "area": "sentence_family",
+      "content_ref": "verb-beat",
+      "input": {
+        "family": "participle",
+        "text": "The egg is beaten by the cook."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A complete passive can demonstrate a verbal participle without have."
+      }
+    },
+    {
+      "id": "adjective-ambiguity",
+      "area": "sentence_family",
+      "content_ref": "verb-break",
+      "input": {
+        "family": "participle",
+        "text": "The window is broken."
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Complete but potentially adjectival; discuss its reading before deciding whether the verbal-participle obligation is demonstrated."
+      }
+    },
+    {
+      "id": "cost-other-sense",
+      "area": "sentence_family",
+      "content_ref": "verb-cost",
+      "input": {
+        "family": "participle",
+        "text": "We have costed the project."
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Grammatical budget-calculation sense; clarify cue/sense rather than labelling costed universally wrong."
+      }
+    },
+    {
+      "id": "wrong-slot",
+      "area": "spelling",
+      "content_ref": "verb-begin",
+      "input": {
+        "participle": "began"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Began is a past form; this slot requests a participle."
+      }
+    },
+    {
+      "id": "translation-since-2020-1",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We have lived here since 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A situation that began in 2020 and continues now; simple aspect is compatible with continuity."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-since-2020-2",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We've lived here since 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Same meaning as the expanded form; natural contraction."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-since-2020-3",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We have been living here since 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Highlights the lived activity/duration up to now. This context does not imply that residence is temporary or ending."
+      },
+      "expected_tense": "present_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-since-2020-4",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We've been living here since 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Highlights the lived activity/duration up to now. This context does not imply that residence is temporary or ending."
+      },
+      "expected_tense": "present_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-ps-bread-1",
+      "area": "translation",
+      "content_ref": "sentence-ps-bread",
+      "input": {
+        "text": "He buys bread every morning.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A repeated routine; buys agrees with he."
+      },
+      "expected_tense": "present_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-ps-bread-2",
+      "area": "translation",
+      "content_ref": "sentence-ps-bread",
+      "input": {
+        "text": "Every morning, he buys bread.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Same repeated routine with a moved adjunct."
+      },
+      "expected_tense": "present_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-pc-picture-1",
+      "area": "translation",
+      "content_ref": "sentence-pc-picture",
+      "input": {
+        "text": "I am drawing a tree now.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "An activity in progress at the speaking moment."
+      },
+      "expected_tense": "present_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-pc-picture-2",
+      "area": "translation",
+      "content_ref": "sentence-pc-picture",
+      "input": {
+        "text": "I'm drawing a tree now.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Same meaning as the expanded form; natural contraction."
+      },
+      "expected_tense": "present_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-pp-done-1",
+      "area": "translation",
+      "content_ref": "sentence-pp-done",
+      "input": {
+        "text": "I have already done my homework.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A completed task with present relevance; no finished past time is specified."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-pp-done-2",
+      "area": "translation",
+      "content_ref": "sentence-pp-done",
+      "input": {
+        "text": "I've already done my homework.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Same meaning as the expanded form; natural contraction."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-ppc-drawing-1",
+      "area": "translation",
+      "content_ref": "sentence-ppc-drawing",
+      "input": {
+        "text": "I have been drawing for two hours.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Activity over a period leading up to now; it may continue or have just stopped."
+      },
+      "expected_tense": "present_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "translation-ppc-drawing-2",
+      "area": "translation",
+      "content_ref": "sentence-ppc-drawing",
+      "input": {
+        "text": "I've been drawing for two hours.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Same meaning as the expanded form; natural contraction."
+      },
+      "expected_tense": "present_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "open-set-synonym",
+      "area": "translation",
+      "content_ref": "sentence-pp-done",
+      "input": {
+        "text": "I've already finished my homework.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Equivalent completion meaning; accepted examples are not an exhaustive answer whitelist."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "missing-start-point",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We live here.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Loses the specified start point; ongoingness alone is insufficient."
+      }
+    },
+    {
+      "id": "since-duration-mismatch",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We have lived here for 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "A year is a start point here; for requires a duration in this meaning."
+      }
+    },
+    {
+      "id": "since-past-only",
+      "area": "translation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We lived here in 2020.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Changes the continuing residence to a past-only assertion."
+      }
+    },
+    {
+      "id": "finite-aux-needed",
+      "area": "translation",
+      "content_ref": "sentence-pc-picture",
+      "input": {
+        "text": "I drawing a tree now.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "An -ing form alone does not provide a finite clause."
+      }
+    },
+    {
+      "id": "count-versus-duration",
+      "area": "translation",
+      "content_ref": "sentence-pp-question",
+      "input": {
+        "text": "How many boxes have they been building so far?",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Possible work-in-progress interpretation changes the completed-count context; ask about intended results instead of a universal continuous ban."
+      }
+    },
+    {
+      "id": "explanation-wrong-tense",
+      "area": "explanation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "accepted_text": "We have lived here since 2020.",
+        "tense_name": "present perfect continuous",
+        "structure": "have been plus ing"
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Translation stays accepted; correct the explanation of the actual simple-perfect structure."
+      },
+      "preserve": [
+        "translation"
+      ]
+    },
+    {
+      "id": "explanation-missing-meaning",
+      "area": "explanation",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "accepted_text": "We have lived here since 2020.",
+        "tense_name": "present perfect",
+        "structure": "subject plus have plus participle",
+        "meaning": ""
+      },
+      "expected": {
+        "decision": "incomplete",
+        "reason": "Correct name and structure do not satisfy meaning and contextual-fit obligations."
+      },
+      "preserve": [
+        "translation",
+        "tense",
+        "structure"
+      ]
+    },
+    {
+      "id": "simultaneous-evidence",
+      "area": "evidence",
+      "content_ref": "verb-buy",
+      "input": {
+        "text": "Buy means comprar. Buy, bought, bought. He buys bread. He bought it yesterday. He has bought it for lunch.",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "One utterance may contribute to several independent oral obligations; editable spelling still requires separate processed input."
+      },
+      "never_infer": [
+        "editable_spelling",
+        "completion_pause"
+      ]
+    },
+    {
+      "id": "pronunciation-not-spelling",
+      "area": "speech",
+      "content_ref": "verb-buy",
+      "input": {
+        "transcript": "bought",
+        "audio_available": false
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Correct transcript alone cannot prove pronunciation or editable spelling."
+      },
+      "never_infer": [
+        "pronunciation",
+        "editable_spelling"
+      ]
+    },
+    {
+      "id": "uncertain-variant",
+      "area": "speech",
+      "content_ref": "verb-burn",
+      "input": {
+        "transcript": "burn?",
+        "possible": [
+          "burned",
+          "burnt"
+        ],
+        "recognition": "uncertain"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Uncertain recognition requires a neutral repeat/clarification; retain accepted evidence and do not penalize or advance."
+      },
+      "never_infer": [
+        "learner_error",
+        "success",
+        "new_help_eligibility",
+        "completion"
+      ],
+      "preserve": [
+        "accepted_evidence"
+      ]
+    },
+    {
+      "id": "uncertain-tense",
+      "area": "speech",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "transcript": "We ... lived here since 2020.",
+        "possible": [
+          "have lived",
+          "lived"
+        ],
+        "recognition": "uncertain"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Uncertain recognition requires a neutral repeat/clarification; retain accepted evidence and do not penalize or advance."
+      },
+      "never_infer": [
+        "learner_error",
+        "success",
+        "new_help_eligibility",
+        "completion"
+      ],
+      "preserve": [
+        "accepted_evidence"
+      ]
+    },
+    {
+      "id": "uncertain-negative",
+      "area": "speech",
+      "content_ref": "sentence-pc-negative",
+      "input": {
+        "transcript": "He's ... coming home now.",
+        "possible": [
+          "isn't",
+          "is"
+        ],
+        "recognition": "uncertain"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Uncertain recognition requires a neutral repeat/clarification; retain accepted evidence and do not penalize or advance."
+      },
+      "never_infer": [
+        "learner_error",
+        "success",
+        "new_help_eligibility",
+        "completion"
+      ],
+      "preserve": [
+        "accepted_evidence"
+      ]
+    },
+    {
+      "id": "noise",
+      "area": "speech",
+      "content_ref": "verb-dream",
+      "input": {
+        "transcript": "",
+        "recognition": "uncertain",
+        "cause": "background noise"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Uncertain recognition requires a neutral repeat/clarification; retain accepted evidence and do not penalize or advance."
+      },
+      "never_infer": [
+        "learner_error",
+        "success",
+        "new_help_eligibility",
+        "completion"
+      ],
+      "preserve": [
+        "accepted_evidence"
+      ]
+    },
+    {
+      "id": "connected-speech-uncertain",
+      "area": "speech",
+      "content_ref": "sentence-pp-done",
+      "input": {
+        "transcript": "I ... already done my homework",
+        "recognition": "uncertain",
+        "cause": "reduced have"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "Uncertain recognition requires a neutral repeat/clarification; retain accepted evidence and do not penalize or advance."
+      },
+      "never_infer": [
+        "learner_error",
+        "success",
+        "new_help_eligibility",
+        "completion"
+      ],
+      "preserve": [
+        "accepted_evidence"
+      ]
+    },
+    {
+      "id": "connected-speech-clear",
+      "area": "speech",
+      "content_ref": "sentence-pp-done",
+      "input": {
+        "text": "I've already done my homework.",
+        "recognition": "clear",
+        "delivery": "natural linked speech with reduced auxiliary"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Natural contraction and connected speech are valid; no isolated-word recital required."
+      },
+      "expected_tense": "present_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "accent-not-error",
+      "area": "speech",
+      "content_ref": "verb-catch",
+      "input": {
+        "form": "caught",
+        "ipa": "/kɑt/",
+        "recognition": "clear"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "The cot-caught merger is a legitimate accent feature; reference /ɔ/ is not mandatory."
+      }
+    },
+    {
+      "id": "stale-evidence",
+      "area": "evidence",
+      "content_ref": "verb-buy",
+      "input": {
+        "exercise_id": "previous",
+        "current_exercise_id": "current",
+        "text": "He has bought bread."
+      },
+      "expected": {
+        "decision": "ignore",
+        "reason": "Correct language from a stale exercise cannot satisfy the current one."
+      }
+    },
+    {
+      "id": "image-not-tense",
+      "area": "image",
+      "content_ref": "verb-draw",
+      "input": {
+        "claim": "The picture has an action so only continuous is correct."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "The cue identifies draw; tense must come from the sentence meaning and grammar."
+      }
+    },
+    {
+      "id": "image-alt-not-answer",
+      "area": "image",
+      "content_ref": "verb-buy",
+      "input": {
+        "surface": "image exercise accessibility",
+        "requirement": "verb identity hidden"
+      },
+      "expected": {
+        "decision": "clarify",
+        "reason": "A descriptive alt can reveal the verb; provide an explicitly equivalent accessible mode or visible-base option, never silently score a revealed answer as hidden-cue success."
+      }
+    },
+    {
+      "id": "hint-semantic-safe",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "¿Qué quieres comunicar sobre el tiempo que llevas aquí?",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "allow",
+        "reason": "Meaning-focused question without an English form or tense name."
+      }
+    },
+    {
+      "id": "hint-retry-safe",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Prueba otra frase completa con tus propias palabras.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "allow",
+        "reason": "Invites production without supplying answer tokens."
+      }
+    },
+    {
+      "id": "hint-tense-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Usa el presente perfecto.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Names a target tense before an accepted translation."
+      }
+    },
+    {
+      "id": "hint-english-tense-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Try the present perfect continuous.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Names a target tense in English."
+      }
+    },
+    {
+      "id": "hint-full-answer",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We have lived here since 2020.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Provides a complete accepted answer."
+      }
+    },
+    {
+      "id": "hint-contracted-answer",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We've been living here since 2020.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Contraction does not make a full answer safe."
+      }
+    },
+    {
+      "id": "hint-prefix-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Start with We have been...",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Supplies answer-bearing auxiliary scaffolding."
+      }
+    },
+    {
+      "id": "hint-blank-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We ___ lived here since 2020.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "A cloze exposes most of an accepted answer."
+      }
+    },
+    {
+      "id": "hint-metalanguage-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Combine have with been and the ing form.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Indirectly reveals the target construction."
+      }
+    },
+    {
+      "id": "hint-suffix-shortcut",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "An ing ending always means continuous tense.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "A suffix alone does not identify a tense."
+      }
+    },
+    {
+      "id": "hint-ongoing-shortcut",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "It is still happening, so the simple perfect is wrong.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Incorrectly rejects the valid simple-perfect residence example."
+      }
+    },
+    {
+      "id": "hint-encoded-leak",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Initial letters: W H L H S 2020.",
+        "stage": "translation_pending",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Encoded answer exposure is still a spoiler."
+      }
+    },
+    {
+      "id": "hint-pending-no-reveal",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "We have lived here since 2020.",
+        "stage": "translation_processing",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "block",
+        "reason": "Pending processing is not an accepted translation."
+      }
+    },
+    {
+      "id": "post-acceptance-teaching",
+      "area": "hint",
+      "content_ref": "sentence-since-2020",
+      "input": {
+        "text": "Your sentence uses the present perfect: have plus lived.",
+        "stage": "translation_accepted",
+        "authorship": "authored-adversarial-fixture"
+      },
+      "expected": {
+        "decision": "allow",
+        "reason": "After acceptance, the learner attempts the explanation first; feedback can then name and explain the accepted form."
+      },
+      "prerequisite": "learner_explanation_attempt_or_explicit_help_request"
+    }
+  ]
+}
