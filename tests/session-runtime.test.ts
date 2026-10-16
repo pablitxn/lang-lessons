@@ -57,3 +57,11 @@ test('disconnect clears obsolete speaking signals so explicit restart can become
   await runtime.start(); assert.equal(controller.getSnapshot().interaction.connection, 'ready');
   runtime.stop(); controller.dispose();
 });
+test('initial offline replay and a deliberate idle stop do not show a transport failure', async () => {
+  const runtime = createSessionRuntime(createMockVoiceAdapter(), 's1');
+  const controller = createAssessmentController({ context: verbContext(), allowMock: true });
+  runtime.voice.setContext(verbContext()); runtime.voice.subscribe(controller.handleVoiceEvent);
+  assert.equal(controller.getSnapshot().systemError, null);
+  await runtime.start(); runtime.stop(); assert.equal(controller.getSnapshot().systemError, null);
+  controller.dispose();
+});
