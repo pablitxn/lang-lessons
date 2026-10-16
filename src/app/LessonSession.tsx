@@ -1,10 +1,13 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
-import type { EvidenceResult, LearnerSettings, LessonMode, LessonModuleProps, ProviderMode } from '../contracts';
+import type { EvidenceResult, LearnerSettings, LessonMode, LessonModuleProps, ProviderMode, VoiceState } from '../contracts';
 import { createMockVoiceAdapter, createRealtimeVoiceAdapter, isMockVoiceAdapter } from '../voice';
 import { VoiceControls } from '../ui/mobile';
 import { createSessionRuntime } from './session-runtime';
 
-export type LessonRenderer = (mode: LessonMode, props: LessonModuleProps) => ReactNode;
+export interface ComposedLessonProps extends LessonModuleProps {
+  connectionState: VoiceState; microphoneMuted: boolean; onStartVoice: () => void; onStopVoice: () => void;
+}
+export type LessonRenderer = (mode: LessonMode, props: ComposedLessonProps) => ReactNode;
 export function LessonSession({ mode, settings, provider, preferencesOpen, renderLesson, fallback }: {
   mode: LessonMode; settings: LearnerSettings; provider: ProviderMode; preferencesOpen: boolean;
   renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
@@ -27,7 +30,8 @@ export function LessonSession({ mode, settings, provider, preferencesOpen, rende
       .catch(() => { if (!abort.signal.aborted) setBrokerReady(false); });
     return () => abort.abort();
   }, [provider]);
-  const lesson = renderLesson?.(mode, { settings, voice: runtime.voice, sessionId: runtime.sessionId, onComplete: () => setNotice('Exercise completed.') });
+  const lesson = renderLesson?.(mode, { settings, voice: runtime.voice, sessionId: runtime.sessionId, onComplete: () => setNotice('Exercise completed.'),
+    connectionState: state.state, microphoneMuted: state.muted, onStartVoice: () => { void start(); }, onStopVoice: runtime.stop });
   async function start() {
     if (provider !== 'mock' && (!brokerReady || !consent)) { setNotice('Enable the local voice broker and agree to share audio before starting.'); return; }
     try { await runtime.start(); } catch { setNotice('The session did not start. Check the conversation status and try again.'); }
