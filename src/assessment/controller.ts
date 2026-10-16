@@ -238,7 +238,9 @@ export function createAssessmentController(options: AssessmentControllerOptions)
         case 'hint': controller.applyHint(event.hint); break;
         case 'speech': controller.setInteraction(event.speaker === 'learner' ? { learnerSpeaking: event.active } : { assistantSpeaking: event.active }); break;
         case 'state':
-          if (event.state !== 'ready' && event.state !== 'connecting') failPending('Voice is unavailable. Please retry when connected.');
+          if (event.state === 'error' || event.state === 'reconnecting'
+            || event.state === 'offline' && (pendingHint !== null || providerPending > 0
+              || Object.values(evidence).some(record => record.status === 'processing'))) failPending('Voice is unavailable. Please retry when connected.');
           if (event.state === 'ready') systemError = null;
           controller.setInteraction({ connection: event.state,
             ...(event.state === 'offline' || event.state === 'error' || event.state === 'reconnecting'
