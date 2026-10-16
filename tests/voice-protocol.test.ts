@@ -2,11 +2,12 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createRealtimeProtocol, isSafeCoachText } from '../src/voice/protocol';
 import type { AttemptRef, HintRequest, VoiceEvent } from '../src/contracts';
-import { sentenceContext, verbContext } from './helpers/assessment-fixtures';
+import { FakeClock, batch, sentenceContext, verbContext } from './helpers/assessment-fixtures';
+import { createAssessmentController } from '../src/assessment';
 
-function setup() {
+function setup(clock?: FakeClock) {
   const sent: Record<string, unknown>[] = []; const events: VoiceEvent[] = []; const output: boolean[] = [];
-  const protocol = createRealtimeProtocol({ sessionId: 's1', send: message => sent.push(message as Record<string, unknown>), emit: event => events.push(event), setAudioAllowed: allowed => output.push(allowed) });
+  const protocol = createRealtimeProtocol({ sessionId: 's1', send: message => sent.push(message as Record<string, unknown>), emit: event => events.push(event), setAudioAllowed: allowed => output.push(allowed), ...(clock ? { clock } : {}) });
   protocol.setContext(verbContext());
   const receive = (event: object) => protocol.receive(JSON.stringify(event));
   const requestId = () => ((sent.filter(event => event.type === 'response.create').at(-1)!.response as Record<string, unknown>).metadata as { request_id: string }).request_id;
@@ -73,7 +74,8 @@ test('a withheld hint is never displayed or scheduled for speech', () => {
 });
 test('known answer fragments, tense names and encoded hints fail the conservative guard', () => {
   for (const text of ['We have lived here.', 'Use the present perfect.', 'The answer is base64 encoded.', 'Try have lived here in your answer.', '```buy```']) assert.equal(isSafeCoachText(text, sentenceContext()), false, text);
-  assert.equal(isSafeCoachText('Think about the start and now.', sentenceContext()), true);
+  assert.equal(isSafeCoachText('What message do you want to express?', sentenceContext()), true);
+  assert.equal(isSafeCoachText('Start with I have.', sentenceContext()), false);
   assert.equal(isSafeCoachText('The form is bought.', verbContext()), false);
 });
 test('validated coaching waits for actual output-buffer completion before resolving a question', () => {
@@ -143,4 +145,97 @@ test('speech can remain conversational after lesson obligations are complete', (
   const id = s.requestId(); s.finish(id, { requestId: id, results: [], intent: 'question', coachText: 'Take the time you need.' });
   assert.ok(s.events.some(event => event.type === 'intent' && event.intent === 'question'));
   assert.equal(s.events.some(event => event.type === 'assessment' && event.batch.results.length > 0), false); s.protocol.dispose();
+});
+test('a delayed final question keeps a completed verb open after speech has stopped', () => {
+  const clock = new FakeClock(); let advances = 0;
+  const controller = createAssessmentController({ context: verbContext(), clock, allowMock: true, onAdvance: () => { advances++; } });
+  controller.setInteraction({ connection: 'ready' }); controller.applyBatch(batch(controller.beginAttempt(controller.getOpenObligations())));
+  const protocol = createRealtimeProtocol({ sessionId: 's1', send() {}, setAudioAllowed() {}, emit(event) {
+    controller.handleVoiceEvent(event);
+    if (event.type === 'transcript') controller.setInteraction({ questionPending: true });
+  } });
+  protocol.setContext(verbContext());
+  try {
+    protocol.receive(JSON.stringify({ type: 'input_audio_buffer.speech_started', item_id: 'question' }));
+    protocol.receive(JSON.stringify({ type: 'input_audio_buffer.speech_stopped', item_id: 'question' }));
+    clock.advance(4000); assert.equal(advances, 0);
+    protocol.receive(JSON.stringify({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'question', transcript: 'Can I ask why?' }));
+    clock.advance(4000); assert.equal(advances, 0);
+    controller.setInteraction({ questionPending: false }); clock.advance(1800); assert.equal(advances, 1);
+  } finally { protocol.dispose(); controller.dispose(); }
+});
+test('rejected pre-translation question coaching never creates an audio response', () => {
+  const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+  try {
+    s.protocol.askQuestion({ ...context, requestId: 'unsafe-question', text: 'What should I start with?' });
+    const id = s.requestId(); s.finish(id, { requestId: id, text: 'Start with I have.' });
+    assert.equal(s.sent.filter(event => event.type === 'response.create').length, 1);
+    assert.equal(s.events.some(event => event.type === 'feedback' && event.text === 'Start with I have.'), false);
+  } finally { s.protocol.dispose(); }
+});
+test('transcription timeout fails closed and never advances a completed exercise', () => {
+  const clock = new FakeClock(); let advances = 0;
+  const controller = createAssessmentController({ context: verbContext(), clock, allowMock: true, onAdvance: () => { advances++; } });
+  controller.setInteraction({ connection: 'ready' }); controller.applyBatch(batch(controller.beginAttempt(controller.getOpenObligations())));
+  const protocol = createRealtimeProtocol({ sessionId: 's1', clock, send() {}, setAudioAllowed() {}, emit: controller.handleVoiceEvent });
+  protocol.setContext(verbContext());
+  protocol.receive(JSON.stringify({ type: 'input_audio_buffer.speech_started', item_id: 'late' }));
+  protocol.receive(JSON.stringify({ type: 'input_audio_buffer.speech_stopped', item_id: 'late' }));
+  clock.advance(19999); assert.equal(advances, 0); assert.equal(controller.getSnapshot().interaction.processingCount, 1);
+  clock.advance(1); assert.equal(controller.getSnapshot().interaction.connection, 'error');
+  assert.equal(controller.getSnapshot().interaction.processingCount, 0);
+  clock.advance(5000); assert.equal(advances, 0);
+  protocol.dispose(); controller.dispose(); assert.equal(clock.tasks.size, 0);
+});
+test('outstanding transcriptions survive a same-exercise stage transition but cancel on replacement or provider error', () => {
+  const clock = new FakeClock(); const s = setup(clock); const context = sentenceContext();
+  assert.equal(context.mode, 'sentence'); if (context.mode !== 'sentence') return;
+  s.protocol.setContext(context);
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'late' }); s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'late' });
+  s.protocol.setContext({ ...context, stage: 'explanation' });
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 1);
+  s.receive({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'late', transcript: 'May I ask why?' });
+  assert.equal(s.events.filter(event => event.type === 'transcript').length, 1);
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 0);
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old-exercise' }); s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'old-exercise' });
+  s.protocol.setContext({ ...context, generation: 2 }); assert.equal(clock.tasks.size, 0);
+  s.receive({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'old-exercise', transcript: 'Old question.' });
+  assert.equal(s.events.filter(event => event.type === 'transcript').length, 1);
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'failed' }); s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'failed' });
+  s.receive({ type: 'error' }); assert.equal(clock.tasks.size, 0);
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 0);
+  assert.ok(s.events.some(event => event.type === 'error')); s.protocol.dispose();
+});
+test('pre-translation assessment feedback and hints use the same reviewed envelope as questions', () => {
+  for (const kind of ['assessment', 'hint'] as const) {
+    const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+    try {
+      if (kind === 'assessment') {
+        s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio' });
+        s.protocol.submit({ ...context, inputId: 'oral', kind: 'utterance', text: 'An attempt.', utteranceId: 'audio', attempts: [] });
+      } else s.protocol.requestHint({ ...context, requestId: 'hint', revision: 1, level: 1, target: 'translation', stage: 'translation', policy: 'guide-without-answer' });
+      const id = s.requestId(); s.finish(id, kind === 'assessment' ? { requestId: id, results: [], intent: 'question', coachText: 'Start with I have.' } : { requestId: id, text: 'Start with I have.' });
+      assert.equal(s.sent.filter(event => event.type === 'response.create').length, 1);
+      assert.equal(s.events.some(event => event.type === 'feedback' && event.text === 'Start with I have.'), false);
+    } finally { s.protocol.dispose(); }
+  }
+  const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+  s.protocol.askQuestion({ ...context, requestId: 'question', text: 'Can you guide me?' });
+  const id = s.requestId(); const approved = 'What message do you want to express?';
+  s.finish(id, { requestId: id, text: approved });
+  assert.ok(s.events.some(event => event.type === 'feedback' && event.text === approved));
+  assert.equal(s.sent.filter(event => event.type === 'response.create').length, 2); s.protocol.dispose();
+});
+test('out-of-order final transcripts release only their own hold and duplicates do not release another', () => {
+  const clock = new FakeClock(); const s = setup(clock);
+  for (const item_id of ['first', 'second']) {
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id }); s.receive({ type: 'input_audio_buffer.speech_stopped', item_id });
+  }
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 2);
+  for (const item_id of ['second', 'second']) s.receive({ type: 'conversation.item.input_audio_transcription.completed', item_id, transcript: 'A question.' });
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 1);
+  assert.equal(s.events.filter(event => event.type === 'transcript').length, 1);
+  s.receive({ type: 'conversation.item.input_audio_transcription.failed', item_id: 'first' });
+  assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 0);
+  assert.equal(clock.tasks.size, 0); s.protocol.dispose();
 });

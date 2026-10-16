@@ -69,6 +69,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
   let hint: HintResult | null = null;
   let systemError: string | null = null;
   let providerPending = 0;
+  let transcriptionsPending = 0;
   let completed = false;
   let disposed = false;
   let timer: unknown;
@@ -122,7 +123,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
   function emit() {
     refreshStage();
     interaction = { ...interaction, processingCount:
-      Object.values(evidence).filter(record => record.status === 'processing').length + (pendingHint ? 1 : 0) + providerPending };
+      Object.values(evidence).filter(record => record.status === 'processing').length + (pendingHint ? 1 : 0) + providerPending + transcriptionsPending };
     if (!disposed && !completed && context.mode !== 'sentence' && isQuiet(interaction)
       && hasAllEvidence(context.mode, context, evidence, allowMock) && !ticket) {
       ticket = { sessionId: context.sessionId, exerciseId: context.exerciseId, generation: context.generation,
@@ -150,7 +151,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     return applicable(obligation) && (context.mode !== 'sentence' || obligation === 'translation' || context.stage !== 'translation');
   }
   function failPending(message: string) {
-    providerPending = 0;
+    providerPending = 0; transcriptionsPending = 0;
     evidence = { ...evidence };
     for (const [key, record] of Object.entries(evidence)) if (record.status === 'processing') {
       evidence[key as Obligation] = { ref: record.ref, status: 'uncertain', feedback: message };
@@ -164,7 +165,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     startExercise(next) {
       if (disposed || sameExercise(context, next)) return;
       cancelTimer(); context = next; evidence = {}; results = {}; revisions = {}; seen = new Set();
-      completed = false; systemError = null; providerPending = 0; invalidateHint();
+      completed = false; systemError = null; providerPending = 0; transcriptionsPending = 0; invalidateHint();
       // Keep session connection and speaking signals; reset exercise-specific holds.
       interaction = { ...initialInteraction(), connection: interaction.connection,
         learnerSpeaking: interaction.learnerSpeaking, assistantSpeaking: interaction.assistantSpeaking,
@@ -239,7 +240,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
         case 'speech': controller.setInteraction(event.speaker === 'learner' ? { learnerSpeaking: event.active } : { assistantSpeaking: event.active }); break;
         case 'state':
           if (event.state === 'error' || event.state === 'reconnecting'
-            || event.state === 'offline' && (pendingHint !== null || providerPending > 0
+            || event.state === 'offline' && (pendingHint !== null || providerPending > 0 || transcriptionsPending > 0
               || Object.values(evidence).some(record => record.status === 'processing'))) failPending('Voice is unavailable. Please retry when connected.');
           if (event.state === 'ready') systemError = null;
           controller.setInteraction({ connection: event.state,
@@ -254,6 +255,9 @@ export function createAssessmentController(options: AssessmentControllerOptions)
         case 'presentation-hold': controller.setPresentationHold(event.id, event.held); break;
         case 'response-pending':
           if (Number.isInteger(event.count) && event.count >= 0 && event.count <= 8) { providerPending = event.count; controller.activity(); }
+          break;
+        case 'transcription-pending':
+          if (Number.isInteger(event.count) && event.count >= 0 && event.count <= 100) { transcriptionsPending = event.count; controller.activity(); }
           break;
         case 'transcript': if (sameExercise(context, event.identity)) controller.activity(); break;
         case 'feedback': if (sameExercise(context, event.identity)) controller.activity(); break;

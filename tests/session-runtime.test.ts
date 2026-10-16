@@ -123,3 +123,31 @@ test('stop cancels a claimed queued assessment without replaying it after reconn
   assert.equal(session.getSnapshot().assessment.interaction.presentationHolds.length, 0);
   session.dispose(); runtime.stop();
 });
+test('a claimed second utterance becomes conversation if the first finishes every oral obligation', async () => {
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); await runtime.start();
+  const session = createVerbSession({ voice: runtime.voice, sessionId: 's1', mode: 'verb-image',
+    claimUtterance: runtime.claimUtterance, random: () => 0, onComplete() {} });
+  try {
+    base.utterance('All oral work.', false, 'first'); base.utterance('A queued question.', false, 'second');
+    await Promise.resolve(); await Promise.resolve();
+    base.settle(base.inputs[0]!, 'accepted', { kind: 'audio', utteranceId: 'first', audioAvailable: true });
+    await Promise.resolve(); await Promise.resolve();
+    assert.equal(base.inputs.length, 2);
+    assert.equal(base.inputs[1]?.utteranceId, 'second'); assert.deepEqual(base.inputs[1]?.attempts, []);
+  } finally { session.dispose(); runtime.stop(); }
+});
+test('a claimed unclear turn after oral completion asks for clarification instead of disappearing', async () => {
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); await runtime.start();
+  const session = createVerbSession({ voice: runtime.voice, sessionId: 's1', mode: 'verb-image',
+    claimUtterance: runtime.claimUtterance, random: () => 0, onComplete() {} });
+  base.utterance('All oral work.', false, 'first'); base.utterance('', true, 'unclear-second');
+  await Promise.resolve(); await Promise.resolve();
+  base.settle(base.inputs[0]!, 'accepted', { kind: 'audio', utteranceId: 'first', audioAvailable: true });
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(base.inputs.length, 1);
+  assert.equal(session.getSnapshot().assessment.interaction.questionPending, true);
+  assert.match(session.getSnapshot().coachText, /clarify/);
+  session.dispose(); runtime.stop();
+});

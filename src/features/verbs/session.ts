@@ -82,7 +82,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       return input.attempts.length ? input.attempts.some(ref => {
         const record = current.evidence[ref.obligation];
         return record?.status === 'processing' && isCurrentAttempt(record.ref, ref);
-      }) : current.interaction.questionPending && pendingQuestionId === input.inputId;
+      }) : input.kind === 'utterance' || current.interaction.questionPending && pendingQuestionId === input.inputId;
     };
     try { Promise.resolve(voice.submit(input)).catch(() => failed(input, stillRelevant)); }
     catch { failed(input, stillRelevant); }
@@ -112,6 +112,15 @@ export function createVerbSession(options: VerbSessionOptions) {
         submit({ sessionId, exerciseId: snapshot.exerciseId, generation: snapshot.generation,
           inputId: `oral-${++sequence}`, kind: 'utterance', text: utterance.text, utteranceId: utterance.utteranceId, attempts: refs });
       }
+    } else if (utterance.uncertain) {
+      coachText = "I didn't catch that clearly. Please clarify before we move on.";
+      controller.setInteraction({ questionPending: true });
+    } else {
+      // A prior queued assessment may have completed the oral checklist. Preserve
+      // this reserved turn as conversation instead of silently consuming a question.
+      submit({ sessionId, exerciseId: snapshot.exerciseId, generation: snapshot.generation,
+        inputId: `conversation-${++sequence}`, kind: 'utterance', text: utterance.text,
+        utteranceId: utterance.utteranceId, attempts: [] });
     }
     if (!queue.length) controller.setPresentationHold(queueHold, false); else scheduleDrain();
   }

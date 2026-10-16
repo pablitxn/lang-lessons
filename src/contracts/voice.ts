@@ -22,6 +22,7 @@ export type VoiceEvent = VoiceEventBase & (
   | { type: 'state'; state: VoiceState }
   | { type: 'microphone'; muted: boolean }
   | { type: 'response-pending'; count: number }
+  | { type: 'transcription-pending'; count: number }
   | { type: 'presentation-hold'; id: string; held: boolean }
   | { type: 'speech'; speaker: 'learner' | 'assistant'; active: boolean }
   | { type: 'intent'; intent: 'question' | 'question-resolved' | 'practice' | 'pause' | 'stop' | 'change-mode' }

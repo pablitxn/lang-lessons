@@ -1,26 +1,11 @@
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
 import { SENTENCES } from '../../content';
 import { isMockVoiceAdapter } from '../../voice/mock';
+import { guardTranslationHint, guardTranslationFeedback } from '../../assessment/coaching-policy';
+export { TRANSLATION_HINTS, guardTranslationHint } from '../../assessment/coaching-policy';
 import { isQuiet, sameExercise, type Difficulty, type ExerciseContext, type LearnerInput,
   type SentenceEntry, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
 
-/** Conservative display envelope until a provider can attest to semantic hint safety. */
-export const TRANSLATION_HINTS = [
-  '¿Qué mensaje quieres comunicar?',
-  '¿Qué relación expresa el contexto entre la acción y el momento del que hablas?',
-  '¿Qué detalle del contexto falta en tu intento? Prueba otra frase completa.',
-] as const;
-const SAFE_ENGLISH_HINTS = [
-  'What message do you want to express?',
-  'How does the context relate the activity to the time you are talking about?',
-  'Which detail from the context is missing in your attempt? Try another complete sentence.',
-] as const;
-function normalizeHint(text: string) { return text.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase(); }
-export function guardTranslationHint(text: string, level: 1 | 2 | 3): { text: string; fallback: boolean } {
-  const allowed = [TRANSLATION_HINTS[level - 1]!, SAFE_ENGLISH_HINTS[level - 1]!];
-  const found = allowed.find(candidate => normalizeHint(candidate) === normalizeHint(text));
-  return found ? { text: found, fallback: false } : { text: TRANSLATION_HINTS[level - 1]!, fallback: true };
-}
 export function matchingSentences(difficulty: Difficulty, sentences = SENTENCES): readonly SentenceEntry[] {
   return sentences.filter(sentence => sentence.difficulty.grammar === difficulty.grammar
     && sentence.difficulty.vocabulary === difficulty.vocabulary);
@@ -200,7 +185,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     if (event.type === 'feedback') {
       if (!current(event.identity)) return;
       const guarded = before.sentenceStage === 'translation'
-        ? guardTranslationHint(event.text, Math.max(1, hintLevel) as 1 | 2 | 3) : { text: event.text, fallback: false };
+        ? guardTranslationFeedback(event.text) : { text: event.text, fallback: false };
       coachText = guarded.text;
       if (guarded.fallback) hintOrigin = 'authored-fallback';
       controller.handleVoiceEvent(event); publish(); return;

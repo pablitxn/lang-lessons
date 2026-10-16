@@ -29,7 +29,11 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       const external: string[] = [];
       page.on('pageerror', (error: Error) => errors.push(error.message));
       page.on('request', (request: { url(): string }) => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
+      // Own every app timer from startup; installing after a help timer already
+      // exists mixes real and controlled clocks under concurrent browser load.
+      await page.clock.install();
       await page.goto(`http://127.0.0.1:${port}/src/ui/mobile/__fixtures__/preview.html`, { waitUntil: 'networkidle' });
+      await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 10));
       await page.getByText('Fixture controls', { exact: true }).click();
       const field = page.getByRole('textbox', { name: 'Past', exact: true });
       const observations = page.getByTestId('observations');
@@ -38,9 +42,9 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       }
       await field.fill('bentt');
       assert.equal(await page.locator('.ll-spelling').count(), 0);
-      await page.waitForTimeout(300);
+      await page.clock.runFor(300);
       assert.equal(await observations.getAttribute('data-finalizations'), '0');
-      await page.waitForTimeout(500);
+      await page.clock.runFor(500);
       assert.equal(await observations.getAttribute('data-finalizations'), '1');
       await field.press('Enter');
       await field.blur();
@@ -52,12 +56,11 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       assert.equal(await page.getByRole('button', { name: 'Sound help for Past', exact: true }).count(), 0);
       await page.getByLabel('Enable sound help', { exact: true }).check();
       if (viewport.width === 390) {
-        await page.clock.install();
         await page.getByRole('button', { name: 'Sound help for Past', exact: true }).focus();
-        await page.clock.fastForward(9000);
+        await page.clock.runFor(9000);
         assert.equal(await page.getByRole('button', { name: 'Sound help for Past', exact: true }).count(), 1);
         await page.keyboard.press('Tab');
-        await page.clock.fastForward(9000);
+        await page.clock.runFor(9000);
         assert.equal(await page.getByRole('button', { name: 'Sound help for Past', exact: true }).count(), 0);
         await page.getByRole('button', { name: 'Check Past', exact: true }).click();
       }
@@ -72,7 +75,7 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       if (viewport.width === 390) {
         await page.getByLabel('Untimed help', { exact: true }).check();
         await page.getByRole('button', { name: 'Sound help for Past', exact: true }).waitFor();
-        await page.clock.fastForward(9000);
+        await page.clock.runFor(9000);
         assert.equal(await page.getByRole('button', { name: 'Sound help for Past', exact: true }).count(), 1);
         await page.getByRole('button', { name: 'Sound help for Past', exact: true }).click();
         await page.getByRole('button', { name: 'Close sound help', exact: true }).click();
@@ -91,7 +94,7 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       await field.focus();
       await field.dispatchEvent('compositionstart');
       await field.fill('ben');
-      if (viewport.width === 390) await page.clock.runFor(800); else await page.waitForTimeout(800);
+      await page.clock.runFor(800);
       assert.equal(Number(await observations.getAttribute('data-finalizations')), beforeComposition);
       await field.dispatchEvent('compositionend');
       await field.press('Enter');
