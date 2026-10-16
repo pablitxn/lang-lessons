@@ -109,3 +109,22 @@ See `docs/evidence/integration-review-2026-10-16.md` for immutable tested heads,
 the reproduced failures, repaired regressions and final browser results. Canonical
 Atlas/Notion reconciliation remains with the coordinator. Live voice/model and
 subscription tests are explicitly deferred to the user's next session.
+
+## Sentence capture-stage follow-up
+
+Independent review of `1427866ec0d6baabf7b94df8905a72bc84ee77f4` found a delayed
+transcript could acquire the next sentence stage's obligations. EN-WP-01 reproduced
+the A-pending/B-starts/A-accepted/B-final sequence, then added an adapter-owned
+capture receipt and independent protocol enforcement. Old-stage audio remains
+available for conversation with no evidence refs; a fresh response is required
+for the new stage. Outstanding transcription holds survive the stage change.
+Returning to an earlier stage and duplicate start events cannot reactivate old
+audio. The mock adapter follows the same rule.
+
+Application fix: `351c20aa5316c2f1c32b4d70338760fc7dae11e6`; browser helper
+clock correction: `24c779963d305c578cebf130ac14c892799ba611`. Parent authorized
+the narrow integration-only sentence-session change. No producer branch changed.
+The [capture-stage receipt](evidence/integration-stage-race-2026-10-16.md) records
+the reproduction, passing checks, separate fixture failure/correction and real
+voice limitations. It supersedes only the preceding readiness checkpoint, not
+its historical evidence. Canonical reconciliation remains with the coordinator.
