@@ -5,8 +5,10 @@ image-based irregular verbs, visible-base irregular verbs, and Spanish-to-Englis
 sentences. The foundation provides a responsive shell, navigation, preferences,
 shared contracts and focused policy tests. The integration branch also provides
 curriculum, mobile UI, the shared assessment controller, explicit mock simulation
-and an opt-in WebRTC adapter. Lesson feature modules are being integrated by
-their owners. Default mock mode uses no microphone or paid provider calls.
+and an opt-in WebRTC adapter. Sentence practice is composed end to end with
+translation, explanation and manual Next. The two verb feature entry points
+remain awaiting their owner's branch at this checkpoint. Default mock mode uses
+no microphone or paid provider calls.
 
 ## Local development
 
@@ -46,6 +48,7 @@ performed. With dev and/or preview already running:
 
 ```sh
 npm run test:browser -- 5174 4174
+node scripts/smoke-practice.cjs 5174 4174
 ```
 
 The helper checks 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
@@ -53,6 +56,12 @@ all routes, back navigation, reload, preference persistence, independent difficu
 owned-key reset, horizontal reflow and absence of external requests. This is
 desktop Chromium with emulated viewport sizes, not physical mobile/voice evidence.
 `SCREENSHOT_PATH=/tmp/lang-lessons-foundation.png` optionally captures one view.
+The practice helper exercises actual root/feature/controller composition using
+explicit mock acceptance fixtures. It checks sentence stages, question holds,
+preserved progress through preferences and manual Next. It is not a linguistic
+assessment. Owned UI and sentence fixtures can be run independently with
+`UX_BROWSER=1 node --import tsx --test tests/ux-browser.test.ts` and
+`SENTENCES_BROWSER=1 node --import tsx --test tests/sentences-browser.test.ts`.
 
 ## Contracts, ownership and privacy
 

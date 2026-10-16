@@ -46,3 +46,14 @@ test('pending generation alone blocks completion even before assistant audio sta
   controller.handleVoiceEvent({ sessionId: 's1', eventId: 'done', type: 'response-pending', count: 0 });
   clock.advance(1800); assert.equal(advanced, 1); controller.dispose();
 });
+test('disconnect clears obsolete speaking signals so explicit restart can become quiet', async () => {
+  const base = createMockVoiceAdapter(); const runtime = createSessionRuntime(base, 's1');
+  const controller = createAssessmentController({ context: verbContext(), allowMock: true });
+  runtime.voice.setContext(verbContext()); runtime.voice.subscribe(controller.handleVoiceEvent); await runtime.start();
+  base.simulateSpeech('learner', true); base.simulateSpeech('assistant', true);
+  runtime.stop();
+  assert.equal(controller.getSnapshot().interaction.learnerSpeaking, false);
+  assert.equal(controller.getSnapshot().interaction.assistantSpeaking, false);
+  await runtime.start(); assert.equal(controller.getSnapshot().interaction.connection, 'ready');
+  runtime.stop(); controller.dispose();
+});

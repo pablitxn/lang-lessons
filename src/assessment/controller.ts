@@ -240,12 +240,14 @@ export function createAssessmentController(options: AssessmentControllerOptions)
         case 'state':
           if (event.state !== 'ready' && event.state !== 'connecting') failPending('Voice is unavailable. Please retry when connected.');
           if (event.state === 'ready') systemError = null;
-          controller.setInteraction({ connection: event.state }); break;
+          controller.setInteraction({ connection: event.state,
+            ...(event.state === 'offline' || event.state === 'error' || event.state === 'reconnecting'
+              ? { learnerSpeaking: false, assistantSpeaking: false } : {}) }); break;
         case 'intent':
           if (event.intent === 'question' || event.intent === 'question-resolved') controller.setInteraction({ questionPending: event.intent === 'question' });
           else controller.setInteraction({ intent: event.intent });
           break;
-        case 'error': failPending(event.message); controller.setInteraction({ connection: 'error' }); break;
+        case 'error': failPending(event.message); controller.setInteraction({ connection: 'error', learnerSpeaking: false, assistantSpeaking: false }); break;
         case 'microphone': controller.activity(); break;
         case 'presentation-hold': controller.setPresentationHold(event.id, event.held); break;
         case 'response-pending':
