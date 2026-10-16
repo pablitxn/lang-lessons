@@ -1,17 +1,19 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { DEFAULT_SETTINGS, type LearnerSettings, type LessonMode } from '../contracts';
+import { DEFAULT_SETTINGS, type LearnerSettings, type LessonMode, type ProviderMode } from '../contracts';
 import { browserStorage, loadSettings, resetSettings, saveSettings } from '../platform/settings-store';
 import { MODES, modeHref, resolveMode } from './routes';
+import { LessonSession, type LessonRenderer } from './LessonSession';
 import './global.css';
 
 /** The integration owner supplies complete feature elements after worker branches land. */
-export interface AppProps { lessons?: Partial<Record<LessonMode, ReactNode>> }
+export interface AppProps { lessons?: Partial<Record<LessonMode, ReactNode>>; renderLesson?: LessonRenderer }
 
-export function App({ lessons = {} }: AppProps) {
+export function App({ lessons = {}, renderLesson }: AppProps) {
   const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
   const [mode, setMode] = useState(() => resolveMode(window.location.hash, settings.preferredMode));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notice, setNotice] = useState('');
+  const [provider, setProvider] = useState<ProviderMode>('mock');
   const current = MODES.find(item => item.id === mode)!;
 
   useEffect(() => {
@@ -66,22 +68,19 @@ export function App({ lessons = {} }: AppProps) {
           <span className="mode-number" aria-hidden="true">0{index + 1}</span><span>{item.short}</span>
         </a>)}
       </nav>
-      <div className="workspace-grid">
-        <section className="lesson-panel panel" aria-labelledby="lesson-title">
-          <div className="section-heading"><span className="eyebrow">Your practice space</span><span className="preview-badge">Foundation preview</span></div>
-          <h2 id="lesson-title">{current.title}</h2><p className="lesson-description">{current.description}</p>
-          {lessons[mode] ?? <div className="lesson-outline">
-            <div className="outline-symbol" aria-hidden="true">{mode === 'sentence' ? 'Aa' : mode === 'verb-image' ? '◌' : 'abc'}</div>
-            <h3>{mode === 'sentence' ? 'First translate. Then explain.' : 'One verb. Four ways to learn.'}</h3>
-            <p>{mode === 'sentence' ? 'Practice an oral translation, identify its tense, and explain the structure and meaning.' : `Write ${current.editableForms} forms, say the meaning in Spanish, pronounce all three forms, and create three original sentences.`}</p>
-            <p className="integration-note" role="status">The lesson module is awaiting integration. Navigation and preferences are available in this preview.</p>
-          </div>}
-        </section>
-        <aside className="practice-aside" aria-labelledby="practice-heading">
-          <div className="panel session-panel"><span className="status-dot" aria-hidden="true"/><span className="eyebrow">Microphone off</span><h2 id="practice-heading">Room for conversation</h2><p>Ask a question, try again, or pause whenever you need.</p><p className="muted">This foundation preview makes no microphone or provider requests.</p></div>
-          <div className="practice-note"><span aria-hidden="true">+</span><p>{mode === 'sentence' ? 'More than one translation can be right. Context matters.' : 'A picture suggests an action. Your sentence gives it a tense.'}</p></div>
-        </aside>
+      <div className="provider-choice"><label htmlFor="voice-provider">Session mode</label>
+        <select id="voice-provider" value={provider} onChange={event => setProvider(event.target.value as ProviderMode)}>
+          <option value="mock">Mock · no microphone or charges</option><option value="openai-realtime">Live voice · requires local setup</option>
+        </select>
       </div>
+      <h2 id="lesson-title">{current.title}</h2><p className="lesson-description">{current.description}</p>
+      <LessonSession key={`${mode}:${provider}`} mode={mode} settings={settings} provider={provider} preferencesOpen={settingsOpen}
+        renderLesson={renderLesson} fallback={lessons[mode] ?? <div className="lesson-outline">
+          <div className="outline-symbol" aria-hidden="true">{mode === 'sentence' ? 'Aa' : mode === 'verb-image' ? '◌' : 'abc'}</div>
+          <h3>{mode === 'sentence' ? 'First translate. Then explain.' : 'One verb. Four ways to learn.'}</h3>
+          <p>{mode === 'sentence' ? 'Practice an oral translation, identify its tense, and explain the structure and meaning.' : `Write ${current.editableForms} forms, say the meaning in Spanish, pronounce all three forms, and create three original sentences.`}</p>
+          <p className="integration-note" role="status">The lesson module is awaiting integration. Navigation, preferences and session controls are available.</p>
+        </div>} />
       <p className="sr-only" aria-live="polite">{notice}</p>
     </main>
     <footer>Local development · No audio or learning history stored</footer>

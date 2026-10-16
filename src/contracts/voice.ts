@@ -16,12 +16,15 @@ export interface LearnerInput extends ExerciseIdentity {
   /** Only real audio transport may supply this reference; text is not pronunciation. */
   utteranceId?: string;
 }
+export interface LearnerQuestion extends ExerciseIdentity { requestId: string; text: string }
 interface VoiceEventBase { eventId: string; sessionId: string }
 export type VoiceEvent = VoiceEventBase & (
   | { type: 'state'; state: VoiceState }
   | { type: 'microphone'; muted: boolean }
+  | { type: 'response-pending'; count: number }
+  | { type: 'presentation-hold'; id: string; held: boolean }
   | { type: 'speech'; speaker: 'learner' | 'assistant'; active: boolean }
-  | { type: 'intent'; intent: 'question' | 'question-resolved' | 'pause' | 'stop' | 'change-mode' }
+  | { type: 'intent'; intent: 'question' | 'question-resolved' | 'practice' | 'pause' | 'stop' | 'change-mode' }
   | { type: 'transcript'; identity: ExerciseIdentity; utteranceId: string; text: string; final: boolean; uncertain: boolean }
   | { type: 'assessment'; batch: AssessmentBatch }
   | { type: 'hint'; hint: HintResult }
@@ -36,6 +39,10 @@ export interface VoiceAdapter {
   setContext(context: ExerciseContext): void;
   submit(input: LearnerInput): Promise<void>;
   requestHint(request: HintRequest): Promise<void>;
+  /** Cancel hint generation/playback after editing, an attempt or a stage change. */
+  cancelPendingHints?(): void;
+  /** Questions are conversational input, never oral assessment evidence. */
+  askQuestion?(question: LearnerQuestion): Promise<void>;
   interrupt(): void;
   setMuted(muted: boolean): void;
   /** Idempotent; stop tracks, output audio, timers, fetches and data channels. */

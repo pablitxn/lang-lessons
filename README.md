@@ -3,9 +3,10 @@
 A mobile-first English-learning app foundation with three practice modes:
 image-based irregular verbs, visible-base irregular verbs, and Spanish-to-English
 sentences. The foundation provides a responsive shell, navigation, preferences,
-shared contracts and focused policy tests. Lesson modules and voice adapters are
-separately owned work packages awaiting integration; this preview does not yet
-conduct lessons or record speech.
+shared contracts and focused policy tests. The integration branch also provides
+curriculum, mobile UI, the shared assessment controller, explicit mock simulation
+and an opt-in WebRTC adapter. Lesson feature modules are being integrated by
+their owners. Default mock mode uses no microphone or paid provider calls.
 
 ## Local development
 
@@ -66,8 +67,9 @@ Only help, untimed-help, difficulty and preferred-mode settings persist under
 analytics identifier or learning history is stored. Clearing preferences removes
 only that key. Blocked/malformed storage falls back to in-memory defaults.
 
-Continuous voice is designed around one provider-neutral session and a same-origin
-SDP broker with permanent credentials only on the server. EN-WP-04 owns the
-deterministic mock, provider adapter and reducer. Real calls require separately
-scoped credentials, budget and authorization; no real pronunciation, latency,
-retention or cost validation has occurred in this foundation task.
+Continuous voice uses one provider-neutral session and a same-origin SDP broker
+with permanent credentials only on the server. Run the disabled-by-default local
+broker with `npm run dev:voice`. See [voice integration](docs/voice-integration.md)
+for adapter/controller APIs, setup, privacy and limits. Real calls require
+separately scoped credentials, budget and authorization; no real pronunciation,
+latency, retention or cost validation has occurred in this task.

@@ -1,0 +1,128 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import { createRealtimeProtocol, isSafeCoachText } from '../src/voice/protocol';
+import type { AttemptRef, HintRequest, VoiceEvent } from '../src/contracts';
+import { sentenceContext, verbContext } from './helpers/assessment-fixtures';
+
+function setup() {
+  const sent: Record<string, unknown>[] = []; const events: VoiceEvent[] = []; const output: boolean[] = [];
+  const protocol = createRealtimeProtocol({ sessionId: 's1', send: message => sent.push(message as Record<string, unknown>), emit: event => events.push(event), setAudioAllowed: allowed => output.push(allowed) });
+  protocol.setContext(verbContext());
+  const receive = (event: object) => protocol.receive(JSON.stringify(event));
+  const requestId = () => ((sent.filter(event => event.type === 'response.create').at(-1)!.response as Record<string, unknown>).metadata as { request_id: string }).request_id;
+  const finish = (id: string, payload: object) => receive({ type: 'response.done', response: { id: `r-${id}`, metadata: { request_id: id }, status: 'completed', output: [{ type: 'message', content: [{ type: 'text', text: JSON.stringify(payload) }] }] } });
+  return { protocol, sent, events, output, receive, requestId, finish };
+}
+const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'pronunciation:base', attemptId: 'a1', revision: 1 };
+
+test('transcripts without a captured audio item cannot call the model or certify pronunciation', () => {
+  const s = setup(); s.protocol.submit({ ...verbContext(), inputId: 'text', kind: 'utterance', text: 'buy', utteranceId: 'invented', attempts: [ref] });
+  assert.equal(s.sent.length, 0);
+  const event = s.events.find(event => event.type === 'assessment');
+  assert.equal(event?.type === 'assessment' && event.batch.results[0]?.status, 'uncertain'); s.protocol.dispose();
+});
+test('actual audio references and response metadata correlate independent assessments', () => {
+  const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio-1' });
+  s.protocol.submit({ ...verbContext(), inputId: 'speech', kind: 'utterance', text: 'buy', utteranceId: 'audio-1', attempts: [ref] });
+  const id = s.requestId(); const response = s.sent.find(event => event.type === 'response.create')!.response as Record<string, unknown>;
+  assert.equal(response.conversation, 'none'); assert.deepEqual((response.input as object[])[0], { type: 'item_reference', id: 'audio-1' });
+  s.finish(id, { requestId: id, results: [{ obligation: ref.obligation, status: 'accepted', audioClear: true, feedback: 'Clear pronunciation.' }], intent: 'practice' });
+  const event = s.events.find(event => event.type === 'assessment');
+  assert.equal(event?.type === 'assessment' && event.batch.results[0]?.status, 'accepted');
+  assert.equal(event?.type === 'assessment' && event.batch.results[0]?.ref.attemptId, 'a1'); s.protocol.dispose();
+});
+test('audio uncertainty overrides a claimed model acceptance or learner error', () => {
+  for (const status of ['accepted', 'incorrect']) {
+    const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio-1' });
+    s.protocol.submit({ ...verbContext(), inputId: 'speech', kind: 'utterance', text: 'buy', utteranceId: 'audio-1', attempts: [ref] });
+    const id = s.requestId(); s.finish(id, { requestId: id, results: [{ obligation: ref.obligation, status, audioClear: false, feedback: 'Claimed result.' }], intent: 'practice' });
+    const event = s.events.find(event => event.type === 'assessment');
+    assert.equal(event?.type === 'assessment' && event.batch.results[0]?.status, 'uncertain'); s.protocol.dispose();
+  }
+});
+test('unknown obligation, duplicate output and mismatched request IDs cannot create success', () => {
+  for (const payload of [
+    (id: string) => ({ requestId: id, results: [{ obligation: 'translation', status: 'accepted', audioClear: true, feedback: 'Accepted.' }], intent: 'practice' }),
+    (_id: string) => ({ requestId: 'wrong', results: [], intent: 'practice' }),
+  ]) {
+    const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio-1' });
+    s.protocol.submit({ ...verbContext(), inputId: 'speech', kind: 'utterance', text: 'buy', utteranceId: 'audio-1', attempts: [ref] });
+    const id = s.requestId(); s.finish(id, payload(id)); s.finish(id, payload(id));
+    assert.equal(s.events.filter(event => event.type === 'assessment').length, 1);
+    assert.equal(s.events.some(event => event.type === 'assessment' && event.batch.results.some(result => result.status === 'accepted')), false);
+    s.protocol.dispose();
+  }
+});
+test('old exercise results and late response creation are ignored or cancelled', () => {
+  const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio-1' });
+  s.protocol.submit({ ...verbContext(), inputId: 'speech', kind: 'utterance', text: 'buy', utteranceId: 'audio-1', attempts: [ref] });
+  const id = s.requestId(); s.protocol.setContext({ ...verbContext(), generation: 2 });
+  s.receive({ type: 'response.created', response: { id: 'old-response', metadata: { request_id: id } } });
+  s.finish(id, { requestId: id, results: [{ obligation: ref.obligation, status: 'accepted', audioClear: true, feedback: 'Clear.' }], intent: 'practice' });
+  assert.equal(s.events.some(event => event.type === 'assessment'), false);
+  assert.ok(s.sent.some(event => event.type === 'response.cancel' && event.response_id === 'old-response')); s.protocol.dispose();
+});
+test('a withheld hint is never displayed or scheduled for speech', () => {
+  const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+  const hint: HintRequest = { ...context, requestId: 'h1', revision: 1, level: 1, target: 'translation', stage: 'translation', policy: 'guide-without-answer' };
+  s.protocol.requestHint(hint); const id = s.requestId();
+  s.finish(id, { requestId: id, text: 'Use the present perfect: We have lived here since 2020.' });
+  assert.equal(s.events.some(event => event.type === 'hint'), false);
+  assert.equal(s.sent.filter(event => event.type === 'response.create').length, 1); assert.equal(s.output.includes(true), false);
+  s.protocol.dispose();
+});
+test('known answer fragments, tense names and encoded hints fail the conservative guard', () => {
+  for (const text of ['We have lived here.', 'Use the present perfect.', 'The answer is base64 encoded.', 'Try have lived here in your answer.', '```buy```']) assert.equal(isSafeCoachText(text, sentenceContext()), false, text);
+  assert.equal(isSafeCoachText('Think about the start and now.', sentenceContext()), true);
+  assert.equal(isSafeCoachText('The form is bought.', verbContext()), false);
+});
+test('validated coaching waits for actual output-buffer completion before resolving a question', () => {
+  const s = setup(); s.protocol.askQuestion({ ...verbContext(), requestId: 'q1', text: 'Can you help?' });
+  const questionId = s.requestId(); s.finish(questionId, { requestId: questionId, text: 'Think about the action in a clear situation.' });
+  const speechId = s.requestId(); assert.notEqual(speechId, questionId);
+  s.receive({ type: 'response.created', response: { id: 'speech-response', metadata: { request_id: speechId } } });
+  s.receive({ type: 'output_audio_buffer.started', response_id: 'speech-response' });
+  s.receive({ type: 'response.done', response: { id: 'speech-response', metadata: { request_id: speechId }, status: 'completed', output: [] } });
+  assert.equal(s.events.some(event => event.type === 'intent' && event.intent === 'question-resolved'), false);
+  assert.equal(s.events.filter(event => event.type === 'response-pending').at(-1)?.count, 1);
+  s.receive({ type: 'output_audio_buffer.stopped', response_id: 'speech-response' });
+  assert.ok(s.events.some(event => event.type === 'intent' && event.intent === 'question-resolved'));
+  assert.equal(s.events.filter(event => event.type === 'response-pending').at(-1)?.count, 0); s.protocol.dispose();
+});
+test('malformed provider JSON and unrequested audio never become trusted feedback', () => {
+  const s = setup(); s.protocol.receive('{invalid'); s.receive({ type: 'output_audio_buffer.started', response_id: 'unknown' });
+  assert.ok(s.events.some(event => event.type === 'error' && event.code === 'invalid-event'));
+  assert.equal(s.output.includes(true), false); s.protocol.dispose();
+});
+test('editing can cancel a pending hint before its text or speech is emitted', () => {
+  const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+  s.protocol.requestHint({ ...context, requestId: 'h1', revision: 1, level: 1, target: 'translation', stage: 'translation', policy: 'guide-without-answer' });
+  const id = s.requestId(); s.protocol.cancelPendingHints();
+  s.finish(id, { requestId: id, text: 'Think about the start and now.' });
+  assert.equal(s.events.some(event => event.type === 'hint'), false);
+  assert.equal(s.sent.filter(event => event.type === 'response.create').length, 1); s.protocol.dispose();
+});
+test('late speech-stop events cannot clear a newer learner utterance', () => {
+  const s = setup();
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old' });
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'new' });
+  s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'old' });
+  assert.equal(s.events.filter((event): event is Extract<VoiceEvent, { type: 'speech' }> => event.type === 'speech' && event.speaker === 'learner').at(-1)?.active, true);
+  s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'new' });
+  assert.equal(s.events.filter((event): event is Extract<VoiceEvent, { type: 'speech' }> => event.type === 'speech' && event.speaker === 'learner').at(-1)?.active, false); s.protocol.dispose();
+});
+test('sentence explanation retains the actual accepted translation and clears it for a new exercise', () => {
+  const s = setup(); const context = sentenceContext(); s.protocol.setContext(context);
+  const translation: AttemptRef = { ...context, obligation: 'translation', attemptId: 't1', revision: 1 };
+  const learnerText = 'We have been living here since 2020.';
+  s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'translation-audio' });
+  s.protocol.submit({ ...context, inputId: 'translation', kind: 'utterance', text: learnerText, utteranceId: 'translation-audio', attempts: [translation] });
+  const id = s.requestId(); s.finish(id, { requestId: id, results: [{ obligation: 'translation', status: 'accepted', audioClear: true, feedback: 'Your meaning fits.' }], intent: 'practice' });
+  assert.equal(context.mode, 'sentence'); if (context.mode !== 'sentence') return;
+  s.protocol.setContext({ ...context, stage: 'explanation' });
+  s.protocol.askQuestion({ ...context, requestId: 'q1', text: 'Can I explain this form?' });
+  assert.ok(JSON.stringify(s.sent.at(-1)).includes(learnerText));
+  s.protocol.setContext({ ...context, generation: 2 });
+  s.protocol.askQuestion({ ...context, generation: 2, requestId: 'q2', text: 'Can I try?' });
+  assert.ok(!JSON.stringify(s.sent.at(-1)).includes(learnerText)); s.protocol.dispose();
+});
