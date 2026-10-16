@@ -1,0 +1,2054 @@
+{
+  "schema_version": "en-wp-03/1",
+  "authorship": "authored-reference-content",
+  "inventory_id": "exact25-2026-10-16",
+  "phonetic_reference": "Broad rhotic teaching IPA; vowel length marks omitted. This is guidance, not an accent whitelist.",
+  "sound_guides_es": {
+    "i": "Vocal alta anterior: aproxima una i, sin convertirla en diptongo.",
+    "ɪ": "Vocal anterior breve y relajada, distinta de la i española; no la alargues para imitar /i/.",
+    "ɛ": "Vocal anterior abierta, cercana a una e abierta.",
+    "æ": "Abre la boca más que para e; no es exactamente la a española.",
+    "ʌ": "Vocal central relajada; evita una u española.",
+    "ɝ": "Vocal central con color de r inglesa; no hagas vibrar la lengua como en la r española.",
+    "ɔ": "Vocal posterior redondeada; algunas variedades usan /ɑ/ aquí y también son válidas.",
+    "u": "Vocal alta posterior; aproxima una u sin añadir otra vocal.",
+    "eɪ": "Desliza de e hacia i dentro de una sola sílaba.",
+    "aɪ": "Desliza de a hacia i dentro de una sola sílaba.",
+    "oʊ": "Desliza de o hacia una u breve; otras variedades usan /əʊ/.",
+    "ə": "Vocal central débil en una sílaba sin acento; no pronuncies cada vocal con la misma fuerza.",
+    "ŋ": "Nasal con la lengua atrás, como al final de ring; no añadas una g ni otra sílaba.",
+    "z": "Haz vibrar la voz en la consonante final; no la conviertas siempre en s.",
+    "tʃ": "Consonante parecida a la ch española.",
+    "r": "La r inglesa no suele ser vibrante; la ausencia de r en acentos no róticos también puede ser válida."
+  },
+  "verbs": [
+    {
+      "id": "verb-be",
+      "inventory_order": 1,
+      "lemma": "be",
+      "meanings_es": [
+        "ser",
+        "estar"
+      ],
+      "cue_sense": "identity or location",
+      "forms": {
+        "base": [
+          {
+            "text": "be",
+            "ipa": "/bi/",
+            "sound_guide_refs": [
+              "i"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "was",
+            "ipa": "/wʌz/",
+            "sound_guide_refs": [
+              "ʌ",
+              "z"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "were",
+            "ipa": "/wɝ/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "been",
+            "ipa": "/bɪn/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She is at home.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "They were at home yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has been at home all day.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A person inside a house, with an unobtrusive location marker; no clock.",
+        "alt": "A person inside a house, with an unobtrusive location marker.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Present family includes am/is/are. Was agrees with I/he/she/it in ordinary indicative clauses; were with you/we/they. Contextual subjunctive were is valid.",
+        "Been may be /bɪn/, /bɛn/ or /biːn/ by accent/context; do not require a single reference accent."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-beat",
+      "inventory_order": 2,
+      "lemma": "beat",
+      "meanings_es": [
+        "batir",
+        "vencer"
+      ],
+      "cue_sense": "beat an egg",
+      "forms": {
+        "base": [
+          {
+            "text": "beat",
+            "ipa": "/bit/",
+            "sound_guide_refs": [
+              "i"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "beat",
+            "ipa": "/bit/",
+            "sound_guide_refs": [
+              "i"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "beaten",
+            "ipa": "/ˈbitən/",
+            "sound_guide_refs": [
+              "i",
+              "ə"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He beats an egg for breakfast.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He beat an egg yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has beaten an egg for the cake.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A hand using a whisk in a bowl of eggs; no branding.",
+        "alt": "A hand using a whisk in a bowl of eggs.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Beat means defeat or strike rhythmically as well as whisk. Beaten is the teaching participle. An adjective such as beat meaning exhausted does not by itself demonstrate the requested verbal participle."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-become",
+      "inventory_order": 3,
+      "lemma": "become",
+      "meanings_es": [
+        "convertirse en",
+        "llegar a ser"
+      ],
+      "cue_sense": "change of state",
+      "forms": {
+        "base": [
+          {
+            "text": "become",
+            "ipa": "/bɪˈkʌm/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ʌ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ],
+        "past": [
+          {
+            "text": "became",
+            "ipa": "/bɪˈkeɪm/",
+            "sound_guide_refs": [
+              "eɪ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ],
+        "participle": [
+          {
+            "text": "become",
+            "ipa": "/bɪˈkʌm/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ʌ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "Ice becomes water in the sun.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "The room became quiet.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "The room has become quiet.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "An ice cube turning into a puddle; avoid a time-labelled sequence.",
+        "alt": "An ice cube turning into a puddle.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-begin",
+      "inventory_order": 4,
+      "lemma": "begin",
+      "meanings_es": [
+        "empezar",
+        "comenzar"
+      ],
+      "cue_sense": "start an activity",
+      "forms": {
+        "base": [
+          {
+            "text": "begin",
+            "ipa": "/bɪˈɡɪn/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ],
+        "past": [
+          {
+            "text": "began",
+            "ipa": "/bɪˈɡæn/",
+            "sound_guide_refs": [
+              "ɪ",
+              "æ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ],
+        "participle": [
+          {
+            "text": "begun",
+            "ipa": "/bɪˈɡʌn/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ʌ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "The class begins at nine.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "The class began at nine yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "The class has begun.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A runner at a starting line with an official raising a flag.",
+        "alt": "A runner at a starting line with an official raising a flag.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-bend",
+      "inventory_order": 5,
+      "lemma": "bend",
+      "meanings_es": [
+        "doblar",
+        "doblarse"
+      ],
+      "cue_sense": "change shape",
+      "forms": {
+        "base": [
+          {
+            "text": "bend",
+            "ipa": "/bɛnd/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "bent",
+            "ipa": "/bɛnt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "bent",
+            "ipa": "/bɛnt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She bends the wire carefully.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She bent the wire yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has bent the wire into a circle.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Hands curving a flexible wire; no sharp ends.",
+        "alt": "Hands curving a flexible wire.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-bet",
+      "inventory_order": 6,
+      "lemma": "bet",
+      "meanings_es": [
+        "apostar"
+      ],
+      "cue_sense": "make a prediction as a wager",
+      "forms": {
+        "base": [
+          {
+            "text": "bet",
+            "ipa": "/bɛt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "bet",
+            "ipa": "/bɛt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "betted",
+            "ipa": "/ˈbɛtɪd/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ɛ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ],
+        "participle": [
+          {
+            "text": "bet",
+            "ipa": "/bɛt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "betted",
+            "ipa": "/ˈbɛtɪd/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ɛ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "They bet on the result for fun.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "They bet on the result yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "They have bet on the result before.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Two adults making playful predictions about a game using plain counters; no money or betting brands.",
+        "alt": "Two adults making playful predictions about a game using plain counters.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Bet is the teaching default; betted is a less common standard past/participle variant. Do not penalize it solely for ending in -ed."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table",
+        "mw-bet"
+      ]
+    },
+    {
+      "id": "verb-bite",
+      "inventory_order": 7,
+      "lemma": "bite",
+      "meanings_es": [
+        "morder"
+      ],
+      "cue_sense": "bite food",
+      "forms": {
+        "base": [
+          {
+            "text": "bite",
+            "ipa": "/baɪt/",
+            "sound_guide_refs": [
+              "aɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "bit",
+            "ipa": "/bɪt/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "bitten",
+            "ipa": "/ˈbɪtən/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ə"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He bites an apple at lunch.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He bit an apple yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has bitten the apple.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A person taking a bite from an apple.",
+        "alt": "A person taking a bite from an apple.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-bleed",
+      "inventory_order": 8,
+      "lemma": "bleed",
+      "meanings_es": [
+        "sangrar"
+      ],
+      "cue_sense": "lose blood",
+      "forms": {
+        "base": [
+          {
+            "text": "bleed",
+            "ipa": "/blid/",
+            "sound_guide_refs": [
+              "i"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "bled",
+            "ipa": "/blɛd/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "bled",
+            "ipa": "/blɛd/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "A small cut sometimes bleeds.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "The small cut bled briefly.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "The small cut has bled a little.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A tiny red drop next to a small finger scratch and a clean bandage; no graphic injury.",
+        "alt": "A tiny red drop next to a small finger scratch and a clean bandage.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-blow",
+      "inventory_order": 9,
+      "lemma": "blow",
+      "meanings_es": [
+        "soplar"
+      ],
+      "cue_sense": "move air",
+      "forms": {
+        "base": [
+          {
+            "text": "blow",
+            "ipa": "/bloʊ/",
+            "sound_guide_refs": [
+              "oʊ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "blew",
+            "ipa": "/blu/",
+            "sound_guide_refs": [
+              "u"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "blown",
+            "ipa": "/bloʊn/",
+            "sound_guide_refs": [
+              "oʊ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She blows soap bubbles.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She blew soap bubbles yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has blown a large bubble.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A person gently blowing soap bubbles through a plain ring.",
+        "alt": "A person gently blowing soap bubbles through a plain ring.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-break",
+      "inventory_order": 10,
+      "lemma": "break",
+      "meanings_es": [
+        "romper",
+        "romperse"
+      ],
+      "cue_sense": "damage an object",
+      "forms": {
+        "base": [
+          {
+            "text": "break",
+            "ipa": "/breɪk/",
+            "sound_guide_refs": [
+              "eɪ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "broke",
+            "ipa": "/broʊk/",
+            "sound_guide_refs": [
+              "oʊ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "broken",
+            "ipa": "/ˈbroʊkən/",
+            "sound_guide_refs": [
+              "oʊ",
+              "ə",
+              "r"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He sometimes breaks a pencil by accident.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He broke a pencil yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has broken the pencil.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A pencil snapping between two hands; no glass shards.",
+        "alt": "A pencil snapping between two hands.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-bring",
+      "inventory_order": 11,
+      "lemma": "bring",
+      "meanings_es": [
+        "traer"
+      ],
+      "cue_sense": "carry toward a reference point",
+      "forms": {
+        "base": [
+          {
+            "text": "bring",
+            "ipa": "/brɪŋ/",
+            "sound_guide_refs": [
+              "ɪ",
+              "ŋ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "brought",
+            "ipa": "/brɔt/",
+            "sound_guide_refs": [
+              "ɔ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "brought",
+            "ipa": "/brɔt/",
+            "sound_guide_refs": [
+              "ɔ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She brings fruit to our house.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She brought fruit yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has brought fruit for everyone.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A guest carrying a fruit bowl toward the viewer at a doorway; distinguish direction from taking away.",
+        "alt": "A guest carrying a fruit bowl toward the viewer at a doorway.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Reference-point motion matters: Spanish traer rather than an unconditional equivalence with llevar."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-build",
+      "inventory_order": 12,
+      "lemma": "build",
+      "meanings_es": [
+        "construir"
+      ],
+      "cue_sense": "make a structure",
+      "forms": {
+        "base": [
+          {
+            "text": "build",
+            "ipa": "/bɪld/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "built",
+            "ipa": "/bɪlt/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "built",
+            "ipa": "/bɪlt/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "They build small wooden boxes.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "They built a box yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "They have built a box.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Hands assembling a small plain wooden box.",
+        "alt": "Hands assembling a small plain wooden box.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-burn",
+      "inventory_order": 13,
+      "lemma": "burn",
+      "meanings_es": [
+        "quemar",
+        "quemarse"
+      ],
+      "cue_sense": "damage through heat",
+      "forms": {
+        "base": [
+          {
+            "text": "burn",
+            "ipa": "/bɝn/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "burned",
+            "ipa": "/bɝnd/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "burnt",
+            "ipa": "/bɝnt/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "burned",
+            "ipa": "/bɝnd/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "burnt",
+            "ipa": "/bɝnt/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "Toast burns if the heat is too high.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "I burned the toast yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "I have burnt the toast.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Dark toast emerging from a plain toaster with a small wisp of smoke; no dangerous flames.",
+        "alt": "Dark toast emerging from a plain toaster with a small wisp of smoke.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Burned and burnt are valid in both past and participle slots. Mixed choices across the two slots are valid. Burned is common in US verb use; burnt is common in UK use and adjectival uses. No accent lock."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table",
+        "mw-burn"
+      ]
+    },
+    {
+      "id": "verb-burst",
+      "inventory_order": 14,
+      "lemma": "burst",
+      "meanings_es": [
+        "estallar",
+        "reventar"
+      ],
+      "cue_sense": "split suddenly",
+      "forms": {
+        "base": [
+          {
+            "text": "burst",
+            "ipa": "/bɝst/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "burst",
+            "ipa": "/bɝst/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "burst",
+            "ipa": "/bɝst/",
+            "sound_guide_refs": [
+              "ɝ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "A balloon bursts when it hits a thorn.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "The balloon burst a moment ago.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "The balloon has burst.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A balloon popping with a few pieces and a motion mark; no text.",
+        "alt": "A balloon popping with a few pieces and a motion mark.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-buy",
+      "inventory_order": 15,
+      "lemma": "buy",
+      "meanings_es": [
+        "comprar"
+      ],
+      "cue_sense": "purchase",
+      "forms": {
+        "base": [
+          {
+            "text": "buy",
+            "ipa": "/baɪ/",
+            "sound_guide_refs": [
+              "aɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "bought",
+            "ipa": "/bɔt/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "bought",
+            "ipa": "/bɔt/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He buys bread every morning.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He bought bread yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has bought bread for lunch.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "An adult exchanging a plain coin for a loaf at a stall; no logos or readable labels.",
+        "alt": "An adult exchanging a plain coin for a loaf at a stall.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-catch",
+      "inventory_order": 16,
+      "lemma": "catch",
+      "meanings_es": [
+        "atrapar",
+        "agarrar"
+      ],
+      "cue_sense": "intercept a moving object",
+      "forms": {
+        "base": [
+          {
+            "text": "catch",
+            "ipa": "/kætʃ/",
+            "sound_guide_refs": [
+              "æ",
+              "tʃ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "caught",
+            "ipa": "/kɔt/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "caught",
+            "ipa": "/kɔt/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She catches the ball with both hands.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She caught the ball yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has caught the ball.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Two hands receiving a soft ball in flight.",
+        "alt": "Two hands receiving a soft ball in flight.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-choose",
+      "inventory_order": 17,
+      "lemma": "choose",
+      "meanings_es": [
+        "elegir",
+        "escoger"
+      ],
+      "cue_sense": "select an option",
+      "forms": {
+        "base": [
+          {
+            "text": "choose",
+            "ipa": "/tʃuz/",
+            "sound_guide_refs": [
+              "u",
+              "z",
+              "tʃ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "chose",
+            "ipa": "/tʃoʊz/",
+            "sound_guide_refs": [
+              "oʊ",
+              "z",
+              "tʃ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "chosen",
+            "ipa": "/ˈtʃoʊzən/",
+            "sound_guide_refs": [
+              "oʊ",
+              "ə",
+              "z",
+              "tʃ"
+            ],
+            "sound_note_es": "Acentúa la sílaba marcada con ˈ; no añadas vocales a los grupos de consonantes."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She chooses a piece of fruit.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She chose an apple yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has chosen an apple.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A hand selecting one of three different pieces of fruit.",
+        "alt": "A hand selecting one of three different pieces of fruit.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-come",
+      "inventory_order": 18,
+      "lemma": "come",
+      "meanings_es": [
+        "venir"
+      ],
+      "cue_sense": "move toward a reference point",
+      "forms": {
+        "base": [
+          {
+            "text": "come",
+            "ipa": "/kʌm/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "came",
+            "ipa": "/keɪm/",
+            "sound_guide_refs": [
+              "eɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "come",
+            "ipa": "/kʌm/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He comes to our house on Fridays.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He came to our house yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has come to our house today.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A person walking toward the viewer at an open doorway; no departure arrow.",
+        "alt": "A person walking toward the viewer at an open doorway.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Reference-point motion matters: venir. Context can change the appropriate Spanish rendering."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-cost",
+      "inventory_order": 19,
+      "lemma": "cost",
+      "meanings_es": [
+        "costar"
+      ],
+      "cue_sense": "have a price",
+      "forms": {
+        "base": [
+          {
+            "text": "cost",
+            "ipa": "/kɔst/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "cost",
+            "ipa": "/kɔst/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "cost",
+            "ipa": "/kɔst/",
+            "sound_guide_refs": [
+              "ɔ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "The ticket costs five dollars.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "The ticket cost five dollars yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "The ticket has cost five dollars all week.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A plain ticket beside five identical generic coins; no printed price or word.",
+        "alt": "A plain ticket beside five identical generic coins.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Cost is the price sense used by this cue. Costed is grammatical for calculating a budget, a different sense; clarify the sense before correction."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table",
+        "mw-cost"
+      ]
+    },
+    {
+      "id": "verb-cut",
+      "inventory_order": 20,
+      "lemma": "cut",
+      "meanings_es": [
+        "cortar"
+      ],
+      "cue_sense": "divide with a tool",
+      "forms": {
+        "base": [
+          {
+            "text": "cut",
+            "ipa": "/kʌt/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "cut",
+            "ipa": "/kʌt/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "cut",
+            "ipa": "/kʌt/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She cuts paper for a collage.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She cut the paper yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has cut the paper into squares.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Hands cutting paper with rounded craft scissors.",
+        "alt": "Hands cutting paper with rounded craft scissors.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-deal",
+      "inventory_order": 21,
+      "lemma": "deal",
+      "meanings_es": [
+        "repartir",
+        "tratar con"
+      ],
+      "cue_sense": "distribute cards",
+      "forms": {
+        "base": [
+          {
+            "text": "deal",
+            "ipa": "/dil/",
+            "sound_guide_refs": [
+              "i"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "dealt",
+            "ipa": "/dɛlt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "dealt",
+            "ipa": "/dɛlt/",
+            "sound_guide_refs": [
+              "ɛ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She deals the cards evenly.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She dealt the cards yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has dealt the cards to everyone.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "Hands distributing plain playing cards around a table; no gambling stakes.",
+        "alt": "Hands distributing plain playing cards around a table.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "The image uses distributing cards. Deal with also means handle a situation; accept Spanish tratar con or lidiar con when the learner explains that sense."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-dig",
+      "inventory_order": 22,
+      "lemma": "dig",
+      "meanings_es": [
+        "cavar"
+      ],
+      "cue_sense": "make a hole in soil",
+      "forms": {
+        "base": [
+          {
+            "text": "dig",
+            "ipa": "/dɪɡ/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "dug",
+            "ipa": "/dʌɡ/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "dug",
+            "ipa": "/dʌɡ/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He digs holes for plants.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He dug a hole yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has dug a hole for the tree.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "An adult using a small spade to make a planting hole.",
+        "alt": "An adult using a small spade to make a planting hole.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-do",
+      "inventory_order": 23,
+      "lemma": "do",
+      "meanings_es": [
+        "hacer",
+        "realizar"
+      ],
+      "cue_sense": "perform a task",
+      "forms": {
+        "base": [
+          {
+            "text": "do",
+            "ipa": "/du/",
+            "sound_guide_refs": [
+              "u"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "did",
+            "ipa": "/dɪd/",
+            "sound_guide_refs": [
+              "ɪ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "done",
+            "ipa": "/dʌn/",
+            "sound_guide_refs": [
+              "ʌ"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She does her homework after lunch.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She did her homework yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has done her homework.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A learner completing a worksheet with abstract marks; no readable words or answers.",
+        "alt": "A learner completing a worksheet with abstract marks.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-draw",
+      "inventory_order": 24,
+      "lemma": "draw",
+      "meanings_es": [
+        "dibujar"
+      ],
+      "cue_sense": "make a picture",
+      "forms": {
+        "base": [
+          {
+            "text": "draw",
+            "ipa": "/drɔ/",
+            "sound_guide_refs": [
+              "ɔ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "drew",
+            "ipa": "/dru/",
+            "sound_guide_refs": [
+              "u",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "drawn",
+            "ipa": "/drɔn/",
+            "sound_guide_refs": [
+              "ɔ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "He draws a tree in his notebook.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "He drew a tree yesterday.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "He has drawn a tree.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A hand sketching a simple tree on blank paper.",
+        "alt": "A hand sketching a simple tree on blank paper.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Drawing a picture is the cue sense; drawing a card or drawing a match can be valid other senses with a matching explanation."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table"
+      ]
+    },
+    {
+      "id": "verb-dream",
+      "inventory_order": 25,
+      "lemma": "dream",
+      "meanings_es": [
+        "soñar"
+      ],
+      "cue_sense": "experience a dream in sleep",
+      "forms": {
+        "base": [
+          {
+            "text": "dream",
+            "ipa": "/drim/",
+            "sound_guide_refs": [
+              "i",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "past": [
+          {
+            "text": "dreamed",
+            "ipa": "/drimd/",
+            "sound_guide_refs": [
+              "i",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "dreamt",
+            "ipa": "/drɛmt/",
+            "sound_guide_refs": [
+              "ɛ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ],
+        "participle": [
+          {
+            "text": "dreamed",
+            "ipa": "/drimd/",
+            "sound_guide_refs": [
+              "i",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          },
+          {
+            "text": "dreamt",
+            "ipa": "/drɛmt/",
+            "sound_guide_refs": [
+              "ɛ",
+              "r"
+            ],
+            "sound_note_es": "Una sola sílaba; no añadas otra sílaba al final."
+          }
+        ]
+      },
+      "sentence_examples": [
+        {
+          "family": "base",
+          "text": "She dreams about flying.",
+          "construction": "present simple with subject agreement"
+        },
+        {
+          "family": "past",
+          "text": "She dreamed about flying last night.",
+          "construction": "finite past simple"
+        },
+        {
+          "family": "participle",
+          "text": "She has dreamt about flying before.",
+          "construction": "present perfect: subject + have/has + participle"
+        }
+      ],
+      "image_cue": {
+        "brief": "A sleeping adult with a cloud-shaped imagined scene of flying above hills; no copyrighted characters.",
+        "alt": "A sleeping adult with a cloud-shaped imagined scene of flying above hills.",
+        "asset_status": "brief-only",
+        "file": null,
+        "avoid": [
+          "readable verb/form labels",
+          "tense labels",
+          "answer-bearing captions",
+          "copyrighted characters",
+          "logos"
+        ]
+      },
+      "notes": [
+        "Dreamed and dreamt are valid in both past and participle slots. Dreamed has /i/ and final /md/; dreamt has /ɛ/ and final /mt/. Either spelling can occur in a complete construction.",
+        "Dream about/of can describe sleep or aspiration; explain the sense in context rather than demanding one Spanish gloss."
+      ],
+      "source_refs": [
+        "atlas-en-d12",
+        "cambridge-irregular-table",
+        "mw-dream",
+        "cambridge-dream-variants"
+      ]
+    }
+  ]
+}

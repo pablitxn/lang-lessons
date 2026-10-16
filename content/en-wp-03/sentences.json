@@ -1,0 +1,720 @@
+{
+  "schema_version": "en-wp-03/1",
+  "authorship": "authored-reference-content",
+  "scope": [
+    "present_simple",
+    "present_continuous",
+    "present_perfect",
+    "present_perfect_continuous"
+  ],
+  "difficulty_scale": {
+    "1": "single affirmative main clause / everyday vocabulary",
+    "2": "negation or contrast / less frequent general vocabulary",
+    "3": "wh-question or clause coordination / domain vocabulary"
+  },
+  "sentences": [
+    {
+      "id": "sentence-ps-bread",
+      "primary_tense": "present_simple",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "prompt_es": "Él compra pan cada mañana.",
+      "context_es": "Es su rutina habitual.",
+      "accepted_examples": [
+        {
+          "text": "He buys bread every morning.",
+          "tense": "present_simple",
+          "structure": "subject + third-person singular verb + object + time adjunct",
+          "meaning": "A repeated routine; buys agrees with he."
+        },
+        {
+          "text": "Every morning, he buys bread.",
+          "tense": "present_simple",
+          "structure": "time adjunct + subject + third-person singular verb + object",
+          "meaning": "Same repeated routine with a moved adjunct."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A repeated routine; buys agrees with he."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ps-tools",
+      "primary_tense": "present_simple",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "prompt_es": "Ella elige las herramientas con cuidado.",
+      "context_es": "Describe su manera habitual de trabajar.",
+      "accepted_examples": [
+        {
+          "text": "She chooses the tools carefully.",
+          "tense": "present_simple",
+          "structure": "subject + third-person singular verb + object + manner adjunct",
+          "meaning": "Habitual selection; vocabulary is harder without adding a new clause."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Habitual selection; vocabulary is harder without adding a new clause."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ps-negative",
+      "primary_tense": "present_simple",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "prompt_es": "Ella no compra leche los lunes.",
+      "context_es": "Es una costumbre, no una decisión de hoy.",
+      "accepted_examples": [
+        {
+          "text": "She does not buy milk on Mondays.",
+          "tense": "present_simple",
+          "structure": "subject + does not + base verb + object + time adjunct",
+          "meaning": "A negative routine; does carries agreement, buy stays in the base form."
+        },
+        {
+          "text": "She doesn't buy milk on Mondays.",
+          "tense": "present_simple",
+          "structure": "subject + does not + base verb + object + time adjunct",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A negative routine; does carries agreement, buy stays in the base form."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ps-question",
+      "primary_tense": "present_simple",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "prompt_es": "¿Por qué él siempre elige el mismo camino?",
+      "context_es": "Pregunta por una costumbre.",
+      "accepted_examples": [
+        {
+          "text": "Why does he always choose the same route?",
+          "tense": "present_simple",
+          "structure": "wh-word + does + subject + adverb + base verb + object",
+          "meaning": "A question about repeated choice; subject and auxiliary invert."
+        },
+        {
+          "text": "Why does he always choose the same way?",
+          "tense": "present_simple",
+          "structure": "wh-word + does + subject + adverb + base verb + object",
+          "meaning": "Way can mean route in this walking-context prompt."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A question about repeated choice; subject and auxiliary invert."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pc-picture",
+      "primary_tense": "present_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "prompt_es": "Estoy dibujando un árbol ahora.",
+      "context_es": "La actividad ocurre mientras hablo.",
+      "accepted_examples": [
+        {
+          "text": "I am drawing a tree now.",
+          "tense": "present_continuous",
+          "structure": "subject + am + present participle + object + time adjunct",
+          "meaning": "An activity in progress at the speaking moment."
+        },
+        {
+          "text": "I'm drawing a tree now.",
+          "tense": "present_continuous",
+          "structure": "subject + am + present participle + object + time adjunct",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "An activity in progress at the speaking moment."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pc-trench",
+      "primary_tense": "present_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "prompt_es": "Están cavando una zanja ahora.",
+      "context_es": "La actividad está en marcha mientras hablo.",
+      "accepted_examples": [
+        {
+          "text": "They are digging a trench now.",
+          "tense": "present_continuous",
+          "structure": "subject + are + present participle + object + time adjunct",
+          "meaning": "An activity in progress; specialist vocabulary changes independently of syntax."
+        },
+        {
+          "text": "They're digging a trench now.",
+          "tense": "present_continuous",
+          "structure": "subject + are + present participle + object + time adjunct",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "An activity in progress; specialist vocabulary changes independently of syntax."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pc-negative",
+      "primary_tense": "present_continuous",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "prompt_es": "No está viniendo a casa ahora.",
+      "context_es": "Hablo de lo que él hace en este momento.",
+      "accepted_examples": [
+        {
+          "text": "He is not coming home now.",
+          "tense": "present_continuous",
+          "structure": "subject + is not + present participle + place + time adjunct",
+          "meaning": "Negative current movement; is agrees with he."
+        },
+        {
+          "text": "He isn't coming home now.",
+          "tense": "present_continuous",
+          "structure": "subject + is not + present participle + place + time adjunct",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        },
+        {
+          "text": "He's not coming home now.",
+          "tense": "present_continuous",
+          "structure": "contracted subject + is + not + present participle + place + time adjunct",
+          "meaning": "Alternative placement of the negative contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Negative current movement; is agrees with he."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pc-question",
+      "primary_tense": "present_continuous",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "prompt_es": "¿Por qué están construyendo un puente aquí?",
+      "context_es": "La obra está en marcha mientras preguntas.",
+      "accepted_examples": [
+        {
+          "text": "Why are they building a bridge here?",
+          "tense": "present_continuous",
+          "structure": "wh-word + are + subject + present participle + object + place",
+          "meaning": "Question about a current project; the form needs a finite auxiliary."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Question about a current project; the form needs a finite auxiliary."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pp-done",
+      "primary_tense": "present_perfect",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "prompt_es": "Ya he hecho la tarea.",
+      "context_es": "La tarea está lista ahora; no se dice cuándo se terminó.",
+      "accepted_examples": [
+        {
+          "text": "I have already done my homework.",
+          "tense": "present_perfect",
+          "structure": "subject + have + already + past participle + object",
+          "meaning": "A completed task with present relevance; no finished past time is specified."
+        },
+        {
+          "text": "I've already done my homework.",
+          "tense": "present_perfect",
+          "structure": "subject + have + already + past participle + object",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A completed task with present relevance; no finished past time is specified."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pp-budget",
+      "primary_tense": "present_perfect",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "prompt_es": "El comité ha elegido un proveedor.",
+      "context_es": "La elección ya está hecha y es relevante ahora.",
+      "accepted_examples": [
+        {
+          "text": "The committee has chosen a supplier.",
+          "tense": "present_perfect",
+          "structure": "subject + has + past participle + object",
+          "meaning": "A current result; higher vocabulary does not add a subordinate clause."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A current result; higher vocabulary does not add a subordinate clause."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pp-negative",
+      "primary_tense": "present_perfect",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "prompt_es": "Ella todavía no ha traído los documentos.",
+      "context_es": "Los esperamos ahora y aún faltan.",
+      "accepted_examples": [
+        {
+          "text": "She has not brought the documents yet.",
+          "tense": "present_perfect",
+          "structure": "subject + has not + past participle + object + yet",
+          "meaning": "An expected action remains unfulfilled up to now."
+        },
+        {
+          "text": "She hasn't brought the documents yet.",
+          "tense": "present_perfect",
+          "structure": "subject + has not + past participle + object + yet",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "An expected action remains unfulfilled up to now."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-pp-question",
+      "primary_tense": "present_perfect",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "prompt_es": "¿Cuántas cajas han construido hasta ahora?",
+      "context_es": "Pregunta por el número de cajas terminadas hasta este momento.",
+      "accepted_examples": [
+        {
+          "text": "How many boxes have they built so far?",
+          "tense": "present_perfect",
+          "structure": "how many + object noun + have + subject + past participle + so far",
+          "meaning": "A count of completed results, rather than time spent on the activity."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A count of completed results, rather than time spent on the activity."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ppc-drawing",
+      "primary_tense": "present_perfect_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "prompt_es": "Llevo dos horas dibujando.",
+      "context_es": "Destaca el tiempo dedicado a la actividad hasta ahora.",
+      "accepted_examples": [
+        {
+          "text": "I have been drawing for two hours.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + for + duration",
+          "meaning": "Activity over a period leading up to now; it may continue or have just stopped."
+        },
+        {
+          "text": "I've been drawing for two hours.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + for + duration",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Activity over a period leading up to now; it may continue or have just stopped."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ppc-negotiation",
+      "primary_tense": "present_perfect_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "prompt_es": "Llevan semanas tratando con intermediarios.",
+      "context_es": "Destaca la actividad repetida durante ese período hasta ahora.",
+      "accepted_examples": [
+        {
+          "text": "They have been dealing with intermediaries for weeks.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + with complement + for + duration",
+          "meaning": "Repeated activity across a period; more demanding vocabulary with the same core structure."
+        },
+        {
+          "text": "They've been dealing with intermediaries for weeks.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + with complement + for + duration",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Repeated activity across a period; more demanding vocabulary with the same core structure."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ppc-negative",
+      "primary_tense": "present_perfect_continuous",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "prompt_es": "No he estado durmiendo bien últimamente.",
+      "context_es": "Hablo del período reciente hasta ahora, no de una sola noche.",
+      "accepted_examples": [
+        {
+          "text": "I have not been sleeping well lately.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have not + been + present participle + manner + recent-time adjunct",
+          "meaning": "A recurring recent activity; this sentence vocabulary is not restricted to the irregular inventory."
+        },
+        {
+          "text": "I haven't been sleeping well lately.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have not + been + present participle + manner + recent-time adjunct",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A recurring recent activity; this sentence vocabulary is not restricted to the irregular inventory."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-ppc-question",
+      "primary_tense": "present_perfect_continuous",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "prompt_es": "¿Por qué has estado cavando aquí toda la mañana?",
+      "context_es": "La tierra removida muestra una actividad reciente; pregunta por el motivo.",
+      "accepted_examples": [
+        {
+          "text": "Why have you been digging here all morning?",
+          "tense": "present_perfect_continuous",
+          "structure": "wh-word + have + subject + been + present participle + place + duration",
+          "meaning": "A question about activity over the morning with present evidence."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A question about activity over the morning with present evidence."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-since-2020",
+      "primary_tense": "present_perfect",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "prompt_es": "Vivimos aquí desde 2020.",
+      "context_es": "Todavía vivimos aquí; puedes destacar la situación o su duración.",
+      "accepted_examples": [
+        {
+          "text": "We have lived here since 2020.",
+          "tense": "present_perfect",
+          "structure": "subject + have + past participle + place + since + start point",
+          "meaning": "A situation that began in 2020 and continues now; simple aspect is compatible with continuity."
+        },
+        {
+          "text": "We've lived here since 2020.",
+          "tense": "present_perfect",
+          "structure": "subject + have + past participle + place + since + start point",
+          "meaning": "Same meaning as the expanded form; natural contraction."
+        },
+        {
+          "text": "We have been living here since 2020.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + place + since + start point",
+          "meaning": "Highlights the lived activity/duration up to now. This context does not imply that residence is temporary or ending."
+        },
+        {
+          "text": "We've been living here since 2020.",
+          "tense": "present_perfect_continuous",
+          "structure": "subject + have + been + present participle + place + since + start point",
+          "meaning": "Highlights the lived activity/duration up to now. This context does not imply that residence is temporary or ending."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Residence began in 2020 and continues now.",
+        "Both perfect aspects fit this context; identify and explain the form actually used."
+      ],
+      "post_acceptance": [
+        "identify the tense used in the accepted response",
+        "explain its finite auxiliary/verb structure",
+        "explain the intended meaning and why it fits this context"
+      ],
+      "hint_intents": [
+        "Ask about the intended message.",
+        "Ask about the relationship between the event and the context.",
+        "Invite a fresh whole-sentence attempt using the learner’s own wording."
+      ],
+      "source_refs": [
+        "atlas-en-d09-d11",
+        "british-council-aspect"
+      ]
+    }
+  ]
+}
