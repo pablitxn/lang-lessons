@@ -4,7 +4,9 @@ The [authored reference package](../content/en-wp-03/README.md) owns standalone
 data, source notes, assessment specifications, no-spoiler policy and authored
 evaluation fixtures. Its proposed content shape is independent of the UI.
 `src/content/index.ts` adapts it to the shared version-1 contracts inspected at
-EN-WP-01 foundation `aff7aabe8b755090924fca176ffeb82ff5dbe384`.
+EN-WP-01 foundation `aff7aabe8b755090924fca176ffeb82ff5dbe384`; its complete
+scaffold at `fd1678b93b3a55166fd8492bea307e6191e9a7dd` is now additively merged
+and the content compiles against the unchanged compiler settings.
 
 Exports: `VERBS: readonly VerbEntry[]`, `SENTENCES: readonly SentenceEntry[]`,
 `pickNextVerb(previous?: VerbId, random?: () => number): VerbEntry`, and
@@ -22,13 +24,14 @@ tense and explanation; the shared explanation rubric asks about that actual
 construction. The independent `primary_tense` never acts as an exclusive answer.
 Grammar and vocabulary levels map independently to the shared 1–3 values.
 
-`image.src` is the empty string: a required string cannot express a pending
-asset more accurately. No image file is claimed. Consumers must check for this
-gap, avoid rendering an empty-src image, and offer visible-base/accessibility
-fallback until EN-WP-01/02 coordinate actual assets. A descriptive alt can reveal
-the verb; do not silently score it as hidden-image identification. The 25
-[briefs and rights strategy](../content/en-wp-03/ASSETS.md) remain asset inputs.
-This is an explicit image-mode integration blocker, not a production-ready cue.
+Each `image.src` is now `/images/verbs/{id}.svg`, pointing to an original local
+scene with no printed English target word/form or tense. Spanish accessible
+alt combines its nonvisual description and context. `VERB_CUE_BRIEFS` exposes
+`context_es` and `ambiguous`; show the context beside images marked ambiguous
+(abstract or directional meanings) and clarify alternate learner readings.
+Keep supplied cue information separate from learner-produced oral evidence.
+All 25 SVGs and their ledger checksums are verified. The [asset strategy](../content/en-wp-03/ASSETS.md)
+records provenance and the remaining independent comprehension review.
 
 Runtime hints remain model-generated. `hintSeeds` are only semantic intents.
 Never display/speak private alternatives or examples before the appropriate
@@ -36,17 +39,21 @@ stage. Apply the [hint policy](../content/en-wp-03/hint-policy.json) to generati
 and semantic output guarding. Authored oracle cases are not bundled by the
 adapter and do not establish runtime model compliance.
 
-Validate independently with Python and with Node 24's native TypeScript test
-support (no package installation required):
+Validate with Python and the installed foundation's locked Node toolchain:
 
 ```sh
 python3 content/en-wp-03/check_content.py
 python3 -m unittest discover -s content/en-wp-03/tests -v
-node --test tests/content.test.ts
+node --import tsx --test tests/content.test.ts
+npm run check
+# With dev and production preview already running on these loopback ports:
+node content/en-wp-03/check_assets_browser.cjs 5193 4193
 ```
 
-Foundation's package manifests/scripts were not present at the inspected
-contract commit; `npm ci` / `npm run check` cannot run there yet. The integration
-owner must run its combined TypeScript/build/tests once available, including
-JSON-module and TypeScript-extension compiler options. No shared settings,
-manifests, routing, contracts or global styles were changed by this task.
+The asset amendment fixes extensionful test imports and replaces the example
+record cast with explicit typed family fields. Existing bundler resolution and
+JSON import attributes compile without compiler-setting changes. The combined
+checks now pass. No shared settings, manifests, routing, contracts or global
+styles were authored/changed by this task; their updates came from the additive
+foundation merge. Prior published evidence remains in VALIDATION.md and the
+new current receipt is VALIDATION-ASSETS.md.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Una pala retira tierra de un agujero y deja un pequeño montículo al lado.</title>
+<desc id="cue-desc">Se abre un hueco en la tierra para una planta. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M40 180 Q86 166 121 178 Q196 167 275 180 L275 210 L40 210Z" fill="#b5ca9e" /><path d="M108 188 Q130 147 175 176 Q201 197 154 204 Q123 204 108 188Z" fill="#795a43" /><path d="M204 181 L223 150 L243 177 L257 181Z" fill="#ad8355" /><path d="M139 164 L207 58" fill="none" stroke="#c79c66" stroke-width="9"/><path d="M200 57 L215 35 L234 48 L220 70Z" fill="#b8d0ca" /><path d="M126 148 L151 164 Q151 187 121 190 L113 179Z" fill="#799d9e" /><path d="M68 177 L68 153 M68 164 Q49 164 53 151 Q68 149 68 164 M69 159 Q86 157 83 145 Q70 144 69 159" fill="#6d996c" /></g>
+</svg>

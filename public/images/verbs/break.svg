@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Dos manos separan las partes de un lápiz que se parte por la mitad.</title>
+<desc id="cue-desc">El lápiz queda en dos partes. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(75 133) rotate(-18)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><g transform="translate(248 135) rotate(198)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M106 141 L151 118 L150 143 L169 133 L163 158 L121 179Z" fill="#edb952" /><path d="M167 111 L215 86 L230 121 L180 148 L186 123 L170 133Z" fill="#edb952" /><path d="M106 141 L121 179 M215 86 L230 121" fill="none" stroke="#d36a50" stroke-width="9"/><path d="M158 77 L158 90 M136 82 L141 95 M182 75 L176 89 M158 182 L158 196" fill="none" stroke="#d36a50" stroke-width="4"/></g>
+</svg>

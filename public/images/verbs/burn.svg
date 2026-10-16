@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Del tostador sale una tostada muy oscura con humo encima.</title>
+<desc id="cue-desc">El exceso de calor daña el pan; no se trata solo de cocinar. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="71" y="122" width="180" height="80" rx="14" fill="#a8c9c5" transform=""/><path d="M102 128 L102 69 Q120 43 142 63 Q168 45 189 67 L198 128Z" fill="#755140" /><path d="M111 124 L111 80 Q126 61 140 77 Q164 61 181 78 L188 124Z" fill="#443d34" /><rect x="86" y="134" width="146" height="12" rx="5" fill="#173f48" transform=""/><circle cx="225" cy="171" r="8" fill="#d36a50"/><path d="M130 47 Q113 33 132 18 M163 45 Q144 31 164 13 M190 52 Q172 37 191 23" fill="none" stroke="#779698" stroke-width="4"/></g>
+</svg>

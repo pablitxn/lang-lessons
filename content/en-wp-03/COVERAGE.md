@@ -3,9 +3,10 @@
 Inventory and authoring coverage at content revision `en-wp-03/1`: 25 verbs,
 82 form-slot alternatives (including repeated spellings across slots), 75
 sentence-family examples, 25 image briefs, 17 sentence prompts, 32 accepted
-translation examples and 69 authored oracle fixtures. The 17 Python unit tests mutate
+translation examples and 69 authored oracle fixtures. There are now 25 original
+local SVG scenes and a checksum asset ledger. The 21 Python unit tests mutate
 data to verify that important integrity/coverage regressions are detected.
-Seven Node tests also exercise the actual typed adapter and injectable random
+Eight Node tests also exercise the actual typed adapter and injectable random
 selection against the architect's inventory and curriculum contracts.
 
 ## Requirement to evidence
@@ -26,14 +27,14 @@ selection against the architect's inventory and curriculum contracts.
 | EN-D08/09 progressive no-spoiler hints | hint-policy.json; 14 hint oracles | 11 block cases cover tense names, answers, auxiliary fragments, formulas, cloze, encoding, false rules and pending processing. No real model generation/guard validated. |
 | EN-D08 uncertain speech | Five uncertain speech scenarios; pronunciation-not-spelling | Must clarify, preserve evidence and prohibit penalty/help eligibility/completion; mutation tests fail otherwise. |
 | EN-D14 natural contractions/connected speech | Contracted examples, connected-speech-clear/uncertain, accent-not-error | Authored expected behavior only; no microphone or acoustic evidence. |
-| EN-D02 image cues independent of tense | 25 cue briefs; image-not-tense, image-alt-not-answer | Brief-only/null asset invariants. Rights, cue comprehension and accessible equivalence remain open. |
+| EN-D02 image cues independent of tense | 25 original SVG scenes, Spanish nonvisual/context cues and ambiguity flags; image-not-tense, image-alt-not-answer | Exact asset references/ledger/hashes, XML safety, no visible word labels, real dev/preview decode/MIME/reflow checks. Independent cue comprehension remains open. |
 | EN-D04/14 evidence independence and continuity | simultaneous-evidence, stale-evidence; CONTRACT.md | Oracle specifications; state machine, helpers and natural-pause behavior owned by app work packages. |
 
 ## Inventory coverage
 
 Every row below has all three form slots, Spanish meaning/sense, IPA/Spanish
-sound guidance, three grammatical examples and an image-cue brief. A brief
-is not an image asset or a validated recognition cue.
+sound guidance, three grammatical examples, an image-cue brief and an actual
+original SVG. Rendering evidence does not establish learner recognition.
 
 | Stable ID | Base / past / participle | Contextual notes |
 | --- | --- | --- |
@@ -83,14 +84,16 @@ incorrect 12, clarify 10, incomplete 1, ignore 1, allow 3, block 11.
 
 ## Evidence classification
 
-- Executed: local standard-library JSON/content integrity validation, 17 Python
-  mutation/unit tests and seven Node adapter/selection tests. These establish
-  data consistency, oracle coverage and adapter behavior at the pinned contract
-  base. No full application TypeScript/build result is claimed.
+- Executed: local standard-library JSON/content integrity/XML validation, 21 Python
+  mutation/unit tests and eight Node content/adapter tests. Combined `npm run check`
+  passes 25 Node tests, strict TypeScript and the production build against
+  foundation fd1678b. Actual dev and built-preview browser checks cover all 25
+  image loads and four viewport widths, plus the foundation shell smoke checks.
 - Authored only: semantic grading, explanation assessment, uncertainty handling,
   accent/contraction acceptance and no-spoiler behavioral specifications.
 - Mocked provider/browser evidence: none. Fixture input objects are authored
   examples, not mocked recognizer execution.
-- Real provider, live voice, microphone, mobile/browser, classroom, asset rights,
-  deployment and user acceptance: not run or claimed. No app exists in this
-  task's inspected baseline, so browser helpers are not applicable yet.
+- Real provider, live voice, microphone, physical mobile, classroom and deployment
+  acceptance: not run or claimed. Original asset provenance is recorded without
+  claiming independent legal review or a separate public license. See the new
+  VALIDATION-ASSETS.md amendment; VALIDATION.md preserves the initial receipt.
