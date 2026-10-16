@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { VERB_IDS, PRESENT_TENSES } from '../src/contracts/curriculum.ts';
-import { VERBS, SENTENCES, VERB_CUE_BRIEFS, pickNextVerb } from '../src/content/index.ts';
+import { readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { VERB_IDS, PRESENT_TENSES } from '../src/contracts/curriculum';
+import { VERBS, SENTENCES, VERB_CUE_BRIEFS, pickNextVerb } from '../src/content/index';
 
 test('content exports exactly the contract inventory with guidance and three complete example families', () => {
   assert.deepEqual(VERBS.map(verb => verb.id), [...VERB_IDS]);
@@ -69,8 +72,31 @@ test('all tenses have independent grammar and vocabulary selection cells', () =>
   }
 });
 
-test('image metadata honestly preserves the brief-only asset gap', () => {
+test('every image has a unique local SVG, nonvisual cue, context and original provenance', () => {
   assert.equal(VERB_CUE_BRIEFS.length, 25);
-  assert.ok(VERBS.every(v => v.image.src === '' && v.image.attribution.includes('pending')));
-  assert.ok(VERB_CUE_BRIEFS.every(cue => cue.file === null && cue.asset_status === 'brief-only'));
+  assert.deepEqual(readdirSync(new URL('../public/images/verbs/', import.meta.url)).filter(f => f.endsWith('.svg')).sort(), [...VERB_IDS].map(id => `${id}.svg`).sort());
+  const ledger = JSON.parse(readFileSync(new URL('../content/en-wp-03/asset-ledger.json', import.meta.url), 'utf8'));
+  for (const verb of VERBS) {
+    assert.equal(verb.image.src, `/images/verbs/${verb.id}.svg`);
+    const cue = VERB_CUE_BRIEFS.find(c => c.id === verb.id)!;
+    const asset = ledger.assets.find((entry: { content_id: string }) => entry.content_id === `verb-${verb.id}`);
+    assert.equal(cue.asset_status, 'original-local-svg');
+    assert.ok(cue.nonvisual_cue_es && cue.context_es);
+    assert.ok(verb.image.alt.includes(cue.context_es));
+    assert.ok(verb.image.attribution.includes('Original'));
+    const svgPath = fileURLToPath(new URL(`../public${verb.image.src}`, import.meta.url));
+    const svg = readFileSync(svgPath, 'utf8');
+    assert.match(svg, /viewBox="0 0 320 240"/);
+    assert.doesNotMatch(svg, /<(?:text|script|image|foreignObject)\b|https?:\/\/(?!www\.w3\.org\/2000\/svg)/i);
+    assert.equal(createHash('sha256').update(svg).digest('hex'), asset.sha256);
+  }
+  assert.equal(new Set(ledger.assets.map((asset: { sha256: string }) => asset.sha256)).size, 25);
+});
+
+test('abstract and directional cues retain explicit ambiguity and meaning context', () => {
+  for (const id of ['be', 'become', 'begin', 'bet', 'bring', 'come', 'cost', 'deal', 'do', 'dream']) {
+    const cue = VERB_CUE_BRIEFS.find(c => c.id === id)!;
+    assert.equal(cue.ambiguous, true);
+    assert.ok(cue.context_es.length > 20);
+  }
 });

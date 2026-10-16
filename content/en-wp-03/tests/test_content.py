@@ -2,6 +2,8 @@
 
 import copy
 import importlib.util
+import hashlib
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -101,6 +103,44 @@ class ContentIntegrityTests(unittest.TestCase):
     def test_image_brief_cannot_claim_a_reviewed_asset(self):
         self.data["verbs.json"]["verbs"][0]["image_cue"]["asset_status"] = "licensed"
         self.assertViolation("unreviewed asset status")
+
+    def test_asset_ledger_hash_and_exact_inventory_are_enforced(self):
+        self.data["asset-ledger.json"]["assets"][0]["sha256"] = "0" * 64
+        self.assertViolation("SVG checksum mismatch")
+        self.data["asset-ledger.json"]["assets"].pop()
+        self.assertViolation("asset ledger must cover exactly25")
+
+    def test_context_and_local_image_reference_cannot_disappear(self):
+        cue = self.data["verbs.json"]["verbs"][0]["image_cue"]
+        cue["src"] = "https://example.com/cue.svg"
+        cue["context_es"] = ""
+        self.assertViolation("missing or invalid local asset reference")
+        self.assertViolation("missing nonvisual/context/ambiguity cue")
+
+    def test_svg_validation_rejects_external_content_and_printed_answer_text(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            file = root / 'public/images/verbs/be.svg'
+            file.parent.mkdir(parents=True)
+            svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><image href="https://example.com/a.png"/><text>be</text></svg>'
+            file.write_text(svg)
+            asset = {**self.data['asset-ledger.json']['assets'][0], 'sha256': hashlib.sha256(svg.encode()).hexdigest()}
+            failures = []
+            CONTENT.validate_asset(asset, root, lambda condition, message: failures.append(message) if not condition else None)
+            self.assertTrue(any('SVG element forbidden' in message for message in failures))
+            self.assertTrue(any('SVG resource forbidden' in message for message in failures))
+            self.assertTrue(any('missing SVG accessible title' in message for message in failures))
+
+    def test_svg_validation_rejects_malformed_xml(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            file = root / 'public/images/verbs/be.svg'
+            file.parent.mkdir(parents=True)
+            file.write_text('<svg><path></svg>')
+            asset = {**self.data['asset-ledger.json']['assets'][0], 'sha256': hashlib.sha256(file.read_bytes()).hexdigest()}
+            failures = []
+            CONTENT.validate_asset(asset, root, lambda condition, message: failures.append(message) if not condition else None)
+            self.assertTrue(any('invalid SVG XML' in message for message in failures))
 
 
 if __name__ == "__main__":

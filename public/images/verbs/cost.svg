@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Un billete aparece encima de cinco monedas, separadas por una línea.</title>
+<desc id="cue-desc">Las monedas indican el precio del billete; no se muestra una compra. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M70 60 L239 60 L239 90 Q211 103 239 116 L239 146 L70 146 L70 116 Q98 103 70 90Z" fill="#aed0cb" /><path d="M185 70 L185 84 M185 93 L185 106 M185 116 L185 135" fill="none" stroke="#fffdf6" stroke-width="3"/><path d="M118 83 L143 83 L143 123 L118 123Z" fill="#fffdf6" /><path d="M76 162 L236 162" fill="none" stroke="#9fb8ae" stroke-width="2"/><circle cx="87" cy="191" r="13" fill="#edb952"/><circle cx="87" cy="191" r="6" fill="#edb952"/><circle cx="124" cy="191" r="13" fill="#edb952"/><circle cx="124" cy="191" r="6" fill="#edb952"/><circle cx="161" cy="191" r="13" fill="#edb952"/><circle cx="161" cy="191" r="6" fill="#edb952"/><circle cx="198" cy="191" r="13" fill="#edb952"/><circle cx="198" cy="191" r="6" fill="#edb952"/><circle cx="235" cy="191" r="13" fill="#edb952"/><circle cx="235" cy="191" r="6" fill="#edb952"/></g>
+</svg>

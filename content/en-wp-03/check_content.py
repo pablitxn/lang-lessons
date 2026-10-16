@@ -1,14 +1,16 @@
 """Validate authored data and regression coverage, never grade live language/audio."""
 
 import json
+import hashlib
 import re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 VERSION = "en-wp-03/1"
 EXACT25 = "be beat become begin bend bet bite bleed blow break bring build burn burst buy catch choose come cost cut deal dig do draw dream".split()
 TENSES = {"present_simple", "present_continuous", "present_perfect", "present_perfect_continuous"}
-FILES = ("verbs.json", "sentences.json", "evaluation-fixtures.json", "hint-policy.json")
+FILES = ("verbs.json", "sentences.json", "evaluation-fixtures.json", "hint-policy.json", "asset-ledger.json")
 
 
 def load_content(root=ROOT):
@@ -24,7 +26,8 @@ def validate(bundle):
             errors.append(message)
 
     for name in FILES:
-        require(bundle[name].get("schema_version") == VERSION, f"{name}: unsupported schema version")
+        expected_version = "en-wp-03/assets/1" if name == "asset-ledger.json" else VERSION
+        require(bundle[name].get("schema_version") == expected_version, f"{name}: unsupported schema version")
         require(bundle[name].get("authorship", "").startswith("authored-"), f"{name}: missing authored provenance")
     verbs = bundle["verbs.json"]["verbs"]
     sentences = bundle["sentences.json"]["sentences"]
@@ -62,8 +65,17 @@ def validate(bundle):
             if ex["family"] == "participle":
                 require(bool(re.search(r"\b(?:has|have)\b", ex["text"])), f"{vid}: authored perfect example lacks finite auxiliary")
         cue = v["image_cue"]
-        require(cue["asset_status"] == "brief-only" and cue["file"] is None, f"{vid}: unreviewed asset status")
+        require(cue["asset_status"] == "original-local-svg", f"{vid}: unreviewed asset status")
+        require(cue["file"] == f"public/images/verbs/{v['lemma']}.svg" and cue["src"] == f"/images/verbs/{v['lemma']}.svg", f"{vid}: missing or invalid local asset reference")
+        require(bool(cue["nonvisual_cue_es"]) and bool(cue["context_es"]) and type(cue["ambiguous"]) is bool, f"{vid}: missing nonvisual/context/ambiguity cue")
         require(bool(cue["brief"]) and bool(cue["alt"]) and bool(cue["avoid"]), f"{vid}: incomplete cue brief")
+    assets = bundle["asset-ledger.json"]["assets"]
+    require([a["content_id"] for a in assets] == ["verb-" + lemma for lemma in EXACT25], "asset ledger must cover exactly25 in order")
+    require(len({a["sha256"] for a in assets}) == 25, "each image must have distinct original scene bytes")
+    asset_dir = ROOT.parents[1] / "public/images/verbs"
+    require(sorted(p.name for p in asset_dir.glob("*.svg")) == sorted(lemma + ".svg" for lemma in EXACT25), "asset files must match exactly25")
+    for asset in assets:
+        validate_asset(asset, ROOT.parents[1], require)
     for lemma, required in {"burn": {"burned", "burnt"}, "dream": {"dreamed", "dreamt"}}.items():
         v = next((v for v in verbs if v["lemma"] == lemma), None)
         for role in ("past", "participle"):
@@ -130,6 +142,45 @@ def validate(bundle):
     return errors
 
 
+def validate_asset(asset, repo_root, require):
+    """Validate the actual local XML, safe references, provenance and artifact hash."""
+    label = asset["content_id"]
+    relative = asset["file"]
+    if not re.fullmatch(r"public/images/verbs/[a-z]+\.svg", relative):
+        require(False, f"{label}: unsafe SVG file path")
+        return
+    path = repo_root / relative
+    if not path.is_file():
+        require(False, f"{label}: SVG file missing")
+        return
+    raw = path.read_bytes()
+    require(hashlib.sha256(raw).hexdigest() == asset["sha256"], f"{label}: SVG checksum mismatch")
+    require(bool(asset.get("rights_basis")) and bool(asset.get("origin")) and bool(asset.get("creator")), f"{label}: missing original-asset provenance")
+    require(b"<!DOCTYPE" not in raw.upper() and b"<!ENTITY" not in raw.upper(), f"{label}: XML entities/doctype forbidden")
+    try:
+        svg = ET.fromstring(raw)
+    except ET.ParseError:
+        require(False, f"{label}: invalid SVG XML")
+        return
+    require(svg.tag == "{http://www.w3.org/2000/svg}svg" and svg.get("viewBox") == "0 0 320 240", f"{label}: invalid SVG root or viewBox")
+    elements = list(svg.iter())
+    ids = {e.get("id") for e in elements if e.get("id")}
+    title = svg.find("{http://www.w3.org/2000/svg}title")
+    desc = svg.find("{http://www.w3.org/2000/svg}desc")
+    require(title is not None and bool(title.text), f"{label}: missing SVG accessible title")
+    require(desc is not None and bool(desc.text), f"{label}: missing SVG accessible description")
+    require(set(svg.get("aria-labelledby", "").split()) <= ids, f"{label}: dangling accessible name reference")
+    for element in elements:
+        tag = element.tag.rsplit("}", 1)[-1]
+        require(tag not in {"script", "foreignObject", "image", "text", "textPath", "style", "a", "animate", "set"}, f"{label}: active/external/answer-text SVG element forbidden")
+        for key, value in element.attrib.items():
+            require(not key.lower().startswith("on"), f"{label}: SVG event attribute forbidden")
+            if key.endswith("href"):
+                require(value.startswith("#") and value[1:] in ids, f"{label}: external/dangling SVG resource forbidden")
+            for reference in re.findall(r"url\(([^)]+)\)", value):
+                require(reference.startswith("#") and reference[1:] in ids, f"{label}: external/dangling SVG paint reference forbidden")
+
+
 if __name__ == "__main__":
     data = load_content()
     failures = validate(data)
@@ -138,4 +189,4 @@ if __name__ == "__main__":
     print(f"Content integrity passed: {len(data['verbs.json']['verbs'])} verbs, "
           f"{len(data['sentences.json']['sentences'])} prompts, "
           f"{len(data['evaluation-fixtures.json']['cases'])} authored oracle cases.")
-    print("No runtime grammar, hint model, speech, browser or provider evaluation performed.")
+    print("This integrity command performs no runtime grammar, hint-model, speech, browser or provider evaluation.")
