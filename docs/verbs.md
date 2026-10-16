@@ -1,0 +1,178 @@
+# EN-WP-05 irregular-verb lessons
+
+Checkpoint: 2026-10-16. Branch: `feat/en-wp-05-verb-lessons`.
+Dispatch base: `b03bf1d2517eb74846115bd59d25331174bfd3ef`.
+
+This module implements image/three-input and visible-base/two-input lessons
+against the shared assessment controller, curriculum and mobile UI. It does
+not add a reducer, provider, connection owner, spelling algorithm or route.
+
+## Entry point and ownership
+
+Import `VerbLesson` from `src/features/verbs/index.ts`.
+The required props are `LessonModuleProps & { mode: VerbMode }`.
+Two optional feature-local integration props are supported:
+
+- `sessionControls?: ReactNode`: actual root Start/Stop controls, also rendered
+  inside the modal reference sheet so Stop stays reachable.
+- `claimUtterance?: (utteranceId: string) => void`: root reservation of a live
+  transcript while its assessment is queued. Required before live oral assessment
+  is enabled; see the concrete root integration request below.
+
+Settings changes and callback identity changes preserve the mounted controller.
+A mode, adapter or session-ID replacement disposes the old feature. The feature
+never calls `voice.connect` or `voice.disconnect`. Root connection, Stop, provider
+selection, media teardown and route composition remain with EN-WP-01/04.
+
+New authored paths are exclusively `src/features/verbs/**`, this document and
+`tests/verbs*.test.ts`. Dependencies were incorporated through additive merges:
+UI PR3 at `462fbda76c9931c7ef6736228e7280f1a7a628d0`, content PR1 at
+`5e0fec5e3f3c20c4327d59c77d72c75d07250dde`, and refreshed integration at
+`34a5185a035e4c9df0b35af6b28356fbee6019b3`. The dependency-only candidate is
+`42f80369da452b2cbdabaa86690431207cfa2134`. Producer-owned files were not
+independently edited. UI PR3 and all original producer revisions remain intact.
+
+## Learning behavior
+
+| Mode | Written requirements | Oral requirements |
+| --- | --- | --- |
+| Image | Base, past, past participle | Spanish meaning, all three pronunciations, three original sentences |
+| Visible base | Past and past participle; supplied base is read-only | The same seven oral requirements |
+
+Images are the original local curriculum SVGs. They cue an action, not a tense.
+Alternative visual descriptions preserve the current exercise and evidence.
+Random practice consumes `pickNextVerb` within the approved exact 25 verbs,
+excludes the immediate previous verb, and creates a fresh exercise/generation.
+No answer or example is prefilled.
+
+The shared controller is created once per mounted feature. Its `onContextChange`
+updates the same voice adapter; `onCancelHint` cancels obsolete hint playback.
+Its stable snapshot drives `useSyncExternalStore`, field feedback, progress,
+uncertainty, processing, system errors and pending advancement. A single batch
+can satisfy several obligations in any order. Valid accepted oral evidence
+survives an unrelated spelling edit. Meaning, pronunciation and complete original
+sentences remain separate signals; transcripts are never acoustic proof.
+
+Every edited spelling field immediately calls `controller.invalidate` for that
+field only. UI finalization waits for the shared debounce/IME policy, then
+`beginAttempt` allocates current refs and `voice.submit` performs the shared
+local spelling assessment. Feature draft-revision deduplication prevents the
+processing-ref change from dispatching the same written draft twice. Current
+results reach the existing `SpellingField` without remapping refs. A full correct
+form is green; only wrong letters/gap markers are red after processing. Optional
+sound help is genuine-error-only, below the relevant input, and never autofills.
+An uncertain check has an explicit retry action; reconnection never silently
+resubmits an old draft.
+
+Final learner utterances retain their actual `utteranceId`. The feature requests
+all open oral obligations together, preserving the raw natural wording,
+contractions and connected speech for assessment. A later utterance waits while
+a prior oral assessment is processing so it cannot supersede still-valid refs.
+A scoped queue hold blocks advancement. Accepted results are retained, and the
+next queued utterance attempts only requirements still open. Each assessment
+request must eventually receive terminal results for its requested refs, or a
+transport error; a missing provider result deliberately remains pending rather
+than becoming success or a learner error. Provider completeness/latency remains
+an integration/evaluation responsibility.
+
+Uncertain recognition creates uncertainty, requests clarification and does not
+submit invented valid audio. A prior-exercise response, old draft or superseded
+submission failure cannot overwrite a current accepted attempt. Stop/pause,
+disconnection and questions clear queued unsubmitted work. No paid automatic
+replay occurs after reconnect.
+
+Questions use `voice.askQuestion` where supported, with a fallback for older
+fixture adapters. They have no assessment refs. The feature establishes
+`questionPending` before releasing the composer draft hold, retains the visible
+question, and preserves progress. A late hint cannot hide the newer answer.
+Before all requirements are accepted, hints advance through levels 1-3 for a
+current correlated target. The reference table contains general learning roles,
+not the target verb's spelling or prewritten example sentences.
+
+The controller alone owns the 1,800ms quiet timer. Every applicable requirement
+must be accepted, with no speech, assistant output, processing, question, focused
+input, composition, active question draft, helper hold, pause/stop intent or
+connection problem. Stay here pauses rather than immediately advancing. After
+a genuine safe pause, `onComplete(exerciseId)` fires once and the next approved
+verb appears without a repeated permission-to-continue question.
+
+## Root integration request: live transcript reservation
+
+Integration `34a5185` forwards a final live transcript as conversation if the
+feature has not submitted it by the next microtask. That behavior preserves
+questions after the checklist. It must distinguish a transcript reserved by this
+feature's queue from an unclaimed conversational utterance. Otherwise a queued
+utterance could create a conversation request and later a second assessment
+request for the same audio.
+
+Concrete EN-WP-01-owned change, not applied to shared files by this worker:
+
+1. Expose `claimUtterance(id)` from `createSessionRuntime`. It adds the ID to the
+   same `submittedUtterances` set already checked by the conversation fallback,
+   using the existing bounded retention policy. It makes no provider call.
+2. Pass that stable callback into `VerbLesson.claimUtterance` when composing the
+   feature. The feature claims only utterances with open oral obligations;
+   post-checklist conversational questions remain unclaimed for the root.
+3. Pass the actual root controls into `sessionControls` for the modal sheet.
+
+Until reservation is provided, mock practice remains fully functional, local
+spelling remains available, and live transcripts do not dispatch competing oral
+assessments or create acceptance. The UI states that live verb assessment is
+unavailable. This is an explicit real-mode integration dependency, not a claim
+that paid voice or acoustic quality has been verified. The worker does not
+mutate the root adapter or shared types to work around ownership.
+
+## 2026-10-16 verification receipt
+
+The draft PR identifies the immutable feature head and current target base.
+Use that SHA when reading this receipt. New code ownership remains the paths
+listed above; dependency merges retain their original authors and commits.
+The existing Git identity configuration and credentials were preserved; normal
+Git commits use the approved process-scoped author/committer and Atlas guard.
+
+Commands:
+
+```sh
+npm ci --cache /tmp/lang-lessons-npm-cache
+npm run check
+VERBS_BROWSER=1 node --import tsx --test tests/verbs-browser.test.ts
+git diff --check
+```
+
+Feature unit tests cover both gates, single-turn multiple obligations,
+out-of-order processing, writing deduplication, independent oral preservation,
+queued utterances, uncertainty versus error, invalid audio/mock sources,
+questions/speech/focus/helper/pause holds, superseded transport failures,
+progressive/canceled hints and teardown. A test also uses the current production
+mock adapter with the current root runtime, including explicit Start, local
+spelling, mock oral evidence, typed questions, resume and quiet advancement.
+No feature-owned connection is created.
+
+The optional browser test uses the environment's supplied Playwright and
+Chromium, writable temporary profiles, a loopback Vite process on strict port
+5193, and no TLS bypass. Both modes run at 320x640, 390x844, 844x390 and
+1024x768, including image loading and 200% text reflow. Checks include processed
+spelling, opt-in sound help without autofill, duplicate-finalization suppression,
+full oral/written gates, scoped helper holds with root Stop reachable, question
+and continued-speech holds, explicit pause, complete quiet interval, one next
+exercise, no immediate repeat, cleared new drafts and no page errors/external
+requests. Debounce and quiet-period clocks are fake; DOM rendering and browser
+interaction are actual Chromium. Local screenshots are
+`/tmp/en-wp-05-image.png` and `/tmp/en-wp-05-visible.png`.
+
+The recording adapter under `__fixtures__` is a test double only. Its oral
+acceptances are explicitly requested simulated outcomes, not language or
+pronunciation judgments. Production mock integration is tested separately.
+Physical keyboards, screen readers, actual continuous microphone audio, provider
+linguistics, pronunciation calibration and latency remain unverified. The root
+production entry remains controlled by the integration owner; this branch does
+not register features or claim the root app is fully integrated.
+
+## Coordinator-only Atlas intake
+
+Link EN-WP-05's draft result, immutable tested revision and this gate description
+under the existing EN-D02/03/04/05/06/07/08/12/14 IDs. Preserve exact25 and the
+natural-language rubric ownership, including subject agreement and complete
+participle constructions. Record mock versus real evidence and the live
+reservation dependency. Shared Atlas canonical documents were not edited.
+No paid calls, main merge, deployment or security-setting changes occurred.
