@@ -126,3 +126,21 @@ test('sentence explanation retains the actual accepted translation and clears it
   s.protocol.askQuestion({ ...context, generation: 2, requestId: 'q2', text: 'Can I try?' });
   assert.ok(!JSON.stringify(s.sent.at(-1)).includes(learnerText)); s.protocol.dispose();
 });
+test('a superseded provider assessment cannot speak stale coaching or replace a fresh result', () => {
+  const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'audio-1' });
+  const input = { ...verbContext(), inputId: 'speech', kind: 'utterance' as const, text: 'buy', utteranceId: 'audio-1' };
+  s.protocol.submit({ ...input, attempts: [ref] }); const old = s.requestId();
+  s.protocol.submit({ ...input, attempts: [{ ...ref, revision: 2, attemptId: 'a2' }] });
+  const newer = s.requestId();
+  s.finish(old, { requestId: old, results: [{ obligation: ref.obligation, status: 'accepted', audioClear: true, feedback: 'Clear.' }], intent: 'practice', coachText: 'An obsolete response.' });
+  assert.equal(s.events.some(event => event.type === 'assessment' || event.type === 'feedback'), false);
+  s.finish(newer, { requestId: newer, results: [{ obligation: ref.obligation, status: 'uncertain', audioClear: false, feedback: 'Repeat.' }], intent: 'practice' });
+  assert.equal(s.events.filter(event => event.type === 'assessment').length, 1); s.protocol.dispose();
+});
+test('speech can remain conversational after lesson obligations are complete', () => {
+  const s = setup(); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'question-audio' });
+  s.protocol.submit({ ...verbContext(), inputId: 'question', kind: 'utterance', text: 'Can I ask something?', utteranceId: 'question-audio', attempts: [] });
+  const id = s.requestId(); s.finish(id, { requestId: id, results: [], intent: 'question', coachText: 'Take the time you need.' });
+  assert.ok(s.events.some(event => event.type === 'intent' && event.intent === 'question'));
+  assert.equal(s.events.some(event => event.type === 'assessment' && event.batch.results.length > 0), false); s.protocol.dispose();
+});
