@@ -48,14 +48,23 @@ const { chromium } = require('playwright');
         await page.getByRole('heading', { name: 'Verb practice', exact: true }).waitFor();
         await page.goBack({ waitUntil: 'networkidle' });
         await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
-        assert.equal(await page.getByText('Microphone off', { exact: true }).count(), 1);
+        await page.getByRole('button', { name: 'Start mock session', exact: true }).click();
+        await page.getByText('Mock session · ready', { exact: false }).waitFor();
+        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+        await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('2');
+        assert.equal(await page.getByText('Mock session · ready', { exact: false }).count(), 1);
+        await page.getByRole('button', { name: 'Close', exact: true }).click();
+        await page.getByRole('button', { name: 'Mute microphone', exact: true }).click();
+        await page.getByRole('button', { name: 'Resume microphone', exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Stop session', exact: true }).click();
+        await page.getByRole('button', { name: 'Start mock session', exact: true }).waitFor();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
         assert.deepEqual(errors, []);
         assert.deepEqual(externalRequests, []);
         if (process.env.SCREENSHOT_PATH && port === ports[0] && viewport.width === 390) {
           await page.screenshot({ path: process.env.SCREENSHOT_PATH, fullPage: true });
         }
-        console.log(JSON.stringify({ status: 'passed', port, viewport, checks: ['render', 'three modes', 'reload', 'history', 'independent preferences', 'persistence', 'reset', 'reflow', 'no external requests'], errors: errors.length }));
+        console.log(JSON.stringify({ status: 'passed', port, viewport, checks: ['render', 'three modes', 'reload', 'history', 'independent preferences', 'persistence', 'reset', 'mock lifecycle', 'settings preserve session', 'reflow', 'no external requests'], errors: errors.length }));
         await context.close();
       }
     }
