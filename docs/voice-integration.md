@@ -29,6 +29,16 @@ after the correlated model response. The visible stop control works immediately.
 `Resume practice` deliberately releases pause/question intent. Preferences and
 helper changes must never reconnect the adapter.
 
+Speech end does not mean transcription end. A dedicated `transcription-pending`
+count holds the completion gate until each final transcript has been delivered,
+including out-of-order turns. A 20-second timeout after speech ends produces a
+transport error, preserving the exercise; it never releases a completed verb into
+automatic advancement. Exercise replacement/disconnect cancels pending work.
+Same-exercise sentence stage changes preserve outstanding audio/transcription.
+If a queued verb turn loses all assessment targets because the preceding turn
+finished them, it is forwarded as conversation with no evidence refs. Unclear
+queued turns ask for clarification and keep progression blocked.
+
 ## Mock and real boundaries
 
 Mock mode is the default. `simulateUtterance(text, outcome)` registers an explicit
@@ -45,9 +55,13 @@ requires a captured audio item and the provider's `audioClear` flag. Transcripti
 is an ancillary signal. A model can still misjudge pronunciation, grammar, intent
 or whether a sentence is original: those judgments need real evaluation.
 
-Hints are generated per request/level and stage. A conservative lexical guard
-withholds known answer fragments and tense names before sentence translation.
-It is not a proof against every semantic spoiler or prompt injection. Only
+Hints are requested per level and stage. Before sentence translation acceptance,
+text and speech use the same strict reviewed prompt envelope in
+`src/assessment/coaching-policy.ts`. Rejected provider coaching, questions and
+hints create no speech request. The sentence feature uses the same decisions for
+display and explicitly labels authored fallbacks from fixture/legacy adapters.
+This limits free-form model coaching before acceptance; it does not establish
+general semantic safety. Other stages retain conservative lexical checks. Only
 validated coaching text is scheduled for speech, in a separate response. Actual
 speech adherence to that text remains unverified. Provider session defaults
 disable unsolicited automatic responses. Sentence explanation receives the

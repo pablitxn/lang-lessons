@@ -31,7 +31,7 @@ project source of truth or a request to mark the entire roadmap complete.
   `37f288fcda5942a9c51e8988ec9b33f886ac17c8`, owns `src/features/verbs/**`,
   `docs/verbs.md` and verb tests. It is incorporated additively. Both root verb
   routes use `VerbLesson`, root lifecycle controls and the stable queued-audio
-  reservation callback; no producer-owned files were independently edited.
+  reservation callback. Its branch remains unchanged.
 
 ## Implemented decisions and assumptions
 
@@ -92,3 +92,20 @@ intact. New runtime tests prove claimed queued audio is not also sent as a
 conversation request, post-checklist questions still work, and stop/restart drops
 unsubmitted old work. The root browser suite covers all three modes and both
 dev/production preview. Real-provider and physical-device checks remain open.
+
+## Independent review corrections
+
+The parent supplied three findings against the initial all-mode checkpoint. All
+were reproduced with deterministic failing regressions before repair. Integration
+then added an outstanding-transcription completion hold with safe timeout, forwarded
+claimed queued turns when the preceding assessment completed their targets, and
+moved sentence pre-translation coaching safety into one shared display/speech
+policy. Parent explicitly authorized these narrow changes to verb/sentence session
+files on the integration branch. Producer branches remain untouched. An optional
+UI browser test was also corrected to install its controlled clock before app
+startup; no UI production behavior was changed for that fixture issue.
+
+See `docs/evidence/integration-review-2026-10-16.md` for immutable tested heads,
+the reproduced failures, repaired regressions and final browser results. Canonical
+Atlas/Notion reconciliation remains with the coordinator. Live voice/model and
+subscription tests are explicitly deferred to the user's next session.

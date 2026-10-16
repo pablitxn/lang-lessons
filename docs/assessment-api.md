@@ -77,3 +77,9 @@ intent `practice` explicitly resumes after pause. Optional `voice.askQuestion`
 handles typed conversational questions without oral evidence. Root composition
 is in `LessonSession`; see [voice integration](voice-integration.md) for the
 mock simulator, lifecycle, live setup and evidence boundaries.
+
+Review hardening adds `transcription-pending`, independently counted until final
+transcripts are delivered. Speech-end alone cannot restart the advancement clock
+while transcription is outstanding. Timeout becomes a connection error, not a
+quiet completion. The protocol retains pending audio across same-exercise sentence
+stage transitions and cancels it on replacement/disconnection.
