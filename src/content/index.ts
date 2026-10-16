@@ -1,5 +1,5 @@
 /** EN-WP-03: thin adapter over the independently reviewable authored JSON. */
-import type { FormGuidance, PresentTense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index.ts';
+import type { FormGuidance, PresentTense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
 
@@ -17,7 +17,7 @@ function guidance(variants: readonly ReferenceForm[]): FormGuidance {
   };
 }
 
-/** No image is claimed: consumers must handle an empty src as an asset gap. */
+/** Original local illustrations; ambiguous meanings retain their Spanish context. */
 export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
   // Exact membership is pinned by the independent content check and contract tests.
   id: verb.lemma as VerbId,
@@ -28,17 +28,22 @@ export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
   },
   spanishMeanings: verb.meanings_es,
   image: {
-    src: '',
-    alt: verb.image_cue.alt,
-    attribution: 'Original authored cue brief only; image asset and rights review pending.',
+    src: verb.image_cue.src,
+    alt: `${verb.image_cue.nonvisual_cue_es} ${verb.image_cue.context_es}`,
+    attribution: verb.image_cue.attribution,
   },
-  examples: Object.fromEntries(
-    (['base', 'past', 'participle'] as const).map(family => [family,
-      verb.sentence_examples.filter(example => example.family === family).map(example => example.text)]),
-  ) as Record<VerbForm, readonly string[]>,
+  examples: {
+    base: examplesFor(verb.sentence_examples, 'base'),
+    past: examplesFor(verb.sentence_examples, 'past'),
+    participle: examplesFor(verb.sentence_examples, 'participle'),
+  },
   notes: [...verb.notes, `Cue sense: ${verb.cue_sense}.`,
     'Reference IPA is guidance, not an accent whitelist. Pronunciation needs audio evidence.'],
 }));
+
+function examplesFor(examples: readonly { family: string; text: string }[], family: VerbForm): readonly string[] {
+  return examples.filter(example => example.family === family).map(example => example.text);
+}
 
 function presentTense(value: string): PresentTense {
   switch (value) {
@@ -77,7 +82,7 @@ export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.m
   },
 }));
 
-/** Asset briefs stay distinct from image files and never claim licensed artwork. */
+/** Context/ambiguity metadata for visual and nonvisual cue presentation. */
 export const VERB_CUE_BRIEFS = verbReference.verbs.map(verb => ({
   id: verb.lemma as VerbId,
   ...verb.image_cue,

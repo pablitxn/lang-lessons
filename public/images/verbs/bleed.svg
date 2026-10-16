@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Un pequeño rasguño en un dedo deja caer una gota roja junto a una venda.</title>
+<desc id="cue-desc">Describe lo que ocurre con la sangre, no la cura. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(102 121) rotate(0)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M137 123 L185 123 Q198 125 193 137 L141 143" fill="#edbea0" /><path d="M180 127 L187 131" fill="none" stroke="#d36a50" stroke-width="4"/><path d="M189 146 Q206 169 189 174 Q174 170 189 146Z" fill="#b9403a" /><rect x="206" y="68" width="59" height="24" rx="9" fill="#dbb796" transform="rotate(30 235 80)"/><path d="M226 75 L242 85 M228 81 L234 85" fill="none" stroke="#9e806a" stroke-width="2"/></g>
+</svg>

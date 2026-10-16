@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Una persona acerca una manzana a la boca; falta un trozo junto a los dientes.</title>
+<desc id="cue-desc">Describe la acción con los dientes. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M72 194 L73 123 Q48 98 60 65 Q74 30 112 42 Q145 48 145 78 L165 96 L148 108 L147 135 Q139 160 114 158 L114 194Z" fill="#edbea0" /><path d="M61 73 Q58 31 103 36 Q139 37 145 65 L109 59 L96 84" fill="#173f48" /><circle cx="130" cy="82" r="3" fill="#173f48"/><path d="M146 111 L164 113" fill="none" stroke-width="5"/><g transform="translate(204 116) scale(1.25)"><path d="M0 -16 C-28 -29 -36 -2 -21 19 Q-10 32 0 24 Q12 32 23 14 C37 -9 23 -29 0 -16Z" fill="#d36a50" /><path d="M0 -15 L4 -29 M4 -22 Q18 -35 25 -25 Q18 -13 4 -22" fill="#78a17d" /></g><circle cx="172" cy="100" r="12" fill="#fffdf6"/><circle cx="175" cy="119" r="11" fill="#fffdf6"/><path d="M181 166 Q184 145 198 153 L211 166 L235 182 L230 199 L207 190 L196 179Z" fill="#edbea0" /></g>
+</svg>

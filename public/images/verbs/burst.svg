@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Un globo se abre de repente y salen trozos en varias direcciones.</title>
+<desc id="cue-desc">El aire rompe el globo de forma repentina. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M163 92 L176 66 L189 86 L219 74 L217 101 L247 114 L223 136 L233 163 L204 163 L199 189 L173 175 L149 196 L142 169 L109 180 L112 151 L84 137 L107 115 L96 87 L128 90 L137 62Z" fill="#f3dc9e" /><path d="M132 104 L153 118 L132 129 L120 114Z M181 111 L207 101 L206 125 L190 138Z M150 146 L172 135 L182 160 L164 174Z" fill="#d36a50" /><path d="M163 173 L169 185 L160 187 Q178 213 154 218" fill="none" stroke-width="3"/><path d="M69 77 L82 89 M241 64 L231 78 M263 171 L248 162" fill="none" stroke="#d36a50" stroke-width="4"/></g>
+</svg>

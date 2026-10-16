@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Una persona se encuentra dentro de una casa y un marcador señala su ubicación.</title>
+<desc id="cue-desc">Piensa en su ubicación, no en entrar ni caminar. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M55 111 L158 37 L262 111" fill="#e9c68b" /><rect x="74" y="109" width="167" height="101" rx="8" fill="#d3e3d9" transform=""/><rect x="101" y="130" width="113" height="79" rx="8" fill="#fffdf6" transform=""/><g transform="translate(157 132) scale(0.58)"><circle cx="0" cy="0" r="15" fill="#edbea0"/><path d="M-13 -5 Q-10 -24 7 -14 L14 -4" fill="#173f48" /><path d="M-18 27 Q0 15 18 27 L16 67 L-16 67 Z" fill="#247f80" /><path d="M-16 33 L-27 65 M16 33 L27 65 M-8 69 L-10 108 M8 69 L13 108" fill="none" stroke-width="9"/></g><path d="M249 113 C218 76 243 54 262 72 C281 91 255 110 249 113Z" fill="#d36a50" /><circle cx="253" cy="85" r="5" fill="#fffdf6"/></g>
+</svg>
