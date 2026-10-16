@@ -43,6 +43,17 @@ test('final current utterances allocate translation only; partial, duplicate and
     identity: { ...initial, generation: 0 }, utteranceId: 'old', text: 'old', final: true, uncertain: false });
   assert.equal(f.voice.inputs.length, 1); f.session.dispose();
 });
+test('sentence transcripts without a capture receipt cannot create learning evidence or be replayed later', () => {
+  const f = setup(true);
+  try {
+    f.voice.emit({ type: 'transcript', eventId: 'unscoped', sessionId: f.voice.context.sessionId,
+      identity: f.voice.context, utteranceId: 'unscoped', text: 'An unscoped response.', final: true, uncertain: false });
+    assert.equal(f.voice.inputs.length, 0); assert.equal(f.snapshot().evidence.translation, undefined);
+    assert.match(f.session.getSnapshot().notice, /fresh response/);
+    f.voice.transcript('A replay with a receipt.', false, 'unscoped');
+    assert.equal(f.voice.inputs.length, 0);
+  } finally { f.session.dispose(); }
+});
 test('both residence alternatives and contractions are sent unchanged and follow the provider verdict', () => {
   for (const alternative of residence.alternatives) {
     const f = setup(); translated(f, alternative.text);

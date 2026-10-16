@@ -20,8 +20,9 @@ export function createMockVoiceAdapter(): MockVoiceAdapter {
   let generation = 0;
   let sequence = 0;
   let hintEpoch = 0;
+  let stageEpoch = 0;
   let releaseAbort: (() => void) | undefined;
-  const utterances = new Map<string, { context: ExerciseContext; outcome: EvidenceResult['status'] }>();
+  const utterances = new Map<string, { context: ExerciseContext; stageEpoch: number; outcome: EvidenceResult['status'] }>();
   const id = () => `mock-${++sequence}`;
   const emit = (event: VoiceEvent) => { for (const listener of listeners) listener(event); };
   const eventBase = () => ({ eventId: id(), sessionId });
@@ -40,19 +41,23 @@ export function createMockVoiceAdapter(): MockVoiceAdapter {
       connected = true; emit({ ...eventBase(), type: 'state', state: 'ready' });
       emit({ ...eventBase(), type: 'microphone', muted: false });
     },
-    setContext(next) { if (!context || !sameExercise(context, next)) utterances.clear(); context = next; },
+    setContext(next) {
+      if (!context || !sameExercise(context, next)) { utterances.clear(); stageEpoch++; }
+      else if (context.mode === 'sentence' && next.mode === 'sentence' && context.stage !== next.stage) stageEpoch++;
+      context = next;
+    },
     async submit(input: LearnerInput) {
-      const current = ready(); const epoch = generation;
+      const current = ready(); const epoch = generation; const capturedStageEpoch = stageEpoch;
       if (!sameExercise(current, input) || input.attempts.some(ref => !sameExercise(current, ref))) return;
       const utterance = input.utteranceId ? utterances.get(input.utteranceId) : undefined;
-      const outcome = utterance && sameExercise(utterance.context, current) ? utterance.outcome : 'uncertain';
+      const outcome = utterance && sameExercise(utterance.context, current) && utterance.stageEpoch === stageEpoch ? utterance.outcome : 'uncertain';
       const results = input.attempts.map(ref => input.kind === 'typed' && ref.obligation.startsWith('spelling:')
         ? assessSpelling(current, ref, input.text, input.inputId)
         : { ref, status: outcome, source: { kind: 'mock' as const, fixtureId: input.utteranceId ?? 'unverified-input' },
           feedback: outcome === 'accepted' ? 'Simulated acceptance; no real speech assessment.'
             : outcome === 'incorrect' ? 'Simulated retry; try another demo response.' : 'Simulated uncertainty; please repeat.' });
       await Promise.resolve();
-      if (!connected || epoch !== generation || !context || !sameExercise(context, current)) return;
+      if (!connected || epoch !== generation || capturedStageEpoch !== stageEpoch || !context || !sameExercise(context, current)) return;
       const eventId = id();
       emit({ eventId, sessionId, type: 'assessment', batch: { sessionId, exerciseId: input.exerciseId,
         generation: input.generation, eventId, results } });
@@ -81,12 +86,13 @@ export function createMockVoiceAdapter(): MockVoiceAdapter {
     },
     subscribe(listener) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     simulateUtterance(text, outcome = 'accepted') {
-      const current = ready(); const utteranceId = id();
+      const current = ready(); const utteranceId = id(); const capturedStageEpoch = stageEpoch;
       if (text.length > 4000) throw new Error('Mock utterances are limited to 4,000 characters.');
-      utterances.set(utteranceId, { context: current, outcome });
+      utterances.set(utteranceId, { context: current, stageEpoch: capturedStageEpoch, outcome });
       if (utterances.size > 100) utterances.delete(utterances.keys().next().value!);
       adapter.simulateSpeech('learner', true); adapter.simulateSpeech('learner', false);
-      emit({ ...eventBase(), type: 'transcript', identity: current, utteranceId, text, final: true, uncertain: outcome === 'uncertain' });
+      emit({ ...eventBase(), type: 'transcript', identity: current, utteranceId, text, final: true, uncertain: outcome === 'uncertain',
+        ...(current.mode === 'sentence' ? { sentenceScope: { capturedStage: current.stage, eligible: capturedStageEpoch === stageEpoch } } : {}) });
       return utteranceId;
     },
     simulateSpeech(speaker, active) { if (connected) emit({ ...eventBase(), type: 'speech', speaker, active }); },

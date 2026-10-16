@@ -66,7 +66,8 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
   const finalizedTranscripts = new Set<string>();
   const clock = options.clock ?? { setTimeout: (callback: () => void, delayMs: number) => setTimeout(callback, delayMs),
     clearTimeout: (handle: unknown) => clearTimeout(handle as ReturnType<typeof setTimeout>) };
-  const audioItems = new Map<string, ExerciseContext>();
+  const audioItems = new Map<string, { context: ExerciseContext; stageEpoch: number }>();
+  let stageEpoch = 0;
   const responseRequests = new Map<string, string>();
   const retired = new Set<string>();
   const latestAttempts = new Map<string, AttemptRef>();
@@ -79,6 +80,9 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
   const base = () => ({ sessionId: options.sessionId, eventId: id() });
   function current(captured: ExerciseContext) {
     return context && sameExercise(context, captured) && (context.mode !== 'sentence' || captured.mode !== 'sentence' || context.stage === captured.stage);
+  }
+  function eligibleAudio(captured: { context: ExerciseContext; stageEpoch: number }) {
+    return current(captured.context) && captured.stageEpoch === stageEpoch;
   }
   function finishTranscription(itemId: string) {
     const entry = transcriptions.get(itemId); if (!entry) return;
@@ -201,6 +205,7 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
 
   const protocol: RealtimeProtocol = {
     setContext(next) {
+      if (!context || !current(next)) stageEpoch++;
       if (context && !sameExercise(context, next)) { acceptedTranslation = null; learnerAudioItem = null; latestAttempts.clear(); clearTranscriptions(); audioItems.clear(); }
       if (context && !current(next)) {
         protocol.interrupt(); for (const entry of pending.values()) retire(entry);
@@ -210,18 +215,20 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
     },
     submit(input) {
       if (!context || !sameExercise(context, input) || input.attempts.some(ref => !sameExercise(context!, ref))) return;
-      for (const ref of input.attempts) latestAttempts.set(ref.obligation, ref);
       if (input.kind === 'typed' && !input.attempts.length) return;
       if (input.kind === 'typed') {
+        for (const ref of input.attempts) latestAttempts.set(ref.obligation, ref);
         const eventId = id();
         emit({ eventId, sessionId: options.sessionId, type: 'assessment', batch: { ...context, eventId, results: input.attempts.map(ref => assessSpelling(context!, ref, input.text, input.inputId)) } }); return;
       }
       const audio = input.utteranceId ? audioItems.get(input.utteranceId) : undefined;
-      const audioAvailable = Boolean(audio && sameExercise(audio, context));
-      if (!audioAvailable) {
+      const audioAvailable = Boolean(audio && sameExercise(audio.context, context));
+      const stageMismatch = Boolean(audio && context.mode === 'sentence' && !eligibleAudio(audio));
+      if (!audioAvailable || stageMismatch && input.attempts.length > 0) {
         const eventId = id(); emit({ eventId, sessionId: options.sessionId, type: 'assessment', batch: { ...context, eventId,
-          results: input.attempts.map(ref => ({ ref, status: 'uncertain', source: { kind: 'audio', utteranceId: input.utteranceId ?? 'unavailable', audioAvailable: false }, feedback: 'No current audio is available. Please speak again.' })) } }); return;
+          results: input.attempts.map(ref => ({ ref, status: 'uncertain', source: { kind: 'audio', utteranceId: input.utteranceId ?? 'unavailable', audioAvailable }, feedback: stageMismatch ? 'This speech began in an earlier learning stage. Please give a fresh response.' : 'No current audio is available. Please speak again.' })) } }); return;
       }
+      for (const ref of input.attempts) latestAttempts.set(ref.obligation, ref);
       request({ kind: 'assessment', context, input, audioAvailable });
     },
     requestHint(hint) {
@@ -254,7 +261,8 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
           emit({ ...base(), type: 'transcription-pending', count: transcriptions.size });
         }
         learnerAudioItem = event.item_id;
-        audioItems.set(event.item_id, context);
+        // Duplicate start events must never promote old audio into a new stage.
+        if (!audioItems.has(event.item_id)) audioItems.set(event.item_id, { context, stageEpoch });
         if (audioItems.size > 100) audioItems.delete(audioItems.keys().next().value!);
         protocol.interrupt(); emit({ ...base(), type: 'speech', speaker: 'learner', active: true });
       } else if (event.type === 'input_audio_buffer.speech_stopped') {
@@ -275,7 +283,8 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
         finalizedTranscripts.add(event.item_id);
         if (finalizedTranscripts.size > 100) finalizedTranscripts.delete(finalizedTranscripts.values().next().value!);
         const uncertain = event.type.endsWith('failed') || typeof event.transcript !== 'string';
-        emit({ ...base(), type: 'transcript', identity: captured, utteranceId: event.item_id,
+        emit({ ...base(), type: 'transcript', identity: captured.context, utteranceId: event.item_id,
+          ...(captured.context.mode === 'sentence' ? { sentenceScope: { capturedStage: captured.context.stage, eligible: Boolean(eligibleAudio(captured)) } } : {}),
           text: typeof event.transcript === 'string' ? event.transcript.slice(0, 4000) : '', final: true, uncertain });
         finishTranscription(event.item_id);
       } else if (event.type === 'response.created' && isObject(event.response)) {

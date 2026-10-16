@@ -3,9 +3,28 @@ import { test } from 'node:test';
 import { assessSpelling, createAssessmentController } from '../src/assessment';
 import { createMockVoiceAdapter } from '../src/voice';
 import type { AttemptRef, VoiceEvent } from '../src/contracts';
-import { verbContext } from './helpers/assessment-fixtures';
+import { sentenceContext, verbContext } from './helpers/assessment-fixtures';
 
 const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'spelling:past', attemptId: 'a1', revision: 1 };
+test('mock sentence audio remains scoped to its captured stage through a return to translation', async () => {
+  const voice = createMockVoiceAdapter(); const events: VoiceEvent[] = []; const context = sentenceContext();
+  assert.equal(context.mode, 'sentence'); if (context.mode !== 'sentence') return;
+  voice.setContext(context);
+  voice.subscribe(event => {
+    events.push(event);
+    if (event.type === 'speech' && event.speaker === 'learner' && event.active) {
+      voice.setContext({ ...context, stage: 'explanation' }); voice.setContext(context);
+    }
+  });
+  await voice.connect({ sessionId: 's1', signal: new AbortController().signal });
+  try {
+    const utteranceId = voice.simulateUtterance('Simulated response.');
+    assert.deepEqual(events.find(event => event.type === 'transcript')?.sentenceScope, { capturedStage: 'translation', eligible: false });
+    await voice.submit({ ...context, inputId: 'old', kind: 'utterance', text: 'Simulated response.', utteranceId,
+      attempts: [{ ...context, obligation: 'translation', attemptId: 'new-stage', revision: 2 }] });
+    assert.equal(events.find(event => event.type === 'assessment')?.batch.results[0]?.status, 'uncertain');
+  } finally { voice.disconnect(); }
+});
 test('spelling accepts the form without supplying or rewriting the learner answer', () => {
   const accepted = assessSpelling(verbContext(), ref, 'BOUGHT', 'input');
   assert.equal(accepted.status, 'accepted'); assert.equal(accepted.spelling?.submittedText, 'BOUGHT');

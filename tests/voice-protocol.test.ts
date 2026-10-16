@@ -16,6 +16,39 @@ function setup(clock?: FakeClock) {
 }
 const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'pronunciation:base', attemptId: 'a1', revision: 1 };
 
+for (const returnedToTranslation of [false, true]) test(`captured sentence audio cannot be reassessed after a stage transition${returnedToTranslation ? ' and return' : ''}`, () => {
+  const s = setup(new FakeClock()); const original = sentenceContext();
+  assert.equal(original.mode, 'sentence'); if (original.mode !== 'sentence') return;
+  const next = { ...original, stage: returnedToTranslation ? 'translation' as const : 'explanation' as const };
+  try {
+    s.protocol.setContext(original);
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old-audio' });
+    s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'old-audio' });
+    s.protocol.setContext({ ...original, stage: 'explanation' });
+    if (returnedToTranslation) s.protocol.setContext(next);
+    // A duplicate provider start must retain the original capture, not its new stage.
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old-audio' });
+    s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'old-audio' });
+    assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 1);
+    s.receive({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'old-audio', transcript: 'A delayed response.' });
+    assert.deepEqual(s.events.find(event => event.type === 'transcript')?.sentenceScope, { capturedStage: 'translation', eligible: false });
+    assert.equal(s.events.filter(event => event.type === 'transcription-pending').at(-1)?.count, 0);
+    const attempt: AttemptRef = { ...next, obligation: returnedToTranslation ? 'translation' : 'tense', attemptId: 'fresh', revision: 2 };
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'fresh-audio' });
+    s.protocol.submit({ ...next, inputId: 'fresh', kind: 'utterance', text: 'Fresh response.', utteranceId: 'fresh-audio', attempts: [attempt] });
+    const freshRequest = s.requestId();
+    // Even a caller bypassing the feature guard cannot grade old audio or supersede a valid request.
+    s.protocol.submit({ ...next, inputId: 'stale', kind: 'utterance', text: 'Old response.', utteranceId: 'old-audio', attempts: [{ ...attempt, attemptId: 'stale', revision: 3 }] });
+    assert.equal(s.sent.filter(event => event.type === 'response.create').length, 1);
+    assert.equal(s.events.filter(event => event.type === 'assessment').at(-1)?.batch.results[0]?.status, 'uncertain');
+    s.finish(freshRequest, { requestId: freshRequest, results: [{ obligation: attempt.obligation, status: 'accepted', audioClear: true, feedback: 'Injected acceptance.' }], intent: 'practice' });
+    assert.equal(s.events.filter(event => event.type === 'assessment').at(-1)?.batch.results[0]?.ref.attemptId, 'fresh');
+    assert.equal(s.events.filter(event => event.type === 'assessment').at(-1)?.batch.results[0]?.status, 'accepted');
+    s.protocol.submit({ ...next, inputId: 'conversation', kind: 'utterance', text: 'May I ask why?', utteranceId: 'old-audio', attempts: [] });
+    assert.equal(s.sent.filter(event => event.type === 'response.create').length, 2);
+  } finally { s.protocol.dispose(); }
+});
+
 test('transcripts without a captured audio item cannot call the model or certify pronunciation', () => {
   const s = setup(); s.protocol.submit({ ...verbContext(), inputId: 'text', kind: 'utterance', text: 'buy', utteranceId: 'invented', attempts: [ref] });
   assert.equal(s.sent.length, 0);

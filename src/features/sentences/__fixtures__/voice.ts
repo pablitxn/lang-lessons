@@ -26,6 +26,7 @@ export class SentenceFixtureVoice implements VoiceAdapter {
   emit(event: VoiceEvent) { for (const listener of [...this.listeners]) listener(event); }
   transcript(text: string, uncertain = false, utteranceId = this.id(), final = true) {
     this.emit({ type: 'transcript', eventId: this.id(), sessionId: this.context.sessionId,
+      ...(this.context.mode === 'sentence' ? { sentenceScope: { capturedStage: this.context.stage, eligible: true } } : {}),
       identity: this.context, utteranceId, text, uncertain, final });
   }
   assess(status: EvidenceResult['status'] | Partial<Record<string, EvidenceResult['status']>> = 'accepted', input = this.inputs.at(-1)!, source?: EvidenceResult['source'], feedback = 'Simulated fixture verdict.') {

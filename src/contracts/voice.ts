@@ -1,4 +1,4 @@
-import type { ExerciseContext, ExerciseIdentity } from './curriculum';
+import type { ExerciseContext, ExerciseIdentity, SentenceStage } from './curriculum';
 import type { AssessmentBatch, AttemptRef, HintRequest, HintResult } from './evidence';
 
 export type ProviderMode = 'mock' | 'openai-realtime';
@@ -18,6 +18,12 @@ export interface LearnerInput extends ExerciseIdentity {
 }
 export interface LearnerQuestion extends ExerciseIdentity { requestId: string; text: string }
 interface VoiceEventBase { eventId: string; sessionId: string }
+/** Adapter-owned capture receipt. Missing receipts cannot create sentence evidence. */
+export interface SentenceAudioScope {
+  capturedStage: SentenceStage;
+  /** False after any stage transition, including returning to the captured stage. */
+  eligible: boolean;
+}
 export type VoiceEvent = VoiceEventBase & (
   | { type: 'state'; state: VoiceState }
   | { type: 'microphone'; muted: boolean }
@@ -26,7 +32,7 @@ export type VoiceEvent = VoiceEventBase & (
   | { type: 'presentation-hold'; id: string; held: boolean }
   | { type: 'speech'; speaker: 'learner' | 'assistant'; active: boolean }
   | { type: 'intent'; intent: 'question' | 'question-resolved' | 'practice' | 'pause' | 'stop' | 'change-mode' }
-  | { type: 'transcript'; identity: ExerciseIdentity; utteranceId: string; text: string; final: boolean; uncertain: boolean }
+  | { type: 'transcript'; identity: ExerciseIdentity; utteranceId: string; text: string; final: boolean; uncertain: boolean; sentenceScope?: SentenceAudioScope }
   | { type: 'assessment'; batch: AssessmentBatch }
   | { type: 'hint'; hint: HintResult }
   | { type: 'feedback'; identity: ExerciseIdentity; text: string }

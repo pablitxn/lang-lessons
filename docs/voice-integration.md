@@ -35,6 +35,15 @@ including out-of-order turns. A 20-second timeout after speech ends produces a
 transport error, preserving the exercise; it never releases a completed verb into
 automatic advancement. Exercise replacement/disconnect cancels pending work.
 Same-exercise sentence stage changes preserve outstanding audio/transcription.
+Each sentence transcript carries an adapter-owned `sentenceScope` capture receipt.
+The stage is fixed at speech start; any intervening stage transition invalidates
+assessment eligibility, including translation/explanation/translation cycles.
+Missing or stale receipts create no sentence attempts. The root may still forward
+that turn as conversation with zero evidence refs, and the learner is asked for a
+fresh response. The protocol independently checks its recorded capture before
+accepting assessment refs, so caller-supplied current refs cannot promote old audio.
+Duplicate speech-start events preserve the first capture. Mock mode enforces the
+same stage boundary; no extra persistence or provider request is introduced.
 If a queued verb turn loses all assessment targets because the preceding turn
 finished them, it is forwarded as conversation with no evidence refs. Unclear
 queued turns ask for clarification and keep progression blocked.

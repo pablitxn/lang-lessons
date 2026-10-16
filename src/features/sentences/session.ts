@@ -154,6 +154,12 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     if (event.type === 'transcript') {
       if (!current(event.identity)) return;
       controller.handleVoiceEvent(event);
+      if (event.final && (!event.sentenceScope?.eligible || event.sentenceScope.capturedStage !== before.sentenceStage)) {
+        // Leave this turn unclaimed so the root can handle it conversationally.
+        utterances.add(event.utteranceId);
+        notice = 'This speech began before the current learning stage. Please give a fresh response for this stage.';
+        publish(); return;
+      }
       if (event.final) processResponse(event.text, event.utteranceId, event.uncertain);
       return;
     }
