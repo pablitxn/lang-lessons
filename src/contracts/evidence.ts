@@ -21,8 +21,13 @@ export interface EvidenceResult {
   status: 'uncertain' | 'incorrect' | 'accepted';
   source: EvidenceSource;
   feedback: string;
-  /** Offsets refer to the submitted string's Unicode code points, not UTF-16 units. */
-  incorrectLetterIndices?: readonly number[];
+  /** Segment submittedText with Intl.Segmenter(granularity: 'grapheme'). */
+  spelling?: {
+    submittedText: string;
+    incorrectGraphemeIndices: readonly number[];
+    /** Gaps before grapheme N, or at length for a trailing omission; never expected letters. */
+    missingGraphemeIndices: readonly number[];
+  };
 }
 export interface EvidenceRecord {
   ref: AttemptRef;
@@ -43,6 +48,10 @@ export interface InteractionState {
   questionPending: boolean;
   processingCount: number;
   inputFocused: boolean;
+  compositionActive: boolean;
+  questionDraftActive: boolean;
+  /** Scoped IDs prevent one helper closing from releasing another helper's hold. */
+  presentationHolds: readonly string[];
   connection: 'offline' | 'connecting' | 'ready' | 'reconnecting' | 'error';
   intent: 'practice' | 'pause' | 'stop' | 'change-mode';
   /** Monotonic local clock; updated on every input, speech, result and interruption. */

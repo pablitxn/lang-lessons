@@ -1,0 +1,69 @@
+# Lang Lessons
+
+A mobile-first English-learning app foundation with three practice modes:
+image-based irregular verbs, visible-base irregular verbs, and Spanish-to-English
+sentences. The foundation provides a responsive shell, navigation, preferences,
+shared contracts and focused policy tests. Lesson modules and voice adapters are
+separately owned work packages awaiting integration; this preview does not yet
+conduct lessons or record speech.
+
+## Local development
+
+Requires Node >=22.12 and npm. The selected Cloud environment was checked with
+Node 24.19.0 and npm 11.9.0. Install exact dependencies and run the shell:
+
+```sh
+npm ci --cache /tmp/lang-lessons-npm-cache
+npm run dev
+```
+
+Vite binds loopback on port 5174 with strict port selection. It does not kill an
+occupied listener or expose a public preview. The three hash routes reload
+without server rewrites. No key, account, database or provider call is needed.
+Do not put credentials in `VITE_*` variables or browser code.
+
+```sh
+npm run check
+npm run preview
+```
+
+`check` runs Node/TypeScript behavior tests, strict type checking and the production
+build. Preview binds loopback on 4174. No new CI, hosting, security configuration
+or deployment is installed by this foundation.
+
+## Browser verification
+
+Use the selected environment's supplied Playwright and Chromium tooling. The
+helper follows the retained onboarding launch approach with writable temporary
+profile paths. It never disables TLS validation. Set `CHROMIUM_EXECUTABLE_PATH`
+only if the environment supplies Chromium elsewhere; no browser installation is
+performed. With dev and/or preview already running:
+
+```sh
+npm run test:browser -- 5174 4174
+```
+
+The helper checks 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
+all routes, back navigation, reload, preference persistence, independent difficulty,
+owned-key reset, horizontal reflow and absence of external requests. This is
+desktop Chromium with emulated viewport sizes, not physical mobile/voice evidence.
+`SCREENSHOT_PATH=/tmp/lang-lessons-foundation.png` optionally captures one view.
+
+## Contracts, ownership and privacy
+
+- [Architecture](docs/architecture.md): defaults, evidence, interruption, staged
+  coaching, persistence, provider candidate and open validation limits.
+- [Parallel handoff](docs/parallel-handoff.md): exact ownership and entry points.
+- [Typed contracts](src/contracts/index.ts): shared implementation authority.
+- [Atlas intake](docs/atlas-intake-en-wp-01.md): coordinator-owned knowledge update.
+
+Only help, untimed-help, difficulty and preferred-mode settings persist under
+`lang-lessons.settings.v1`. No transcript, audio, score, token, provider mode,
+analytics identifier or learning history is stored. Clearing preferences removes
+only that key. Blocked/malformed storage falls back to in-memory defaults.
+
+Continuous voice is designed around one provider-neutral session and a same-origin
+SDP broker with permanent credentials only on the server. EN-WP-04 owns the
+deterministic mock, provider adapter and reducer. Real calls require separately
+scoped credentials, budget and authorization; no real pronunciation, latency,
+retention or cost validation has occurred in this foundation task.
