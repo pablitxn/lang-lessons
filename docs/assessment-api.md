@@ -8,7 +8,8 @@ Do not implement verb/sentence feature modules here. Foundation remains frozen.
 Import `createAssessmentController`, `AssessmentSnapshot`, `AssessmentController`
 and `AssessmentClock` from `src/assessment/index.ts`. Create one controller per
 mounted lesson feature, with `{ context, allowMock: voice.mode === 'mock',
-onAdvance, onContextChange: context => voice.setContext(context) }`.
+onAdvance, onContextChange: context => voice.setContext(context),
+onCancelHint: () => voice.cancelPendingHints?.() }`.
 Subscribe the controller to the adapter using `voice.subscribe(controller.handleVoiceEvent)`;
 on unmount unsubscribe and `controller.dispose()`. The root owns connecting and
 disconnecting the adapter. Controller subscription fits `useSyncExternalStore`:
@@ -69,3 +70,10 @@ the next cue. Sentence completion waits for explicit `manualContinue()`.
 UI/content owners remain independent. The root integration owner will supply
 adapter/session/settings composition after their exports are ready. This API
 does not require a provider key or a functioning new Cloud container.
+
+Integration additions preserve the original API: `presentation-hold` is a scoped
+root UI hold; `response-pending` blocks advancement during provider generation;
+intent `practice` explicitly resumes after pause. Optional `voice.askQuestion`
+handles typed conversational questions without oral evidence. Root composition
+is in `LessonSession`; see [voice integration](voice-integration.md) for the
+mock simulator, lifecycle, live setup and evidence boundaries.

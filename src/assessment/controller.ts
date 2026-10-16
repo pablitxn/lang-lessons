@@ -27,6 +27,7 @@ export interface AssessmentControllerOptions {
   clock?: AssessmentClock;
   onAdvance?: (snapshot: AssessmentSnapshot) => void;
   onContextChange?: (context: ExerciseContext) => void;
+  onCancelHint?: () => void;
 }
 export type InteractionPatch = Partial<Omit<InteractionState, 'lastActivityAt' | 'activityRevision' | 'processingCount'>>;
 export interface AssessmentController {
@@ -67,6 +68,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
   let pendingHint: HintRequest | null = null;
   let hint: HintResult | null = null;
   let systemError: string | null = null;
+  let providerPending = 0;
   let completed = false;
   let disposed = false;
   let timer: unknown;
@@ -85,7 +87,11 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     timer = undefined;
     ticket = null;
   }
-  function invalidateHint() { hintRevision++; pendingHint = null; hint = null; }
+  function invalidateHint() {
+    const hadHint = pendingHint !== null || hint !== null;
+    hintRevision++; pendingHint = null; hint = null;
+    if (hadHint) options.onCancelHint?.();
+  }
   function touch() {
     cancelTimer();
     interaction = { ...interaction, lastActivityAt: clock.now(), activityRevision: interaction.activityRevision + 1 };
@@ -116,7 +122,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
   function emit() {
     refreshStage();
     interaction = { ...interaction, processingCount:
-      Object.values(evidence).filter(record => record.status === 'processing').length + (pendingHint ? 1 : 0) };
+      Object.values(evidence).filter(record => record.status === 'processing').length + (pendingHint ? 1 : 0) + providerPending };
     if (!disposed && !completed && context.mode !== 'sentence' && isQuiet(interaction)
       && hasAllEvidence(context.mode, context, evidence, allowMock) && !ticket) {
       ticket = { sessionId: context.sessionId, exerciseId: context.exerciseId, generation: context.generation,
@@ -144,6 +150,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     return applicable(obligation) && (context.mode !== 'sentence' || obligation === 'translation' || context.stage !== 'translation');
   }
   function failPending(message: string) {
+    providerPending = 0;
     evidence = { ...evidence };
     for (const [key, record] of Object.entries(evidence)) if (record.status === 'processing') {
       evidence[key as Obligation] = { ref: record.ref, status: 'uncertain', feedback: message };
@@ -157,7 +164,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     startExercise(next) {
       if (disposed || sameExercise(context, next)) return;
       cancelTimer(); context = next; evidence = {}; results = {}; revisions = {}; seen = new Set();
-      completed = false; systemError = null; invalidateHint();
+      completed = false; systemError = null; providerPending = 0; invalidateHint();
       // Keep session connection and speaking signals; reset exercise-specific holds.
       interaction = { ...initialInteraction(), connection: interaction.connection,
         learnerSpeaking: interaction.learnerSpeaking, assistantSpeaking: interaction.assistantSpeaking,
@@ -240,6 +247,10 @@ export function createAssessmentController(options: AssessmentControllerOptions)
           break;
         case 'error': failPending(event.message); controller.setInteraction({ connection: 'error' }); break;
         case 'microphone': controller.activity(); break;
+        case 'presentation-hold': controller.setPresentationHold(event.id, event.held); break;
+        case 'response-pending':
+          if (Number.isInteger(event.count) && event.count >= 0 && event.count <= 8) { providerPending = event.count; controller.activity(); }
+          break;
         case 'transcript': if (sameExercise(context, event.identity)) controller.activity(); break;
         case 'feedback': if (sameExercise(context, event.identity)) controller.activity(); break;
         case 'usage': break;

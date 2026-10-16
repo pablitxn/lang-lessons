@@ -1,7 +1,7 @@
 :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #203b32; background: #f5f4ef; font-synthesis: none; text-rendering: optimizeLegibility; --ink: #203b32; --muted: #5c6d65; --line: #d9dfd5; --paper: #fffefa; --accent: #dce9c0; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 280px; }
-button, input, select { font: inherit; }
+button, input, select, textarea { font: inherit; }
 button, a, select, input[type="checkbox"] { -webkit-tap-highlight-color: transparent; }
 button, select { min-height: 44px; }
 button { cursor: pointer; }
@@ -34,6 +34,15 @@ h3 { font-size: 18px; letter-spacing: -.025em; margin: 0 0 8px; }
 .lesson-outline p { font-size: 14px; margin: 0; color: var(--muted); }
 .lesson-outline .integration-note { border-top: 1px solid #d9dfcf; padding-top: 14px; margin-top: 20px; font-size: 12px; }
 .practice-aside { min-width: 0; }
+.lesson-panel { min-width: 0; }
+.provider-choice { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 13px; }
+.provider-choice select { width: auto; max-width: 100%; }
+.demo-controls { margin-top: 22px; font-size: 13px; }
+.demo-controls summary { cursor: pointer; min-height: 44px; padding: 12px 0; }
+.demo-controls textarea { width: 100%; min-height: 88px; resize: vertical; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); }
+.demo-controls button, .demo-controls select { margin-bottom: 12px; }
+.demo-controls .label-title { margin-top: 12px; }
+button:disabled { cursor: not-allowed; opacity: .6; }
 .session-panel { background: #e8eddc; }
 .status-dot { display: inline-block; border: 1px solid #687660; background: #b4c1a7; border-radius: 100%; width: 7px; height: 7px; margin-right: 8px; }
 .session-panel h2 { font-size: 25px; }
