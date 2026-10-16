@@ -108,6 +108,6 @@ function MockResponse({ session, disabled }: { session: SentenceSession; disable
       onFocus={() => session.setInteraction({ inputFocused: true })} onBlur={() => session.setInteraction({ inputFocused: false })}
       onCompositionStart={() => session.setInteraction({ compositionActive: true })} onCompositionEnd={() => session.setInteraction({ compositionActive: false })} />
     <button type="submit" className="ll-button" disabled={disabled || !draft.trim()}>Send simulated response</button>
-    <p className="ll-muted">This typed fixture simulates an utterance. It is not microphone, pronunciation or real-provider evidence.</p>
+    <p className="ll-muted">This sends an acceptance fixture to the mock adapter, not an English evaluation. It is not microphone, pronunciation or real-provider evidence.</p>
   </form>;
 }

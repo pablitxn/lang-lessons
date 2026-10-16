@@ -5,6 +5,8 @@ import { createSentenceSession, guardTranslationHint, matchingSentences, TRANSLA
 import { SentenceFixtureVoice } from '../src/features/sentences/__fixtures__/voice';
 import { FakeClock } from './helpers/assessment-fixtures';
 import authored from '../content/en-wp-03/evaluation-fixtures.json' with { type: 'json' };
+import { createMockVoiceAdapter } from '../src/voice/mock';
+import { createSessionRuntime } from '../src/app/session-runtime';
 
 const residence = SENTENCES.find(s => s.id === 'sentence-since-2020')!;
 function setup(real = false) {
@@ -182,4 +184,22 @@ test('question-directed or paused final speech cannot be replayed later as pract
   assert.equal(f.voice.inputs.length, before);
   f.voice.transcript('We have lived here since 2020.');
   assert.equal(f.voice.inputs.length, before + 1); f.session.dispose();
+});
+test('current root runtime replays connection and holds; the actual mock adapter registers oral fixtures and questions', async () => {
+  const base = createMockVoiceAdapter();
+  const runtime = createSessionRuntime(base, 'root-sentence-session');
+  await runtime.start();
+  runtime.hold('root-preferences', true);
+  const session = createSentenceSession({ voice: runtime.voice, sessionId: runtime.sessionId,
+    difficulty: { grammar: 2, vocabulary: 1 }, sentences: [residence], random: () => 0, onComplete() {} });
+  assert.equal(session.getSnapshot().assessment.interaction.connection, 'ready');
+  assert.deepEqual(session.getSnapshot().assessment.interaction.presentationHolds, ['root-preferences']);
+  assert.equal(session.submitMockResponse('We have lived here since 2020.'), true);
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(session.getSnapshot().assessment.evidence.translation?.status, 'accepted');
+  runtime.hold('root-preferences', false);
+  session.askQuestion('Why do both residence constructions work?');
+  await Promise.resolve();
+  assert.equal(session.getSnapshot().assessment.interaction.questionPending, true);
+  session.resolveQuestion(); session.dispose(); runtime.stop();
 });
