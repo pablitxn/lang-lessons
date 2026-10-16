@@ -9,7 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --import tsx --test tests/*.test.ts",
-    "check": "npm test && npm run build",
+    "test:content": "python3 content/en-wp-03/check_content.py && python3 -m unittest discover -s content/en-wp-03/tests",
+    "check": "npm test && npm run test:content && npm run build",
     "test:browser": "node scripts/smoke-browser.cjs"
   },
   "dependencies": {

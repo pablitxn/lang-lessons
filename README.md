@@ -27,8 +27,12 @@ npm run check
 npm run preview
 ```
 
-`check` runs Node/TypeScript behavior tests, strict type checking and the production
-build. Preview binds loopback on 4174. No new CI, hosting, security configuration
+`check` runs Node/TypeScript behavior tests, curriculum integrity and Python
+mutation tests, strict type checking and the production build. The curriculum
+checks require Python 3.10+; the selected Cloud environment already supplies it.
+Run them alone with `npm run test:content`. JSON module attributes and explicit
+TypeScript-extension imports are supported by the shared no-emit configuration.
+Preview binds loopback on 4174. No new CI, hosting, security configuration
 or deployment is installed by this foundation.
 
 ## Browser verification
