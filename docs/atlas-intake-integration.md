@@ -27,8 +27,11 @@ project source of truth or a request to mark the entire roadmap complete.
   supplied final compatibility changes for questions, mock registration and hint
   cancellation. Overlapping temporary local edits were discarded in favor of
   that published commit. Integration owns only its root entry-point composition.
-- Verb feature code remains owned by EN-WP-05 and is awaiting integration. The
-  root does not invent a replacement implementation.
+- Verb PR #6 at `bb92fdd20e52a11016eeec130d69748dc14d1fc5`, feature commit
+  `37f288fcda5942a9c51e8988ec9b33f886ac17c8`, owns `src/features/verbs/**`,
+  `docs/verbs.md` and verb tests. It is incorporated additively. Both root verb
+  routes use `VerbLesson`, root lifecycle controls and the stable queued-audio
+  reservation callback; no producer-owned files were independently edited.
 
 ## Implemented decisions and assumptions
 
@@ -79,3 +82,13 @@ was unavailable; requested settings were not falsely reported as verified.
 Exact tested heads and evidence categories are recorded in the integration
 evidence receipt and PR body. Only the coordinator should update Atlas completion
 statuses after review of those limits and the remaining feature handoff.
+
+## All-mode integration follow-up
+
+All three feature routes are now usable locally in deterministic mock mode.
+The previous receipt's pending verb integration item is superseded by
+`docs/evidence/integration-all-modes-2026-10-16.md`; its historical evidence stays
+intact. New runtime tests prove claimed queued audio is not also sent as a
+conversation request, post-checklist questions still work, and stop/restart drops
+unsubmitted old work. The root browser suite covers all three modes and both
+dev/production preview. Real-provider and physical-device checks remain open.

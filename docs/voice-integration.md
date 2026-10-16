@@ -17,10 +17,13 @@ scoped `presentation-hold`; helper holds stay independent. The optional
 conversation, never pronunciation evidence. `response-pending` holds the
 controller while generation is running; playback completion is a separate event.
 
-Feature transcript subscribers allocate current attempts synchronously and call
-`voice.submit`. The root forwards a final live utterance with no submitted
-attempts as conversation-only input, so questions remain possible after all
-obligations are accepted. That path creates no learning acceptance. Microphone
+Feature transcript subscribers allocate current attempts and call `voice.submit`,
+or reserve queued audio synchronously with the stable root `claimUtterance(id)`
+callback. Both paths mark the same bounded set of handled utterance IDs without
+creating an extra provider call. Both verb routes receive this callback. The root
+forwards an unclaimed final live utterance as conversation-only input, so questions
+remain possible after all obligations are accepted. That path creates no learning
+acceptance. Stop/restart invalidates any queued fallback microtask. Microphone
 speech interrupts playback immediately; pause/stop/question intent is interpreted
 after the correlated model response. The visible stop control works immediately.
 `Resume practice` deliberately releases pause/question intent. Preferences and
