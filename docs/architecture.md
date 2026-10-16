@@ -75,6 +75,8 @@ Malformed or uncorrelated provider events cannot create accepted evidence.
 
 Spelling must originate from typed input. Meaning, pronunciation, own sentences
 and sentence-mode work require audio, except explicitly labelled mock fixtures.
+Eligibility helpers reject mock evidence by default; mock sessions must pass an
+explicit `allowMock: true` argument and remain visibly labelled as mock evidence.
 Transcripts can support semantic assessment but never certify pronunciation.
 Ambiguous/absent audio returns uncertain and asks for clarification, with no
 penalty. Do not reject contractions, connected speech, valid agreement ("he buys")
@@ -93,6 +95,8 @@ The reducer owns an `activityRevision`; every activity invalidates the scheduled
 remains pending until resolved even if its speech has ended. Provider speech-end
 does not mean the assistant has finished answering. Helper open/close changes
 presentation only; it must never recreate session/exercise IDs or evidence.
+Scoped presentation-hold IDs, active question drafts and IME composition block
+advancement. Closing a helper renews activity before re-evaluating the pause.
 
 Sentence mode first accepts an oral translation, then identifies its valid tense
 and explains structure and meaning/fit. Explanation attempts are allocated only
@@ -114,8 +118,19 @@ keyword filtering alone cannot prove semantic no-spoiler behavior. If a hint
 fails validation, suppress it and retain progress. Do not speak unvalidated hint
 content; use validated text before asking the voice provider to speak it.
 
+Typing finalizes after 700 ms idle, Enter/Check or changed nonempty blur, after
+IME composition ends. Deduplicate dispatch for the same draft revision. Feedback
+uses `Intl.Segmenter` grapheme indices, including gap positions for omissions;
+never insert the expected missing letter. These details align with the supplied
+EN-WP-02 specification excerpt (task `01a146b8-b7b9-7053-8b90-c121691830c8`;
+coordinator-reported artifact SHA-256
+`8b67a5acf68c6721c0617c35c41876fe39df2b8d168cf6ccd01bdd34493d373f`).
+The original artifact file was not independently available in this container.
+
 Optional under-field help is off by default and appears only after a processed
-genuine spelling error, for 6 seconds. It reveals IPA and Spanish sound guidance
+genuine spelling error, for 8 seconds of foreground visibility. Untimed help is
+an independent accessibility preference. Hold expiration while focused or open;
+editing, dismissing or changing exercise closes an open guide. It reveals IPA and Spanish sound guidance
 on request, never autofills. Uncertainty cannot trigger it. In-call tables have
 a separate visibility state and must preserve current stage and evidence.
 
@@ -136,7 +151,7 @@ reconnect spending. A time cap is not a monetary cap. Budget, rates, retention,
 pronunciation calibration, latency and physical mobile behavior remain unverified.
 Provider-side usage limits and retention settings need explicit later scope.
 
-Store only help/difficulty/preferred-mode settings under a versioned browser key.
+Store only help/untimed-help/difficulty/preferred-mode settings under a versioned browser key.
 Never persist tokens, audio, transcripts, scores or provider mode. Reset clears
 only the owned settings key. No anonymous ID, cookies or analytics are created.
 There is no claim that provider audio has zero retention; review the account's

@@ -19,6 +19,7 @@ export interface LearnerInput extends ExerciseIdentity {
 interface VoiceEventBase { eventId: string; sessionId: string }
 export type VoiceEvent = VoiceEventBase & (
   | { type: 'state'; state: VoiceState }
+  | { type: 'microphone'; muted: boolean }
   | { type: 'speech'; speaker: 'learner' | 'assistant'; active: boolean }
   | { type: 'intent'; intent: 'question' | 'question-resolved' | 'pause' | 'stop' | 'change-mode' }
   | { type: 'transcript'; identity: ExerciseIdentity; utteranceId: string; text: string; final: boolean; uncertain: boolean }
@@ -36,6 +37,7 @@ export interface VoiceAdapter {
   submit(input: LearnerInput): Promise<void>;
   requestHint(request: HintRequest): Promise<void>;
   interrupt(): void;
+  setMuted(muted: boolean): void;
   /** Idempotent; stop tracks, output audio, timers, fetches and data channels. */
   disconnect(): void;
   subscribe(listener: (event: VoiceEvent) => void): () => void;
