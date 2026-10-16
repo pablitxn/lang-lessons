@@ -28,9 +28,10 @@ test('both verb lessons render real images and enforce their shared-controller g
         const errors: string[] = []; const external: string[] = [];
         page.on('pageerror', (error: Error) => errors.push(error.message));
         page.on('request', (request: { url(): string }) => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
-        await page.clock.install();
+        // Freeze before navigation; a cross-process Date.now() + 10ms can expire in transit.
+        await page.clock.install({ time: new Date('2026-10-16T12:00:00Z') });
+        await page.clock.pauseAt(new Date('2026-10-16T13:00:00Z'));
         await page.goto(`http://127.0.0.1:${port}/src/features/verbs/__fixtures__/preview.html?mode=${mode}`, { waitUntil: 'networkidle' });
-        await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 10));
         const lesson = page.locator('.verbs-lesson');
         await lesson.waitFor();
         const original = await lesson.getAttribute('data-exercise');

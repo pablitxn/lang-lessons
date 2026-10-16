@@ -31,9 +31,10 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       page.on('request', (request: { url(): string }) => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
       // Own every app timer from startup; installing after a help timer already
       // exists mixes real and controlled clocks under concurrent browser load.
-      await page.clock.install();
+      // Freeze before navigation rather than racing a Date.now() + 10ms round trip.
+      await page.clock.install({ time: new Date('2026-10-16T12:00:00Z') });
+      await page.clock.pauseAt(new Date('2026-10-16T13:00:00Z'));
       await page.goto(`http://127.0.0.1:${port}/src/ui/mobile/__fixtures__/preview.html`, { waitUntil: 'networkidle' });
-      await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 10));
       await page.getByText('Fixture controls', { exact: true }).click();
       const field = page.getByRole('textbox', { name: 'Past', exact: true });
       const observations = page.getByTestId('observations');

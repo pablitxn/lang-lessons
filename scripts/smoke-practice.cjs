@@ -15,9 +15,10 @@ const { chromium } = require('playwright');
         const page = await context.newPage(); const errors = []; const external = [];
         page.on('pageerror', error => errors.push(error.message));
         page.on('request', request => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
-        await page.clock.install();
+        // Freeze before navigation rather than racing a Date.now() + 10ms round trip.
+        await page.clock.install({ time: new Date('2026-10-16T12:00:00Z') });
+        await page.clock.pauseAt(new Date('2026-10-16T13:00:00Z'));
         await page.goto(`http://127.0.0.1:${port}/#/${mode}`, { waitUntil: 'networkidle' });
-        await page.clock.pauseAt(new Date(await page.evaluate(() => Date.now()) + 10));
         const exercise = page.locator('.verbs-lesson'); await exercise.waitFor();
         const firstId = await exercise.getAttribute('data-exercise');
         assert.equal(await exercise.getAttribute('data-verb'), 'be');
