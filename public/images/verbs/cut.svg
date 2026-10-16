@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Unas tijeras dividen una hoja de papel y dejan un recorte separado.</title>
+<desc id="cue-desc">Describe la acción de las tijeras sobre el papel. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="111" y="58" width="124" height="143" rx="3" fill="#c7ded7" transform=""/><path d="M111 141 L160 141 L142 160" fill="none" stroke="#fffdf6" stroke-width="6"/><path d="M55 114 L157 152 M58 182 L159 127" fill="none" stroke="#6e9294" stroke-width="9"/><circle cx="70" cy="127" r="19" fill="#edb952"/><circle cx="72" cy="175" r="19" fill="#edb952"/><circle cx="104" cy="149" r="5" fill="#173f48"/><path d="M179 146 L218 146 M179 166 L218 166" fill="none" stroke="#90b8af" stroke-width="2"/><path d="M233 201 L262 201 L262 172Z" fill="#c7ded7" /></g>
+</svg>

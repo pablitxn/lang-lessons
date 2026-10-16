@@ -1,7 +1,7 @@
 # Sources, provenance and linguistic review limits
 
 Capture date: 2026-10-16 UTC. Repository technical prose, Spanish teaching
-guidance, meanings, image briefs, sentence prompts, example sentences, rubrics
+guidance, meanings, image briefs, original SVG scenes, sentence prompts, example sentences, rubrics
 and adversarial fixtures are authored for this task. No dictionary prose,
 recordings, illustrations or example-sentence collection is copied. Forms are
 language facts. This is an assistant-curated draft; no independent linguist,
@@ -34,4 +34,6 @@ variants/senses were cross-checked as described above; frequency guidance and
 teaching choices remain subject to final linguistic review. No comprehensive
 dialect inventory is claimed. Additional dictionary access
 would improve provenance but does not justify bypassing TLS or sandbox controls.
-No paid provider, generated audio, browser or real learner evaluation was run.
+No paid provider, generated audio or real learner evaluation was run. The later
+asset follow-up performed actual local browser rendering/load checks as recorded
+in VALIDATION-ASSETS.md, without speech, provider or physical-device evidence.
