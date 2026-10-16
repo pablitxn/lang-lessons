@@ -4,6 +4,8 @@ import { createSessionRuntime } from '../src/app/session-runtime';
 import { createMockVoiceAdapter } from '../src/voice';
 import { createAssessmentController } from '../src/assessment';
 import { FakeClock, batch, verbContext } from './helpers/assessment-fixtures';
+import { createVerbSession } from '../src/features/verbs/session';
+import { VerbFixtureAdapter } from '../src/features/verbs/__fixtures__/adapter';
 
 test('late feature subscriptions receive the current connection and independent root holds', async () => {
   const runtime = createSessionRuntime(createMockVoiceAdapter(), 's1');
@@ -64,4 +66,60 @@ test('initial offline replay and a deliberate idle stop do not show a transport 
   assert.equal(controller.getSnapshot().systemError, null);
   await runtime.start(); runtime.stop(); assert.equal(controller.getSnapshot().systemError, null);
   controller.dispose();
+});
+test('claimed queued verb audio is assessed once and never dispatched as competing conversation', async () => {
+  // This real-mode contract fixture has no media, fetch or provider implementation.
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); await runtime.start();
+  const session = createVerbSession({ voice: runtime.voice, sessionId: 's1', mode: 'verb-visible',
+    claimUtterance: runtime.claimUtterance, random: () => 0, onComplete() {} });
+  base.utterance('First recorded fixture.', false, 'audio-1');
+  base.utterance('Queued recorded fixture.', false, 'audio-2');
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(base.inputs.length, 1); assert.equal(base.inputs[0]?.attempts.length, 7);
+  const first = base.inputs[0]!;
+  base.emit({ type: 'assessment', batch: { ...first, eventId: 'partial', results: first.attempts.map((ref, index) => ({
+    ref, status: index === 0 ? 'accepted' : 'uncertain',
+    source: { kind: 'audio', utteranceId: 'audio-1', audioAvailable: true }, feedback: 'Injected acoustic fixture, not real evaluation.',
+  })) } });
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(base.inputs.length, 2); assert.equal(base.inputs[1]?.utteranceId, 'audio-2');
+  assert.equal(base.inputs[1]?.attempts.length, 6);
+  assert.equal(base.inputs[1]?.attempts.some(ref => ref.obligation === first.attempts[0]?.obligation), false);
+  base.settle(base.inputs[1]!, 'accepted', { kind: 'audio', utteranceId: 'audio-2', audioAvailable: true });
+  base.utterance('A question after the oral checklist.', false, 'audio-3');
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(base.inputs.length, 3); assert.equal(base.inputs[2]?.attempts.length, 0);
+  base.utterance('Duplicate final event.', false, 'audio-3');
+  await Promise.resolve(); assert.equal(base.inputs.length, 3);
+  session.dispose(); runtime.stop();
+});
+test('claimed uncertain audio stays uncertainty without a fallback model request', async () => {
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); await runtime.start();
+  const session = createVerbSession({ voice: runtime.voice, sessionId: 's1', mode: 'verb-image',
+    claimUtterance: runtime.claimUtterance, random: () => 0, onComplete() {} });
+  base.utterance('', true, 'uncertain-audio');
+  await Promise.resolve(); await Promise.resolve();
+  assert.equal(base.inputs.length, 0);
+  assert.equal(Object.values(session.getSnapshot().assessment.evidence).filter(record => record.status === 'uncertain').length, 7);
+  session.dispose(); runtime.stop();
+});
+test('stop and immediate restart cancel an unclaimed conversation microtask', async () => {
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); runtime.voice.setContext(verbContext()); await runtime.start();
+  base.utterance('Queued before stop.', false, 'old-audio');
+  runtime.stop(); await runtime.start(); await Promise.resolve();
+  assert.equal(base.inputs.length, 0); runtime.stop();
+});
+test('stop cancels a claimed queued assessment without replaying it after reconnect', async () => {
+  const base = new VerbFixtureAdapter('s1', false, 'openai-realtime');
+  const runtime = createSessionRuntime(base, 's1'); await runtime.start();
+  const session = createVerbSession({ voice: runtime.voice, sessionId: 's1', mode: 'verb-image',
+    claimUtterance: runtime.claimUtterance, random: () => 0, onComplete() {} });
+  base.utterance('Unsubmitted queued audio.', false, 'old-audio');
+  runtime.stop(); await runtime.start(); await Promise.resolve();
+  assert.equal(base.inputs.length, 0);
+  assert.equal(session.getSnapshot().assessment.interaction.presentationHolds.length, 0);
+  session.dispose(); runtime.stop();
 });

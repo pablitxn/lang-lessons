@@ -6,6 +6,8 @@ import { createSessionRuntime } from './session-runtime';
 
 export interface ComposedLessonProps extends LessonModuleProps {
   connectionState: VoiceState; microphoneMuted: boolean; onStartVoice: () => void; onStopVoice: () => void;
+  claimUtterance: (utteranceId: string) => void;
+  sessionControls: ReactNode;
 }
 export type LessonRenderer = (mode: LessonMode, props: ComposedLessonProps) => ReactNode;
 export function LessonSession({ mode, settings, provider, preferencesOpen, renderLesson, fallback }: {
@@ -30,12 +32,17 @@ export function LessonSession({ mode, settings, provider, preferencesOpen, rende
       .catch(() => { if (!abort.signal.aborted) setBrokerReady(false); });
     return () => abort.abort();
   }, [provider]);
-  const lesson = renderLesson?.(mode, { settings, voice: runtime.voice, sessionId: runtime.sessionId, onComplete: () => setNotice('Exercise completed.'),
-    connectionState: state.state, microphoneMuted: state.muted, onStartVoice: () => { void start(); }, onStopVoice: runtime.stop });
   async function start() {
     if (provider !== 'mock' && (!brokerReady || !consent)) { setNotice('Enable the local voice broker and agree to share audio before starting.'); return; }
     try { await runtime.start(); } catch { setNotice('The session did not start. Check the conversation status and try again.'); }
   }
+  const sessionControls = <div className="ll-actions" role="group" aria-label="Practice session lifecycle">
+    <button className="ll-button" disabled={state.state === 'ready' || state.state === 'connecting'} onClick={() => { void start(); }}>Start practice session</button>
+    <button className="ll-button" onClick={runtime.stop}>Stop practice session</button>
+  </div>;
+  const lesson = renderLesson?.(mode, { settings, voice: runtime.voice, sessionId: runtime.sessionId, onComplete: () => setNotice('Exercise completed.'),
+    connectionState: state.state, microphoneMuted: state.muted, onStartVoice: () => { void start(); }, onStopVoice: runtime.stop,
+    claimUtterance: runtime.claimUtterance, sessionControls });
   return <div className="workspace-grid">
     <section className="lesson-panel panel" aria-label="Current exercise">{lesson ?? fallback}</section>
     <aside className="practice-aside" aria-labelledby="practice-heading">

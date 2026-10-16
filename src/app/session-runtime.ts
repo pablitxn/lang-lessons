@@ -7,10 +7,15 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string) {
   const holds = new Set<string>();
   const submittedUtterances = new Set<string>();
   let sequence = 0;
+  let connectionEpoch = 0;
   let context: ExerciseContext | null = null;
   let abort: AbortController | null = null;
   let snapshot = { state: 'offline' as VoiceState, muted: true, learnerSpeaking: false, assistantSpeaking: false, error: '', contextReady: false };
   const eventBase = () => ({ sessionId, eventId: `root-${++sequence}` });
+  function claimUtterance(utteranceId: string) {
+    submittedUtterances.add(utteranceId);
+    if (submittedUtterances.size > 200) submittedUtterances.delete(submittedUtterances.values().next().value!);
+  }
   function emit(event: VoiceEvent) {
     if (event.sessionId !== sessionId) return;
     if (event.type === 'state') snapshot = { ...snapshot, state: event.state, error: event.state === 'ready' ? '' : snapshot.error,
@@ -20,10 +25,11 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string) {
     if (event.type === 'error') snapshot = { ...snapshot, error: event.message };
     for (const listener of listeners) listener(event);
     if (event.type === 'transcript' && event.final && base.mode === 'openai-realtime') {
-      // Features allocate assessment refs synchronously in their transcript listener.
-      // Keep natural questions available when no lesson obligations remain open.
+      // A feature can reserve audio synchronously while its assessment waits in a queue.
+      // Keep unclaimed natural questions available after the lesson checklist.
+      const epoch = connectionEpoch;
       queueMicrotask(() => {
-        if (snapshot.state !== 'ready' || submittedUtterances.has(event.utteranceId) || !context
+        if (epoch !== connectionEpoch || snapshot.state !== 'ready' || submittedUtterances.has(event.utteranceId) || !context
           || context.exerciseId !== event.identity.exerciseId || context.generation !== event.identity.generation) return;
         void voice.submit({ ...event.identity, inputId: `conversation-${event.utteranceId}`, kind: 'utterance',
           utteranceId: event.utteranceId, text: event.text, attempts: [] }).catch(() => {
@@ -35,13 +41,10 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string) {
     if (event.type === 'intent' && (event.intent === 'stop' || event.intent === 'change-mode')) stop();
   }
   base.subscribe(emit);
-  function stop() { abort?.abort(); abort = null; base.disconnect(); }
+  function stop() { connectionEpoch++; abort?.abort(); abort = null; base.disconnect(); }
   const voice: VoiceAdapter = { ...base,
     async submit(input) {
-      if (input.utteranceId) {
-        submittedUtterances.add(input.utteranceId);
-        if (submittedUtterances.size > 200) submittedUtterances.delete(submittedUtterances.values().next().value!);
-      }
+      if (input.utteranceId) claimUtterance(input.utteranceId);
       await base.submit(input);
     },
     setContext(next) {
@@ -60,7 +63,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string) {
     },
   };
   return {
-    voice, sessionId, getSnapshot: () => snapshot, getContext: () => context,
+    voice, sessionId, claimUtterance, getSnapshot: () => snapshot, getContext: () => context,
     subscribe(observer: () => void) { observers.add(observer); return () => { observers.delete(observer); }; },
     async start() {
       stop(); abort = new AbortController();
