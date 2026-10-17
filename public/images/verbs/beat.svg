@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Una mano mueve un utensilio de alambre dentro de un cuenco con huevo.</title>
-<desc id="cue-desc">Describe lo que se hace con el huevo para mezclarlo. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="55" y="167" width="211" height="14" rx="8" fill="#d9bf94" transform=""/><path d="M72 130 L245 130 Q235 199 158 199 Q83 199 72 130Z" fill="#b7d4d1" /><path d="M173 132 L215 55" fill="none" stroke-width="11"/><path d="M161 151 Q113 137 153 97 Q187 95 183 148 M150 144 Q132 123 166 104 M164 146 Q151 124 173 107" fill="none" stroke-width="3"/><g transform="translate(243 55) rotate(135)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M105 76 Q92 93 107 104 M125 65 Q112 83 126 94" fill="none" stroke="#d36a50"/><path d="M64 142 Q50 112 67 96 Q84 113 76 134Z" fill="#fffdf6" /><circle cx="72" cy="124" r="7" fill="#edb952"/></g>
-</svg>

@@ -1,6 +1,7 @@
 /** EN-WP-03: thin adapter over the independently reviewable authored JSON. */
 import type { FormGuidance, Tense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
+import photoLedger from '../../content/en-wp-03/asset-ledger.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
 
 type ReferenceForm = (typeof verbReference.verbs)[number]['forms']['base'][number];
@@ -15,7 +16,30 @@ function guidance(variants: readonly ReferenceForm[]): FormGuidance {
   };
 }
 
-/** Original local illustrations; ambiguous meanings retain their Spanish context. */
+/** Curated photo collections stay in content; the shared single-image contract is unchanged. */
+export const VERB_PHOTOS = photoLedger.assets.map(asset => ({
+  ...asset,
+  verbId: asset.content_id.slice(5) as VerbId,
+  alt: `${asset.nonvisual_cue_es} ${asset.context_es}`,
+}));
+
+export function photosForVerb(id: VerbId) {
+  return VERB_PHOTOS.filter(photo => photo.verbId === id);
+}
+
+/** Select once when creating an exercise, never during render or a helper toggle. */
+export function pickVerbPhoto(id: VerbId, random: () => number = Math.random) {
+  const photos = photosForVerb(id);
+  const sample = random();
+  if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
+    throw new RangeError('Random sample must be finite and within [0, 1).');
+  }
+  const photo = photos[Math.floor(sample * photos.length)];
+  if (!photo) throw new Error(`No reviewed photograph for ${id}.`);
+  return photo;
+}
+
+/** Real local photographs; ambiguous meanings retain their Spanish context. */
 export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
   // Exact membership is pinned by the independent content check and contract tests.
   id: verb.lemma as VerbId,
@@ -91,11 +115,13 @@ export const VERB_CUE_BRIEFS = verbReference.verbs.map(verb => ({
 }));
 
 /** Injectable uniform selection, confined to exact25, without an immediate repeat. */
-export function pickNextVerb(previous?: VerbId, random: () => number = Math.random): VerbEntry {
+export function pickNextVerb(previous?: VerbId, random: () => number = Math.random, photoRandom: () => number = Math.random): VerbEntry {
   const candidates = VERBS.filter(verb => verb.id !== previous);
   const sample = random();
   if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
     throw new RangeError('Random sample must be finite and within [0, 1).');
   }
-  return candidates[Math.floor(sample * candidates.length)]!;
+  const verb = candidates[Math.floor(sample * candidates.length)]!;
+  const photo = pickVerbPhoto(verb.id, photoRandom);
+  return { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } };
 }

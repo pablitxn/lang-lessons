@@ -31,9 +31,17 @@
 .ll-outcome-icon { margin-right: 8px; }
 .ll-mobile .ll-correct { color: var(--success, #17643c); }
 .ll-mobile .ll-incorrect { color: var(--error, #b42318); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
-.ll-sound-help { margin-top: 8px; }
-.ll-guide { padding: 16px; border-left: 3px solid var(--primary, #08675f); background: var(--surface, #eef0e7); border-radius: 0 12px 12px 0; overflow-wrap: anywhere; }
-.ll-guide .ll-button { margin-top: 8px; }
+.ll-spelling-feedback { position: relative; display: flex; align-items: center; gap: 2px; min-height: 28px; margin-top: 2px; }
+.ll-spelling-feedback .ll-spelling { min-width: 0; padding-top: 0; }
+.ll-sound-help { flex: 0 0 44px; display: inline-flex; }
+.ll-sound-help-trigger { display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 13px; background: transparent; border: 0; border-radius: 50%; color: var(--muted, #5c6d65); cursor: pointer; }
+.ll-sound-help-trigger svg { width: 18px; height: 18px; }
+.ll-sound-help-trigger:hover { color: var(--ink, #203b32); background: color-mix(in srgb, var(--muted, #5c6d65) 8%, transparent); }
+.ll-sound-tooltip { position: absolute; z-index: 6; bottom: 100%; left: 0; width: max-content; max-width: min(25rem, 100%); padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--line, #d9dfd5) 55%, transparent); border-left: 2px solid var(--primary, #08675f); border-radius: 8px; background: color-mix(in srgb, var(--paper, #fffefa) 90%, transparent); backdrop-filter: blur(8px); box-shadow: 0 3px 12px #00000010; font-size: .8125rem; line-height: 1.45; color: var(--ink, #203b32); overflow-wrap: anywhere; }
+.ll-sound-tooltip-line { display: block; }
+.ll-sound-tooltip-line + .ll-sound-tooltip-line { margin-top: 8px; }
+.ll-mobile .ll-sound-tooltip .ll-muted { display: block; font-size: .6875rem; }
+.ll-sound-quote { display: block; font-family: Georgia, 'Times New Roman', serif; font-size: 1rem; }
 .ll-mobile .ll-muted, .ll-sheet .ll-muted { font-size: .875rem; line-height: 1.6; color: var(--muted, #5c6d65); }
 .ll-progress { background: var(--surface, #eef0e7); border: 1px solid var(--line, #d9dfd5); border-radius: 16px; padding: 18px; }
 .ll-mobile .ll-progress-count { font-size: 1.4rem; font-weight: 600; margin-bottom: 12px; }

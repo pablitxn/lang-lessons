@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Dos manos curvan un tubo flexible hasta formar una U.</title>
-<desc id="cue-desc">El material cambia de forma sin romperse. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(75 118) rotate(0)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><g transform="translate(245 118) rotate(180)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M112 126 Q114 178 160 180 Q206 178 208 126" fill="none" stroke="#edb952" stroke-width="19"/><path d="M130 102 Q160 80 190 103" fill="none" stroke="#d36a50" stroke-width="3"/><path d="M132 89 L130 102 L144 102 M178 103 L190 103 L188 90" fill="none" stroke="#d36a50" stroke-width="3"/></g>
-</svg>

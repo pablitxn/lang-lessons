@@ -94,23 +94,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A person inside a house, with an unobtrusive location marker; no clock.",
-        "alt": "Una persona se encuentra dentro de una casa y un marcador señala su ubicación.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/be.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Piensa en dónde está la persona, no en sentarse ni caminar.",
+        "alt": "Una persona sentada junto al mar.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/be-375801.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona se encuentra dentro de una casa y un marcador señala su ubicación.",
-        "context_es": "Piensa en su ubicación, no en entrar ni caminar.",
+        "nonvisual_cue_es": "Una persona sentada junto al mar.",
+        "context_es": "Piensa en dónde está la persona, no en sentarse ni caminar.",
         "ambiguous": true,
-        "src": "/images/verbs/be.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/be-375801.jpg",
+        "attribution": "Photo: Atlantic Ambience / Pexels",
+        "creator": "Atlantic Ambience"
       },
       "notes": [
         "Present family includes am/is/are. Was agrees with I/he/she/it in ordinary indicative clauses; were with you/we/they. Contextual subjunctive were is valid.",
@@ -200,23 +198,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A hand using a whisk in a bowl of eggs; no branding.",
-        "alt": "Una mano mueve un utensilio de alambre dentro de un cuenco con huevo.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/beat.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe la acción del batidor sobre el huevo.",
+        "alt": "Unas manos mezclan un huevo en un cuenco con un batidor.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/beat-8430620.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una mano mueve un utensilio de alambre dentro de un cuenco con huevo.",
-        "context_es": "Describe lo que se hace con el huevo para mezclarlo.",
+        "nonvisual_cue_es": "Unas manos mezclan un huevo en un cuenco con un batidor.",
+        "context_es": "Describe la acción del batidor sobre el huevo.",
         "ambiguous": false,
-        "src": "/images/verbs/beat.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/beat-8430620.jpg",
+        "attribution": "Photo: Sasha Kim / Pexels",
+        "creator": "Sasha Kim"
       },
       "notes": [
         "Beat means defeat or strike rhythmically as well as whisk. Beaten is the teaching participle. An adjective such as beat meaning exhausted does not by itself demonstrate the requested verbal participle."
@@ -317,23 +313,21 @@
         }
       ],
       "image_cue": {
-        "brief": "An ice cube turning into a puddle; avoid a time-labelled sequence.",
-        "alt": "Un cubo de hielo pierde gotas y se transforma en un charco de agua.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/become.svg",
+        "brief": "Use a reviewed real photograph for this meaning. El hielo pasa a ser agua: piensa en el cambio de estado.",
+        "alt": "Dos cubitos de hielo con bordes que se derriten sobre una superficie.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/become-3675620.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Un cubo de hielo pierde gotas y se transforma en un charco de agua.",
-        "context_es": "Describe el cambio de estado del hielo.",
+        "nonvisual_cue_es": "Dos cubitos de hielo con bordes que se derriten sobre una superficie.",
+        "context_es": "El hielo pasa a ser agua: piensa en el cambio de estado.",
         "ambiguous": true,
-        "src": "/images/verbs/become.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/become-3675620.jpg",
+        "attribution": "Photo: Enrique Zafra / Pexels",
+        "creator": "Enrique Zafra"
       },
       "notes": [],
       "source_refs": [
@@ -432,23 +426,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A runner at a starting line with an official raising a flag.",
-        "alt": "Una persona sale de una línea de carrera cuando se levanta una bandera.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/begin.svg",
+        "brief": "Use a reviewed real photograph for this meaning. La carrera todavía no ha empezado: piensa en el momento de iniciarla.",
+        "alt": "Una atleta agachada en la línea de salida de una pista.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/begin-8454950.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona sale de una línea de carrera cuando se levanta una bandera.",
-        "context_es": "Piensa en el momento de iniciar la actividad.",
+        "nonvisual_cue_es": "Una atleta agachada en la línea de salida de una pista.",
+        "context_es": "La carrera todavía no ha empezado: piensa en el momento de iniciarla.",
         "ambiguous": true,
-        "src": "/images/verbs/begin.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/begin-8454950.jpg",
+        "attribution": "Photo: Mikhail Nilov / Pexels",
+        "creator": "Mikhail Nilov"
       },
       "notes": [],
       "source_refs": [
@@ -545,23 +537,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Hands curving a flexible wire; no sharp ends.",
-        "alt": "Dos manos curvan un tubo flexible hasta formar una U.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/bend.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe cómo dobla el cuerpo, no cómo se rompe algo.",
+        "alt": "Una mujer flexiona el cuerpo hacia delante sobre una esterilla.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/bend-3822450.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Dos manos curvan un tubo flexible hasta formar una U.",
-        "context_es": "El material cambia de forma sin romperse.",
+        "nonvisual_cue_es": "Una mujer flexiona el cuerpo hacia delante sobre una esterilla.",
+        "context_es": "Describe cómo dobla el cuerpo, no cómo se rompe algo.",
         "ambiguous": false,
-        "src": "/images/verbs/bend.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/bend-3822450.jpg",
+        "attribution": "Photo: Elina Fairytale / Pexels",
+        "creator": "Elina Fairytale"
       },
       "notes": [],
       "source_refs": [
@@ -677,23 +667,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Two adults making playful predictions about a game using plain counters; no money or betting brands.",
-        "alt": "Dos personas colocan fichas junto a sus predicciones sobre un juego.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/bet.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Imagina que arriesgan una ficha a que ganarán la mano; no es solo jugar o elegir.",
+        "alt": "Unas manos sostienen cartas junto a fichas de juego.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/bet-8191083.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Dos personas colocan fichas junto a sus predicciones sobre un juego.",
-        "context_es": "Cada una arriesga una ficha a que su predicción sea correcta; no es solo elegir.",
+        "nonvisual_cue_es": "Unas manos sostienen cartas junto a fichas de juego.",
+        "context_es": "Imagina que arriesgan una ficha a que ganarán la mano; no es solo jugar o elegir.",
         "ambiguous": true,
-        "src": "/images/verbs/bet.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/bet-8191083.jpg",
+        "attribution": "Photo: cottonbro studio / Pexels",
+        "creator": "cottonbro studio"
       },
       "notes": [
         "Bet is the teaching default; betted is a less common standard past/participle variant. Do not penalize it solely for ending in -ed."
@@ -793,23 +781,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A person taking a bite from an apple.",
-        "alt": "Una persona acerca una manzana a la boca; falta un trozo junto a los dientes.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/bite.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe la acción de los dientes sobre la fruta.",
+        "alt": "Un joven acerca los dientes a una manzana para comerla.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/bite-4385074.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona acerca una manzana a la boca; falta un trozo junto a los dientes.",
-        "context_es": "Describe la acción con los dientes.",
+        "nonvisual_cue_es": "Un joven acerca los dientes a una manzana para comerla.",
+        "context_es": "Describe la acción de los dientes sobre la fruta.",
         "ambiguous": false,
-        "src": "/images/verbs/bite.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/bite-4385074.jpg",
+        "attribution": "Photo: Bastian Riccardi / Pexels",
+        "creator": "Bastian Riccardi"
       },
       "notes": [],
       "source_refs": [
@@ -905,23 +891,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A tiny red drop next to a small finger scratch and a clean bandage; no graphic injury.",
-        "alt": "Un pequeño rasguño en un dedo deja caer una gota roja junto a una venda.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/bleed.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe lo que ocurre cuando sale sangre del dedo, no la prueba médica.",
+        "alt": "Una pequeña gota de sangre en la punta de un dedo.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/bleed-6823416.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Un pequeño rasguño en un dedo deja caer una gota roja junto a una venda.",
-        "context_es": "Describe lo que ocurre con la sangre, no la cura.",
+        "nonvisual_cue_es": "Una pequeña gota de sangre en la punta de un dedo.",
+        "context_es": "Describe lo que ocurre cuando sale sangre del dedo, no la prueba médica.",
         "ambiguous": false,
-        "src": "/images/verbs/bleed.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/bleed-6823416.jpg",
+        "attribution": "Photo: Artem Podrez / Pexels",
+        "creator": "Artem Podrez"
       },
       "notes": [],
       "source_refs": [
@@ -1017,23 +1001,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A person gently blowing soap bubbles through a plain ring.",
-        "alt": "Una persona expulsa aire por un aro y salen burbujas de jabón.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/blow.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe lo que hace con el aire de la boca.",
+        "alt": "Una mujer sopla pompas de jabón con una varilla.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/blow-9775981.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona expulsa aire por un aro y salen burbujas de jabón.",
+        "nonvisual_cue_es": "Una mujer sopla pompas de jabón con una varilla.",
         "context_es": "Describe lo que hace con el aire de la boca.",
         "ambiguous": false,
-        "src": "/images/verbs/blow.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/blow-9775981.jpg",
+        "attribution": "Photo: SHVETS production / Pexels",
+        "creator": "SHVETS production"
       },
       "notes": [],
       "source_refs": [
@@ -1134,23 +1116,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A pencil snapping between two hands; no glass shards.",
-        "alt": "Dos manos separan las partes de un lápiz que se parte por la mitad.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/break.svg",
+        "brief": "Use a reviewed real photograph for this meaning. El lápiz queda en dos partes: piensa en la acción que produce ese resultado.",
+        "alt": "Un lápiz azul partido sobre una superficie azul clara.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/break-6991806.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Dos manos separan las partes de un lápiz que se parte por la mitad.",
-        "context_es": "El lápiz queda en dos partes.",
-        "ambiguous": false,
-        "src": "/images/verbs/break.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "nonvisual_cue_es": "Un lápiz azul partido sobre una superficie azul clara.",
+        "context_es": "El lápiz queda en dos partes: piensa en la acción que produce ese resultado.",
+        "ambiguous": true,
+        "src": "/images/verbs/break-6991806.jpg",
+        "attribution": "Photo: DS stories / Pexels",
+        "creator": "DS stories"
       },
       "notes": [],
       "source_refs": [
@@ -1250,23 +1230,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A guest carrying a fruit bowl toward the viewer at a doorway; distinguish direction from taking away.",
-        "alt": "Una persona llega hacia quien mira, con un cuenco de fruta en las manos.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/bring.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Imagina que quien habla está en la reunión y ella lleva la comida hacia ese lugar.",
+        "alt": "Una mujer lleva una bandeja de comida a una reunión en el jardín.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/bring-16934236.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona llega hacia quien mira, con un cuenco de fruta en las manos.",
-        "context_es": "La fruta se mueve hacia el lugar donde está quien habla.",
+        "nonvisual_cue_es": "Una mujer lleva una bandeja de comida a una reunión en el jardín.",
+        "context_es": "Imagina que quien habla está en la reunión y ella lleva la comida hacia ese lugar.",
         "ambiguous": true,
-        "src": "/images/verbs/bring.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/bring-16934236.jpg",
+        "attribution": "Photo: Samuel Peter / Pexels",
+        "creator": "Samuel Peter"
       },
       "notes": [
         "Reference-point motion matters: Spanish traer rather than an unconditional equivalence with llevar."
@@ -1364,23 +1342,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Hands assembling a small plain wooden box.",
-        "alt": "Dos manos añaden una pieza a una caja de madera en construcción.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/build.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Las piezas se unen para crear una construcción.",
+        "alt": "Un niño apila bloques de madera para crear una torre.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/build-7269700.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Dos manos añaden una pieza a una caja de madera en construcción.",
-        "context_es": "Las piezas se unen para crear un objeto.",
+        "nonvisual_cue_es": "Un niño apila bloques de madera para crear una torre.",
+        "context_es": "Las piezas se unen para crear una construcción.",
         "ambiguous": false,
-        "src": "/images/verbs/build.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/build-7269700.jpg",
+        "attribution": "Photo: www.kaboompics.com / Pexels",
+        "creator": "www.kaboompics.com"
       },
       "notes": [],
       "source_refs": [
@@ -1495,23 +1471,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Dark toast emerging from a plain toaster with a small wisp of smoke; no dangerous flames.",
-        "alt": "Del tostador sale una tostada muy oscura con humo encima.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/burn.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe lo que hace el fuego con la madera, no simplemente calentarla.",
+        "alt": "Unos troncos arden entre llamas y brasas.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/burn-12393076.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Del tostador sale una tostada muy oscura con humo encima.",
-        "context_es": "El exceso de calor daña el pan; no se trata solo de cocinar.",
+        "nonvisual_cue_es": "Unos troncos arden entre llamas y brasas.",
+        "context_es": "Describe lo que hace el fuego con la madera, no simplemente calentarla.",
         "ambiguous": false,
-        "src": "/images/verbs/burn.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/burn-12393076.jpg",
+        "attribution": "Photo: Nuh Isa El Carillo / Pexels",
+        "creator": "Nuh Isa El Carillo"
       },
       "notes": [
         "Burned and burnt are valid in both past and participle slots. Mixed choices across the two slots are valid. Burned is common in US verb use; burnt is common in UK use and adjectival uses. No accent lock."
@@ -1611,23 +1585,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A balloon popping with a few pieces and a motion mark; no text.",
-        "alt": "Un globo se abre de repente y salen trozos en varias direcciones.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/burst.svg",
+        "brief": "Use a reviewed real photograph for this meaning. El globo se rompe de forma repentina por la presión.",
+        "alt": "Un globo rojo acaba de estallar y el agua salpica alrededor.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/burst-149931.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Un globo se abre de repente y salen trozos en varias direcciones.",
-        "context_es": "El aire rompe el globo de forma repentina.",
-        "ambiguous": false,
-        "src": "/images/verbs/burst.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "nonvisual_cue_es": "Un globo rojo acaba de estallar y el agua salpica alrededor.",
+        "context_es": "El globo se rompe de forma repentina por la presión.",
+        "ambiguous": true,
+        "src": "/images/verbs/burst-149931.jpg",
+        "attribution": "Photo: Flickr (Pexels contributor credit) / Pexels",
+        "creator": "Flickr (Pexels contributor credit)"
       },
       "notes": [],
       "source_refs": [
@@ -1723,23 +1695,21 @@
         }
       ],
       "image_cue": {
-        "brief": "An adult exchanging a plain coin for a loaf at a stall; no logos or readable labels.",
-        "alt": "En un puesto, una mano entrega una moneda y recibe una barra de pan.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/buy.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Hay un intercambio de dinero por productos.",
+        "alt": "Una persona paga productos en la caja de una tienda.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/buy-8422732.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "En un puesto, una mano entrega una moneda y recibe una barra de pan.",
-        "context_es": "Hay un intercambio de dinero por un producto.",
+        "nonvisual_cue_es": "Una persona paga productos en la caja de una tienda.",
+        "context_es": "Hay un intercambio de dinero por productos.",
         "ambiguous": false,
-        "src": "/images/verbs/buy.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/buy-8422732.jpg",
+        "attribution": "Photo: Kampus Production / Pexels",
+        "creator": "Kampus Production"
       },
       "notes": [],
       "source_refs": [
@@ -1837,23 +1807,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Two hands receiving a soft ball in flight.",
-        "alt": "Una pelota baja hacia dos manos abiertas que la reciben.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/catch.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Piensa en atrapar la pelota que llega, no en lanzarla.",
+        "alt": "Un jugador de béisbol intenta detener una pelota con el guante.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/catch-13800932.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una pelota baja hacia dos manos abiertas que la reciben.",
-        "context_es": "Las manos detienen la pelota que viene por el aire.",
-        "ambiguous": false,
-        "src": "/images/verbs/catch.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "nonvisual_cue_es": "Un jugador de béisbol intenta detener una pelota con el guante.",
+        "context_es": "Piensa en atrapar la pelota que llega, no en lanzarla.",
+        "ambiguous": true,
+        "src": "/images/verbs/catch-13800932.jpg",
+        "attribution": "Photo: 준섭 윤 / Pexels",
+        "creator": "준섭 윤"
       },
       "notes": [],
       "source_refs": [
@@ -1957,23 +1925,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A hand selecting one of three different pieces of fruit.",
-        "alt": "Una mano señala una pera entre tres frutas diferentes.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/choose.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Hay varias opciones y se selecciona una.",
+        "alt": "Una mujer compara prendas colgadas en perchas.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/choose-6347547.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una mano señala una pera entre tres frutas diferentes.",
+        "nonvisual_cue_es": "Una mujer compara prendas colgadas en perchas.",
         "context_es": "Hay varias opciones y se selecciona una.",
         "ambiguous": false,
-        "src": "/images/verbs/choose.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/choose-6347547.jpg",
+        "attribution": "Photo: Liza Summer / Pexels",
+        "creator": "Liza Summer"
       },
       "notes": [],
       "source_refs": [
@@ -2069,23 +2035,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A person walking toward the viewer at an open doorway; no departure arrow.",
-        "alt": "Una persona avanza por una puerta hacia quien mira, con las manos vacías.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/come.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Imagina que quien habla es quien la espera: la niña se acerca a esa persona.",
+        "alt": "Una niña corre hacia una persona que la espera con los brazos abiertos.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/come-4871792.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona avanza por una puerta hacia quien mira, con las manos vacías.",
-        "context_es": "El movimiento es hacia quien habla; no está saliendo.",
+        "nonvisual_cue_es": "Una niña corre hacia una persona que la espera con los brazos abiertos.",
+        "context_es": "Imagina que quien habla es quien la espera: la niña se acerca a esa persona.",
         "ambiguous": true,
-        "src": "/images/verbs/come.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/come-4871792.jpg",
+        "attribution": "Photo: Gustavo Fring / Pexels",
+        "creator": "Gustavo Fring"
       },
       "notes": [
         "Reference-point motion matters: venir. Context can change the appropriate Spanish rendering."
@@ -2183,23 +2147,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A plain ticket beside five identical generic coins; no printed price or word.",
-        "alt": "Un billete aparece encima de cinco monedas, separadas por una línea.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/cost.svg",
+        "brief": "Use a reviewed real photograph for this meaning. El cartel indica cuánto dinero vale un disco; no se muestra una compra.",
+        "alt": "Un cartel de precio junto a unos discos de vinilo.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/cost-12350015.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Un billete aparece encima de cinco monedas, separadas por una línea.",
-        "context_es": "Las monedas indican el precio del billete; no se muestra una compra.",
+        "nonvisual_cue_es": "Un cartel de precio junto a unos discos de vinilo.",
+        "context_es": "El cartel indica cuánto dinero vale un disco; no se muestra una compra.",
         "ambiguous": true,
-        "src": "/images/verbs/cost.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/cost-12350015.jpg",
+        "attribution": "Photo: Esra Nur Kalay / Pexels",
+        "creator": "Esra Nur Kalay"
       },
       "notes": [
         "Cost is the price sense used by this cue. Costed is grammatical for calculating a budget, a different sense; clarify the sense before correction."
@@ -2298,23 +2260,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Hands cutting paper with rounded craft scissors.",
-        "alt": "Unas tijeras dividen una hoja de papel y dejan un recorte separado.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/cut.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Describe la acción de las tijeras sobre el papel.",
+        "alt": "Unas manos recortan papel con unas tijeras.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/cut-7418089.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Unas tijeras dividen una hoja de papel y dejan un recorte separado.",
+        "nonvisual_cue_es": "Unas manos recortan papel con unas tijeras.",
         "context_es": "Describe la acción de las tijeras sobre el papel.",
         "ambiguous": false,
-        "src": "/images/verbs/cut.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/cut-7418089.jpg",
+        "attribution": "Photo: cottonbro studio / Pexels",
+        "creator": "cottonbro studio"
       },
       "notes": [],
       "source_refs": [
@@ -2411,23 +2371,21 @@
         }
       ],
       "image_cue": {
-        "brief": "Hands distributing plain playing cards around a table; no gambling stakes.",
-        "alt": "Una mano distribuye cartas de una baraja en distintos lugares de la mesa.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/deal.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Imagina que las cartas se entregan una a una a cada participante, no que se barajan.",
+        "alt": "Unas manos manejan cartas sobre una mesa de juego.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/deal-6962261.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una mano distribuye cartas de una baraja en distintos lugares de la mesa.",
-        "context_es": "Las cartas se entregan una a una a las personas que juegan.",
+        "nonvisual_cue_es": "Unas manos manejan cartas sobre una mesa de juego.",
+        "context_es": "Imagina que las cartas se entregan una a una a cada participante, no que se barajan.",
         "ambiguous": true,
-        "src": "/images/verbs/deal.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/deal-6962261.jpg",
+        "attribution": "Photo: cottonbro studio / Pexels",
+        "creator": "cottonbro studio"
       },
       "notes": [
         "The image uses distributing cards. Deal with also means handle a situation; accept Spanish tratar con or lidiar con when the learner explains that sense."
@@ -2525,23 +2483,21 @@
         }
       ],
       "image_cue": {
-        "brief": "An adult using a small spade to make a planting hole.",
-        "alt": "Una pala retira tierra de un agujero y deja un pequeño montículo al lado.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/dig.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Se abre un hueco en la tierra con una pala.",
+        "alt": "Un pie empuja una pala dentro de la tierra del jardín.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/dig-8993775.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una pala retira tierra de un agujero y deja un pequeño montículo al lado.",
-        "context_es": "Se abre un hueco en la tierra para una planta.",
+        "nonvisual_cue_es": "Un pie empuja una pala dentro de la tierra del jardín.",
+        "context_es": "Se abre un hueco en la tierra con una pala.",
         "ambiguous": false,
-        "src": "/images/verbs/dig.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/dig-8993775.jpg",
+        "attribution": "Photo: Riccardo Falconi / Pexels",
+        "creator": "Riccardo Falconi"
       },
       "notes": [],
       "source_refs": [
@@ -2638,23 +2594,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A learner completing a worksheet with abstract marks; no readable words or answers.",
-        "alt": "Una persona completa casillas en una hoja de tareas con un lápiz.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/do.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Piensa en realizar una tarea en general, no específicamente en escribir.",
+        "alt": "Dos niños realizan una tarea escolar en una mesa.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/do-5905850.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona completa casillas en una hoja de tareas con un lápiz.",
-        "context_es": "Piensa en realizar una tarea, no específicamente en dibujar.",
+        "nonvisual_cue_es": "Dos niños realizan una tarea escolar en una mesa.",
+        "context_es": "Piensa en realizar una tarea en general, no específicamente en escribir.",
         "ambiguous": true,
-        "src": "/images/verbs/do.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/do-5905850.jpg",
+        "attribution": "Photo: Katerina Holmes / Pexels",
+        "creator": "Katerina Holmes"
       },
       "notes": [],
       "source_refs": [
@@ -2753,23 +2707,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A hand sketching a simple tree on blank paper.",
-        "alt": "Una mano traza con lápiz un árbol en una hoja de papel.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/draw.svg",
+        "brief": "Use a reviewed real photograph for this meaning. El lápiz crea una imagen, no palabras.",
+        "alt": "Unas manos dibujan un retrato a lápiz sobre papel.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/draw-12453596.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una mano traza con lápiz un árbol en una hoja de papel.",
+        "nonvisual_cue_es": "Unas manos dibujan un retrato a lápiz sobre papel.",
         "context_es": "El lápiz crea una imagen, no palabras.",
         "ambiguous": false,
-        "src": "/images/verbs/draw.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/draw-12453596.jpg",
+        "attribution": "Photo: Tauseef Khaliq / Pexels",
+        "creator": "Tauseef Khaliq"
       },
       "notes": [
         "Drawing a picture is the cue sense; drawing a card or drawing a match can be valid other senses with a matching explanation."
@@ -2890,23 +2842,21 @@
         }
       ],
       "image_cue": {
-        "brief": "A sleeping adult with a cloud-shaped imagined scene of flying above hills; no copyrighted characters.",
-        "alt": "Una persona duerme y una nube muestra una escena imaginada de volar sobre colinas.",
-        "asset_status": "original-local-svg",
-        "file": "public/images/verbs/dream.svg",
+        "brief": "Use a reviewed real photograph for this meaning. Imagina que ve escenas en su mente mientras duerme; la foto no permite observarlas.",
+        "alt": "Una mujer duerme bajo las sábanas de una cama.",
+        "asset_status": "reviewed-real-photograph",
+        "file": "public/images/verbs/dream-9787922.jpg",
         "avoid": [
-          "readable verb/form labels",
-          "tense labels",
-          "answer-bearing captions",
-          "copyrighted characters",
-          "logos"
+          "Generated images, illustrations, synthetic composites and generative edits.",
+          "Printed English target forms or tense labels.",
+          "Treating supplied context as learner evidence."
         ],
-        "nonvisual_cue_es": "Una persona duerme y una nube muestra una escena imaginada de volar sobre colinas.",
-        "context_es": "La escena imaginada ocurre durante el sueño.",
+        "nonvisual_cue_es": "Una mujer duerme bajo las sábanas de una cama.",
+        "context_es": "Imagina que ve escenas en su mente mientras duerme; la foto no permite observarlas.",
         "ambiguous": true,
-        "src": "/images/verbs/dream.svg",
-        "attribution": "Original repository-authored SVG illustration for Lang Lessons; no third-party assets.",
-        "creator": "EN-WP-03 curriculum executor, authored for Pablo Coronel"
+        "src": "/images/verbs/dream-9787922.jpg",
+        "attribution": "Photo: Marcus Aurelius / Pexels",
+        "creator": "Marcus Aurelius"
       },
       "notes": [
         "Dreamed and dreamt are valid in both past and participle slots. Dreamed has /i/ and final /md/; dreamt has /ɛ/ and final /mt/. Either spelling can occur in a complete construction.",

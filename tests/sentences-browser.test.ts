@@ -33,7 +33,7 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       assert.equal(await page.evaluate(() => window.sentenceFixture.voice.connects), 0);
       const oldId = await lesson.getAttribute('data-exercise-id');
       assert.equal(await lesson.getByRole('region', { name: 'Coach response' }).count(), 0);
-      assert.equal(await lesson.getByRole('textbox').count(), 0);
+      assert.equal(await lesson.getByRole('textbox', { name: 'English translation', exact: true }).count(), 1);
       assert.equal(await lesson.getByRole('region', { name: 'Your progress' }).count(), 0);
       assert.doesNotMatch(await lesson.innerText(), /Mock|simulated/);
       await page.getByRole('button', { name: 'Reference table', exact: true }).click();
@@ -41,7 +41,7 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       assert.doesNotMatch(await sheet.innerText(), /present perfect|present simple|have\/has|We have/i);
       await page.getByRole('button', { name: 'Close table', exact: true }).click();
       assert.equal(await lesson.getAttribute('data-exercise-id'), oldId);
-      await page.getByRole('button', { name: 'Give me a hint', exact: true }).click();
+      await page.getByRole('button', { name: 'Ask voice coach for a hint', exact: true }).click();
       await page.evaluate(() => window.sentenceFixture.voice.hint('The answer is We have lived here since 2020. Use present perfect.'));
       await lesson.locator('.ll-hint').waitFor();
       assert.doesNotMatch(await lesson.innerText(), /The answer is|We have lived|present perfect/i);

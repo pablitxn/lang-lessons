@@ -4,9 +4,9 @@ const path = require('node:path');
 const { chromium } = require('playwright');
 
 // Same supplied Playwright/Chromium entry point as the current foundation helper.
-// Real local SVG fetch/decode/render checks; no microphone, provider or TLS bypass.
+// Real local photograph fetch/decode/render checks; no microphone, provider or TLS bypass.
 (async () => {
-  const verbs = JSON.parse(fs.readFileSync(path.join(__dirname, 'verbs.json'), 'utf8')).verbs;
+  const photos = JSON.parse(fs.readFileSync(path.join(__dirname, 'asset-ledger.json'), 'utf8')).assets;
   const ports = process.argv.slice(2);
   assert.ok(ports.length > 0);
   for (const port of ports) assert.match(port, /^\d{4,5}$/);
@@ -25,11 +25,11 @@ const { chromium } = require('playwright');
       page.on('pageerror', error => failures.push(error.message));
       page.on('request', request => { if (!request.url().startsWith(origin + '/')) externalRequests.push(request.url()); });
       await page.goto(origin + '/', { waitUntil: 'networkidle' });
-      for (const verb of verbs) {
-        const response = await context.request.get(origin + verb.image_cue.src);
-        assert.equal(response.status(), 200, verb.id);
-        assert.match(response.headers()['content-type'], /image\/svg\+xml/, verb.id);
-        assert.equal(await response.text(), fs.readFileSync(path.join(__dirname, '../..', verb.image_cue.file), 'utf8'));
+      for (const photo of photos) {
+        const response = await context.request.get(origin + photo.src);
+        assert.equal(response.status(), 200, photo.asset_id);
+        assert.match(response.headers()['content-type'], /image\/jpeg/, photo.asset_id);
+        assert.deepEqual(await response.body(), fs.readFileSync(path.join(__dirname, '../..', photo.file)));
       }
       const render = async (width, columns) => {
         await page.setViewportSize({ width, height: 900 });
@@ -41,19 +41,19 @@ const { chromium } = require('playwright');
           for (const [index, item] of items.entries()) {
             const figure = document.createElement('figure');
             const img = document.createElement('img');
-            img.src = item.image_cue.src;
-            img.alt = item.image_cue.nonvisual_cue_es + ' ' + item.image_cue.context_es;
+            img.src = item.src;
+            img.alt = item.nonvisual_cue_es + ' ' + item.context_es;
             const caption = document.createElement('figcaption');
-            caption.textContent = `${index + 1}. ${item.image_cue.context_es}${item.image_cue.ambiguous ? ' (Contexto necesario.)' : ''}`;
+            caption.textContent = `${index + 1}. ${item.context_es}${item.ambiguous ? ' (Contexto necesario.)' : ''}`;
             figure.append(img, caption);
             main.append(figure);
           }
           document.body.replaceChildren(main);
-        }, { items: verbs, columns });
+        }, { items: photos, columns });
         await page.evaluate(async () => {
           await Promise.all([...document.images].map(image => image.decode()));
           for (const image of document.images) {
-            if (image.naturalWidth !== 320 || image.naturalHeight !== 240) throw new Error('Unexpected SVG intrinsic dimensions');
+            if (image.naturalWidth < 320 || image.naturalWidth > 960 || image.naturalHeight < 200) throw new Error('Unexpected photograph dimensions');
             if (!image.alt) throw new Error('Missing nonvisual cue');
           }
           if (document.documentElement.scrollWidth > innerWidth) throw new Error('Asset review grid overflows viewport');
@@ -66,7 +66,7 @@ const { chromium } = require('playwright');
       }
       assert.deepEqual(failures, []);
       assert.deepEqual(externalRequests, []);
-      console.log(JSON.stringify({ status: 'passed', port, assets: verbs.length, checks: ['HTTP 200 and SVG MIME', 'served source equality', 'all SVG image decodes', '320/390/844/1024 viewport reflow', 'nonempty Spanish nonvisual cues', 'no external requests'], pageErrors: failures.length }));
+      console.log(JSON.stringify({ status: 'passed', port, assets: photos.length, checks: ['HTTP 200 and JPEG MIME', 'served source equality', 'all photograph decodes', '320/390/844/1024 viewport reflow', 'nonempty Spanish nonvisual cues', 'no external requests'], pageErrors: failures.length }));
       await context.close();
     }
   } finally { await browser.close(); }

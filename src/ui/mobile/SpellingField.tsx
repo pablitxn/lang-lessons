@@ -23,6 +23,7 @@ export function SpellingField(props: SpellingFieldProps) {
   const { label, value, attempt, result, processing = false, helpEnabled = false, untimedHelp = false, guidance } = props;
   const id = useId();
   const group = useRef<HTMLDivElement>(null);
+  const help = useRef<HTMLSpanElement>(null);
   const composing = useRef(false);
   const focused = useRef(false);
   const [compositionActive, setCompositionActive] = useState(false);
@@ -49,13 +50,11 @@ export function SpellingField(props: SpellingFieldProps) {
     latest.current.onFinalize(value);
   }
 
-  function check() {
+  function offerHelp() {
     if (eligible && !offered) {
       remaining.current = TIMING.helpOfferMs;
       setOffered(true);
-      return;
     }
-    finalize();
   }
 
   useEffect(() => {
@@ -96,19 +95,29 @@ export function SpellingField(props: SpellingFieldProps) {
     if (!guideOpen || !eligible) return;
     const hold = `${id}-sound-guide`;
     latest.current.onHoldChange?.(hold, true);
-    return () => latest.current.onHoldChange?.(hold, false);
+    const dismiss = (event: PointerEvent) => {
+      if (event.target instanceof Node && !help.current?.contains(event.target)) closeGuide();
+    };
+    document.addEventListener('pointerdown', dismiss);
+    return () => {
+      latest.current.onHoldChange?.(hold, false);
+      document.removeEventListener('pointerdown', dismiss);
+    };
   }, [id, guideOpen, eligible]);
 
   useEffect(() => () => latest.current.onActivity?.({ inputFocused: false, compositionActive: false }), []);
 
-  function closeGuide() {
-    // Restore focus before removing the currently focused Close control.
-    group.current?.querySelector<HTMLInputElement>('input')?.focus();
-    setGuideOpen(false);
-    setOffered(false);
+  function showGuide() {
+    latest.current.onHoldChange?.(`${id}-sound-guide`, true);
+    setGuideOpen(true);
   }
 
-  const status = processing ? 'Checking…' : accepted ? 'Correct form' : error ? 'Check the highlighted letters or gap markers.'
+  function closeGuide() {
+    latest.current.onHoldChange?.(`${id}-sound-guide`, false);
+    setGuideOpen(false);
+  }
+
+  const status = processing ? 'Checking…' : accepted ? 'Correct form' : error ? current?.feedback || 'Check the highlighted letters or gap markers.'
     : current?.status === 'uncertain' ? 'Needs clarification. Try checking again.' : '';
 
   return <div className="ll-field" ref={group}
@@ -123,12 +132,13 @@ export function SpellingField(props: SpellingFieldProps) {
         latest.current.onActivity?.({ inputFocused: false, compositionActive: composing.current });
       }
     }} onKeyDown={event => {
-      if (event.key === 'Escape' && guideOpen) { event.preventDefault(); closeGuide(); }
+      if (event.key === 'Escape' && guideOpen) { event.preventDefault(); event.stopPropagation(); closeGuide(); }
     }}>
     <label htmlFor={id}>{label}</label>
     <div className="ll-field-controls">
       <input id={id} value={value} autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
         aria-invalid={error || undefined} aria-describedby={`${id}-status${guideOpen && eligible ? ` ${id}-guide` : ''}`}
+        onFocus={offerHelp}
         onChange={event => { finalized.current = ''; props.onChange(event.target.value); }}
         onCompositionStart={() => {
           composing.current = true; setCompositionActive(true);
@@ -140,25 +150,32 @@ export function SpellingField(props: SpellingFieldProps) {
         }}
         onBlur={finalize}
         onKeyDown={event => {
-          if (event.key === 'Enter' && !event.nativeEvent.isComposing && !composing.current) { event.preventDefault(); finalize(); }
+          if (event.key === 'Enter' && !event.nativeEvent.isComposing && !composing.current) { event.preventDefault(); offerHelp(); finalize(); }
         }} />
-      <button type="button" className="ll-button ll-check" onClick={check}>Check<span className="ll-sr-only"> {label}</span></button>
     </div>
-    {current && (accepted || error) && <div className={`ll-spelling ${accepted ? 'll-correct' : ''}`} aria-hidden="true">
-      <span className="ll-outcome-icon">{accepted ? '✓' : '!'}</span>
-      {spellingSegments(current).map((segment, index) => <span key={index} className={!accepted && segment.incorrect ? 'll-incorrect' : undefined}
-        data-gap={segment.gap || undefined}>{segment.text}</span>)}
+    {current && (accepted || error) && <div className="ll-spelling-feedback">
+      <div className={`ll-spelling ${accepted ? 'll-correct' : ''}`} aria-hidden="true">
+        <span className="ll-outcome-icon">{accepted ? '✓' : '!'}</span>
+        {spellingSegments(current).map((segment, index) => <span key={index} className={!accepted && segment.incorrect ? 'll-incorrect' : undefined}
+          data-gap={segment.gap || undefined}>{segment.text}</span>)}
+      </div>
+      {eligible && (offered || guideOpen) && <span ref={help} className="ll-sound-help"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => { setHovered(false); if (!help.current?.contains(document.activeElement)) closeGuide(); }}
+        onFocus={showGuide} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) closeGuide(); }}>
+        <button className="ll-sound-help-trigger" type="button" aria-label={`Sound help for ${label}`}
+          aria-describedby={guideOpen ? `${id}-guide` : undefined} onMouseEnter={showGuide} onClick={showGuide}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 17h.01" />
+          </svg>
+        </button>
+        {guideOpen && <span id={`${id}-guide`} className="ll-guide ll-sound-tooltip" role="tooltip">
+          {guidance ? <><span className="ll-sound-tooltip-line"><span className="ll-muted">Phonetics</span><span className="ll-sound-quote">{guidance.ipa}</span></span>
+            <span className="ll-sound-tooltip-line"><span className="ll-muted">Pronunciation (approx.)</span><span className="ll-sound-quote" lang="es">{guidance.spanishSoundGuide}</span></span></>
+            : <span>Sound guidance is unavailable. You can ask your coach.</span>}
+        </span>}
+      </span>}
     </div>}
-    <p className="ll-field-status" id={`${id}-status`} role="status">{status}{current?.feedback ? ` ${current.feedback}` : ''}</p>
-    {eligible && (offered || guideOpen) && <div className="ll-sound-help" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-      {!guideOpen && <button className="ll-button" type="button" aria-expanded={false} aria-controls={`${id}-guide`}
-        onClick={() => setGuideOpen(true)}>Sound help<span className="ll-sr-only"> for {label}</span></button>}
-      {guideOpen && <div id={`${id}-guide`} className="ll-guide">
-        {guidance ? <><p><span className="ll-muted">Phonetics: </span><span>{guidance.ipa}</span></p>
-          <p><span className="ll-muted">Pronunciation (approx.): </span><span lang="es">{guidance.spanishSoundGuide}</span></p></>
-          : <p>Sound guidance is unavailable. You can ask your coach.</p>}
-        <button className="ll-button" type="button" onClick={closeGuide}>Close sound help</button>
-      </div>}
-    </div>}
+    <p className={`ll-field-status${error || accepted || !status ? ' ll-sr-only' : ''}`} id={`${id}-status`} role="status">{status}{!error && current?.feedback ? ` ${current.feedback}` : ''}</p>
   </div>;
 }

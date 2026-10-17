@@ -27,8 +27,8 @@ No model-generated runtime hints are stored as authored curriculum.
 | verb | `lemma`, `inventory_order`, `meanings_es[]`, `cue_sense`, `forms.{base,past,participle}[]`, `sentence_examples[]`, `image_cue`, `notes[]`, `source_refs[]` |
 | form | `text`, slash-delimited broad `ipa`, short Spanish-readable `sound_spelling_es`, reference `sound_guide_refs[]` and `sound_note_es`; each alternative is independently accepted in its slot |
 | sentence example | `family` base/past/participle, `text`, `construction`; examples demonstrate grammar, not originality or an answer whitelist |
-| image cue | `brief`, Spanish `alt`/`nonvisual_cue_es`, `context_es`, `ambiguous`, `asset_status: original-local-svg`, local `file`/`src`, attribution/creator and `avoid[]` |
-| asset-ledger.json | `schema_version: en-wp-03/assets/1`, authored provenance and 25 unique content/asset IDs, local paths, SHA-256, rights basis and review status |
+| image cue | `brief`, Spanish `alt`/`nonvisual_cue_es`, `context_es`, `ambiguous`, `asset_status: reviewed-real-photograph`, local `file`/`src`, attribution/creator and `avoid[]` |
+| asset-ledger.json | `schema_version: en-wp-03/assets/2`, curated photo provenance, one or more unique asset IDs for each of the 25 content IDs, per-photo context, local JPEG paths, SHA-256, source/creator/license and review status |
 | sentences.json | four `scope` values, local `difficulty_scale`, `sentences[]`; stable `sentence-{slug}` IDs |
 | sentence | `primary_tense`, `difficulty.{grammar,vocabulary}`, `prompt_es`, `context_es`, `accepted_examples[]`, `acceptance_policy: semantic-open-set`, `meaning_requirements[]`, `post_acceptance[]`, `hint_intents[]`, `source_refs[]` |
 | accepted example | `text`, `tense`, `structure`, `meaning`; attach follow-up to the tense actually used, even when it differs from `primary_tense` |
@@ -62,13 +62,13 @@ ask about the intended meaning and explain the cue; do not label the valid sense
 non-English. Be, beat, deal, draw and dream need particular context sensitivity.
 An image cues a lemma/sense, never a tense.
 
-The 25 original scenes are reproducible with `render_cues.py`. Ambiguous,
+The photo ledger owns all real photographs; generated scenes are prohibited. Ambiguous,
 abstract and directional meanings carry an explicit `ambiguous` flag and
-Spanish contextual cue. Consumers can obtain it from `VERB_CUE_BRIEFS`; the
+Spanish contextual cue. Consumers obtain the selected photo metadata from `VERB_PHOTOS`; `VERB_CUE_BRIEFS` retains the primary cue for compatibility. The
 shared `image.alt` also combines the nonvisual description and context. Display
 the contextual cue with ambiguous images and accept discussion of alternative
 readings. Context/alt text are supplied prompts, not learner evidence. No
-printed English target word, form or tense appears in the illustrations.
+printed English target word, form or tense appears in the photographs.
 
 For the three original learner sentences, assess a complete, meaningful clause
 using the requested family: normal finite present agreement, finite past, and a

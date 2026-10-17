@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Una pelota baja hacia dos manos abiertas que la reciben.</title>
-<desc id="cue-desc">Las manos detienen la pelota que viene por el aire. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="164" cy="112" r="29" fill="#edb952"/><path d="M137 107 Q164 119 187 91 M161 84 Q150 115 175 138" fill="none" stroke="#9c7135" stroke-width="2"/><g transform="translate(75 159) rotate(-45)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><g transform="translate(248 159) rotate(225)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M151 51 L153 67 M173 43 L172 63 M194 52 L187 69" fill="none" stroke="#d36a50" stroke-width="4"/></g>
-</svg>

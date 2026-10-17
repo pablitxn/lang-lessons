@@ -58,16 +58,23 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
     </header>
     <main id="lesson" tabIndex={-1}>
       {mode && current ? <>
-        <div className="lesson-heading"><a className="back-link" href="#/" aria-label="All lessons">← All lessons</a><h1>{current.title}</h1></div>
+        <div className="lesson-heading">
+          <a className="back-link" href="#/" aria-label="All lessons">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m10 6-6 6 6 6M4 12h16" /></svg>
+            All lessons
+          </a>
+          <span className="lesson-heading-divider" aria-hidden="true">/</span>
+          <h1 aria-label={current.title}>{current.short}</h1>
+        </div>
         <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
           renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />
       </> : <section className="lesson-catalog" aria-labelledby="catalog-title">
-        <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Pick a practice. Start a conversation.</p></div>
+        <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Practice with your voice, or write a translation.</p></div>
         <nav className="lesson-cards" aria-label="Lessons">
           {MODES.map((item, index) => <a className={`lesson-card lesson-card-${item.id}`} key={item.id}
             href={modeHref(item.id)} aria-label={`Start ${item.title}`} onClick={() => updateSettings({ ...settings, preferredMode: item.id })}>
             <div className="lesson-card-art" aria-hidden="true">
-              {item.id === 'verb-image' ? <img src="/images/verbs/bite.svg" alt="" /> : item.id === 'verb-visible'
+              {item.id === 'verb-image' ? <div className="verb-card-forms picture-card-words"><span>see</span><span>think</span><span>say</span></div> : item.id === 'verb-visible'
                 ? <div className="verb-card-forms"><span>go</span><span>went</span><span>gone</span></div>
                 : <div className="sentence-card-words"><span>Hola.</span><span>Hello.</span></div>}
             </div>

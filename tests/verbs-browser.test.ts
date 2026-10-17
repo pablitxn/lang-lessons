@@ -22,7 +22,7 @@ test('both verb lessons render real images and enforce their shared-controller g
       env: { ...process.env, XDG_CONFIG_HOME: '/tmp/lang-lessons-browser-config', XDG_CACHE_HOME: '/tmp/lang-lessons-browser-cache' } });
     for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
       for (const mode of ['image', 'visible']) {
-        const context: any = await browser.newContext({ viewport });
+        const context: any = await browser.newContext({ viewport, hasTouch: viewport.width < 600, reducedMotion: 'reduce' });
         await context.addInitScript(() => { Math.random = () => 0; });
         const page: any = await context.newPage();
         const errors: string[] = []; const external: string[] = [];
@@ -39,6 +39,10 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getByRole('region', { name: 'Coach response' }).count(), 0);
         assert.equal(await lesson.getByRole('textbox', { name: 'Ask your coach a question' }).count(), 0);
         assert.equal(await lesson.getByRole('region', { name: 'Your progress' }).count(), 0);
+        assert.equal(await lesson.getByRole('button', { name: /^Check / }).count(), 0);
+        assert.equal(await lesson.getByRole('button', { name: 'Give me a hint', exact: true }).count(), 0);
+        if (mode === 'image') assert.equal(await lesson.getByRole('button', { name: 'Previous image', exact: true }).isDisabled(), true);
+        else assert.equal(await lesson.getByRole('button', { name: 'Previous word', exact: true }).count(), 0);
         assert.doesNotMatch(await lesson.innerText(), /Mock|simulated|microphone or provider requests/);
         await page.getByRole('button', { name: 'Send uncertain fixture', exact: true }).click();
         await lesson.locator('.verbs-clarification').filter({ hasText: /Please say it again/ }).waitFor();
@@ -47,6 +51,80 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await page.getByRole('textbox', { name: 'Base form', exact: true }).count(), mode === 'image' ? 1 : 0);
         if (mode === 'image') {
           assert.equal(await lesson.locator('.ll-cue img').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0), true);
+          const selectedPhoto = await lesson.locator('.ll-cue img').getAttribute('src');
+          assert.match(selectedPhoto, /\.jpg$/);
+          const picture = lesson.locator('.verbs-picture');
+          const geometry = await picture.evaluate((image: HTMLImageElement) => ({
+            naturalRatio: image.naturalWidth / image.naturalHeight,
+            renderedRatio: image.clientWidth / image.clientHeight,
+            width: image.getBoundingClientRect().width,
+            frameWidth: image.closest('figure')!.getBoundingClientRect().width,
+          }));
+          assert.ok(Math.abs(geometry.naturalRatio - geometry.renderedRatio) < .02, 'The complete photograph keeps its natural aspect ratio');
+          assert.ok(Math.abs(geometry.width - geometry.frameWidth) < 1, 'The frame hugs the photograph without empty gutters');
+          const photoBounds = await picture.boundingBox();
+          for (const name of ['Previous image', 'Next image']) {
+            const bounds = await lesson.getByRole('button', { name, exact: true }).boundingBox();
+            assert.ok(bounds.x >= photoBounds.x && bounds.x + bounds.width <= photoBounds.x + photoBounds.width
+              && bounds.y >= photoBounds.y && bounds.y + bounds.height <= photoBounds.y + photoBounds.height, 'Navigation sits inside the photograph');
+          }
+          const expand = lesson.getByRole('button', { name: 'Expand picture', exact: true });
+          assert.equal(await expand.evaluate((button: HTMLElement) => getComputedStyle(button).opacity), '0');
+          if (viewport.width < 600) await picture.tap(); else {
+            await picture.hover();
+            await page.clock.runFor(200);
+            assert.equal(await expand.evaluate((button: HTMLElement) => getComputedStyle(button).opacity), '0', 'Hovering the photograph does not reveal controls');
+            await expand.hover();
+          }
+          await page.clock.runFor(200);
+          assert.equal(await expand.evaluate((button: HTMLElement) => getComputedStyle(button).opacity), '1');
+          await expand.click();
+          const enlarged = page.getByRole('dialog', { name: 'Expanded picture', exact: true });
+          await enlarged.waitFor();
+          const expandedBounds = await enlarged.boundingBox();
+          assert.equal(expandedBounds.width, viewport.width);
+          assert.equal(expandedBounds.height, viewport.height);
+          assert.equal(await enlarged.locator('img').getAttribute('src'), selectedPhoto);
+          await page.keyboard.press('Tab');
+          assert.equal(await enlarged.evaluate((dialog: HTMLDialogElement) => dialog.contains(document.activeElement)), true, 'Focus remains in the modal');
+          await page.keyboard.press('Escape');
+          await enlarged.waitFor({ state: 'hidden' });
+          assert.equal(await expand.evaluate((button: HTMLElement) => document.activeElement === button), true);
+          assert.equal(await page.evaluate(() => document.body.style.overflow), '');
+          await page.keyboard.press('Enter');
+          await enlarged.waitFor();
+          await page.getByRole('button', { name: 'Close expanded picture', exact: true }).click();
+          await enlarged.waitFor({ state: 'hidden' });
+          await page.keyboard.press('Tab');
+          assert.equal(await lesson.getByRole('button', { name: 'Picture information', exact: true })
+            .evaluate((button: HTMLElement) => document.activeElement === button), true, 'Keyboard navigation resumes at the next photo control');
+          await page.keyboard.press('Escape');
+          await page.locator('h1').click();
+          assert.equal(await lesson.locator('.verbs-photo-context').count(), 0);
+          assert.equal(await lesson.locator('.verbs-photo-credit').count(), 0);
+          const information = lesson.getByRole('button', { name: 'Picture information', exact: true });
+          await information.hover();
+          await lesson.getByRole('tooltip').waitFor();
+          assert.equal(await lesson.getByRole('tooltip').innerText(), 'The sea asks only for your presence.');
+          assert.equal(await lesson.getByRole('tooltip').getAttribute('lang'), 'en');
+          await lesson.getByRole('tooltip').hover();
+          assert.equal(await lesson.getByRole('tooltip').isVisible(), true);
+          const tooltipBounds = await lesson.getByRole('tooltip').boundingBox();
+          assert.ok(tooltipBounds.x >= 0 && tooltipBounds.x + tooltipBounds.width <= viewport.width);
+          await page.mouse.move(0, 0);
+          await lesson.getByRole('tooltip').waitFor({ state: 'hidden' });
+          await information.focus();
+          await lesson.getByRole('tooltip').waitFor();
+          await page.keyboard.press('Escape');
+          await lesson.getByRole('tooltip').waitFor({ state: 'hidden' });
+          if (viewport.width < 600) {
+            await information.tap();
+            await lesson.getByRole('tooltip').waitFor();
+            await page.locator('h1').tap();
+            await lesson.getByRole('tooltip').waitFor({ state: 'hidden' });
+          }
+          assert.equal(await lesson.locator('.ll-cue img').getAttribute('src'), selectedPhoto);
+          assert.equal(await lesson.getAttribute('data-exercise'), original);
           const base = page.getByRole('textbox', { name: 'Base form', exact: true });
           await base.fill('zzzz');
           await page.clock.runFor(600);
@@ -55,19 +133,75 @@ test('both verb lessons render real images and enforce their shared-controller g
           await page.locator('.ll-incorrect').first().waitFor();
           assert.equal(await page.getByRole('button', { name: 'Sound help for Base form', exact: true }).count(), 0);
           await page.getByLabel('Enable sound help', { exact: true }).check();
-          await page.getByRole('button', { name: 'Sound help for Base form', exact: true }).click();
-          await page.locator('.ll-guide').waitFor();
+          const soundHelp = page.getByRole('button', { name: 'Sound help for Base form', exact: true });
+          await soundHelp.waitFor();
+          const nextField = page.getByRole('textbox', { name: 'Past', exact: true });
+          const nextFieldBefore = await nextField.evaluate((input: HTMLElement) => input.getBoundingClientRect().top + window.scrollY);
+          if (viewport.width < 600) await soundHelp.tap(); else await soundHelp.hover();
+          const soundTooltip = page.getByRole('tooltip');
+          await soundTooltip.waitFor();
+          assert.match(await soundTooltip.innerText(), /Phonetics/);
+          assert.equal(await nextField.evaluate((input: HTMLElement) => input.getBoundingClientRect().top + window.scrollY), nextFieldBefore, 'Sound help overlays rather than moving the fields');
           assert.equal(await base.inputValue(), 'zzzz');
-          await page.getByRole('button', { name: 'Close sound help', exact: true }).click();
+          assert.equal(await base.evaluate((input: HTMLElement) => getComputedStyle(input.closest('.ll-field')!.querySelector('.ll-field-status')!).position), 'absolute');
+          await page.locator('h1').click();
+          await soundTooltip.waitFor({ state: 'hidden' });
           await base.fill('be');
           await page.clock.runFor(800);
           await page.locator('.ll-spelling.ll-correct').waitFor();
+        } else {
+          const cue = lesson.locator('.verbs-word-cue');
+          const nextWord = cue.getByRole('button', { name: 'Next word', exact: true });
+          const opacity = () => nextWord.evaluate((button: HTMLElement) => getComputedStyle(button).opacity);
+          assert.equal(await opacity(), '0');
+          const cueBounds = await cue.boundingBox();
+          const nextBounds = await nextWord.boundingBox();
+          assert.ok(nextBounds.x >= cueBounds.x && nextBounds.x + nextBounds.width <= cueBounds.x + cueBounds.width
+            && nextBounds.y >= cueBounds.y && nextBounds.y + nextBounds.height <= cueBounds.y + cueBounds.height, 'Next word sits inside the supplied-word cue');
+          if (viewport.width < 600) {
+            await cue.locator('.ll-base').tap();
+            assert.equal(await cue.getAttribute('data-revealed'), 'true');
+            assert.equal(await lesson.getAttribute('data-exercise'), original, 'Touch reveals navigation without skipping the word');
+          } else await cue.hover();
+          assert.equal(await opacity(), '1');
+          if (viewport.width < 600) await page.clock.runFor(4500); else await page.mouse.move(0, 0);
+          assert.equal(await opacity(), '0');
+          await nextWord.focus();
+          assert.equal(await opacity(), '1', 'Keyboard focus reveals the arrow');
+          await page.locator('h1').click();
+          await page.mouse.move(0, 0);
+          assert.equal(await opacity(), '0');
+
+          const information = cue.getByRole('button', { name: 'Verb information', exact: true });
+          assert.equal(await information.isVisible(), true);
+          await information.hover();
+          const tooltip = cue.getByRole('tooltip');
+          await tooltip.waitFor();
+          assert.equal(await tooltip.innerText(), 'A name, a place, a feeling: simply existing in the moment.');
+          assert.equal(await tooltip.getAttribute('lang'), 'en');
+          await tooltip.hover();
+          assert.equal(await tooltip.isVisible(), true);
+          const tooltipBounds = await tooltip.boundingBox();
+          assert.ok(tooltipBounds.x >= 0 && tooltipBounds.x + tooltipBounds.width <= viewport.width);
+          await page.mouse.move(0, 0);
+          await tooltip.waitFor({ state: 'hidden' });
+          await information.focus();
+          await tooltip.waitFor();
+          await page.keyboard.press('Escape');
+          await tooltip.waitFor({ state: 'hidden' });
+          if (viewport.width < 600) {
+            await information.tap();
+            await tooltip.waitFor();
+            await page.locator('h1').tap();
+            await tooltip.waitFor({ state: 'hidden' });
+          }
+          assert.equal(await lesson.getAttribute('data-exercise'), original);
         }
         for (const [label, value] of [['Past', 'was'], ['Past participle', 'been']]) {
           await page.getByRole('textbox', { name: label, exact: true }).fill(value);
           await page.clock.runFor(800);
         }
-        await page.getByRole('button', { name: 'Give me a hint', exact: true }).focus();
+        await page.getByRole('textbox', { name: 'Past participle', exact: true }).blur();
         await page.clock.runFor(3000);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         const observations = page.getByTestId('observations');
@@ -95,6 +229,31 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.keyboard.press('Escape');
         await sheet.waitFor({ state: 'hidden' });
+        await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === 'Reference table');
+        if (mode === 'image') {
+          const expand = lesson.getByRole('button', { name: 'Expand picture', exact: true });
+          if (viewport.width < 600) await lesson.locator('.verbs-picture').tap(); else await lesson.locator('.verbs-picture').hover();
+          await expand.click();
+          await page.getByRole('dialog', { name: 'Expanded picture', exact: true }).waitFor();
+          await page.clock.runFor(3000);
+          assert.equal(await lesson.getAttribute('data-exercise'), original, 'Inspecting the enlarged photo holds automatic advancement');
+          assert.equal(await page.getByRole('textbox', { name: 'Past', exact: true }).inputValue(), 'was');
+          await page.getByRole('button', { name: 'Close expanded picture', exact: true }).click();
+          await lesson.getByRole('button', { name: 'Picture information', exact: true }).click();
+          await lesson.getByRole('tooltip').waitFor();
+          await page.clock.runFor(3000);
+          assert.equal(await lesson.getAttribute('data-exercise'), original, 'Reading picture information holds automatic advancement');
+          await page.keyboard.press('Escape');
+          await lesson.getByRole('tooltip').waitFor({ state: 'hidden' });
+        } else {
+          await lesson.getByRole('button', { name: 'Verb information', exact: true }).focus();
+          await lesson.getByRole('tooltip').waitFor();
+          await page.clock.runFor(3000);
+          assert.equal(await lesson.getAttribute('data-exercise'), original, 'Reading verb information holds automatic advancement');
+          assert.equal(await page.getByRole('textbox', { name: 'Past', exact: true }).inputValue(), 'was');
+          await page.keyboard.press('Escape');
+          await lesson.getByRole('tooltip').waitFor({ state: 'hidden' });
+        }
         const past = page.getByRole('textbox', { name: 'Past', exact: true });
         assert.equal(await past.inputValue(), 'was');
         await page.getByRole('button', { name: 'Ask question fixture', exact: true }).click();
@@ -116,6 +275,62 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getAttribute('data-verb'), 'beat');
         assert.equal(await observations.getAttribute('data-completed'), '1');
         assert.equal(await page.getByRole('textbox', { name: 'Past', exact: true }).inputValue(), '');
+        const next = lesson.getByRole('button', { name: mode === 'image' ? 'Next image' : 'Next word', exact: true });
+        const secondPhoto = mode === 'image' ? await lesson.locator('.verbs-picture').getAttribute('src') : undefined;
+        await past.fill('bea');
+        await next.focus();
+        await page.keyboard.press('Enter');
+        assert.equal(await next.evaluate((button: HTMLElement) => document.activeElement === button), true, 'Keyboard navigation keeps focus on the replacement control');
+        assert.equal(await past.inputValue(), '');
+        if (mode === 'image') {
+          const previous = lesson.getByRole('button', { name: 'Previous image', exact: true });
+          await previous.click();
+          assert.equal(await lesson.getAttribute('data-verb'), 'beat');
+          assert.equal(await past.inputValue(), 'bea', 'Back restores an unfinished answer');
+          assert.equal(await lesson.locator('.verbs-picture').getAttribute('src'), secondPhoto);
+          await past.fill('beat');
+          await page.clock.runFor(800);
+          await lesson.locator('.ll-spelling.ll-correct').waitFor();
+          await previous.click();
+          assert.equal(await lesson.getAttribute('data-verb'), 'be');
+          assert.equal(await past.inputValue(), 'was');
+          assert.equal(await page.getByRole('textbox', { name: 'Past participle', exact: true }).inputValue(), 'been');
+          assert.equal(await page.getByRole('textbox', { name: 'Base form', exact: true }).inputValue(), 'be');
+          assert.equal(await lesson.locator('.ll-spelling.ll-correct').count(), 3);
+          await page.clock.runFor(3000);
+          assert.equal(await lesson.getAttribute('data-verb'), 'be', 'Completed exercises stay available for review');
+          assert.equal(await observations.getAttribute('data-completed'), '1');
+          assert.equal(await previous.isDisabled(), true);
+          assert.equal(await next.evaluate((button: HTMLElement) => document.activeElement === button), true, 'At the start of history, focus moves to the available arrow');
+          await next.click();
+          assert.equal(await past.inputValue(), 'beat', 'Forward restores edits made on a previous visit');
+          assert.equal(await lesson.locator('.verbs-picture').getAttribute('src'), secondPhoto);
+        } else {
+          assert.equal(await lesson.getByRole('button', { name: 'Previous word', exact: true }).count(), 0);
+          assert.equal(await lesson.getByRole('tooltip').count(), 0, 'A new word starts without the old information tooltip');
+          const cue = lesson.locator('.verbs-word-cue');
+          assert.equal(await cue.getAttribute('data-revealed'), null);
+          await lesson.getByRole('button', { name: 'Verb information', exact: true }).focus();
+          await lesson.getByRole('tooltip').waitFor();
+          await next.focus();
+          await page.keyboard.press('Enter');
+          assert.equal(await lesson.getByRole('tooltip').count(), 0);
+          assert.equal(await observations.getAttribute('data-completed'), '1', 'Manual navigation does not complete missing oral or written work');
+          await page.locator('h1').click();
+          await page.mouse.move(0, 0);
+          await cue.scrollIntoViewIfNeeded();
+          assert.equal(await next.evaluate((button: HTMLElement) => getComputedStyle(button).opacity), '0');
+          if (viewport.width < 600) {
+            const exerciseBeforeTouch = await lesson.getAttribute('data-exercise');
+            const arrow = await next.boundingBox();
+            await page.touchscreen.tap(arrow.x + arrow.width / 2, arrow.y + arrow.height / 2);
+            assert.equal(await lesson.getAttribute('data-exercise'), exerciseBeforeTouch, 'The first tap at a hidden arrow only reveals it');
+            assert.equal(await cue.getAttribute('data-revealed'), 'true');
+            await next.tap();
+            assert.notEqual(await lesson.getAttribute('data-exercise'), exerciseBeforeTouch, 'The second tap advances to the next word');
+            assert.equal(await cue.getAttribute('data-revealed'), null, 'The next cue resets touch reveal state');
+          }
+        }
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
         await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
@@ -124,7 +339,7 @@ test('both verb lessons render real images and enforce their shared-controller g
           await page.screenshot({ path: `/tmp/en-wp-05-${mode}.png`, fullPage: true });
         }
         assert.deepEqual(errors, []); assert.deepEqual(external, []);
-        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/question/speech/pause holds', 'quiet auto-next', 'no repeat', 'reflow', '200% text', 'no external requests'] }));
+        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'automatic checking without buttons', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/information/question/speech/pause holds', 'quiet auto-next', ...(mode === 'image' ? ['photo overlay navigation', 'back/forward photo and draft restoration', 'completed review'] : ['word cue hover/touch/focus navigation', 'English verb information', 'next-only navigation and reset']), 'reflow', '200% text', 'no external requests'] }));
         await context.close();
       }
     }

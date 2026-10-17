@@ -49,7 +49,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await selectSection('Learning');
       await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('3');
       await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('1');
-      await page.getByLabel('Offer sound guidance after a spelling error').check();
+      await page.getByLabel('Offer help after written corrections').check();
       await page.getByLabel('Keep sound-help offers available until dismissed').check();
       await selectSection('Appearance');
       await page.getByLabel('Theme', { exact: true }).selectOption('dark');
@@ -87,7 +87,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
 
       for (const name of ['Picture', 'Verb', 'Sentence']) {
         await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).click();
-        await page.getByRole('heading', { name: `${name} practice`, exact: true }).waitFor();
+        const heading = page.getByRole('heading', { name: `${name} practice`, exact: true });
+        await heading.waitFor();
+        assert.equal(await heading.innerText(), name);
+        const headingBounds = await heading.boundingBox();
+        const backBounds = await page.getByRole('link', { name: 'All lessons', exact: true }).boundingBox();
+        assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, 'Lesson identity and back navigation share a compact row');
+        assert.ok(backBounds.height >= 44, 'Back navigation retains its touch target');
         const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });
         await voiceBadge.waitFor();
         assert.equal(await page.locator('.voice-call-bar').count(), 0);
@@ -105,7 +111,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await voiceBadge.evaluate(element => document.activeElement === element), true);
         assert.equal(transport.statusRequests, statusRequests);
         const next = page.getByRole('button', { name: name === 'Sentence' ? 'Next sentence' : name === 'Picture' ? 'Next image' : 'Next word', exact: true });
-        assert.equal((await next.innerText()).trim(), '→');
+        if (name === 'Sentence') assert.equal((await next.innerText()).trim(), '→');
+        else assert.equal(await next.locator('svg[aria-hidden="true"]').count(), 1);
         const dock = page.locator('.ll-dock');
         assert.equal(await dock.evaluate(element => getComputedStyle(element).position), 'fixed');
         assert.equal(await dock.locator('svg').count(), 2);
@@ -119,10 +126,10 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           const expectedPast = verbContent.verbs.find(verb => verb.lemma === verbId).forms.past[0].text;
           const past = page.getByRole('textbox', { name: 'Past', exact: true });
           await past.fill('zzzz');
-          await page.getByRole('button', { name: 'Check Past', exact: true }).click();
+          await past.press('Enter');
           await exercise.locator('.ll-incorrect').first().waitFor();
           await past.fill(expectedPast);
-          await page.getByRole('button', { name: 'Check Past', exact: true }).click();
+          await past.press('Enter');
           await exercise.locator('.ll-correct').first().waitFor();
           assert.doesNotMatch(await exercise.innerText(), /This response could not be processed/);
           assert.equal(transport.sessionRequests, 0);

@@ -2,11 +2,13 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { randomUUID } from 'node:crypto';
 import type { PhoenixTelemetry, SessionTrace } from './telemetry';
 import { TIMING } from '../src/contracts/settings';
+import { createSentenceHintHandler } from './sentence-hints';
 
 export interface BrokerConfig {
   enabled: boolean;
   apiKey: string;
   model: string;
+  hintModel?: string;
   allowedOrigins: readonly string[];
   maxDurationSeconds: number;
 }
@@ -14,6 +16,7 @@ export function readBrokerConfig(environment: NodeJS.ProcessEnv): BrokerConfig {
   return {
     enabled: environment.ALLOW_PAID_VOICE === '1', apiKey: environment.OPENAI_API_KEY ?? '',
     model: environment.OPENAI_REALTIME_MODEL || 'gpt-realtime-2.1',
+    hintModel: environment.OPENAI_HINT_MODEL || 'gpt-6-luna',
     allowedOrigins: ['http://127.0.0.1:5174', 'http://localhost:5174', 'http://127.0.0.1:4174', 'http://localhost:4174'],
     maxDurationSeconds: TIMING.maxVoiceSessionSeconds,
   };
@@ -41,6 +44,8 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
 }
 /** Loopback development broker only. No auth/database/public deployment is installed. */
 export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry) {
+  const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
+    model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
   let pending = false;
   interface Lease { token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean }
   let lease: Lease | null = null;
@@ -73,6 +78,7 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     const localHosts = new Set([`127.0.0.1:${request.socket.localPort}`, `localhost:${request.socket.localPort}`,
       ...config.allowedOrigins.map(origin => new URL(origin).host)]);
     if (!request.headers.host || !localHosts.has(request.headers.host)) { reply(response, 403, { error: 'Origin not allowed.' }); return; }
+    if (request.url === '/api/realtime/sentence-hint') { await sentenceHint(request, response); return; }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {
       const reason = !config.enabled ? 'disabled' : !config.apiKey ? 'missing-credentials' : 'ready';
       reply(response, 200, { enabled: reason === 'ready', reason, maxDurationSeconds: config.maxDurationSeconds }); return;

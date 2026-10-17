@@ -43,10 +43,12 @@ h3 { font-size: 1.0625rem; letter-spacing: -.025em; margin: 0 0 12px; }
 .lesson-card-verb-image .lesson-card-art { background: #eeeade; }
 .lesson-card-verb-visible .lesson-card-art { background: #e0e9d7; }
 .lesson-card-sentence .lesson-card-art { background: #e7e5ee; }
-.lesson-card-art img { width: 100%; height: 100%; object-fit: contain; padding: 14px; }
 .verb-card-forms { display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: Georgia, serif; font-size: 2.1rem; line-height: 1.3; color: #304938; }
 .verb-card-forms span:nth-child(2) { font-style: italic; color: #637957; }
 .verb-card-forms span:last-child { color: #82906a; }
+.picture-card-words { color: #63513d; }
+.picture-card-words span:nth-child(2) { color: #92735a; }
+.picture-card-words span:last-child { color: #b19572; }
 .sentence-card-words { display: grid; gap: 10px; color: #494259; font-family: Georgia, serif; font-size: 1.9rem; }
 .sentence-card-words span { padding: 8px 22px; background: #f9f7fc; border-radius: 18px 18px 18px 3px; }
 .sentence-card-words span:last-child { margin-left: 32px; background: #d4cde3; border-radius: 18px 18px 3px 18px; }
@@ -55,9 +57,11 @@ h3 { font-size: 1.0625rem; letter-spacing: -.025em; margin: 0 0 12px; }
 .lesson-card-copy p { font-size: .875rem; color: var(--muted); line-height: 1.65; margin: 0 0 24px; }
 .lesson-card-start { display: flex; justify-content: space-between; align-items: center; margin-top: auto; border-top: 1px solid var(--line); padding-top: 18px; font-size: .875rem; font-weight: 600; }
 .lesson-card-start > span { font-size: 1.25rem; }
-.lesson-heading { margin: 26px 0; }
-.lesson-heading h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin-bottom: 0; }
-.back-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); text-decoration: none; font-size: .875rem; }
+.lesson-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 44px; margin: 12px 0; }
+.lesson-heading h1 { margin: 0; font-family: inherit; font-size: .875rem; font-weight: 500; letter-spacing: 0; line-height: 1.5; }
+.lesson-heading-divider { color: var(--muted); opacity: .55; font-size: .875rem; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--muted); text-decoration: none; font-size: .875rem; }
+.back-link svg { width: 16px; height: 16px; flex: 0 0 auto; }
 .back-link:hover { color: var(--ink); }
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
 .lesson-panel { min-width: 0; }
@@ -121,7 +125,7 @@ select { width: 100%; padding: 8px; border: 1px solid var(--line); border-radius
   .settings-grid { grid-template-columns: 1fr; }
   .voice-call-bar { padding: 14px; }
 }
-@media (max-width: 359px) { .app-shell { padding-inline: 12px; } .lesson-card { grid-template-columns: minmax(90px, .65fr) minmax(0, 1fr); } .lesson-card-copy { padding-right: 12px; } .lesson-card-art img { padding: 3px; } }
+@media (max-width: 359px) { .app-shell { padding-inline: 12px; } .lesson-card { grid-template-columns: minmax(90px, .65fr) minmax(0, 1fr); } .lesson-card-copy { padding-right: 12px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
 /* Reflow remains usable with enlarged text and narrow browser windows. */
 .app-header, .preferences-heading, .setting-row { flex-wrap: wrap; }

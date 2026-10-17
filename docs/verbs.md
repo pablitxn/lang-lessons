@@ -23,11 +23,27 @@ requested hints. **Your progress** and **Reference table** open native dialogs
 with root mute/pause controls. Helper holds preserve the current exercise and
 block automatic advancement while open.
 
-The arrow below the cue, labelled **Next word** or **Next image** for assistive
-technology, manually skips the current
-exercise without completing it. Navigation works offline and while paused,
-preserves call state, interrupts old coach audio and clears drafts, evidence,
-hints and queued responses. The next verb does not immediately repeat.
+Previous/next controls manually navigate without completing an exercise.
+Picture controls sit inside the photo and appear when their own hit region is
+hovered, when keyboard-focused, or after a touch reveals the photo controls.
+The expand control follows the same visibility behavior. Keyboard navigation
+retains focus on the corresponding arrow, or Next at the beginning of history.
+
+Both verb modes use shuffled rounds of all 25 verbs, with no repetition within
+a round or immediately across its boundary. Picture mode also keeps a shuffled
+photo bag per verb: each of that verb's photos appears before its bag is refilled.
+With the current three photos per verb, three rounds cover all 75 photographs.
+Photo bags may have different sizes without changing the verb rotation.
+Navigation retains each item's exact photograph, partial drafts and checked
+spelling. Reaching the end appends a new round; revisiting history consumes no
+new random choices or photos. A new lesson session starts a new deck and blank
+drafts. This history is in memory, not persisted across reloads.
+
+Navigation works offline and while paused, preserves call state, interrupts old
+coach audio and clears transient speech, hints and queued requests. Every visit
+receives fresh attempt identities; saved spelling is reassessed locally and old
+oral/provider evidence cannot satisfy the new visit. Completed entries remain
+editable for review without automatic skipping or duplicate completion reports.
 
 The production feature has no simulated-evidence notice, coach response panel,
 typed question form or independent call controls. Questions are spoken. Unclear
@@ -71,11 +87,12 @@ independently edited. UI PR3 and all original producer revisions remain intact.
 | Image | Base, past, past participle | Spanish meaning, all three pronunciations, three original sentences |
 | Visible base | Past and past participle; supplied base is read-only | The same seven oral requirements |
 
-Images are the original local curriculum SVGs. They cue an action, not a tense.
-Alternative visual descriptions preserve the current exercise and evidence.
-Random practice consumes `pickNextVerb` within the approved exact 25 verbs,
-excludes the immediate previous verb, and creates a fresh exercise/generation.
-No answer or example is prefilled.
+Images are reviewed real photographs stored locally with provenance in the
+content ledger. They cue an action, not a tense. Each has a short English poetic
+tooltip; its factual Spanish alternative remains available to assistive
+technology. The complete photograph keeps its natural aspect ratio, with a
+full-screen viewer. Photo and answer controls preserve the vertical reading
+order. No answer is prefilled on a new item.
 
 The shared controller is created once per mounted feature. Its `onContextChange`
 updates the same voice adapter; `onCancelHint` cancels obsolete hint playback.
@@ -88,11 +105,14 @@ sentences remain separate signals; transcripts are never acoustic proof.
 Every edited spelling field immediately calls `controller.invalidate` for that
 field only. UI finalization waits for the shared debounce/IME policy, then
 `beginAttempt` allocates current refs and `voice.submit` performs the shared
-local spelling assessment. Feature draft-revision deduplication prevents the
+local spelling assessment. There is no manual Check button: debounce, Enter and
+blur finalize input automatically. Feature draft-revision deduplication prevents the
 processing-ref change from dispatching the same written draft twice. Current
 results reach the existing `SpellingField` without remapping refs. A full correct
 form is green; only wrong letters/gap markers are red after processing. Optional
-sound help is genuine-error-only, below the relevant input, and never autofills.
+sound help is genuine-error-only, beside the correction in a tooltip, and never
+autofills. Refocusing the input reoffers an expired sound-help icon. There is no
+separate hint button in the verb exercise.
 An uncertain check has an explicit retry action; reconnection never silently
 resubmits an old draft.
 

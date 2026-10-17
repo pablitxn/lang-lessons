@@ -3,7 +3,7 @@
 Owner: EN-WP-03 curriculum executor. Owned paths: `content/en-wp-03/**`,
 `src/content/**`, `public/images/verbs/**`, `docs/curriculum.md`, and `tests/content.test.ts`.
 Status: framework-independent authored data with a thin adapter to the published
-EN-WP-01 contracts, plus 25 original repository-native SVG illustrations, ready
+EN-WP-01 contracts, plus 75 curated real photographs covering all 25 verbs, ready
 for educational review. No shared application types, routing, manifests, runtime
 provider or audio recordings are edited by this package.
 
@@ -27,7 +27,7 @@ Product requirements remain EN-D01–D14 at Atlas main
 | [evaluation-fixtures.json](evaluation-fixtures.json) | Authored positive, negative, partial, uncertain and adversarial expected outcomes |
 | [CONTRACT.md](CONTRACT.md) | Proposed portable data shape and assessment semantics |
 | [ASSETS.md](ASSETS.md) | Rights-safe cue strategy and accessibility boundary |
-| [asset-ledger.json](asset-ledger.json) | Original asset provenance and all 25 SVG checksums |
+| [asset-ledger.json](asset-ledger.json) | Photo sources, licenses, per-photo context and local checksums |
 | [COVERAGE.md](COVERAGE.md) | Requirement and inventory coverage; execution limits |
 | [SOURCES.md](SOURCES.md) | Source provenance, access limits and review status |
 | [INTEGRATION-INTAKE.md](INTEGRATION-INTAKE.md) | Architect and final Atlas integrator handoff |

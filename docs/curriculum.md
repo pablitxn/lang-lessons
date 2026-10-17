@@ -72,14 +72,20 @@ tense and explanation; the shared explanation rubric asks about that actual
 construction. The independent `primary_tense` never acts as an exclusive answer.
 Grammar and vocabulary levels map independently to the shared 1–3 values.
 
-Each `image.src` is now `/images/verbs/{id}.svg`, pointing to an original local
-scene with no printed English target word/form or tense. Spanish accessible
-alt combines its nonvisual description and context. `VERB_CUE_BRIEFS` exposes
-`context_es` and `ambiguous`; show the context beside images marked ambiguous
-(abstract or directional meanings) and clarify alternate learner readings.
-Keep supplied cue information separate from learner-produced oral evidence.
-All 25 SVGs and their ledger checksums are verified. The [asset strategy](../content/en-wp-03/ASSETS.md)
-records provenance and the remaining independent comprehension review.
+Each `image.src` resolves to a locally served, reviewed real photograph. The
+[photo ledger](../content/en-wp-03/asset-ledger.json) supports one or more assets
+per verb, with independent Spanish descriptions, contextual cues and provenance.
+`VERB_PHOTOS`, `photosForVerb` and `pickVerbPhoto` expose the collections;
+`pickNextVerb` selects one photo when creating the exercise. The shared
+single-image `VerbEntry` contract stays compatible. Rerenders, spelling edits,
+preferences and helper toggles do not choose another photo or replace evidence.
+Ambiguous scenes show their selected photo's Spanish context. Supplied cues
+are never learner-produced oral evidence. An information icon exposes the nonvisual cue on hover, keyboard focus or tap;
+reading it holds automatic advancement. Credits/source/licenses remain in the
+photo ledger rather than the exercise UI. The [image policy](../content/en-wp-03/ASSETS.md)
+requires real photographs for future additions and describes source review.
+The former SVG scenes and their generator have been removed from active content;
+historical validation receipts describe the earlier implementation only.
 
 Runtime hints remain model-generated. `hintSeeds` are only semantic intents.
 Never display/speak private alternatives or examples before the appropriate
@@ -98,7 +104,7 @@ npm run check
 node content/en-wp-03/check_assets_browser.cjs 5193 4193
 ```
 
-The asset amendment fixes extensionful test imports and replaces the example
+The historical SVG asset amendment fixed extensionful test imports and replaces the example
 record cast with explicit typed family fields. Existing bundler resolution and
 JSON import attributes compile without compiler-setting changes. The combined
 checks now pass. No shared settings, manifests, routing, contracts or global

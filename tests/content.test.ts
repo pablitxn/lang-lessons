@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { VERB_IDS, TENSES } from '../src/contracts/curriculum';
-import { VERBS, SENTENCES, VERB_CUE_BRIEFS, pickNextVerb } from '../src/content/index';
+import { VERBS, SENTENCES, VERB_CUE_BRIEFS, VERB_PHOTOS, photosForVerb, pickVerbPhoto, pickNextVerb } from '../src/content/index';
 
 test('content exports exactly the contract inventory with guidance and three complete example families', () => {
   assert.deepEqual(VERBS.map(verb => verb.id), [...VERB_IDS]);
@@ -76,25 +76,39 @@ test('all tenses have independent grammar and vocabulary selection cells', () =>
   }
 });
 
-test('every image has a unique local SVG, nonvisual cue, context and original provenance', () => {
+test('every verb has local real photographs with matching provenance and accessible context', () => {
   assert.equal(VERB_CUE_BRIEFS.length, 25);
-  assert.deepEqual(readdirSync(new URL('../public/images/verbs/', import.meta.url)).filter(f => f.endsWith('.svg')).sort(), [...VERB_IDS].map(id => `${id}.svg`).sort());
-  const ledger = JSON.parse(readFileSync(new URL('../content/en-wp-03/asset-ledger.json', import.meta.url), 'utf8'));
+  assert.deepEqual(readdirSync(new URL('../public/images/verbs/', import.meta.url)).sort(), VERB_PHOTOS.map(photo => photo.file.split('/').at(-1)).sort());
   for (const verb of VERBS) {
-    assert.equal(verb.image.src, `/images/verbs/${verb.id}.svg`);
-    const cue = VERB_CUE_BRIEFS.find(c => c.id === verb.id)!;
-    const asset = ledger.assets.find((entry: { content_id: string }) => entry.content_id === `verb-${verb.id}`);
-    assert.equal(cue.asset_status, 'original-local-svg');
-    assert.ok(cue.nonvisual_cue_es && cue.context_es);
-    assert.ok(verb.image.alt.includes(cue.context_es));
-    assert.ok(verb.image.attribution.includes('Original'));
-    const svgPath = fileURLToPath(new URL(`../public${verb.image.src}`, import.meta.url));
-    const svg = readFileSync(svgPath, 'utf8');
-    assert.match(svg, /viewBox="0 0 320 240"/);
-    assert.doesNotMatch(svg, /<(?:text|script|image|foreignObject)\b|https?:\/\/(?!www\.w3\.org\/2000\/svg)/i);
-    assert.equal(createHash('sha256').update(svg).digest('hex'), asset.sha256);
+    const photos = photosForVerb(verb.id);
+    assert.ok(photos.length >= 1);
+    assert.equal(verb.image.src, photos[0]!.src);
+    for (const photo of photos) {
+      assert.equal(photo.media_type, 'photograph');
+      assert.equal(photo.review_status, 'source-and-visual-reviewed');
+      assert.ok(photo.alt.includes(photo.context_es));
+      assert.ok(photo.creator && photo.source_url && photo.license_url);
+      const raw = readFileSync(fileURLToPath(new URL(`../public${photo.src}`, import.meta.url)));
+      assert.equal(raw.subarray(0, 3).toString('hex'), 'ffd8ff');
+      assert.equal(createHash('sha256').update(raw).digest('hex'), photo.sha256);
+    }
   }
-  assert.equal(new Set(ledger.assets.map((asset: { sha256: string }) => asset.sha256)).size, 25);
+});
+
+test('photo selection reaches every variant and keeps its matching context and attribution', () => {
+  for (const verb of VERBS) {
+    const photos = photosForVerb(verb.id);
+    for (let i = 0; i < photos.length; i++) {
+      const photo = pickVerbPhoto(verb.id, () => (i + 0.5) / photos.length);
+      assert.equal(photo.asset_id, photos[i]!.asset_id);
+    }
+  }
+  const first = pickNextVerb(undefined, () => 0, () => 0);
+  const alternate = pickNextVerb(undefined, () => 0, () => 1 - Number.EPSILON);
+  assert.equal(first.id, alternate.id);
+  assert.notEqual(first.image.src, alternate.image.src);
+  assert.equal(alternate.image.alt, photosForVerb('be').at(-1)!.alt);
+  for (const sample of [-1, 1, Infinity, NaN]) assert.throws(() => pickVerbPhoto('be', () => sample), RangeError);
 });
 
 test('abstract and directional cues retain explicit ambiguity and meaning context', () => {

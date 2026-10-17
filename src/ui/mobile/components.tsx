@@ -11,18 +11,18 @@ export function PracticeLayout({ children, controls }: {
   </div>;
 }
 
-export function ExerciseCue({ image, base, spanish, onAlternateCue }: {
+export function ExerciseCue({ image, base, spanish, imageInfo }: {
   image?: { src: string; alt: string; attribution?: string };
-  base?: string; spanish?: string; onAlternateCue?: () => void;
+  base?: string; spanish?: string; imageInfo?: ReactNode;
 }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [image?.src]);
   return <div className="ll-cue">
     {image && <figure>{!failed ? <img src={image.src} alt={image.alt} onError={() => setFailed(true)} />
       : <p role="status">The picture is unavailable. Your progress is safe.</p>}
-      {onAlternateCue && <figcaption><button type="button" className="ll-button" onClick={onAlternateCue}>Use another cue</button></figcaption>}</figure>}
+      {imageInfo && <figcaption>{imageInfo}</figcaption>}</figure>}
     {base !== undefined && <><p className="ll-kicker">Supplied base form</p><p className="ll-base">{base}</p></>}
-    {spanish !== undefined && <><p className="ll-kicker">Translate out loud</p><p className="ll-spanish" lang="es">{spanish}</p></>}
+    {spanish !== undefined && <p className="ll-spanish" lang="es">{spanish}</p>}
   </div>;
 }
 
@@ -113,12 +113,13 @@ export function LessonDialog({ title, triggerLabel, closeLabel, children, onHold
   </div>;
 }
 
-export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls }: {
+export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls, children }: {
   mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger;
-  onHoldChange: LessonDialogProps['onHoldChange']; controls?: ReactNode;
+  onHoldChange: LessonDialogProps['onHoldChange']; controls?: ReactNode; children?: ReactNode;
 }) {
   return <LessonDialog title="Lesson progress" triggerLabel="Your progress" triggerText="Progress" triggerIcon="progress"
     closeLabel="Close progress" onHoldChange={onHoldChange} controls={controls}>
+    {children}
     <ObligationProgress mode={mode} identity={identity} evidence={evidence} />
   </LessonDialog>;
 }
@@ -134,11 +135,12 @@ export function ReferenceTable({ title, caption, columns, rows, onHoldChange, co
   </LessonDialog>;
 }
 
-export function SentencePrompt({ stage, onHint, onNext }: { stage: SentenceStage; onHint: () => void; onNext: () => void }) {
+export function SentencePrompt({ stage, onHint, onNext, showHint = true }: { stage: SentenceStage; onHint: () => void; onNext: () => void; showHint?: boolean }) {
+  if (stage === 'translation' && !showHint) return null;
   return <section className="ll-sentence-stage" aria-label="Current sentence stage">
-    <p role="status">{stage === 'translation' ? 'Translate the Spanish sentence out loud. Speak naturally.' : stage === 'explanation'
-      ? 'Translation accepted. Name the tense and explain its structure, meaning, and why it fits.' : 'Translation and explanation accepted.'}</p>
+    {stage !== 'translation' && <p role="status">{stage === 'explanation'
+      ? 'Translation accepted. Name the tense and explain its structure, meaning, and why it fits.' : 'Translation and explanation accepted.'}</p>}
     {stage === 'complete' ? <button type="button" className="ll-button ll-primary ll-next" aria-label="Next exercise" title="Next exercise" onClick={onNext}><span aria-hidden="true">→</span></button>
-      : <button type="button" className="ll-button" onClick={onHint}>Give me a hint</button>}
+      : showHint && <button type="button" className="ll-button" onClick={onHint}>Ask voice coach for a hint</button>}
   </section>;
 }

@@ -4,6 +4,10 @@ import { PracticeLayout, ExerciseCue, ProgressDialog, ReferenceTable, SentencePr
 import { createSentenceSession, matchingSentences, type SentenceSession } from './session';
 import './sentences.css';
 import { TENSE_GUIDE } from '../../content/tense-guide';
+import { WrittenTranslation } from './WrittenTranslation';
+import type { WrittenComparisonResult } from './written-comparison';
+import { useWrittenHint } from './use-written-hint';
+import { WrittenTense, type WrittenTenseResult } from './WrittenTense';
 
 export interface SentenceLessonProps extends LessonModuleProps {
   /** Root-owned connection state can seed a feature mounted after connection. */
@@ -20,6 +24,8 @@ export function SentenceLesson(props: SentenceLessonProps) {
   const complete = useRef(props.onComplete); complete.current = props.onComplete;
   const active = useRef<SentenceSession | null>(null);
   const [session, setSession] = useState<SentenceSession | null>(null);
+  const [written, setWritten] = useState<{ exerciseId: string; result: WrittenComparisonResult | undefined }>();
+  const [writtenTense, setWrittenTense] = useState<{ exerciseId: string; draft: string; result: WrittenTenseResult }>();
   useEffect(() => {
     active.current = null; setSession(null);
     return () => { active.current?.dispose(); active.current = null; };
@@ -39,6 +45,11 @@ export function SentenceLesson(props: SentenceLessonProps) {
   }, [voice, sessionId, settings.difficulty.grammar, settings.difficulty.vocabulary, settings.sentenceTense]);
   useEffect(() => { if (props.connectionState) active.current?.setInteraction({ connection: props.connectionState }); }, [props.connectionState, session]);
   const view = useSyncExternalStore(session?.subscribe ?? noopSubscribe, session?.getSnapshot ?? emptySnapshot, emptySnapshot);
+  const writtenResult = written?.exerciseId === view?.assessment.exerciseId ? written?.result : undefined;
+  const tenseResult = writtenResult?.status === 'matched' && writtenTense?.exerciseId === view?.assessment.exerciseId
+    && writtenTense?.draft === writtenResult.submittedText ? writtenTense.result : undefined;
+  const hintSentenceId = view?.assessment.context.mode === 'sentence' ? view.assessment.context.sentence.id : undefined;
+  const writtenHint = useWrittenHint(hintSentenceId, writtenResult, settings.helpEnabled);
   if (!view || !session || view.assessment.context.mode !== 'sentence') {
     return <div className="ll-sentences" role="status">{matchingSentences(settings.difficulty, undefined, settings.sentenceTense).length
       ? 'Preparing your sentence…' : `No authored prompt matches grammar ${settings.difficulty.grammar} and vocabulary ${settings.difficulty.vocabulary} with the selected sentence tense. Change difficulty or Sentence tenses in Preferences.`}</div>;
@@ -56,27 +67,36 @@ export function SentenceLesson(props: SentenceLessonProps) {
   const errorInHeader = props.rootVoiceError && (snapshot.systemError === props.rootVoiceError
     || snapshot.systemError === 'Voice is unavailable. Please retry when connected.' || snapshot.systemError === 'Voice is unavailable. Your accepted work is preserved.');
   const rows = stage === 'translation'
-    ? [['Message', 'Read the Spanish sentence.'], ['Your response', 'Speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
+    ? [['Message', 'Read the Spanish sentence.'], ['Your response', 'Write or speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
     : TENSE_GUIDE.map(item => [item.label, item.guidance]);
 
   return <div className="ll-sentences" data-exercise-id={snapshot.exerciseId} data-stage={stage}>
     <PracticeLayout controls={<div className="ll-actions">
       <ProgressDialog mode="sentence" identity={snapshot} evidence={snapshot.evidence}
-        onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
+        onHoldChange={session.setPresentationHold} controls={props.sessionControls}>
+        <p className="ll-written-progress">Written translation: {writtenResult?.status === 'matched' ? 'Checked' : writtenResult?.status === 'different' ? 'Review the highlighted text' : 'Not checked'}</p>
+        <p className="ll-written-progress">Written tense: {tenseResult?.correct ? 'Checked' : tenseResult ? 'Try another tense' : 'Not checked'}</p>
+      </ProgressDialog>
       <ReferenceTable title="Sentence practice guide" caption={stage === 'translation' ? 'Meaning-focused practice guide' : 'Structures for your explanation'}
         columns={['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
     </div>}>
       <ExerciseCue spanish={sentence.spanish} />
-      {stage !== 'complete' && <div className="sentences-navigation">
-        <button type="button" className="ll-button ll-next" onClick={() => session.skip()} disabled={view.nextPoolSize === 0} aria-label="Next sentence" title="Next sentence">
+      <div className="sentences-navigation">
+        <WrittenTranslation key={snapshot.exerciseId} sentence={sentence} helpEnabled={settings.helpEnabled} hint={writtenHint}
+          onResultChange={result => { setWritten({ exerciseId: snapshot.exerciseId, result }); setWrittenTense(undefined); }} />
+        {stage !== 'complete' && <button type="button" className="ll-button ll-next" data-skip-written-check onClick={() => session.skip()} disabled={view.nextPoolSize === 0} aria-label="Next sentence" title="Next sentence">
           <span aria-hidden="true">→</span>
-        </button>
-      </div>}
+        </button>}
+      </div>
+      {writtenResult?.status === 'matched' && writtenResult.matchedAlternative && <WrittenTense
+        key={`${snapshot.exerciseId}:${writtenResult.submittedText}`} expected={writtenResult.matchedAlternative.tense}
+        onResultChange={result => setWrittenTense({ exerciseId: snapshot.exerciseId, draft: writtenResult.submittedText, result })} />}
       {changedDifficulty && <p role="status" className="ll-muted">New difficulty settings apply to the next prompt. Your current work is preserved.</p>}
       {changedTense && <p role="status" className="ll-muted">The selected tense applies to the next prompt. Your current work is preserved.</p>}
       {view.nextPoolSize === 0 && <p role="status" className="ll-muted">No authored prompt matches the selected difficulty and tense. Change either in Preferences; current work is preserved.</p>}
       <fieldset className="ll-sentence-actions" disabled={stage === 'complete' ? !canNext : busy}>
-        <SentencePrompt stage={stage} onHint={() => session.requestHint()} onNext={() => session.next()} />
+        <SentencePrompt stage={stage} onHint={() => session.requestHint()} onNext={() => session.next()}
+          showHint={settings.helpEnabled && snapshot.interaction.connection === 'ready' && snapshot.interaction.intent === 'practice'} />
       </fieldset>
       {stage !== 'translation' && !snapshot.completed && <button type="button" className="ll-button" onClick={() => session.reviseTranslation()}>Revise my translation</button>}
       {snapshot.hintPending && <p role="status" className="ll-hint">Preparing a hint…</p>}
