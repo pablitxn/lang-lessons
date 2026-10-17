@@ -7,6 +7,7 @@ export interface LearnerSettings {
   untimedHelp: boolean;
   difficulty: Difficulty;
   preferredMode: LessonMode;
+  theme: 'system' | 'light' | 'dark';
 }
 /** Reversible local defaults; timers must be cancellable and tested with a fake clock. */
 export const TIMING = {
@@ -17,7 +18,7 @@ export const TIMING = {
 } as const;
 export const DEFAULT_SETTINGS: LearnerSettings = {
   schemaVersion: 1, helpEnabled: false, untimedHelp: false,
-  difficulty: { grammar: 1, vocabulary: 1 }, preferredMode: 'verb-image',
+  difficulty: { grammar: 1, vocabulary: 1 }, preferredMode: 'verb-image', theme: 'system',
 };
 /** Feature entry points own their exercise state; root owns one continuous adapter. */
 export interface LessonModuleProps {

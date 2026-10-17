@@ -1,139 +1,207 @@
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
+const { installBrowserTransport, inspectTransport } = require('../tests/helpers/browser-transport.cjs');
 
-// Actual root + feature + controller + deterministic mock; no microphone/provider.
+// Actual app + feature + controller rendering with intercepted WebRTC transport.
+// These lifecycle checks do not validate real audio, pronunciation, cost or a provider.
 (async () => {
   const ports = process.argv.slice(2).length ? process.argv.slice(2) : ['5174'];
   for (const port of ports) assert.match(port, /^\d{4,5}$/);
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium', headless: true,
     env: { ...process.env, XDG_CONFIG_HOME: '/tmp/lang-lessons-browser-config', XDG_CACHE_HOME: '/tmp/lang-lessons-browser-cache' } });
+  async function setup(port, viewport) {
+    const origin = `http://127.0.0.1:${port}`;
+    const context = await browser.newContext({ viewport });
+    const transport = await installBrowserTransport(context, origin);
+    const page = await context.newPage(); const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(`${origin}/`, { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+    return { context, page, transport, errors };
+  }
+  async function ready(page) {
+    await page.getByRole('region', { name: 'Voice call', exact: true }).getByRole('button', { name: 'Mute microphone', exact: true }).waitFor();
+    await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent === 'Mute microphone' && !button.disabled));
+  }
+  async function assertReleased(page) {
+    const state = await inspectTransport(page);
+    assert.ok(state.tracks.every(track => track.stopped));
+    assert.ok(state.peers.every(peer => peer.closed && peer.channel === 'closed'));
+  }
   try {
-    for (const port of ports) for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
-      for (const mode of ['verb-image', 'verb-visible']) {
-        const context = await browser.newContext({ viewport });
-        await context.addInitScript(() => { Math.random = () => 0; });
-        const page = await context.newPage(); const errors = []; const external = [];
-        page.on('pageerror', error => errors.push(error.message));
-        page.on('request', request => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
-        // Freeze before navigation rather than racing a Date.now() + 10ms round trip.
-        await page.clock.install({ time: new Date('2026-10-16T12:00:00Z') });
-        await page.clock.pauseAt(new Date('2026-10-16T13:00:00Z'));
-        await page.goto(`http://127.0.0.1:${port}/#/${mode}`, { waitUntil: 'networkidle' });
-        const exercise = page.locator('.verbs-lesson'); await exercise.waitFor();
-        const firstId = await exercise.getAttribute('data-exercise');
-        assert.equal(await exercise.getAttribute('data-verb'), 'be');
-        assert.equal(await page.getByRole('textbox', { name: 'Base form', exact: true }).count(), mode === 'verb-image' ? 1 : 0);
-        if (mode === 'verb-image') assert.equal(await exercise.locator('.ll-cue img').evaluate(image => image.complete && image.naturalWidth > 0), true);
-        const rootControls = page.getByRole('region', { name: 'Conversation controls', exact: true });
-        await rootControls.getByRole('button', { name: 'Start mock session', exact: true }).click();
-        const label = mode === 'verb-image' ? 'Base form' : 'Past';
-        const field = page.getByRole('textbox', { name: label, exact: true });
-        await field.fill('zzzz'); await page.clock.runFor(600);
-        assert.equal(await page.locator('.ll-spelling').count(), 0);
-        await page.clock.runFor(200); await page.locator('.ll-incorrect').first().waitFor();
-        assert.equal(await page.getByRole('button', { name: `Sound help for ${label}`, exact: true }).count(), 0);
-        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
-        await page.getByLabel('Offer sound guidance after a spelling error').check();
-        await page.getByLabel('Keep sound-help offers available until dismissed').check();
-        await page.getByRole('button', { name: 'Close', exact: true }).click();
-        await page.getByRole('button', { name: `Sound help for ${label}`, exact: true }).click();
-        await page.locator('.ll-guide').waitFor(); assert.equal(await field.inputValue(), 'zzzz');
-        await page.getByRole('button', { name: 'Close sound help', exact: true }).click();
-        await page.getByText('Mock response simulator', { exact: true }).click();
-        await page.getByLabel('Simulated outcome', { exact: true }).selectOption('uncertain');
-        await page.getByRole('button', { name: 'Send simulated speech', exact: true }).click();
-        await page.waitForFunction(() => document.querySelector('.ll-progress progress')?.getAttribute('value') === '0');
-        assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await page.getByLabel('Simulated outcome', { exact: true }).selectOption('accepted');
-        await page.getByRole('button', { name: 'Send simulated speech', exact: true }).click();
-        await page.waitForFunction(() => document.querySelector('.ll-progress progress')?.getAttribute('value') === '7');
-        // IME defers checking; unrelated accepted oral evidence stays intact.
-        await field.dispatchEvent('compositionstart'); await field.fill(mode === 'verb-image' ? 'be' : 'was');
-        await page.clock.runFor(800);
-        assert.equal(await page.locator('.ll-progress progress').getAttribute('value'), '7');
-        await field.dispatchEvent('compositionend'); await page.clock.runFor(800);
-        const forms = mode === 'verb-image' ? [['Past', 'was'], ['Past participle', 'been']] : [['Past participle', 'been']];
-        for (const [name, value] of forms) { await page.getByRole('textbox', { name, exact: true }).fill(value); await page.clock.runFor(800); }
-        const total = mode === 'verb-image' ? '10' : '9';
-        await page.waitForFunction(value => document.querySelector('.ll-progress progress')?.getAttribute('value') === value, total);
-        await page.clock.runFor(3000); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await page.getByRole('button', { name: 'Reference table', exact: true }).click();
-        const sheet = page.getByRole('dialog', { name: 'Verb practice reference', exact: true }); await sheet.waitFor();
-        await sheet.getByRole('button', { name: 'Stop practice session', exact: true }).click();
-        assert.equal(await page.locator('.ll-progress progress').getAttribute('value'), total);
-        await sheet.getByRole('button', { name: 'Start practice session', exact: true }).click();
-        await sheet.getByText('Mock voice ready', { exact: true }).waitFor();
-        await page.clock.runFor(3000); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await page.keyboard.press('Escape'); await sheet.waitFor({ state: 'hidden' });
-        const question = page.getByRole('textbox', { name: 'Ask your coach a question', exact: true });
-        await question.fill('Why can I use this form?'); await page.getByRole('button', { name: 'Ask', exact: true }).click();
-        await page.clock.runFor(3000); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await question.fill('A question still being drafted.');
-        await page.getByRole('button', { name: 'Resume practice', exact: true }).click();
-        await page.clock.runFor(3000); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await question.fill(''); await question.blur();
-        await page.getByRole('button', { name: 'Stay here', exact: true }).click();
-        await page.clock.runFor(3000); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await page.getByRole('button', { name: 'Back to practice', exact: true }).click();
-        await page.clock.runFor(1799); assert.equal(await exercise.getAttribute('data-exercise'), firstId);
-        await page.clock.runFor(1);
-        await page.waitForFunction(() => document.querySelector('.verbs-lesson')?.getAttribute('data-generation') === '2');
-        assert.equal(await exercise.getAttribute('data-verb'), 'beat');
-        assert.equal(await page.getByRole('textbox', { name: 'Past', exact: true }).inputValue(), '');
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
-        if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-${mode}-${viewport.width}.png`, fullPage: true });
-        // Replacing the route cancels timers/session work and leaves a fresh offline lesson.
-        await page.getByRole('textbox', { name: 'Past', exact: true }).fill('beat');
-        await page.getByRole('navigation', { name: 'Practice mode' }).getByRole('link', { name: 'Sentence', exact: true }).click();
-        await page.locator('.ll-sentences[data-exercise-id]').waitFor(); await page.clock.runFor(3000);
-        assert.equal(await page.locator('.ll-progress progress').getAttribute('value'), '0');
-        await rootControls.getByRole('button', { name: 'Start mock session', exact: true }).waitFor();
-        assert.deepEqual(errors, []); assert.deepEqual(external, []);
-        console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual root rendering; explicit mock outcomes; controlled clock', checks: ['independent oral/written evidence', 'debounce/IME', 'help without autofill', 'question/draft/helper holds', 'modal stop/restart', 'full quiet interval', 'no repeat', 'route cancellation', '200% text/reflow', 'no external requests'] }));
-        await context.close();
+    for (const port of ports) {
+      for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
+        for (const [name, mode] of [['Picture', 'verb-image'], ['Verb', 'verb-visible'], ['Sentence', 'sentence']]) {
+          const { context, page, transport, errors } = await setup(port, viewport);
+          await page.getByRole('link', { name: `Start ${name} practice`, exact: true }).click(); await ready(page);
+          const call = page.getByRole('region', { name: 'Voice call', exact: true });
+          const exercise = page.locator(mode === 'sentence' ? '.ll-sentences[data-exercise-id]' : '.verbs-lesson');
+          const attribute = mode === 'sentence' ? 'data-exercise-id' : 'data-exercise';
+          const firstId = await exercise.getAttribute(attribute);
+          assert.ok(firstId); assert.equal(transport.sessionRequests, 1);
+          assert.equal((await inspectTransport(page)).mediaCalls, 1);
+          assert.doesNotMatch(await page.locator('body').innerText(), /mock|session mode|ask your coach a question/i);
+          assert.equal(await page.getByRole('region', { name: 'Coach response', exact: true }).count(), 0);
+          assert.equal(await page.locator('.ll-progress:visible').count(), 0);
+          if (mode === 'verb-image') assert.equal(await exercise.locator('.ll-cue img').evaluate(image => image.complete && image.naturalWidth > 0), true);
+          if (mode !== 'sentence') {
+            const label = mode === 'verb-image' ? 'Base form' : 'Past';
+            await page.getByRole('textbox', { name: label, exact: true }).fill('zzzz');
+            await page.locator('.ll-incorrect').first().waitFor();
+          }
+          await page.getByRole('button', { name: 'Your progress', exact: true }).click();
+          const progress = page.getByRole('dialog', { name: 'Lesson progress', exact: true }); await progress.waitFor();
+          assert.equal(await progress.locator('progress').getAttribute('value'), '0');
+          await page.keyboard.press('Escape'); await progress.waitFor({ state: 'hidden' });
+          assert.equal(await exercise.getAttribute(attribute), firstId);
+          await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+          await page.getByLabel('Theme', { exact: true }).selectOption('dark');
+          await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
+          await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('2');
+          await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
+          assert.equal(await exercise.getAttribute(attribute), firstId); assert.equal(transport.sessionRequests, 1);
+          await call.getByRole('button', { name: 'Mute microphone', exact: true }).click();
+          assert.equal((await inspectTransport(page)).tracks[0].enabled, false);
+          await call.getByRole('button', { name: 'Unmute microphone', exact: true }).click();
+          assert.equal((await inspectTransport(page)).tracks[0].enabled, true);
+          const pausedRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
+          await call.getByRole('button', { name: 'Pause call', exact: true }).click();
+          await pausedRelease; assert.equal(transport.releaseRequests, 1);
+          await call.getByRole('button', { name: 'Resume call', exact: true }).waitFor(); await assertReleased(page);
+          assert.equal(await exercise.getAttribute(attribute), firstId);
+          await call.getByRole('button', { name: 'Resume call', exact: true }).click(); await ready(page);
+          assert.equal(transport.sessionRequests, 2); assert.equal((await inspectTransport(page)).mediaCalls, 2);
+          assert.equal(await exercise.getAttribute(attribute), firstId);
+          await page.getByRole('button', { name: 'Reference table', exact: true }).click();
+          const reference = page.getByRole('dialog', { name: mode === 'sentence' ? 'Sentence practice guide' : 'Verb practice reference', exact: true });
+          await reference.waitFor(); await page.keyboard.press('Escape'); await reference.waitFor({ state: 'hidden' });
+          assert.equal(await exercise.getAttribute(attribute), firstId);
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+          await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+          await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
+          if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-voice-ui-final-${mode}-${viewport.width}.png`, fullPage: true });
+          const routeRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
+          await page.getByRole('link', { name: 'All lessons', exact: true }).click(); await routeRelease;
+          await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); await assertReleased(page);
+          assert.equal(transport.releaseRequests, 2);
+          const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
+          assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'theme', 'untimedHelp']);
+          assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
+          console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual app rendering; mocked browser transport; no real microphone/provider', checks: ['one automatic connection', 'progress modal', 'settings preserve exercise/session', 'microphone mute', 'pause release/resume', 'reference modal', 'route cleanup', '200% text/reflow', 'preferences-only storage', 'no external requests'] }));
+          await context.close();
+        }
       }
-      const context = await browser.newContext({ viewport }); const page = await context.newPage();
-      const errors = []; const external = [];
-      page.on('pageerror', error => errors.push(error.message));
-      page.on('request', request => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
-      await page.goto(`http://127.0.0.1:${port}/#/sentence`, { waitUntil: 'networkidle' });
-      const exercise = page.locator('.ll-sentences[data-exercise-id]');
-      await exercise.waitFor();
-      const firstId = await exercise.getAttribute('data-exercise-id');
-      await page.getByRole('button', { name: 'Start mock session', exact: true }).click();
-      await page.getByLabel('Mock oral response (simulated)', { exact: true }).fill('Explicit accepted translation fixture.');
-      await page.getByRole('button', { name: 'Send simulated response', exact: true }).click();
-      await page.waitForFunction(() => document.querySelector('.ll-sentences')?.getAttribute('data-stage') === 'explanation');
-      await page.getByRole('button', { name: 'Preferences', exact: true }).click();
-      await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('2');
-      assert.equal(await exercise.getAttribute('data-exercise-id'), firstId);
-      assert.equal(await exercise.getAttribute('data-stage'), 'explanation');
-      await page.getByRole('button', { name: 'Close', exact: true }).click();
-      await page.getByLabel('Ask your coach a question', { exact: true }).fill('Can I take my time?');
-      await page.getByRole('button', { name: 'Ask', exact: true }).click();
-      await page.getByRole('button', { name: 'My question is resolved', exact: true }).waitFor();
-      assert.equal(await exercise.getAttribute('data-exercise-id'), firstId);
-      await page.getByRole('button', { name: 'My question is resolved', exact: true }).click();
-      await page.getByLabel('Mock oral response (simulated)', { exact: true }).fill('Explicit accepted explanation fixture.');
-      await page.getByRole('button', { name: 'Send simulated response', exact: true }).click();
-      await page.waitForFunction(() => document.querySelector('.ll-sentences')?.getAttribute('data-stage') === 'complete');
-      await page.waitForTimeout(1900);
-      assert.equal(await exercise.getAttribute('data-exercise-id'), firstId);
-      await page.getByRole('button', { name: 'Next exercise', exact: true }).click();
-      await page.waitForFunction(id => document.querySelector('.ll-sentences')?.getAttribute('data-exercise-id') !== id, firstId);
-      assert.equal(await exercise.getAttribute('data-stage'), 'translation');
-      await page.getByRole('button', { name: 'Stop session', exact: true }).click();
-      await page.getByRole('button', { name: 'Start mock session', exact: true }).waitFor();
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-      const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
-      assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'untimedHelp']);
-      assert.deepEqual(errors, []); assert.deepEqual(external, []);
-      if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-sentence-${viewport.width}.png`, fullPage: true });
-      console.log(JSON.stringify({ status: 'passed', mode: 'sentence', port, viewport, evidence: 'actual root rendering with explicit mock outcomes', checks: ['sentence stages', 'question hold', 'settings preserve evidence', 'manual Next', 'no history storage', 'reflow', 'no external requests'] }));
-      await context.close();
+      // Cancellation and failures need no viewport duplication. They target resource ownership.
+      const viewport = { width: 390, height: 844 };
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+        await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
+        await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('3');
+        await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('3');
+        await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
+        await page.getByRole('link', { name: 'Start Sentence practice', exact: true }).click();
+        await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+        await page.getByText('Voice starts when a lesson is ready.', { exact: true }).waitFor();
+        await page.getByText(/No authored prompt matches grammar 3 and vocabulary 3/).waitFor();
+        assert.equal(await page.locator('.ll-sentences[data-exercise-id]').count(), 0);
+        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0); assert.equal(transport.statusRequests, 0);
+        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+        await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
+        await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('1');
+        await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('1');
+        await page.getByRole('button', { name: 'Close preferences', exact: true }).click(); await ready(page);
+        assert.equal(await page.locator('.ll-sentences[data-exercise-id]').count(), 1);
+        assert.equal((await inspectTransport(page)).mediaCalls, 1); assert.equal(transport.sessionRequests, 1);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        transport.sessionStatus = 503;
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor(); await assertReleased(page);
+        assert.equal(transport.sessionRequests, 1);
+        transport.sessionStatus = 200;
+        await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);
+        assert.equal(transport.sessionRequests, 2); assert.equal((await inspectTransport(page)).mediaCalls, 2);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.evaluate(() => { window.__voiceTransportFixture.mediaError = 'NotAllowedError'; });
+        await page.getByRole('link', { name: 'Start Verb practice', exact: true }).click();
+        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).mediaCalls, 1);
+        await page.evaluate(() => { window.__voiceTransportFixture.mediaError = null; });
+        await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);
+        assert.equal(transport.sessionRequests, 1);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.evaluate(() => { window.__voiceTransportFixture.deferMedia = true; });
+        await page.getByRole('link', { name: 'Start Sentence practice', exact: true }).click();
+        await page.waitForFunction(() => window.__voiceTransportFixture.mediaCalls === 1);
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+        await page.evaluate(() => window.__voiceTransportFixture.resolveMedia());
+        await page.waitForFunction(() => window.__voiceTransportFixture.tracks.length === 1 && window.__voiceTransportFixture.tracks[0].stopped);
+        assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).peers.length, 0);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await ready(page);
+        let release; transport.releaseBarrier = new Promise(resolve => { release = resolve; });
+        const pendingRelease = page.waitForRequest(request => request.url().endsWith('/api/realtime/session/end'));
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click(); await pendingRelease;
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+        const nextPreflight = page.waitForResponse(response => response.url().endsWith('/api/realtime/status'));
+        await page.getByRole('link', { name: 'Start Verb practice', exact: true }).click(); await nextPreflight;
+        await page.getByRole('button', { name: 'Pause call', exact: true }).waitFor();
+        assert.equal((await inspectTransport(page)).mediaCalls, 1); assert.equal(transport.sessionRequests, 1);
+        release(); await ready(page);
+        assert.equal((await inspectTransport(page)).mediaCalls, 2); assert.equal(transport.sessionRequests, 2);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await ready(page);
+        transport.releaseStatus = 503;
+        const failedRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
+        await page.getByRole('button', { name: 'Pause call', exact: true }).click(); await failedRelease;
+        await page.getByRole('button', { name: 'Resume call', exact: true }).click();
+        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        assert.equal((await inspectTransport(page)).mediaCalls, 1); assert.equal(transport.sessionRequests, 1);
+        transport.releaseStatus = 200;
+        await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);
+        assert.equal((await inspectTransport(page)).mediaCalls, 2); assert.equal(transport.sessionRequests, 2);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        let release; transport.statusBarrier = new Promise(resolve => { release = resolve; });
+        const pendingStatus = page.waitForRequest(request => request.url().endsWith('/api/realtime/status'));
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await pendingStatus;
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+        release();
+        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        let release; transport.sessionBarrier = new Promise(resolve => { release = resolve; });
+        const pendingSession = page.waitForRequest(request => request.url().endsWith('/api/realtime/session'));
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+        await pendingSession;
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); release();
+        await assertReleased(page); assert.equal(transport.sessionRequests, 1);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      console.log(JSON.stringify({ status: 'passed', port, evidence: 'mocked browser transport only', checks: ['unsupported difficulty creates no call; valid context starts once', 'broker error explicit retry', 'microphone denial explicit retry', 'late microphone cancellation', 'pending preflight cancellation', 'pending broker cancellation', 'cross-lesson release gate', 'failed release blocks new call until retry'] }));
     }
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

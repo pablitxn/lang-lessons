@@ -12,6 +12,22 @@ The implementation follows the supplied EN-WP-02 design artifact, SHA-256
 remain preserved outside this repository in the delegated specification task.
 Repository contracts and `TIMING` are authoritative for implementation.
 
+## Current application flow, 2026-10-17
+
+The current working tree supersedes the original presentation described at the
+2026-10-16 checkpoint; its dated receipt below remains historical evidence.
+The home screen contains lesson cards. Selecting an available lesson starts the
+root-owned voice call. A single call bar offers microphone mute and call
+pause/resume. Preferences opens a native dialog with appearance, microphone,
+learning and local-storage sections. The root supplies light/dark theme tokens.
+
+Lessons retain their prompts, spelling fields where applicable, requested hints
+and reference helpers. Progress opens from **Your progress** in a native dialog;
+it is no longer a permanent sidebar. Coach transcript panels, typed question
+forms, provider-mode selection and simulation notices are absent from the
+production interface. Simulation controls live only in `__fixtures__` and test
+helpers, with explicit fixture provenance.
+
 ## Ownership and import surface
 
 Import components from `src/ui/mobile/index.ts`; this entry imports scoped CSS.
@@ -19,18 +35,16 @@ No new dependency, provider, shared schema or domain controller is introduced.
 
 | Export | Integration contract |
 | --- | --- |
-| `PracticeLayout` | Children are the exercise; optional `progress`, `coach`, `controls` slots. `mock` displays an explicit simulated-evidence notice. |
-| `ExerciseCue` | Optional image with alt/attribution, supplied `base`, or `spanish` prompt. Broken images preserve attempts and offer caller-supplied alternate cue action. |
+| `PracticeLayout` | Children are the exercise; an optional `controls` slot contains helper actions below it. |
+| `ExerciseCue` | Optional image with alt text, supplied `base`, or `spanish` prompt. Image attribution remains in source metadata. Broken images preserve attempts and offer the caller-supplied alternate cue action. |
 | `SpellingField` | Controlled native input; `label`, `value`, current `attempt`, optional `result`/`processing`, help preferences, phonetic guidance, `onChange`, `onFinalize`, activity and hold callbacks. |
 | `ObligationProgress` | `mode`, current `identity`, and authoritative `evidence`. Only applicable current-exercise requirements are displayed; no supplied-base spelling gate. |
+| `ProgressDialog` | `mode`, current `identity`, authoritative `evidence`, required `onHoldChange`, and optional root call `controls` in the modal. |
+| `LessonDialog` | Accessible native modal with `title`, trigger/close labels, children, scoped hold callback and optional root call controls. |
 | `ReferenceTable` | `title`, `caption`, `columns`, `rows`, required `onHoldChange(id, held)`, and optional live session `controls` inside the modal. |
-| `VoiceControls` | Actual `state`, `muted`, speaker flags, optional error/mock label and `onStart`, `onMute`, `onStop` intent callbacks. Never starts a microphone on mount. |
-| `QuestionComposer` | `onSubmit(question)` and `onDraftActiveChange(active)`. Questions preserve the exercise; composing blocks submit. |
-| `CoachMessage` | Supplied text with optional pending/uncertain/mock states. No local hint generation or evaluation. |
-| `CompletionNotice` | Controller-owned `pending` and `onStay`; quiet completion text, no local advancement timer. |
 | `SentencePrompt` | Authoritative `stage`, `onHint` and `onNext`. Next is available only at `complete`. |
 
-`SpellingFieldProps`, `ReferenceTableProps` and `VoiceControlsProps` are exported
+`SpellingFieldProps`, `ReferenceTableProps` and `LessonDialogProps` are exported
 for adapters. The other component props are explicit in their exports and can
 be derived using React's `ComponentProps`. UI-only interfaces live in this module;
 shared domain contracts remain exclusively with EN-WP-01.
@@ -39,8 +53,8 @@ shared domain contracts remain exclusively with EN-WP-01.
 
 EN-WP-04 owns assessment/reducer APIs, source validation, revisions, voice,
 transport and safe advancement. Feature modules supply callbacks rather than
-having presentation import an unfinished controller API. The component API
-therefore remains usable with the controller's eventual exported API.
+having presentation own transport or domain reduction. The integrated features
+use the shared controller's exported API.
 
 For every spelling draft edit, the feature must allocate/invalidate that
 obligation's current attempt and update `value` and `attempt` together. The
@@ -63,28 +77,29 @@ controller. Input-group focus includes the Check/help controls, so moving
 between them cannot briefly release the typing hold. Update activity on every
 `onChange` as well, because typing renews the natural-pause clock.
 
-Both reference tables and open sound guides call `onHoldChange(id, held)` with
+Progress dialogs, reference tables and open sound guides call `onHoldChange(id, held)` with
 stable scoped IDs, releasing their own hold on close/unmount. The caller must
 renew activity before releasing a hold and recheck all completion conditions.
 Opening a helper must not replace a feature/session, reset stage, or remount
-fields. Put actual Stop/mic controls into `ReferenceTable.controls` so they
-remain reachable while the rest of the page is inert behind the native dialog.
+fields. Pass root mute/pause controls into each modal so they remain reachable while
+the rest of the page is inert behind the native dialog.
 
-The question callback must establish `questionPending` synchronously before the
-composer releases its draft hold. A typed question never supplies evidence for
-an oral translation or pronunciation. Voice success, muting and errors are only
-shown after the voice controller supplies the corresponding state. Keyboard
-focus never implicitly disconnects or mutes the call.
+Questions are spoken during the call and use the shared question-intent hold.
+The internal component fixture retains a typed-question composer to test draft
+holds; it is not exported by the production UI entry point or rendered by a
+lesson. Typed questions never supply oral evidence. Call status, muting and
+errors come from the root voice controller. Keyboard focus never implicitly
+disconnects or mutes the call.
 
 ## Visual and educational behavior
 
 A calm single-column practice space uses warm neutral surfaces, restrained
-borders, dark ink and teal actions. The layout becomes two columns only at
-960px where enough space remains; it reflows into one column at mobile widths.
+borders and themed actions. The lesson remains one column at every width, with
+progress and reference material available in dialogs.
 The dock stays in document flow, with safe-area padding, to avoid covering a
 focused input when a software keyboard occupies the viewport. No per-key color
-animation or microphone animation is used. The framework and root theme remain
-unchanged; all CSS selectors belong to `ll-*` classes.
+animation is used. Scoped CSS consumes the root appearance variables for ink,
+surfaces, borders, actions and feedback; selectors remain under `ll-*` classes.
 
 The native input keeps caret, selection, undo, autocomplete controls and screen
 reader editing. After the shared 700ms idle interval, changed nonempty blur,
@@ -111,13 +126,14 @@ current result removes the guide. Activation reveals phonetics and a Spanish
 textual sound guide below the relevant input. Uncertainty and service failures
 never qualify, and no prerecorded audio collection is required.
 
-Reference tables are separate from conditional spelling help. A persistent
+Progress and reference dialogs are separate from conditional spelling help. A persistent
 button opens a native modal bottom sheet on small screens and centered sheet on
 larger screens, with caption, column/row headers, a labeled keyboard-scrollable
 table region and visible Close. This centered desktop dialog is a deliberate
 implementation simplification of the original inline-panel proposal: native
 focus containment and background inertness work consistently at every width.
-The presentation hold prevents changing the exercise behind the sheet.
+The presentation hold prevents changing the exercise behind either sheet.
+Opening progress preserves the current drafts, evidence and generation.
 
 Image mode is composed with an action image and three spelling fields; the image
 never implies a tense. Visible-base mode supplies a read-only base and two
@@ -151,6 +167,20 @@ focused offer cannot expire and strand focus. Tables scroll inside their own
 region. No new exercise automatically summons a mobile keyboard. Reduced-motion
 preferences remove any inherited module motion. Actual screen-reader and
 physical mobile keyboard behavior still require device validation.
+
+## 2026-10-17 verification amendment
+
+The current UI and feature browser fixtures passed at 320x640, 390x844,
+844x390 and 1024x768 using the supplied Playwright and installed Chrome.
+Progress holds prevent completed verbs from advancing and disable sentence
+Next; Escape/Close restores focus without resetting evidence. Existing spelling,
+help, stale-result and reflow checks remain covered. The root Preferences dialog
+was also checked at 200% text at 320px and 390px after a heading-wrap repair;
+no horizontal overflow remained and Escape restored its opener.
+
+These are local working-tree and rendered-browser results with simulated
+transport. They do not establish physical-device, microphone or real-provider
+behavior. No paid calls or deployment were performed.
 
 ## 2026-10-16 task receipt
 

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { AttemptRef, EvidenceLedger, EvidenceResult, SentenceStage } from '../../../contracts';
-import { CoachMessage, CompletionNotice, ExerciseCue, ObligationProgress, PracticeLayout, QuestionComposer, ReferenceTable, SentencePrompt, SpellingField, VoiceControls } from '../index';
+import { ExerciseCue, ProgressDialog, PracticeLayout, ReferenceTable, SentencePrompt, SpellingField } from '../index';
+import { QuestionComposer, VoiceControls } from './conversation-controls';
 
 // A direct component harness. These controls simulate props, never real assessment.
 function Fixture() {
@@ -47,9 +48,9 @@ function Fixture() {
     </div></details>
     <output data-testid="observations" data-finalizations={finalizations} data-holds={holds.length} data-focused={activity.inputFocused}
       data-composition={activity.compositionActive} data-question-active={questionActive} data-question={question} data-generation={generation} />
-    <PracticeLayout mock progress={<ObligationProgress mode={sentence ? 'sentence' : 'verb-visible'} identity={identity} evidence={evidence} />}
-      coach={<CoachMessage mock text="Take your time. You can ask questions whenever you like." />}
+    <PracticeLayout
       controls={<>{controls}<QuestionComposer onSubmit={setQuestion} onDraftActiveChange={setQuestionActive} />
+        <ProgressDialog mode={sentence ? 'sentence' : 'verb-visible'} identity={identity} evidence={evidence} onHoldChange={hold} controls={controls} />
         <ReferenceTable title="Form reference" caption="General form roles" columns={['Form', 'Use']}
           rows={[["Base", "Normal subject agreement"], ["Past", "Completed past context"], ["Participle", "A complete grammatical construction"]]}
           onHoldChange={hold} controls={controls} /></>}>
@@ -59,7 +60,7 @@ function Fixture() {
           guidance={{ ipa: '/bent/', spanishSoundGuide: 'Suena aproximadamente como «bent», con una t final breve.' }}
           onChange={value => { setValue(value); setRevision(previous => previous + 1); setProcessing(false); }}
           onFinalize={() => { setFinalizations(previous => previous + 1); setProcessing(true); }} onActivity={setActivity} onHoldChange={hold} />
-          <CompletionNotice pending={false} onStay={() => {}} /></>}
+          </>}
     </PracticeLayout>
   </div>;
 }

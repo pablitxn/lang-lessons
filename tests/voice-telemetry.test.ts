@@ -125,7 +125,9 @@ test('broker validates the telemetry origin, receipt and schema before export wi
   const exporter = new InMemorySpanExporter(); const telemetry = new PhoenixTelemetry(collector, exporter);
   let calls = 0; const origin = 'http://127.0.0.1:5174';
   const config = { ...readBrokerConfig({}), enabled: true, apiKey: 'FAKE_PROVIDER_KEY' };
-  const server = createRealtimeServer(config, async () => { calls++; return new Response('v=0\r\nfixture-answer'); }, telemetry);
+  const server = createRealtimeServer(config, async () => {
+    calls++; return new Response('v=0\r\nfixture-answer', { headers: { Location: '/v1/realtime/calls/rtc_fixture' } });
+  }, telemetry);
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(async () => { server.closeAllConnections(); server.close(); await telemetry.shutdown(); });
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -190,7 +192,9 @@ test('the actual adapter observes question and speech calls through mocked WebRT
     createAudio: () => ({ muted: true, autoplay: false, pause() {}, play: async () => {} }) as unknown as HTMLAudioElement,
     origin: 'http://127.0.0.1:5174', fetch: async (url, init) => {
       assert.equal(new Headers(init?.headers).has('Authorization'), false);
-      if (String(url).endsWith('/session')) return Response.json({ sdp: 'v=0\r\nfixture-answer', maxDurationSeconds: 600, telemetryReceipt: 'f'.repeat(64) });
+      if (String(url).endsWith('/session/end')) return Response.json({ ended: true });
+      if (String(url).endsWith('/session')) return Response.json({ sdp: 'v=0\r\nfixture-answer', maxDurationSeconds: 600,
+        releaseToken: 'fixture-release-token-00000000000000', telemetryReceipt: 'f'.repeat(64) });
       assert.equal(url, 'http://127.0.0.1:5174/api/realtime/telemetry');
       reports.push(JSON.parse(String(init?.body)).report); return Response.json({ accepted: true }, { status: 202 });
     },

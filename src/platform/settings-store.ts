@@ -19,6 +19,7 @@ function isLevel(value: unknown): value is 1 | 2 | 3 {
 export function parseSettings(value: unknown): LearnerSettings | null {
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.helpEnabled !== 'boolean'
     || (value.untimedHelp !== undefined && typeof value.untimedHelp !== 'boolean')
+    || (value.theme !== undefined && (typeof value.theme !== 'string' || !['system', 'light', 'dark'].includes(value.theme)))
     || !isRecord(value.difficulty) || !isLevel(value.difficulty.grammar)
     || !isLevel(value.difficulty.vocabulary)
     || !['verb-image', 'verb-visible', 'sentence'].includes(String(value.preferredMode))) return null;
@@ -26,6 +27,7 @@ export function parseSettings(value: unknown): LearnerSettings | null {
     schemaVersion: 1, helpEnabled: value.helpEnabled, untimedHelp: value.untimedHelp === true,
     difficulty: { grammar: value.difficulty.grammar, vocabulary: value.difficulty.vocabulary },
     preferredMode: value.preferredMode as LearnerSettings['preferredMode'],
+    theme: (value.theme as LearnerSettings['theme'] | undefined) ?? 'system',
   };
 }
 export function browserStorage(): StoragePort | undefined {

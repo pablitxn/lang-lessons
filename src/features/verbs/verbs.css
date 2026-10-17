@@ -1,6 +1,2 @@
 .verbs-lesson { min-width: 0; }
-.verbs-instructions { color: #526160; font-size: .875rem; line-height: 1.6; }
-.verbs-system-error, .verbs-alternate-cue { background: #f0f5ef; border: 1px solid #d7dfda; border-radius: 12px; padding: 14px; overflow-wrap: anywhere; }
-.verbs-session-actions { min-width: 0; }
-.verbs-session-actions > p { font-size: .875rem; }
-.verbs-learner-question { border-left: 3px solid #08675f; padding: 8px 12px; overflow-wrap: anywhere; }
+.verbs-system-error, .verbs-alternate-cue { background: var(--surface, #eef0e7); border: 1px solid var(--line, #d9dfd5); border-radius: 12px; padding: 14px; overflow-wrap: anywhere; }

@@ -4,6 +4,16 @@ Date: 2026-10-16. Owner: EN-WP-01 foundation/integration executor.
 Status: selected reversible implementation defaults under the delegated roadmap
 launch. These are implementation decisions, not retroactive product approvals.
 
+## Product flow update (2026-10-17)
+
+The user's browser review supersedes the initial mock-first product defaults:
+the root is a lesson catalog, selecting a lesson starts the configured voice
+adapter automatically, and test adapters are available only in internal fixtures.
+Preferences and lesson progress use native modal dialogs. Theme is a validated,
+backward-compatible preference in the existing version-one storage object.
+Microphone permission remains browser-owned and is not persisted as a preference.
+The initial implementation history below does not authorize live paid validation.
+
 ## Authority and inspected state
 
 The supplied mandate authorizes foundation implementation and draft publication,
@@ -20,10 +30,10 @@ checkout concerned setup; the later implementation mandate now authorizes code.
 | Concern | Selected default and reason | Revisit when |
 | --- | --- | --- |
 | UI | React 19, strict TypeScript, Vite; same dependency versions as the inspected Atlas webapp | Real-device constraints require another runtime |
-| Routing | Three hash routes; browser history and static hosting need no rewrite rules or router dependency | More nested routes justify a router |
+| Routing | Home catalog plus three lesson hash routes; browser history and static hosting need no rewrite rules or router dependency | More nested routes justify a router |
 | State | Feature-owned React state; shared pure contract policies; one root voice session | Cross-device synchronization is authorized |
 | Persistence | Versioned localStorage for non-sensitive preferences only; memory for lesson evidence | Durable progress requirements and deletion policy are agreed |
-| Voice | Provider-neutral adapter; deterministic mock by default; WebRTC transport through a same-origin server SDP broker | Comparative real-audio evaluations justify a provider change |
+| Voice | Provider-neutral adapter; live WebRTC in the application; deterministic adapters only in tests; transport through a same-origin server SDP broker | Comparative real-audio evaluations justify a provider change |
 | Provider candidate | OpenAI Realtime, configurable server-side model; no claim of provider quality or account access | Scoped credentials, budget and audio evaluation become available |
 | Backend | Minimal Node HTTP broker for local opt-in voice; no database or account system; optional content-free Phoenix/OTLP tracing | Public hosting/authentication are selected |
 | Hosting | Loopback-only local dev/build preview; no deployment target | Separate deployment mandate |
@@ -142,16 +152,17 @@ permanent API keys stay server-side. The browser carries audio through WebRTC
 and receives structured data-channel events. Model selection remains configurable.
 This documentation establishes a transport candidate, not linguistic quality.
 
-Default mock mode makes no microphone or external requests. Real mode needs an
-explicit local opt-in, configured server credentials and separate authorization
-for paid validation. Reject cross-origin broker requests, cap body size, avoid
+The home catalog makes no microphone or external requests. Opening a lesson
+starts voice after a same-origin service readiness check; browser permission is
+requested if needed. The service needs explicit local opt-in and configured
+server credentials. Paid validation retains its separate authorization boundary. Reject cross-origin broker requests, cap body size, avoid
 logging prompts/audio/provider bodies, close all tracks/channels on stop or error,
 and impose a 10-minute local session cap with one active session and no automatic
 reconnect spending. A time cap is not a monetary cap. Budget, rates, retention,
 pronunciation calibration, latency and physical mobile behavior remain unverified.
 Provider-side usage limits and retention settings need explicit later scope.
 
-Store only help/untimed-help/difficulty/preferred-mode settings under a versioned browser key.
+Store only theme/help/untimed-help/difficulty/preferred-mode settings under a versioned browser key.
 Never persist tokens, audio, transcripts, scores or provider mode. Reset clears
 only the owned settings key. Default mock mode creates no anonymous ID, cookies or analytics. Opt-in operational
 tracing uses transient session IDs as described in [observability](observability.md).

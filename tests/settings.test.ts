@@ -47,3 +47,14 @@ test('older version-one preferences adopt the added accessibility default', () =
   const { untimedHelp: _omitted, ...original } = DEFAULT_SETTINGS;
   assert.deepEqual(parseSettings(original), DEFAULT_SETTINGS);
 });
+test('existing preferences adopt system appearance without losing learning settings', () => {
+  const { theme: _theme, ...original } = { ...DEFAULT_SETTINGS, helpEnabled: true };
+  assert.deepEqual(parseSettings(original), { ...DEFAULT_SETTINGS, helpEnabled: true });
+  for (const theme of ['light', 'dark', 'system'] as const) {
+    const storage = new MemoryStorage();
+    assert.equal(saveSettings({ ...DEFAULT_SETTINGS, theme }, storage), true);
+    assert.equal(loadSettings(storage).theme, theme);
+  }
+  assert.equal(parseSettings({ ...DEFAULT_SETTINGS, theme: 'invalid' }), null);
+  assert.equal(parseSettings({ ...DEFAULT_SETTINGS, theme: ['dark'] }), null);
+});

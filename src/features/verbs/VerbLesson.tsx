@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { hasAllEvidence, type LearnerSettings, type LessonModuleProps, type VerbForm, type VerbMode } from '../../contracts';
-import { CoachMessage, CompletionNotice, ExerciseCue, ObligationProgress, PracticeLayout, QuestionComposer, ReferenceTable, SpellingField } from '../../ui/mobile';
+import { ExerciseCue, PracticeLayout, ProgressDialog, ReferenceTable, SpellingField } from '../../ui/mobile';
 import { createVerbSession, type VerbSession } from './session';
 import './verbs.css';
 
@@ -30,37 +30,22 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
   useEffect(() => setAlternateCue(false), [snapshot.exerciseId]);
   if (context.mode === 'sentence') return null;
   const allAccepted = hasAllEvidence(context.mode, context, snapshot.evidence, session.voice.mode === 'mock');
-  const liveControls = <div className="verbs-session-actions">
-    <p role="status">{snapshot.interaction.connection === 'ready' ? state.muted ? 'Microphone off' : session.voice.mode === 'mock' ? 'Mock voice ready' : 'Voice connected'
-      : 'Voice disconnected. Use the session controls to connect.'}</p>
-    <div className="ll-actions">
-      <button type="button" className="ll-button" disabled={snapshot.interaction.connection !== 'ready'} aria-pressed={state.muted}
-        onClick={() => session.setMuted(!state.muted)}>{state.muted ? 'Resume microphone' : 'Mute microphone'}</button>
-      {snapshot.interaction.intent !== 'practice' || snapshot.interaction.questionPending
-        ? <button type="button" className="ll-button" onClick={session.resume}>Back to practice</button>
-        : <button type="button" className="ll-button" onClick={session.pause}>Pause practice</button>}
-    </div>
-    {sessionControls}
-  </div>;
+  const hintUnavailable = allAccepted || snapshot.hintPending
+    || snapshot.interaction.connection !== 'ready' || snapshot.interaction.intent !== 'practice';
   return <div className="verbs-lesson" data-exercise={snapshot.exerciseId} data-verb={context.verb.id} data-generation={snapshot.generation}>
-    <PracticeLayout mock={session.voice.mode === 'mock'}
-      progress={<ObligationProgress mode={context.mode} identity={context} evidence={snapshot.evidence} />}
-      coach={<CoachMessage text={state.coachText} pending={snapshot.hintPending && !snapshot.interaction.questionPending} mock={session.voice.mode === 'mock'} />}
-      controls={<>{liveControls}
-        <QuestionComposer onSubmit={session.ask} onDraftActiveChange={active => session.controller.setInteraction({ questionDraftActive: active })} />
-        {state.question && <p className="verbs-learner-question">You asked: {state.question}</p>}
-        <ReferenceTable title="Verb practice reference" caption="Four complementary ways to practice" columns={['Work', 'What to do']}
-          rows={[
-            ['Meaning', 'Say what the verb means in Spanish.'],
-            ['Pronunciation', 'Pronounce the base, past, and past participle. Natural connected speech is welcome.'],
-            ['Original sentences', 'Create one sentence for each form. Normal subject agreement is valid; a participle needs a complete grammatical construction.'],
-            ['Spelling', context.mode === 'verb-image' ? 'Write all three forms.' : 'Write the past and past participle. The base is already supplied.'],
-          ]} onHoldChange={session.controller.setPresentationHold} controls={liveControls} />
-      </>}>
-      <p className="verbs-instructions">Speak and write in any order. One spoken turn can cover several requirements.</p>
+    <PracticeLayout controls={<div className="ll-actions">
+      <ProgressDialog mode={context.mode} identity={context} evidence={snapshot.evidence}
+        onHoldChange={session.controller.setPresentationHold} controls={sessionControls} />
+      <ReferenceTable title="Verb practice reference" caption="Four complementary ways to practice" columns={['Work', 'What to do']}
+        rows={[
+          ['Meaning', 'Say what the verb means in Spanish.'],
+          ['Pronunciation', 'Pronounce the base, past, and past participle. Natural connected speech is welcome.'],
+          ['Original sentences', 'Create one sentence for each form. Normal subject agreement is valid; a participle needs a complete grammatical construction.'],
+          ['Spelling', context.mode === 'verb-image' ? 'Write all three forms.' : 'Write the past and past participle. The base is already supplied.'],
+        ]} onHoldChange={session.controller.setPresentationHold} controls={sessionControls} />
+    </div>}>
       {context.mode === 'verb-image' ? <><ExerciseCue image={context.verb.image} onAlternateCue={() => { session.controller.activity(); setAlternateCue(value => !value); }} />
-        {alternateCue && <p className="verbs-alternate-cue" lang="es">{context.verb.image.alt}</p>}
-        <p className="ll-muted">The picture suggests an action, not a tense.</p></>
+        {alternateCue && <p className="verbs-alternate-cue" lang="es">{context.verb.image.alt}</p>}</>
         : <ExerciseCue base={context.verb.forms.base.accepted.join(' / ')} />}
       {session.fields.map(form => {
         const obligation = `spelling:${form}` as const;
@@ -75,9 +60,10 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
         </div>;
       })}
       {snapshot.systemError && <p role="status" className="verbs-system-error">{snapshot.systemError}</p>}
-      {snapshot.interaction.intent !== 'practice' && <p role="status">Practice is paused. Your accepted work is safe.</p>}
-      <button type="button" className="ll-button" onClick={session.requestHint} disabled={allAccepted}>Give me a hint</button>
-      <CompletionNotice pending={allAccepted && !snapshot.completed} onStay={session.pause} />
+      {!snapshot.systemError && state.clarification && <p role="status" className="verbs-clarification">{state.clarification}</p>}
+      <button type="button" className="ll-button" onClick={session.requestHint} disabled={hintUnavailable}>Give me a hint</button>
+      {snapshot.hintPending && <p role="status" className="ll-hint">Preparing a hint…</p>}
+      {!snapshot.hintPending && snapshot.hint && <p role="status" className="ll-hint">{snapshot.hint.text}</p>}
     </PracticeLayout>
   </div>;
 }

@@ -9,3 +9,7 @@ export function resolveMode(hash: string, fallback: LessonMode = 'verb-image'): 
   return MODES.find(mode => hash === `#/${mode.id}`)?.id ?? fallback;
 }
 export function modeHref(mode: LessonMode): string { return `#/${mode}`; }
+/** Only a lesson URL opens a call; empty and unknown routes show the catalog. */
+export function resolveLessonRoute(hash: string): LessonMode | null {
+  return MODES.find(mode => hash === modeHref(mode.id))?.id ?? null;
+}

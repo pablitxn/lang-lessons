@@ -6,6 +6,7 @@ export interface VerbSessionSnapshot {
   assessment: AssessmentSnapshot;
   drafts: Readonly<Record<VerbForm, string>>;
   coachText: string;
+  clarification: string;
   lastUtterance: string;
   question: string;
   muted: boolean;
@@ -39,6 +40,7 @@ export function createVerbSession(options: VerbSessionOptions) {
   let draftRevisions: Record<VerbForm, number> = { base: 0, past: 0, participle: 0 };
   let submittedRevisions: Partial<Record<VerbForm, number>> = {};
   let coachText = 'Say the meaning in Spanish, pronounce all three forms, and make one original sentence for each. Any order works.';
+  let clarification = '';
   let lastUtterance = '';
   let question = '';
   let muted = false;
@@ -58,7 +60,7 @@ export function createVerbSession(options: VerbSessionOptions) {
   }
   function publish() {
     if (disposed || !initialized) return;
-    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, lastUtterance, question, muted };
+    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted };
     for (const listener of listeners) listener();
   }
   function scheduleDrain() {
@@ -114,6 +116,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       }
     } else if (utterance.uncertain) {
       coachText = "I didn't catch that clearly. Please clarify before we move on.";
+      clarification = coachText;
       controller.setInteraction({ questionPending: true });
     } else {
       // A prior queued assessment may have completed the oral checklist. Preserve
@@ -128,7 +131,9 @@ export function createVerbSession(options: VerbSessionOptions) {
     if (disposed || event.sessionId !== sessionId) return;
     controller.handleVoiceEvent(event);
     if (event.type === 'microphone') { muted = event.muted; publish(); }
-    if (event.type === 'intent' && event.intent === 'question-resolved') pendingQuestionId = '';
+    if (event.type === 'intent' && event.intent === 'question-resolved') {
+      pendingQuestionId = ''; clarification = ''; publish();
+    }
     if (event.type === 'intent' && event.intent === 'question') pendingHintId = '';
     if (event.type === 'hint' && event.hint.requestId === pendingHintId && controller.getSnapshot().hint?.requestId === event.hint.requestId) {
       coachText = event.hint.text; publish();
@@ -142,7 +147,8 @@ export function createVerbSession(options: VerbSessionOptions) {
     lastUtterance = event.text;
     const interaction = controller.getSnapshot().interaction;
     if (interaction.questionPending) question = event.text;
-    if (event.uncertain) coachText = "I didn't catch that clearly. Please say it again when you are ready.";
+    clarification = event.uncertain ? "I didn't catch that clearly. Please say it again when you are ready." : '';
+    if (event.uncertain) coachText = clarification;
     publish();
     if (interaction.questionPending || interaction.intent !== 'practice' || interaction.connection !== 'ready') return;
     if (!oralTargets().length) return; // Root retains natural conversation after the checklist.
@@ -170,7 +176,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       const next = pickNextVerb(snapshot.context.verb.id, options.random);
       generation++; drafts = { base: '', past: '', participle: '' }; queue = []; heard = new Set();
       draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
-      hintTargetKey = ''; hintLevel = 1; lastUtterance = '';
+      hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
       pendingHintId = ''; pendingQuestionId = '';
       question = '';
       coachText = 'A new verb. Keep speaking naturally, and ask questions whenever you need.';
@@ -212,7 +218,11 @@ export function createVerbSession(options: VerbSessionOptions) {
     },
     ask(text: string) {
       if (disposed || !text.trim()) return;
-      question = text.trim(); pendingHintId = '';
+      if (controller.getSnapshot().interaction.connection !== 'ready') {
+        clarification = 'Connect the conversation before asking a question.';
+        publish(); return;
+      }
+      question = text.trim(); pendingHintId = ''; clarification = '';
       clearQueue();
       controller.setInteraction({ questionPending: true });
       const snapshot = controller.getSnapshot();
@@ -228,9 +238,11 @@ export function createVerbSession(options: VerbSessionOptions) {
     },
     requestHint() {
       if (disposed) return;
+      const snapshot = controller.getSnapshot();
+      if (snapshot.interaction.connection !== 'ready' || snapshot.interaction.intent !== 'practice'
+        || snapshot.interaction.questionPending) return;
       const target = controller.getOpenObligations()[0];
       if (!target) return;
-      const snapshot = controller.getSnapshot();
       const targetKey = `${snapshot.exerciseId}:${target}:${snapshot.evidence[target]?.ref.revision ?? 0}`;
       hintLevel = targetKey === hintTargetKey ? Math.min(3, hintLevel + 1) as 1 | 2 | 3 : 1;
       hintTargetKey = targetKey;

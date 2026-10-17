@@ -1,6 +1,6 @@
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { isQuiet, type LessonModuleProps, type VoiceState } from '../../contracts';
-import { PracticeLayout, ExerciseCue, ObligationProgress, ReferenceTable, QuestionComposer, CoachMessage, SentencePrompt } from '../../ui/mobile';
+import { PracticeLayout, ExerciseCue, ProgressDialog, ReferenceTable, SentencePrompt } from '../../ui/mobile';
 import { createSentenceSession, matchingSentences, type SentenceSession } from './session';
 import './sentences.css';
 
@@ -8,8 +8,7 @@ export interface SentenceLessonProps extends LessonModuleProps {
   /** Root-owned connection state can seed a feature mounted after connection. */
   connectionState?: VoiceState;
   microphoneMuted?: boolean;
-  onStartVoice?: () => void;
-  onStopVoice?: () => void;
+  sessionControls?: ReactNode;
 }
 const noopSubscribe = () => () => {};
 const emptySnapshot = () => null;
@@ -48,27 +47,17 @@ export function SentenceLesson(props: SentenceLessonProps) {
   const changedDifficulty = sentence.difficulty.grammar !== view.requestedDifficulty.grammar
     || sentence.difficulty.vocabulary !== view.requestedDifficulty.vocabulary;
   const canNext = snapshot.canContinue || snapshot.completed && view.nextPoolSize > 0 && isQuiet(snapshot.interaction);
-  const controls = <section aria-label="Sentence conversation controls" className="ll-actions">
-    <span role="status">{voice.mode === 'mock' ? 'Mock session' : 'Voice'} · {snapshot.interaction.connection}</span>
-    {snapshot.interaction.connection !== 'ready' && props.onStartVoice
-      && <button type="button" className="ll-button" onClick={props.onStartVoice}>Start voice session</button>}
-    {snapshot.interaction.connection === 'ready' && <button type="button" className="ll-button" aria-pressed={view.muted} onClick={() => session.setMuted(!view.muted)}>{view.muted ? 'Resume microphone' : 'Mute microphone'}</button>}
-    <button type="button" className="ll-button" onClick={() => session.pause(snapshot.interaction.intent === 'practice')}>{snapshot.interaction.intent === 'practice' ? 'Pause practice' : 'Resume practice'}</button>
-    {props.onStopVoice && <button type="button" className="ll-button" onClick={() => { session.pause(true); props.onStopVoice?.(); }}>Stop voice session</button>}
-  </section>;
   const rows = stage === 'translation'
     ? [['Message', 'Read the Spanish prompt and its context.'], ['Your response', 'Speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
     : [['Present simple', 'Subject + base family, with agreement.'], ['Present continuous', 'Subject + am/is/are + present participle.'], ['Present perfect', 'Subject + have/has + past participle.'], ['Present perfect continuous', 'Subject + have/has + been + present participle.']];
 
   return <div className="ll-sentences" data-exercise-id={snapshot.exerciseId} data-stage={stage}>
-    <PracticeLayout mock={voice.mode === 'mock'} controls={controls}
-      progress={<ObligationProgress mode="sentence" identity={snapshot} evidence={snapshot.evidence} />}
-      coach={<><CoachMessage text={snapshot.hint?.text || view.coachText || 'Ask for a gradual hint or a clarification whenever you need one.'} pending={snapshot.hintPending}
-        uncertain={Object.values(snapshot.evidence).some(record => record?.status === 'uncertain')} mock={snapshot.hint?.source === 'mock' && view.hintOrigin !== 'authored-fallback'} />
-        {view.hintOrigin === 'authored-fallback' && <p className="ll-muted">Reviewed coaching fallback · generated content was withheld.</p>}
-        {view.notice && <p role="status" className="ll-muted">{view.notice}</p>}
-        {snapshot.systemError && <p role="alert">{snapshot.systemError}</p>}</>}>
-      <p className="ll-muted">Grammar {sentence.difficulty.grammar} · Vocabulary {sentence.difficulty.vocabulary}</p>
+    <PracticeLayout controls={<div className="ll-actions">
+      <ProgressDialog mode="sentence" identity={snapshot} evidence={snapshot.evidence}
+        onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
+      <ReferenceTable title="Sentence practice guide" caption={stage === 'translation' ? 'Meaning-focused practice guide' : 'Structures for your explanation'}
+        columns={['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
+    </div>}>
       <ExerciseCue spanish={sentence.spanish} />
       {changedDifficulty && <p role="status" className="ll-muted">New difficulty settings apply to the next prompt. Your current work is preserved.</p>}
       {view.nextPoolSize === 0 && <p role="status" className="ll-muted">No authored prompt matches both new settings. Change either dimension in Preferences.</p>}
@@ -76,38 +65,11 @@ export function SentenceLesson(props: SentenceLessonProps) {
         <SentencePrompt stage={stage} onHint={() => session.requestHint()} onNext={() => session.next()} />
       </fieldset>
       {stage !== 'translation' && !snapshot.completed && <button type="button" className="ll-button" onClick={() => session.reviseTranslation()}>Revise my translation</button>}
-      {voice.mode === 'mock' && stage !== 'complete' && <MockResponse key={snapshot.exerciseId} session={session} disabled={busy} />}
-      {view.lastResponse && <details className="ll-sentence-response"><summary>Your last spoken response{voice.mode === 'mock' ? ' (simulated)' : ''}</summary><p lang="en">{view.lastResponse}</p></details>}
-      <ReferenceTable title="Sentence practice guide" caption={stage === 'translation' ? 'Meaning-focused practice guide' : 'Structures for your explanation'}
-        columns={['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={controls} />
-      <fieldset className="ll-sentence-actions" disabled={snapshot.interaction.connection !== 'ready'}>
-        <QuestionComposer onSubmit={session.askQuestion} onDraftActiveChange={active => session.setInteraction({ questionDraftActive: active })} />
-      </fieldset>
-      {snapshot.interaction.questionPending && <button type="button" className="ll-button" onClick={session.resolveQuestion}>My question is resolved</button>}
+      {snapshot.hintPending && <p role="status" className="ll-hint">Preparing a hint…</p>}
+      {!snapshot.hintPending && snapshot.hint && <p role="status" className="ll-hint">{snapshot.hint.text}</p>}
+      {view.notice && view.hintOrigin !== 'authored-fallback' && <p role="status" className="ll-muted">{view.notice}</p>}
+      {snapshot.systemError && <p role="alert">{snapshot.systemError}</p>}
       <button type="button" className="ll-button" onClick={() => session.skip()}>Skip this prompt</button>
-      {snapshot.interaction.connection !== 'ready' && !props.onStartVoice && <p className="ll-muted">Connect through the root conversation controls to begin oral practice.</p>}
     </PracticeLayout>
   </div>;
-}
-
-function MockResponse({ session, disabled }: { session: SentenceSession; disabled: boolean }) {
-  const [draft, setDraft] = useState('');
-  const id = useId();
-  useEffect(() => () => session.setPresentationHold('mock-response-draft', false), [session]);
-  return <form className="ll-sentence-mock" onSubmit={event => {
-    event.preventDefault();
-    if (session.getSnapshot().assessment.interaction.compositionActive) return;
-    session.setPresentationHold('mock-response-draft', false);
-    session.setInteraction({ inputFocused: false, compositionActive: false });
-    if (session.submitMockResponse(draft)) setDraft('');
-    else session.setPresentationHold('mock-response-draft', Boolean(draft.trim()));
-  }}>
-    <label htmlFor={id}>Mock oral response (simulated)</label>
-    <textarea id={id} value={draft} disabled={disabled} rows={3}
-      onChange={event => { setDraft(event.target.value); session.setPresentationHold('mock-response-draft', Boolean(event.target.value.trim())); }}
-      onFocus={() => session.setInteraction({ inputFocused: true })} onBlur={() => session.setInteraction({ inputFocused: false })}
-      onCompositionStart={() => session.setInteraction({ compositionActive: true })} onCompositionEnd={() => session.setInteraction({ compositionActive: false })} />
-    <button type="submit" className="ll-button" disabled={disabled || !draft.trim()}>Send simulated response</button>
-    <p className="ll-muted">This sends an acceptance fixture to the mock adapter, not an English evaluation. It is not microphone, pronunciation or real-provider evidence.</p>
-  </form>;
 }

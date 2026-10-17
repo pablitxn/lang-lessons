@@ -9,8 +9,9 @@ The feature owners retain `src/features/verbs` and `src/features/sentences`.
 
 `createMockVoiceAdapter()` and `createRealtimeVoiceAdapter()` implement
 `VoiceAdapter`. Root `LessonSession` supplies a memory-only `sessionId`, adapter,
-settings and completion callback through `LessonModuleProps`. It owns explicit
-start/stop, mute, interruption, mode/provider replacement and unmount cleanup.
+settings and completion callback through `LessonModuleProps`. It owns automatic
+startup on lesson entry, mute, pause/resume, lesson replacement and unmount cleanup.
+The application composes only the live adapter; test adapters stay in fixtures.
 Preference changes preserve the mounted session. Opening preferences emits a
 scoped `presentation-hold`; helper holds stay independent. The optional
 `askQuestion({ ...identity, requestId, text })` treats typed questions as
@@ -25,8 +26,8 @@ forwards an unclaimed final live utterance as conversation-only input, so questi
 remain possible after all obligations are accepted. That path creates no learning
 acceptance. Stop/restart invalidates any queued fallback microtask. Microphone
 speech interrupts playback immediately; pause/stop/question intent is interpreted
-after the correlated model response. The visible stop control works immediately.
-`Resume practice` deliberately releases pause/question intent. Preferences and
+after the correlated model response. The visible pause control disconnects immediately.
+`Resume call` reconnects the same lesson and releases pause/question intent. Preferences and
 helper changes must never reconnect the adapter.
 
 Speech end does not mean transcription end. A dedicated `transcription-pending`
@@ -48,9 +49,9 @@ If a queued verb turn loses all assessment targets because the preceding turn
 finished them, it is forwarded as conversation with no evidence refs. Unclear
 queued turns ask for clarification and keep progression blocked.
 
-## Mock and real boundaries
+## Test and real evidence boundaries
 
-Mock mode is the default. `simulateUtterance(text, outcome)` registers an explicit
+Mock adapters are internal test fixtures, not an application mode. `simulateUtterance(text, outcome)` registers an explicit
 fixture; the outcome is accepted, incorrect or uncertain. It uses no microphone,
 network or semantic/acoustic model. Unknown utterances cannot silently pass.
 Typed spelling uses local grapheme comparison in both adapters; missing characters
@@ -78,11 +79,21 @@ accepted learner translation in memory and retains valid alternative constructio
 
 ## Local setup and limits
 
-`npm run dev:voice` binds `127.0.0.1:8787`. Without both server-only
+`node scripts/dev-local.mjs` starts the frontend and broker together, explicitly
+disabling paid voice. It supplies `.env.local` to the broker through Node's env-file
+loader. Use `node scripts/dev-local.mjs --voice` for an explicit local paid-voice
+opt-in. Opening a lesson automatically requests microphone permission and starts
+the call; there is no separate session mode or Start step.
+Ctrl-C stops both processes, and occupied ports are preserved. See the README's
+[credential setup](../README.md#credentials-and-live-voice).
+
+`npm run dev:voice` also binds `127.0.0.1:8787`, but reads only its process
+environment; that standalone command does not automatically load `.env.local`.
+Without both server-only
 `OPENAI_API_KEY` and `ALLOW_PAID_VOICE=1`, session creation returns 503 and makes
 no provider call. The normal dev/preview servers proxy `/api/realtime` locally.
-Use a separately authorized terminal/session to supply credentials and paid-call
-scope; do not commit an env file or put credentials in `VITE_*`. No real session
+Use an ignored env file and explicit paid-call scope; do not commit an env file
+or put credentials in `VITE_*`. No real session
 was opened while implementing this work. `OPENAI_REALTIME_MODEL` is an optional
 server override; the default `gpt-realtime-2.1` follows the current official guide
 and is not verified as available to this account.
@@ -94,8 +105,16 @@ The browser independently stops tracks, fetches, channels, playback and timers.
 Abort after a permission prompt also stops a late-arriving stream. Restarting the
 broker resets its lease; this is a local development guard, not authentication,
 a dollar budget, account rate limit or production security boundary. A successful
-SDP exchange reserves the lease even if its response is invalid. Early browser
-stop does not release the conservative server lease.
+SDP exchange reserves the lease even if its response is invalid. A valid exchange
+also returns an opaque, memory-only release token. Pause, route replacement and
+page exit close local media immediately and request same-origin session teardown.
+The broker validates that token against the active lease, then calls the provider
+hangup endpoint using its server-owned call receipt. Only confirmed hangup clears
+the lease. Resume waits for teardown; failures retain the lease and require an
+explicit retry. The browser never receives the permanent credential or provider
+call ID. A disconnected browser during setup triggers orphan cleanup when the
+bounded upstream exchange returns a call receipt. Page-exit teardown remains
+best effort; crashes and unavailable network/provider still need the lease limit.
 
 Only whitelisted learner preferences persist locally. Audio, transcript, rubric
 results, tokens and provider choice stay out of storage. Audio reaches the
@@ -109,9 +128,12 @@ Unit tests use deterministic fixtures and a fake clock. Protocol tests inject
 provider JSON and audio-item references. Lifecycle tests inject fake media tracks,
 peer connections and broker fetches. Broker tests run a loopback HTTP server with
 an injected upstream fetch and a fake key. Browser checks use actual Chromium
-rendering with mock interaction, no microphone permission and no provider calls.
+rendering with injected media/peer objects and intercepted broker responses, with
+no physical microphone access or provider calls.
 None of these categories is real-voice evidence.
 
 Protocol design references (checked 2026-10-16):
 [official WebRTC guide](https://developers.openai.com/api/docs/guides/realtime-webrtc)
 and [official conversation guide](https://developers.openai.com/api/docs/guides/realtime-conversations).
+The teardown implementation uses the [official hangup endpoint](https://developers.openai.com/api/reference/resources/realtime/subresources/calls/methods/hangup)
+(checked 2026-10-17); injected transport checks do not establish real provider behavior.

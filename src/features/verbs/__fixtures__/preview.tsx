@@ -17,9 +17,16 @@ function Fixture() {
     <p>Mock adapter only. Buttons simulate evidence and conversation, without a microphone or provider.</p>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
       <button onClick={() => voice.utterance('Explicit mock fixture: all seven oral obligations demonstrated.')}>Send oral fixture</button>
+      <button onClick={() => {
+        voice.utterance('Explicit mock fixture: all seven oral obligations demonstrated.');
+        voice.utterance('Unclear queued audio fixture', true);
+      }}>Send oral then uncertain fixture</button>
       <button onClick={() => voice.utterance('Unclear audio fixture', true)}>Send uncertain fixture</button>
       <button onClick={() => voice.emit({ type: 'speech', speaker: 'learner', active: true })}>Keep speaking</button>
       <button onClick={() => voice.emit({ type: 'speech', speaker: 'learner', active: false })}>Finish speaking</button>
+      <button onClick={() => voice.emit({ type: 'intent', intent: 'question' })}>Ask question fixture</button>
+      <button onClick={() => voice.emit({ type: 'intent', intent: 'pause' })}>Pause fixture</button>
+      <button onClick={() => voice.emit({ type: 'intent', intent: 'practice' })}>Resume fixture</button>
       <button onClick={() => {
         if (voice.context) voice.emit({ type: 'feedback', identity: voice.context, text: 'Mock answer to your question. Your current exercise is preserved.' });
         voice.emit({ type: 'intent', intent: 'question-resolved' });
