@@ -1,0 +1,55 @@
+{
+  "schema_version": "en-wp-03/1",
+  "authorship": "authored-policy",
+  "runtime_hint_origin": "model-generated-per-attempt",
+  "pre_acceptance_stages": [
+    "translation_pending",
+    "translation_processing",
+    "translation_uncertain",
+    "translation_incorrect"
+  ],
+  "progression": [
+    {
+      "level": 1,
+      "intent": "Invite self-review of intended meaning and context.",
+      "requires": "learner asks for help or has a processed genuine error"
+    },
+    {
+      "level": 2,
+      "intent": "Ask a meaning-focused question about the relevant relationship.",
+      "requires": "new attempt or explicit request for more help"
+    },
+    {
+      "level": 3,
+      "intent": "Focus on the unmet semantic constraint and invite a new whole-sentence attempt.",
+      "requires": "new attempt or explicit request for more help"
+    }
+  ],
+  "before_translation_acceptance": {
+    "forbid": [
+      "target tense names in any language",
+      "complete accepted answers or close paraphrases",
+      "answer prefixes or auxiliary chains",
+      "cloze answers",
+      "encoded/acrostic answers",
+      "formulas that identify the target construction",
+      "universal ed/ing/ongoing heuristics"
+    ],
+    "allow": [
+      "short meaning-focused questions",
+      "reference to learner-provided wording without supplying its replacement",
+      "clarifying ambiguous audio neutrally"
+    ],
+    "on_exhaustion": "Offer to retry, skip, change activity, or explicitly end the assessed attempt before any worked solution. Never silently reveal the active target."
+  },
+  "uncertainty": {
+    "action": "neutral clarification",
+    "count_as_error": false,
+    "increase_hint_level": false,
+    "enable_error_help": false
+  },
+  "after_translation_acceptance": "Ask the learner to identify and explain their actual construction. Give diagnostic feedback after their attempt or explicit help request; accept explanations in Spanish or English.",
+  "generation_input_contract": "Before acceptance, provide the model only the Spanish prompt/context, stage, current learner evidence and the allowed semantic focus. Withhold authored accepted examples/tense labels unless evaluation architecture requires a separate private evaluator.",
+  "guard_contract": "A stage-aware semantic guard must inspect candidate output for direct and indirect spoilers across languages and variants. On block or uncertainty, regenerate or use a reviewed neutral fallback without exposing rejected output.",
+  "guard_limits": "Substring checks alone cannot establish no spoilers; adversarial fixtures specify behavior for future model/provider evaluations."
+}

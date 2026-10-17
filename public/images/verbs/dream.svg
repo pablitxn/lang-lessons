@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
+<title id="cue-title">Una persona duerme y una nube muestra una escena imaginada de volar sobre colinas.</title>
+<desc id="cue-desc">La escena imaginada ocurre durante el sueño. No se indica un tiempo verbal.</desc>
+<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
+<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
+<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="40" y="172" width="170" height="34" rx="9" fill="#b5d2cc" transform=""/><rect x="47" y="149" width="63" height="30" rx="12" fill="#fffdf6" transform=""/><path d="M84 170 Q119 142 177 173 L202 193 L90 193Z" fill="#247f80" /><circle cx="80" cy="154" r="20" fill="#edbea0"/><path d="M67 153 Q74 160 80 153 M87 166 L94 167" fill="none" stroke-width="2"/><circle cx="132" cy="128" r="6" fill="#fffdf6"/><circle cx="148" cy="111" r="9" fill="#fffdf6"/><path d="M162 64 Q153 34 180 35 Q193 15 211 33 Q238 20 250 44 Q282 48 270 72 Q283 95 253 102 L178 100 Q145 97 162 64Z" fill="#e1e9dc" /><path d="M178 83 L201 58 L218 81 L235 64 L257 84" fill="none" stroke="#a5c2b5" stroke-width="3"/><circle cx="221" cy="49" r="7" fill="#edbea0"/><path d="M211 60 L221 70 L234 59 M219 70 L208 82 M220 70 L231 80" fill="none" stroke="#d36a50" stroke-width="4"/></g>
+</svg>
