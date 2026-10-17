@@ -137,12 +137,14 @@ Concrete EN-WP-01-owned change, not applied to shared files by this worker:
    post-checklist conversational questions remain unclaimed for the root.
 3. Pass the actual root controls into `sessionControls` for the modal sheet.
 
-Until reservation is provided, mock practice remains fully functional, local
-spelling remains available, and live transcripts do not dispatch competing oral
-assessments or create acceptance. The UI states that live verb assessment is
-unavailable. This is an explicit real-mode integration dependency, not a claim
-that paid voice or acoustic quality has been verified. The worker does not
-mutate the root adapter or shared types to work around ownership.
+This was a dependency at the feature checkpoint above. Integration PR #5 supplied
+`claimUtterance` and root controls; it is resolved in published main
+`b74af6712e4907637cdd844418c77b985ca44572`. PR #8 then removed mock controls
+from the product and retained deterministic adapters in internal fixtures.
+Typed spelling works before voice connection and during pause; oral evidence
+still requires voice. Historical verification below retains its original scope.
+See the [published reconciliation](evidence/published-reconciliation-2026-10-17.md)
+for current checks and remaining real-audio acceptance limits.
 
 ## 2026-10-16 verification receipt
 

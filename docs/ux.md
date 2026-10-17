@@ -14,7 +14,7 @@ Repository contracts and `TIMING` are authoritative for implementation.
 
 ## Current application flow, 2026-10-17
 
-The current working tree supersedes the original presentation described at the
+The published voice-first application supersedes the original presentation described at the
 2026-10-16 checkpoint; its dated receipt below remains historical evidence.
 The home screen contains lesson cards. Selecting an available lesson starts the
 root-owned voice call. A single call bar offers microphone mute and call

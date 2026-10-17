@@ -157,3 +157,10 @@ latency, retention or cost validation has occurred in this task.
 Optional server-side [Phoenix tracing](docs/observability.md) records model-call
 latency, outcomes and available token usage without capturing prompts, responses
 or audio. Trace export does not need an OpenAI key or make paid model calls.
+
+## Published reconciliation
+
+The [October 17 reconciliation](docs/evidence/published-reconciliation-2026-10-17.md)
+pins published code, PRs, current checks and the Atlas handoff. Earlier dated
+receipts describe their original local revisions. The four past tenses are
+planned alongside the existing four present tenses; implementation has not begun.
