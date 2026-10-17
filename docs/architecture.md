@@ -16,6 +16,19 @@ The initial implementation history below does not authorize live paid validation
 
 ## Authority and inspected state
 
+EN-WP-08 extends the tense contract to eight present/past constructions from app
+main `58658440109c7344a40d67e17dad6cb3cae7f720`. The coordinator's subsequent
+explicit implementation mandate supersedes EN-D15's historical planned-only
+state for this candidate. One integration writer owns the compatible shared-type,
+settings, curriculum, provider-guidance and feature changes; no manifest, routing,
+obligation or persistence-key migration is required. `PresentTense` remains an
+exported subset. Version-one settings gain `sentenceTense`, defaulting to `all`
+for older records. It filters the next prompt, not a valid learner translation.
+No new application evidence is persisted; changing selection preserves current
+identity, accepted work and staged explanation until the next prompt.
+
+The remaining paragraphs describe the original foundation checkpoint.
+
 The supplied mandate authorizes foundation implementation and draft publication,
 superseding the earlier planning-only status. Product requirements come from
 [Atlas EN-D01 through EN-D14](https://github.com/pablitxn/sysadmin-workspace/blob/62dcbe9079eb6c447a00786405fb7976dc94e92c/atlas/entries/2026-10-16-english-learning-consolidation.md).

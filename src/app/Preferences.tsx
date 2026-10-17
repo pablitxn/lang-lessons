@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { LearnerSettings } from '../contracts';
+import { TENSE_GUIDE } from '../content/tense-guide';
 
 type MicrophonePermission = PermissionState | 'unknown' | 'unavailable';
 const PERMISSION_LABELS: Record<MicrophonePermission, string> = {
@@ -100,6 +101,12 @@ export function Preferences({ settings, onChange, onReset, onClose, notice }: {
         {section === 'learning' && <section className="preferences-section" aria-labelledby="learning-title">
           <h3 id="learning-title">Learning</h3>
           <p className="muted">Choose your pace and the help you want along the way.</p>
+          <label className="setting-row"><span>Sentence tenses</span><select aria-label="Sentence tenses" value={settings.sentenceTense}
+            onChange={event => onChange({ ...settings, sentenceTense: event.target.value as LearnerSettings['sentenceTense'] })}>
+            <option value="all">All eight tenses</option>
+            {TENSE_GUIDE.map(item => <option key={item.tense} value={item.tense}>{item.label}</option>)}
+          </select></label>
+          <p className="muted">Applies to the next sentence prompt. Verb lessons keep all three form families.</p>
           <div className="settings-grid">{(['grammar', 'vocabulary'] as const).map(dimension => <label key={dimension}>
             <span className="label-title">{dimension === 'grammar' ? 'Grammar' : 'Vocabulary'} difficulty</span>
             <select aria-label={`${dimension === 'grammar' ? 'Grammar' : 'Vocabulary'} difficulty`} value={settings.difficulty[dimension]} onChange={event => onChange({ ...settings, difficulty: { ...settings.difficulty, [dimension]: Number(event.target.value) as 1 | 2 | 3 } })}>

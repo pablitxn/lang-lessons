@@ -3,11 +3,12 @@ import { SENTENCES } from '../../content';
 import { guardTranslationHint, guardTranslationFeedback } from '../../assessment/coaching-policy';
 export { TRANSLATION_HINTS, guardTranslationHint } from '../../assessment/coaching-policy';
 import { isQuiet, sameExercise, type Difficulty, type ExerciseContext, type LearnerInput,
-  type SentenceEntry, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
+  type SentenceEntry, type SentenceTenseSelection, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
 
-export function matchingSentences(difficulty: Difficulty, sentences = SENTENCES): readonly SentenceEntry[] {
+export function matchingSentences(difficulty: Difficulty, sentences = SENTENCES, tense: SentenceTenseSelection = 'all'): readonly SentenceEntry[] {
   return sentences.filter(sentence => sentence.difficulty.grammar === difficulty.grammar
-    && sentence.difficulty.vocabulary === difficulty.vocabulary);
+    && sentence.difficulty.vocabulary === difficulty.vocabulary
+    && (tense === 'all' || sentence.alternatives.some(alternative => alternative.tense === tense)));
 }
 function pick(pool: readonly SentenceEntry[], previous: string | undefined, random: () => number): SentenceEntry {
   const candidates = pool.length > 1 ? pool.filter(sentence => sentence.id !== previous) : pool;
@@ -20,6 +21,7 @@ function pick(pool: readonly SentenceEntry[], previous: string | undefined, rand
 export interface SentenceLessonSnapshot {
   assessment: AssessmentSnapshot;
   requestedDifficulty: Difficulty;
+  requestedTense: SentenceTenseSelection;
   nextPoolSize: number;
   lastResponse: string;
   notice: string;
@@ -32,6 +34,7 @@ export interface SentenceSessionOptions {
   voice: VoiceAdapter;
   sessionId: string;
   difficulty: Difficulty;
+  tense?: SentenceTenseSelection;
   onComplete: (exerciseId: string) => void;
   clock?: AssessmentClock;
   connectionState?: VoiceState;
@@ -43,6 +46,7 @@ export interface SentenceSession {
   getSnapshot(): SentenceLessonSnapshot;
   subscribe(listener: () => void): () => void;
   setDifficulty(difficulty: Difficulty): void;
+  setTense(tense: SentenceTenseSelection): void;
   setInteraction(patch: InteractionPatch): void;
   setPresentationHold(id: string, held: boolean): void;
   setMuted(muted: boolean): void;
@@ -62,6 +66,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   const sentences = options.sentences ?? SENTENCES;
   const random = options.random ?? Math.random;
   let requestedDifficulty = { ...options.difficulty };
+  let requestedTense = options.tense ?? 'all';
   let sequence = 0;
   let generation = 1;
   let disposed = false;
@@ -75,7 +80,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   let view: SentenceLessonSnapshot;
   const listeners = new Set<() => void>();
   const identityPrefix = `sentence-${globalThis.crypto.randomUUID()}`;
-  const first = pick(matchingSentences(requestedDifficulty, sentences), undefined, random);
+  const first = pick(matchingSentences(requestedDifficulty, sentences, requestedTense), undefined, random);
   function context(sentence: SentenceEntry): ExerciseContext {
     return { sessionId: options.sessionId, exerciseId: `${identityPrefix}-${generation}`, generation,
       mode: 'sentence', stage: 'translation', sentence };
@@ -84,13 +89,13 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   function publish() {
     if (disposed) return;
     view = Object.freeze({ assessment: controller.getSnapshot(), requestedDifficulty: { ...requestedDifficulty },
-      nextPoolSize: matchingSentences(requestedDifficulty, sentences).length, lastResponse, notice, muted,
+      requestedTense, nextPoolSize: matchingSentences(requestedDifficulty, sentences, requestedTense).length, lastResponse, notice, muted,
       hintLevel, hintOrigin, coachText });
     for (const listener of listeners) listener();
   }
   function startNext(): boolean {
-    const pool = matchingSentences(requestedDifficulty, sentences);
-    if (!pool.length) { notice = 'No authored prompt matches both selected settings. Change grammar or vocabulary in Preferences.'; publish(); return false; }
+    const pool = matchingSentences(requestedDifficulty, sentences, requestedTense);
+    if (!pool.length) { notice = 'No authored prompt matches the selected difficulty and tense. Change either in Preferences.'; publish(); return false; }
     const current = controller.getSnapshot().context;
     const sentence = pick(pool, current.mode === 'sentence' ? current.sentence.id : undefined, random);
     generation++;
@@ -205,6 +210,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     getSnapshot: () => view,
     subscribe(listener) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     setDifficulty(difficulty) { requestedDifficulty = { ...difficulty }; publish(); },
+    setTense(tense) { requestedTense = tense; publish(); },
     setInteraction: patch => controller.setInteraction(patch),
     setPresentationHold: (id, held) => controller.setPresentationHold(id, held),
     setMuted(next) { if (disposed) return; voice.setMuted(next); },

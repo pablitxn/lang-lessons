@@ -143,5 +143,29 @@ class ContentIntegrityTests(unittest.TestCase):
             self.assertTrue(any('invalid SVG XML' in message for message in failures))
 
 
+class PastTenseIntegrityTests(unittest.TestCase):
+    def setUp(self):
+        self.data = copy.deepcopy(CONTENT.load_content())
+
+    def test_past_tense_cannot_disappear_from_scope(self):
+        self.data['sentences.json']['scope'].remove('past_perfect_continuous')
+        self.assertTrue(any('all eight' in e for e in CONTENT.validate(self.data)))
+
+    def test_negative_and_question_coverage_cannot_disappear(self):
+        for record in self.data['sentences.json']['sentences']:
+            if record['primary_tense'] == 'past_simple':
+                record['sentence_form'] = 'affirmative'
+        self.assertTrue(any('negative and question coverage' in e for e in CONTENT.validate(self.data)))
+
+    def test_base_family_progressive_cannot_certify_a_lexical_past_participle(self):
+        verb = next(v for v in self.data['verbs.json']['verbs'] if v['lemma'] == 'buy')
+        next(e for e in verb['tense_examples'] if e['tense'] == 'past_perfect_continuous')['family'] = 'participle'
+        self.assertTrue(any('wrong form family' in e for e in CONTENT.validate(self.data)))
+
+    def test_required_auxiliary_error_oracle_cannot_be_marked_correct(self):
+        next(c for c in self.data['evaluation-fixtures.json']['cases'] if c['id'] == 'past-did-base')['expected']['decision'] = 'accept'
+        self.assertTrue(any('past-did-base' in e for e in CONTENT.validate(self.data)))
+
+
 if __name__ == "__main__":
     unittest.main()

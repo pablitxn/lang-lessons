@@ -1019,6 +1019,402 @@
         "reason": "After acceptance, the learner attempts the explanation first; feedback can then name and explain the accepted form."
       },
       "prerequisite": "learner_explanation_attempt_or_explicit_help_request"
+    },
+    {
+      "id": "sentence-past-simple-work-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-work",
+      "input": {
+        "text": "I worked at home yesterday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A completed event in a finished past period."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-work-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-work",
+      "input": {
+        "text": "Yesterday, I worked from home."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A completed event in a finished past period."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-supplier-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-supplier",
+      "input": {
+        "text": "The committee chose the supplier last Tuesday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A completed selection at a specified past time."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-negative-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-negative",
+      "input": {
+        "text": "He did not buy milk yesterday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates a completed-past purchase; did carries the past tense."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-negative-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-negative",
+      "input": {
+        "text": "He didn't buy milk yesterday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates a completed-past purchase; did carries the past tense."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-question-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-question",
+      "input": {
+        "text": "Where did they live last year?"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Asks about a past state in a finished period, not a continuing present residence."
+      },
+      "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-continuous-drawing-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-drawing",
+      "input": {
+        "text": "I was drawing a tree when you called."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "An activity in progress at a past interruption, without asserting completion."
+      },
+      "expected_tense": "past_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-continuous-negotiation-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-negotiation",
+      "input": {
+        "text": "They were negotiating the contract at three yesterday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "An activity in progress at a specified past reference time."
+      },
+      "expected_tense": "past_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-continuous-negative-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-negative",
+      "input": {
+        "text": "I was not sleeping when you arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates an activity in progress at the time of another past event."
+      },
+      "expected_tense": "past_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-continuous-negative-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-negative",
+      "input": {
+        "text": "I wasn't sleeping when you arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates an activity in progress at the time of another past event."
+      },
+      "expected_tense": "past_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-continuous-question-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-question",
+      "input": {
+        "text": "Why was she studying at midnight last night?"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Asks about an activity in progress at a past reference time."
+      },
+      "expected_tense": "past_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-homework-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-homework",
+      "input": {
+        "text": "I had already finished my homework when you called."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "The homework was complete before the later past call."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-homework-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-homework",
+      "input": {
+        "text": "I'd already finished my homework when you called."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "The homework was complete before the later past call."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-bridge-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-bridge",
+      "input": {
+        "text": "The engineers had already built the bridge when the inspector arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "A completed construction before a later past reference event."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-negative-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-negative",
+      "input": {
+        "text": "I had not eaten anything when you arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates an earlier event up to a later past arrival; eaten, not ate, follows had."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-negative-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-negative",
+      "input": {
+        "text": "I hadn't eaten anything when you arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates an earlier event up to a later past arrival; eaten, not ate, follows had."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-question-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-question",
+      "input": {
+        "text": "Where had she studied before she moved to Madrid?"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Asks about an event earlier than another past event."
+      },
+      "expected_tense": "past_perfect",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-waiting-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-waiting",
+      "input": {
+        "text": "I had been waiting for an hour when the bus arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Duration of an activity continuing up to a later past event."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-waiting-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-waiting",
+      "input": {
+        "text": "I'd been waiting for an hour when the bus arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Duration of an activity continuing up to a later past event."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-trench-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-trench",
+      "input": {
+        "text": "They had been digging the trench for two hours when the inspector arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Duration of an ongoing activity before a later past event, not a completed trench."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-trench-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-trench",
+      "input": {
+        "text": "They'd been digging the trench for two hours when the inspector arrived."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Duration of an ongoing activity before a later past event, not a completed trench."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-negative-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-negative",
+      "input": {
+        "text": "I had not been sleeping well before the holiday."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates a repeated or continuing activity over a period leading up to a past reference."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-negative-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-negative",
+      "input": {
+        "text": "I hadn't been sleeping well before the vacation."
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Negates a repeated or continuing activity over a period leading up to a past reference."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-perfect-continuous-question-accept-0",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-question",
+      "input": {
+        "text": "How long had they been working there when the factory closed?"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Asks for duration of an activity continuing up to a later past event."
+      },
+      "expected_tense": "past_perfect_continuous",
+      "explanation_required": true
+    },
+    {
+      "id": "past-did-base",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-negative",
+      "input": {
+        "text": "He didn't bought milk yesterday."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "did requires the base form buy, not bought."
+      }
+    },
+    {
+      "id": "past-was-ing",
+      "area": "translation",
+      "content_ref": "sentence-past-continuous-drawing",
+      "input": {
+        "text": "I was drew a tree when you called."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "was requires drawing for this progressive construction, not drew."
+      }
+    },
+    {
+      "id": "past-had-participle",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-negative",
+      "input": {
+        "text": "I had not ate anything when you arrived."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "had requires eaten, not ate."
+      }
+    },
+    {
+      "id": "past-had-been-ing",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-trench",
+      "input": {
+        "text": "They had been dug the trench for two hours when the inspector arrived."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "had been requires digging for the intended active progressive construction."
+      }
+    },
+    {
+      "id": "past-reference-fit",
+      "area": "translation",
+      "content_ref": "sentence-past-perfect-continuous-waiting",
+      "input": {
+        "text": "I have been waiting for an hour when the bus arrived yesterday."
+      },
+      "expected": {
+        "decision": "incorrect",
+        "reason": "Present reference conflicts with the completed past reference in this context."
+      }
     }
   ]
 }

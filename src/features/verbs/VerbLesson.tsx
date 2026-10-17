@@ -3,6 +3,7 @@ import { hasAllEvidence, type LearnerSettings, type LessonModuleProps, type Verb
 import { ExerciseCue, PracticeLayout, ProgressDialog, ReferenceTable, SpellingField } from '../../ui/mobile';
 import { createVerbSession, type VerbSession } from './session';
 import './verbs.css';
+import { TENSE_GUIDE } from '../../content/tense-guide';
 
 export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void };
 const LABELS: Readonly<Record<VerbForm, string>> = { base: 'Base form', past: 'Past', participle: 'Past participle' };
@@ -42,6 +43,7 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
           ['Pronunciation', 'Pronounce the base, past, and past participle. Natural connected speech is welcome.'],
           ['Original sentences', 'Create one sentence for each form. Normal subject agreement is valid; a participle needs a complete grammatical construction.'],
           ['Spelling', context.mode === 'verb-image' ? 'Write all three forms.' : 'Write the past and past participle. The base is already supplied.'],
+          ...TENSE_GUIDE.map(item => [item.label, item.guidance]),
         ]} onHoldChange={session.controller.setPresentationHold} controls={sessionControls} />
     </div>}>
       {context.mode === 'verb-image' ? <><ExerciseCue image={context.verb.image} onAlternateCue={() => { session.controller.activity(); setAlternateCue(value => !value); }} />

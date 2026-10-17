@@ -9,6 +9,14 @@ not add a reducer, provider, connection owner, spelling algorithm or route.
 
 ## Current application flow, 2026-10-17
 
+EN-WP-08 expands original-sentence coaching and the reference table to eight
+present/past constructions. Exact25, the two/three spelling slots and seven oral
+obligations remain. Use finite past for the past family, complete lexical
+participle constructions for participle evidence and valid progressive derivatives
+for base-family practice. Generic structures reveal no verb answers; supplied
+examples stay provider context. A selected sentence tense filters sentence mode
+only and never replaces verb progress or adds an incompatible extra completion gate.
+
 The current working tree uses the root's automatic voice call when a lesson is
 selected. It shows the image or supplied base, required spelling fields and
 requested hints. **Your progress** and **Reference table** open native dialogs
