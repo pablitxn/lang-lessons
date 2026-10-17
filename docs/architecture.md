@@ -164,7 +164,7 @@ Provider-side usage limits and retention settings need explicit later scope.
 
 Store only theme/help/untimed-help/difficulty/preferred-mode settings under a versioned browser key.
 Never persist tokens, audio, transcripts, scores or provider mode. Reset clears
-only the owned settings key. Default mock mode creates no anonymous ID, cookies or analytics. Opt-in operational
+only the owned settings key. The home catalog creates no anonymous ID, cookies or analytics. Opt-in operational
 tracing uses transient session IDs as described in [observability](observability.md).
 There is no claim that provider audio has zero retention; review the account's
 actual data policy before paid use. No public broker/auth design is selected.
