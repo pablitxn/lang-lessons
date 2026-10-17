@@ -17,9 +17,15 @@ not restricted to the exact25 irregular-practice inventory.
 
 All base/past/participle alternatives survive adaptation. The shared contract
 has one IPA/Spanish-guide string per family, so alternative-specific guidance
-is labelled and combined. Full reference records retain individual phonetics.
-The shared sentence text includes its Spanish context so assessment cannot rely
-on context hidden from learners. Accepted alternatives retain their actual
+is labelled and combined. Each reference form includes `sound_spelling_es`, an
+authored Spanish-readable approximation (for example, `delt` for `/dɛlt/`).
+The sound-help panel displays IPA and this approximation, without articulatory
+instructions. These spellings are memory aids, not pronunciation assessments;
+IPA and valid accent alternatives remain authoritative. Full reference records
+retain individual phonetics and articulation notes.
+The shared sentence text contains only the Spanish sentence. Reference context
+remains authoring metadata; assessment must accept plausible readings without
+requiring unstated context. Accepted alternatives retain their actual
 tense and explanation; the shared explanation rubric asks about that actual
 construction. The independent `primary_tense` never acts as an exclusive answer.
 Grammar and vocabulary levels map independently to the shared 1–3 values.

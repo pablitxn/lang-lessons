@@ -54,6 +54,7 @@ def validate(bundle):
             for form in variants:
                 require(bool(re.fullmatch(r"[a-z]+", form["text"])), f"{vid}: form must be one spelling")
                 require(bool(re.fullmatch(r"/[^/]+/", form["ipa"])), f"{vid}: invalid reference IPA container")
+                require(isinstance(form.get("sound_spelling_es"), str) and bool(form["sound_spelling_es"].strip()), f"{vid}: missing Spanish sound spelling")
                 require(bool(form["sound_guide_refs"]) and set(form["sound_guide_refs"]) <= set(guides), f"{vid}: missing/dangling Spanish sound guide")
                 require(bool(form["sound_note_es"]), f"{vid}: missing Spanish sound note")
         examples = v["sentence_examples"]
@@ -87,7 +88,7 @@ def validate(bundle):
     for s in sentences:
         sid = s["id"]
         require(s["acceptance_policy"] == "semantic-open-set", f"{sid}: exact-answer-only policy forbidden")
-        require(bool(s["prompt_es"]) and bool(s["context_es"]), f"{sid}: missing visible context")
+        require(bool(s["prompt_es"]) and bool(s["context_es"]), f"{sid}: missing sentence or authoring context")
         require(set(s["difficulty"]) == {"grammar", "vocabulary"}, f"{sid}: difficulty dimensions must be separate")
         require(all(type(x) is int and 1 <= x <= 3 for x in s["difficulty"].values()), f"{sid}: difficulty must use local levels 1..3")
         require(len(s["post_acceptance"]) == 3 and bool(s["meaning_requirements"]), f"{sid}: missing explanation obligations")

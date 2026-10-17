@@ -12,6 +12,7 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
   const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [voiceStatusTarget, setVoiceStatusTarget] = useState<HTMLDivElement | null>(null);
   const [notice, setNotice] = useState('');
   const current = MODES.find(item => item.id === mode);
 
@@ -46,12 +47,19 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
       <a className="brand" href="#/" aria-label="English practice home">
         <span className="brand-mark" aria-hidden="true">e.</span><span>English practice</span>
       </a>
-      <button className="quiet-button" aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}>Preferences</button>
+      <div className="app-header-actions">
+        <div ref={setVoiceStatusTarget} className="header-voice-status" />
+        <button id="profile-preferences" className="profile-avatar" aria-label="Preferences" title="Preferences"
+          aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}>
+          {/* Temporary profile initials; no account or identity is persisted. */}
+          <span aria-hidden="true">PC</span>
+        </button>
+      </div>
     </header>
     <main id="lesson" tabIndex={-1}>
       {mode && current ? <>
         <div className="lesson-heading"><a className="back-link" href="#/" aria-label="All lessons">← All lessons</a><h1>{current.title}</h1></div>
-        <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen}
+        <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
           renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />
       </> : <section className="lesson-catalog" aria-labelledby="catalog-title">
         <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Pick a practice. Start a conversation.</p></div>

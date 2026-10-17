@@ -58,6 +58,20 @@ export function createVerbSession(options: VerbSessionOptions) {
   function context(verb: VerbEntry): ExerciseContext {
     return { sessionId, exerciseId: `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, verb };
   }
+  function startNext() {
+    if (disposed) return false;
+    const current = controller.getSnapshot().context;
+    if (current.mode === 'sentence') return false;
+    const next = pickNextVerb(current.verb.id, options.random);
+    voice.interrupt();
+    generation++; drafts = { base: '', past: '', participle: '' }; queue = []; heard = new Set();
+    draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
+    hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
+    pendingHintId = ''; pendingQuestionId = ''; question = '';
+    coachText = 'A new verb. Keep speaking naturally, and ask questions whenever you need.';
+    controller.startExercise(context(next));
+    return true;
+  }
   function publish() {
     if (disposed || !initialized) return;
     view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted };
@@ -173,14 +187,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       if (disposed || snapshot.context.mode === 'sentence') return;
       options.onComplete(snapshot.exerciseId);
       if (disposed || controller.getSnapshot().interaction.intent !== 'practice') return;
-      const next = pickNextVerb(snapshot.context.verb.id, options.random);
-      generation++; drafts = { base: '', past: '', participle: '' }; queue = []; heard = new Set();
-      draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
-      hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
-      pendingHintId = ''; pendingQuestionId = '';
-      question = '';
-      coachText = 'A new verb. Keep speaking naturally, and ask questions whenever you need.';
-      controller.startExercise(context(next));
+      startNext();
     },
   });
   const unsubscribeController = controller.subscribe(() => { publish(); scheduleDrain(); });
@@ -211,6 +218,8 @@ export function createVerbSession(options: VerbSessionOptions) {
       controller.invalidate(`spelling:${form}`);
     },
     finalize,
+    // Explicit navigation replaces the exercise without reporting completion.
+    skip: startNext,
     retrySpelling(form: VerbForm) {
       if (disposed || controller.getSnapshot().evidence[`spelling:${form}`]?.status !== 'uncertain') return;
       delete submittedRevisions[form];

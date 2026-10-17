@@ -19,6 +19,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const response = await page.goto(`${origin}/`, { waitUntil: 'networkidle' }); assert.equal(response.status(), 200);
       await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
       const lessons = page.getByRole('navigation', { name: 'Lessons', exact: true });
+      assert.equal(await page.getByRole('button', { name: 'Preferences', exact: true }).innerText(), 'PC');
+      assert.equal(await page.locator('.ll-dock').count(), 0);
       for (const name of ['Picture', 'Verb', 'Sentence']) assert.equal(await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).count(), 1);
       assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
       assert.equal((await inspectTransport(page)).mediaCalls, 0);
@@ -86,7 +88,31 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       for (const name of ['Picture', 'Verb', 'Sentence']) {
         await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).click();
         await page.getByRole('heading', { name: `${name} practice`, exact: true }).waitFor();
-        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });
+        await voiceBadge.waitFor();
+        assert.equal(await page.locator('.voice-call-bar').count(), 0);
+        assert.doesNotMatch(await page.locator('.ll-exercise').innerText(), /Voice is unavailable|Voice calls are turned off/);
+        const statusRequests = transport.statusRequests;
+        await voiceBadge.click();
+        const voiceDetails = page.getByRole('dialog', { name: 'Voice call details', exact: true });
+        await voiceDetails.waitFor();
+        assert.equal(await voiceDetails.getByRole('button', { name: 'Unmute microphone', exact: true }).isDisabled(), true);
+        await voiceDetails.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        assert.match(await voiceDetails.locator('.voice-call-status').innerText(), /Voice/);
+        if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-voice-details.png' });
+        await page.keyboard.press('Escape');
+        await voiceDetails.waitFor({ state: 'hidden' });
+        assert.equal(await voiceBadge.evaluate(element => document.activeElement === element), true);
+        assert.equal(transport.statusRequests, statusRequests);
+        const next = page.getByRole('button', { name: name === 'Sentence' ? 'Next sentence' : name === 'Picture' ? 'Next image' : 'Next word', exact: true });
+        assert.equal((await next.innerText()).trim(), '→');
+        const dock = page.locator('.ll-dock');
+        assert.equal(await dock.evaluate(element => getComputedStyle(element).position), 'fixed');
+        assert.equal(await dock.locator('svg').count(), 2);
+        await dock.getByRole('button', { name: 'Your progress', exact: true }).click();
+        await page.getByRole('dialog', { name: 'Lesson progress', exact: true }).waitFor();
+        await page.keyboard.press('Escape');
+        if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-compact-sentence-390.png', fullPage: true });
         if (name !== 'Sentence') {
           const exercise = page.locator('.verbs-lesson');
           const verbId = await exercise.getAttribute('data-verb');

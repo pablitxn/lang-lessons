@@ -9,6 +9,7 @@ export interface SentenceLessonProps extends LessonModuleProps {
   connectionState?: VoiceState;
   microphoneMuted?: boolean;
   sessionControls?: ReactNode;
+  rootVoiceError?: string;
 }
 const noopSubscribe = () => () => {};
 const emptySnapshot = () => null;
@@ -47,8 +48,10 @@ export function SentenceLesson(props: SentenceLessonProps) {
   const changedDifficulty = sentence.difficulty.grammar !== view.requestedDifficulty.grammar
     || sentence.difficulty.vocabulary !== view.requestedDifficulty.vocabulary;
   const canNext = snapshot.canContinue || snapshot.completed && view.nextPoolSize > 0 && isQuiet(snapshot.interaction);
+  const errorInHeader = props.rootVoiceError && (snapshot.systemError === props.rootVoiceError
+    || snapshot.systemError === 'Voice is unavailable. Please retry when connected.' || snapshot.systemError === 'Voice is unavailable. Your accepted work is preserved.');
   const rows = stage === 'translation'
-    ? [['Message', 'Read the Spanish prompt and its context.'], ['Your response', 'Speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
+    ? [['Message', 'Read the Spanish sentence.'], ['Your response', 'Speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
     : [['Present simple', 'Subject + base family, with agreement.'], ['Present continuous', 'Subject + am/is/are + present participle.'], ['Present perfect', 'Subject + have/has + past participle.'], ['Present perfect continuous', 'Subject + have/has + been + present participle.']];
 
   return <div className="ll-sentences" data-exercise-id={snapshot.exerciseId} data-stage={stage}>
@@ -59,6 +62,11 @@ export function SentenceLesson(props: SentenceLessonProps) {
         columns={['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
     </div>}>
       <ExerciseCue spanish={sentence.spanish} />
+      {stage !== 'complete' && <div className="sentences-navigation">
+        <button type="button" className="ll-button ll-next" onClick={() => session.skip()} disabled={view.nextPoolSize === 0} aria-label="Next sentence" title="Next sentence">
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>}
       {changedDifficulty && <p role="status" className="ll-muted">New difficulty settings apply to the next prompt. Your current work is preserved.</p>}
       {view.nextPoolSize === 0 && <p role="status" className="ll-muted">No authored prompt matches both new settings. Change either dimension in Preferences.</p>}
       <fieldset className="ll-sentence-actions" disabled={stage === 'complete' ? !canNext : busy}>
@@ -68,8 +76,7 @@ export function SentenceLesson(props: SentenceLessonProps) {
       {snapshot.hintPending && <p role="status" className="ll-hint">Preparing a hint…</p>}
       {!snapshot.hintPending && snapshot.hint && <p role="status" className="ll-hint">{snapshot.hint.text}</p>}
       {view.notice && view.hintOrigin !== 'authored-fallback' && <p role="status" className="ll-muted">{view.notice}</p>}
-      {snapshot.systemError && <p role="alert">{snapshot.systemError}</p>}
-      <button type="button" className="ll-button" onClick={() => session.skip()}>Skip this prompt</button>
+      {snapshot.systemError && !errorInHeader && <p role="alert">{snapshot.systemError}</p>}
     </PracticeLayout>
   </div>;
 }

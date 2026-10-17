@@ -4,10 +4,10 @@ import { ExerciseCue, PracticeLayout, ProgressDialog, ReferenceTable, SpellingFi
 import { createVerbSession, type VerbSession } from './session';
 import './verbs.css';
 
-export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void };
+export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void; rootVoiceError?: string };
 const LABELS: Readonly<Record<VerbForm, string>> = { base: 'Base form', past: 'Past', participle: 'Past participle' };
 
-export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance }: VerbLessonProps) {
+export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance, rootVoiceError = '' }: VerbLessonProps) {
   const completed = useRef(onComplete);
   const claim = useRef(claimUtterance);
   completed.current = onComplete;
@@ -19,10 +19,10 @@ export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessi
     return () => current.dispose();
   }, [mode, voice, sessionId]);
   if (!session || session.mode !== mode || session.voice !== voice || session.sessionId !== sessionId) return <p role="status">Preparing your verb practice…</p>;
-  return <VerbPractice session={session} settings={settings} {...(sessionControls !== undefined ? { sessionControls } : {})} />;
+  return <VerbPractice session={session} settings={settings} rootVoiceError={rootVoiceError} {...(sessionControls !== undefined ? { sessionControls } : {})} />;
 }
 
-function VerbPractice({ session, settings, sessionControls }: { session: VerbSession; settings: LearnerSettings; sessionControls?: ReactNode }) {
+function VerbPractice({ session, settings, sessionControls, rootVoiceError }: { session: VerbSession; settings: LearnerSettings; sessionControls?: ReactNode; rootVoiceError: string }) {
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   const { assessment: snapshot } = state;
   const context = snapshot.context;
@@ -32,6 +32,7 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
   const allAccepted = hasAllEvidence(context.mode, context, snapshot.evidence, session.voice.mode === 'mock');
   const hintUnavailable = allAccepted || snapshot.hintPending
     || snapshot.interaction.connection !== 'ready' || snapshot.interaction.intent !== 'practice';
+  const errorInHeader = rootVoiceError && (snapshot.systemError === rootVoiceError || snapshot.systemError === 'Voice is unavailable. Please retry when connected.');
   return <div className="verbs-lesson" data-exercise={snapshot.exerciseId} data-verb={context.verb.id} data-generation={snapshot.generation}>
     <PracticeLayout controls={<div className="ll-actions">
       <ProgressDialog mode={context.mode} identity={context} evidence={snapshot.evidence}
@@ -47,6 +48,12 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
       {context.mode === 'verb-image' ? <><ExerciseCue image={context.verb.image} onAlternateCue={() => { session.controller.activity(); setAlternateCue(value => !value); }} />
         {alternateCue && <p className="verbs-alternate-cue" lang="es">{context.verb.image.alt}</p>}</>
         : <ExerciseCue base={context.verb.forms.base.accepted.join(' / ')} />}
+      <div className="verbs-navigation">
+        <button type="button" className="ll-button ll-next" onClick={() => session.skip()}
+          aria-label={context.mode === 'verb-image' ? 'Next image' : 'Next word'} title={context.mode === 'verb-image' ? 'Next image' : 'Next word'}>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
       {session.fields.map(form => {
         const obligation = `spelling:${form}` as const;
         const record = snapshot.evidence[obligation];
@@ -59,7 +66,7 @@ function VerbPractice({ session, settings, sessionControls }: { session: VerbSes
           {record?.status === 'uncertain' && state.drafts[form].trim() && <button type="button" className="ll-button" onClick={() => session.retrySpelling(form)}>Retry checking {LABELS[form]}</button>}
         </div>;
       })}
-      {snapshot.systemError && <p role="status" className="verbs-system-error">{snapshot.systemError}</p>}
+      {snapshot.systemError && !errorInHeader && <p role="status" className="verbs-system-error">{snapshot.systemError}</p>}
       {!snapshot.systemError && state.clarification && <p role="status" className="verbs-clarification">{state.clarification}</p>}
       <button type="button" className="ll-button" onClick={session.requestHint} disabled={hintUnavailable}>Give me a hint</button>
       {snapshot.hintPending && <p role="status" className="ll-hint">Preparing a hint…</p>}

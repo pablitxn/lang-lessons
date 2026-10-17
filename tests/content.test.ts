@@ -51,9 +51,9 @@ test('invalid injected randomness cannot escape the inventory', () => {
   }
 });
 
-test('sentence adapter preserves both residence constructions, contractions and visible context', () => {
+test('sentence adapter preserves both residence constructions and contractions with only the sentence as the prompt', () => {
   const sentence = SENTENCES.find(item => item.id === 'sentence-since-2020')!;
-  assert.match(sentence.spanish, /Todavía vivimos aquí/);
+  assert.equal(sentence.spanish, 'Vivimos aquí desde 2020.');
   assert.deepEqual(new Set(sentence.alternatives.map(a => a.tense)),
     new Set(['present-perfect', 'present-perfect-continuous']));
   assert.ok(sentence.alternatives.some(a => a.text === 'We have lived here since 2020.'));

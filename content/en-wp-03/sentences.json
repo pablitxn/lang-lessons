@@ -74,7 +74,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Habitual selection; vocabulary is harder without adding a new clause."
+        "Careful tool selection by her; accept a habitual or current reading supported by the sentence."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",
@@ -290,7 +290,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Negative current movement; is agrees with he."
+        "Negative current movement toward home; the unstated subject may be he, she or formal you, with matching agreement."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",
@@ -644,7 +644,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "A question about activity over the morning with present evidence."
+        "A question about the reason for digging here throughout the morning; no additional present evidence is required."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",

@@ -69,6 +69,7 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
   const clock = options.clock ?? { setTimeout: (callback: () => void, delayMs: number) => setTimeout(callback, delayMs),
     clearTimeout: (handle: unknown) => clearTimeout(handle as ReturnType<typeof setTimeout>) };
   const audioItems = new Map<string, { context: ExerciseContext; stageEpoch: number }>();
+  const discardedAudioItems = new Set<string>();
   let stageEpoch = 0;
   const responseRequests = new Map<string, string>();
   const retired = new Set<string>();
@@ -209,7 +210,13 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
   const protocol: RealtimeProtocol = {
     setContext(next) {
       if (!context || !current(next)) stageEpoch++;
-      if (context && !sameExercise(context, next)) { acceptedTranslation = null; learnerAudioItem = null; latestAttempts.clear(); clearTranscriptions(); audioItems.clear(); }
+      if (context && !sameExercise(context, next)) {
+        // Discard old evidence while retaining the active item until its speech-stop
+        // event, so manual navigation cannot leave the session stuck listening.
+        for (const itemId of audioItems.keys()) discardedAudioItems.add(itemId);
+        while (discardedAudioItems.size > 1024) discardedAudioItems.delete(discardedAudioItems.values().next().value!);
+        acceptedTranslation = null; latestAttempts.clear(); clearTranscriptions(); audioItems.clear();
+      }
       if (context && !current(next)) {
         protocol.interrupt(); for (const entry of pending.values()) retire(entry);
         responseRequests.clear();
@@ -258,6 +265,7 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
       try { if (raw.length > 1000000) throw new Error(); event = JSON.parse(raw); } catch { emit({ ...base(), type: 'error', code: 'invalid-event', retryable: true, message: 'A malformed voice event was ignored.' }); return; }
       if (!isObject(event) || typeof event.type !== 'string') return;
       if (event.type === 'input_audio_buffer.speech_started' && context && typeof event.item_id === 'string') {
+        if (discardedAudioItems.has(event.item_id)) return;
         if (!transcriptions.has(event.item_id) && !finalizedTranscripts.has(event.item_id)) {
           if (transcriptions.size >= 100) { emit({ ...base(), type: 'error', code: 'provider', retryable: true, message: 'Too many unfinished speech turns. Stop and restart the session.' }); return; }
           transcriptions.set(event.item_id, { context });
@@ -330,7 +338,7 @@ export function createRealtimeProtocol(options: RealtimeProtocolOptions): Realti
       }
       if (speaking) { options.send({ type: 'output_audio_buffer.clear' }); speaking = null; emit({ ...base(), type: 'speech', speaker: 'assistant', active: false }); }
     },
-    dispose() { protocol.interrupt(); for (const entry of pending.values()) retire(entry); clearTranscriptions(); disposed = true; audioItems.clear(); responseRequests.clear(); retired.clear(); },
+    dispose() { protocol.interrupt(); for (const entry of pending.values()) retire(entry); clearTranscriptions(); disposed = true; audioItems.clear(); discardedAudioItems.clear(); responseRequests.clear(); retired.clear(); },
   };
   return protocol;
 }

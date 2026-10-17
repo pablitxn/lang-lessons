@@ -3,17 +3,15 @@ import type { FormGuidance, PresentTense, SentenceEntry, VerbEntry, VerbForm, Ve
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
 
-const soundGuides: Readonly<Record<string, string>> = verbReference.sound_guides_es;
 type ReferenceForm = (typeof verbReference.verbs)[number]['forms']['base'][number];
 
 function guidance(variants: readonly ReferenceForm[]): FormGuidance {
   return {
     accepted: variants.map(form => form.text),
     ipa: variants.map(form => variants.length > 1 ? `${form.text}: ${form.ipa}` : form.ipa).join('; '),
-    spanishSoundGuide: variants.map(form => {
-      const articulation = form.sound_guide_refs.map(ref => soundGuides[ref]).join(' ');
-      return `${variants.length > 1 ? `${form.text}: ` : ''}${articulation} ${form.sound_note_es}`;
-    }).join(' '),
+    spanishSoundGuide: variants.map(form =>
+      `${variants.length > 1 ? `${form.text}: ` : ''}${form.sound_spelling_es}`
+    ).join('; '),
   };
 }
 
@@ -63,8 +61,7 @@ function difficulty(value: number): 1 | 2 | 3 {
 /** Alternatives are rubric examples; unlisted grammatical equivalents remain valid. */
 export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.map(sentence => ({
   id: sentence.id,
-  // The visible context constrains the intended reading without revealing a tense.
-  spanish: `${sentence.prompt_es}\n\nContexto: ${sentence.context_es}`,
+  spanish: sentence.prompt_es,
   difficulty: {
     grammar: difficulty(sentence.difficulty.grammar),
     vocabulary: difficulty(sentence.difficulty.vocabulary),
@@ -78,7 +75,7 @@ export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.m
   explanationRubric: {
     structure: 'Explain the finite verb/auxiliary construction actually used in the accepted response. A correct tense name alone is insufficient.',
     meaning: sentence.meaning_requirements.join(' '),
-    usage: 'Explain why the actual construction fits the visible context. Accept valid alternatives, including either perfect aspect for the since-2020 residence prompt.',
+    usage: 'Explain why the actual construction fits the Spanish sentence. Accept plausible readings without requiring unstated context, including either perfect aspect for the since-2020 residence prompt.',
   },
 }));
 

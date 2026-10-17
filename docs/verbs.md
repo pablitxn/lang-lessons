@@ -15,6 +15,12 @@ requested hints. **Your progress** and **Reference table** open native dialogs
 with root mute/pause controls. Helper holds preserve the current exercise and
 block automatic advancement while open.
 
+The arrow below the cue, labelled **Next word** or **Next image** for assistive
+technology, manually skips the current
+exercise without completing it. Navigation works offline and while paused,
+preserves call state, interrupts old coach audio and clears drafts, evidence,
+hints and queued responses. The next verb does not immediately repeat.
+
 The production feature has no simulated-evidence notice, coach response panel,
 typed question form or independent call controls. Questions are spoken. Unclear
 oral input that is withheld from model assessment displays a concise repeat

@@ -154,7 +154,8 @@ export function SpellingField(props: SpellingFieldProps) {
       {!guideOpen && <button className="ll-button" type="button" aria-expanded={false} aria-controls={`${id}-guide`}
         onClick={() => setGuideOpen(true)}>Sound help<span className="ll-sr-only"> for {label}</span></button>}
       {guideOpen && <div id={`${id}-guide`} className="ll-guide">
-        {guidance ? <><p><span className="ll-muted">Phonetics: </span><span>{guidance.ipa}</span></p><p lang="es">{guidance.spanishSoundGuide}</p></>
+        {guidance ? <><p><span className="ll-muted">Phonetics: </span><span>{guidance.ipa}</span></p>
+          <p><span className="ll-muted">Pronunciation (approx.): </span><span lang="es">{guidance.spanishSoundGuide}</span></p></>
           : <p>Sound guidance is unavailable. You can ask your coach.</p>}
         <button className="ll-button" type="button" onClick={closeGuide}>Close sound help</button>
       </div>}

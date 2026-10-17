@@ -11,7 +11,7 @@ No model-generated runtime hints are stored as authored curriculum.
 | --- | --- |
 | verbs.json | `inventory_id`, `phonetic_reference`, `sound_guides_es`, `verbs[]`; exactly 25 unique ordered `verb-{lemma}` IDs |
 | verb | `lemma`, `inventory_order`, `meanings_es[]`, `cue_sense`, `forms.{base,past,participle}[]`, `sentence_examples[]`, `image_cue`, `notes[]`, `source_refs[]` |
-| form | `text`, slash-delimited broad `ipa`, `sound_guide_refs[]`, `sound_note_es`; each alternative is independently accepted in its slot |
+| form | `text`, slash-delimited broad `ipa`, short Spanish-readable `sound_spelling_es`, reference `sound_guide_refs[]` and `sound_note_es`; each alternative is independently accepted in its slot |
 | sentence example | `family` base/past/participle, `text`, `construction`; examples demonstrate grammar, not originality or an answer whitelist |
 | image cue | `brief`, Spanish `alt`/`nonvisual_cue_es`, `context_es`, `ambiguous`, `asset_status: original-local-svg`, local `file`/`src`, attribution/creator and `avoid[]` |
 | asset-ledger.json | `schema_version: en-wp-03/assets/1`, authored provenance and 25 unique content/asset IDs, local paths, SHA-256, rights basis and review status |

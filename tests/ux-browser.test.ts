@@ -141,7 +141,7 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
       await page.getByRole('button', { name: 'Accept explanation', exact: true }).click();
       await page.getByRole('button', { name: 'Next exercise', exact: true }).waitFor();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-      // Enlarged text reflows rather than covering controls with a fixed dock.
+      // Enlarged text keeps the fixed tools dock clear of exercise controls.
       await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       assert.deepEqual(errors, []);

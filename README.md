@@ -4,7 +4,10 @@ A voice-first English-learning app with three lesson types: picture-based
 irregular verbs, visible-base irregular verbs, and Spanish-to-English sentences.
 The home screen presents lesson cards. Selecting a lesson automatically connects
 the voice coach when the local voice service is enabled. The lesson keeps compact
-mute and pause/resume controls; progress and preferences open in modal dialogs.
+mute and pause/resume controls; failures collapse into a red header badge that
+opens the message and controls. A temporary PC avatar opens Preferences.
+Progress and Reference open modal dialogs from the fixed icon footer; next
+controls show an arrow with a descriptive accessible label.
 Preferences use a section sidebar for Appearance, Voice, Learning and Storage,
 with compact section navigation on small screens. They include system/light/dark
 appearance, microphone permission and independent learning settings. Test adapters and simulated evidence are confined

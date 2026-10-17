@@ -15,6 +15,20 @@ button:disabled { cursor: not-allowed; opacity: .6; }
 .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--ink); color: var(--paper); font-size: 26px; }
 .quiet-button { border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 8px 14px; border-radius: 10px; }
 .quiet-button:hover { background: var(--surface); }
+.app-header-actions { display: flex; align-items: center; gap: 10px; }
+.header-voice-status:empty { display: none; }
+.profile-avatar { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: .8125rem; font-weight: 650; letter-spacing: .02em; }
+.profile-avatar:hover { border-color: var(--primary); }
+.voice-status-badge { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.voice-status-badge svg { width: 19px; height: 19px; }
+.voice-status-error { color: var(--error); border-color: color-mix(in srgb, var(--error) 25%, transparent); background: color-mix(in srgb, var(--error) 9%, var(--background)); }
+.voice-status-error:hover { background: color-mix(in srgb, var(--error) 16%, var(--background)); }
+.voice-details-dialog { color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 24px; width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
+.voice-details-dialog::backdrop { background: rgb(10 25 18 / .5); backdrop-filter: blur(3px); }
+.voice-details-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.voice-details-heading h2 { margin: 0; font-size: 1.125rem; }
+.voice-details-heading button { flex: 0 0 44px; font-size: 1.5rem; padding: 0; }
+.voice-details-dialog .voice-call-actions { margin-top: 24px; }
 main { outline: none; }
 .eyebrow { font-size: .6875rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
 h1 { font-family: Georgia, serif; font-weight: 400; font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -.045em; margin: 16px 0; line-height: 1.15; }
@@ -47,6 +61,8 @@ h3 { font-size: 1.0625rem; letter-spacing: -.025em; margin: 0 0 12px; }
 .back-link:hover { color: var(--ink); }
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
 .lesson-panel { min-width: 0; }
+.app-shell:has(.ll-dock) { padding-bottom: calc(7rem + env(safe-area-inset-bottom)); }
+.lesson-panel .ll-mobile { padding-bottom: 0; }
 .voice-call-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px 20px; padding: 16px 20px; margin-bottom: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
 .voice-call-status { margin: 0; font-size: .875rem; line-height: 1.5; }
 .voice-call-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }

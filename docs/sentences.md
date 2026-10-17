@@ -16,6 +16,13 @@ concise uncertainty/error notices. **Your progress** and **Reference table**
 open native dialogs that preserve stage/evidence and hold advancement. Root
 mute/pause controls remain available within them.
 
+The arrow below the prompt, labelled **Next sentence** for assistive technology,
+skips an unfinished exercise without
+marking it complete, including offline or paused practice. It preserves call
+state and discards old hints, evidence and pending responses. Selection honors
+both difficulty settings and avoids an immediate repeat when alternatives
+exist. A completed exercise keeps its separate **Next exercise** action.
+
 The production interface contains no mock textarea or simulation notice, typed
 question composer, coach response panel or independent call controls. Questions
 are spoken during the call. Fixtures deliver transcripts and verdicts through

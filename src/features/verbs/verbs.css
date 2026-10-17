@@ -1,2 +1,4 @@
 .verbs-lesson { min-width: 0; }
+.verbs-navigation { display: flex; justify-content: flex-end; margin: -12px 0 24px; }
+.verbs-navigation .ll-button { gap: 8px; }
 .verbs-system-error, .verbs-alternate-cue { background: var(--surface, #eef0e7); border: 1px solid var(--line, #d9dfd5); border-radius: 12px; padding: 14px; overflow-wrap: anywhere; }

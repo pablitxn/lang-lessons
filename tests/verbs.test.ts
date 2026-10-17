@@ -35,6 +35,47 @@ async function oral(session: VerbSession, voice: VerbFixtureAdapter) {
   assert.equal(session.getSnapshot().assessment.evidence.meaning?.status, 'accepted');
 }
 
+test('manual verb navigation works offline and paused, clears drafts and rejects stale work without completion', async () => {
+  for (const mode of ['verb-image', 'verb-visible'] as const) {
+    const { session, voice, clock, completed } = setup(mode);
+    session.edit('past', 'waz'); session.finalize('past', 'waz');
+    const pending = voice.inputs.at(-1)!;
+    session.requestHint(); const hint = voice.hints.at(-1)!;
+    voice.utterance('Queued old response');
+    const old = session.getSnapshot().assessment;
+    session.controller.setInteraction({ connection: 'offline', intent: 'pause', questionPending: true });
+    assert.equal(session.skip(), true);
+    const next = session.getSnapshot();
+    assert.notEqual(next.assessment.exerciseId, old.exerciseId);
+    assert.equal(next.assessment.generation, old.generation + 1);
+    assert.deepEqual(next.drafts, { base: '', past: '', participle: '' });
+    assert.equal(next.assessment.interaction.connection, 'offline');
+    assert.equal(next.assessment.interaction.intent, 'pause');
+    assert.equal(next.assessment.interaction.questionPending, false);
+    voice.settle(pending);
+    voice.emit({ type: 'hint', hint: { ...hint, source: 'mock', text: 'Stale hint' } });
+    await flush(); clock.advance(10000);
+    assert.deepEqual(session.getSnapshot().assessment.evidence, {});
+    assert.equal(session.getSnapshot().assessment.hint, null);
+    assert.equal(voice.inputs.length, 1);
+    assert.equal(voice.interrupts, 1);
+    assert.equal(voice.connects, 0);
+    assert.deepEqual(completed, []);
+    session.dispose(); assert.equal(session.skip(), false);
+  }
+});
+
+test('manual verb navigation cancels the previous exercise quiet timer', async () => {
+  const { session, voice, clock, completed } = setup();
+  spelling(session, voice); await oral(session, voice);
+  assert.equal(session.skip(), true);
+  const id = session.getSnapshot().assessment.exerciseId;
+  clock.advance(10000);
+  assert.equal(session.getSnapshot().assessment.exerciseId, id);
+  assert.deepEqual(completed, []);
+  session.dispose();
+});
+
 test('both verb modes require every oral gate plus only their editable spelling fields, then advance once after quiet', async () => {
   for (const mode of ['verb-image', 'verb-visible'] as const) {
     const { session, voice, clock, completed } = setup(mode);
