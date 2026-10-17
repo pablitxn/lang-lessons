@@ -1,4 +1,5 @@
 import { TIMING, type ExerciseContext, type VoiceAdapter, type VoiceEvent } from '../contracts';
+import { createRealtimeTelemetry, type RealtimeTelemetry } from './telemetry';
 import { createRealtimeProtocol, isObject, type RealtimeProtocol } from './protocol';
 
 export interface RealtimeDependencies {
@@ -16,7 +17,7 @@ export interface RealtimeVoiceOptions {
 interface Resources {
   sessionId: string; controller: AbortController; closed: boolean; ready: boolean;
   releaseAbort: () => void; stream?: MediaStream; peer?: RTCPeerConnection;
-  channel?: RTCDataChannel; audio?: HTMLAudioElement; protocol?: RealtimeProtocol;
+  channel?: RTCDataChannel; audio?: HTMLAudioElement; protocol?: RealtimeProtocol; telemetry?: RealtimeTelemetry;
   timer?: ReturnType<typeof setTimeout>; startedAt: number;
 }
 /** Native browser WebRTC through the same-origin SDP broker; no client API keys. */
@@ -35,9 +36,10 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
   const emit = (event: VoiceEvent) => { for (const listener of listeners) listener(event); };
   const base = (resource: Resources) => ({ sessionId: resource.sessionId, eventId: `rtc-${++sequence}` });
   const current = (resource: Resources) => active === resource && !resource.closed;
-  function cleanup(resource: Resources) {
+  function cleanup(resource: Resources, outcome: 'completed' | 'failed' = 'completed') {
     if (resource.closed) return;
     resource.closed = true; resource.ready = false; resource.controller.abort(); resource.releaseAbort();
+    resource.telemetry?.close(outcome);
     resource.protocol?.dispose();
     if (resource.timer) clearTimeout(resource.timer);
     resource.channel?.close(); resource.peer?.close();
@@ -46,7 +48,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
   }
   function failure(resource: Resources, message: string, code: Extract<VoiceEvent, { type: 'error' }>['code'] = 'connection') {
     if (!current(resource)) return;
-    cleanup(resource); active = null;
+    cleanup(resource, 'failed'); active = null;
     emit({ ...base(resource), type: 'error', code, retryable: true, message });
     emit({ ...base(resource), type: 'state', state: 'error' });
   }
@@ -79,6 +81,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         for (const track of stream.getTracks()) peer.addTrack(track, stream);
         const channel = peer.createDataChannel('oai-events'); resource.channel = channel;
         resource.protocol = createRealtimeProtocol({ sessionId: resource.sessionId,
+          observeRequest(id, operation) { resource.telemetry?.start(id, operation); },
           send(message) { if (current(resource) && channel.readyState === 'open') channel.send(JSON.stringify(message)); },
           emit(event) {
             if (!current(resource)) return;
@@ -91,7 +94,11 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
           },
         });
         if (context?.sessionId === resource.sessionId) resource.protocol.setContext(context);
-        channel.onmessage = event => { if (current(resource) && typeof event.data === 'string') resource.protocol?.receive(event.data); };
+        channel.onmessage = event => {
+          if (current(resource) && typeof event.data === 'string') {
+            resource.telemetry?.receive(event.data); resource.protocol?.receive(event.data);
+          }
+        };
         peer.onconnectionstatechange = () => {
           if (peer.connectionState === 'failed' || peer.connectionState === 'disconnected') failure(resource, 'Voice disconnected. Your local lesson progress is preserved.');
         };
@@ -127,6 +134,10 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
           || payload.sdp.length > 60000 || !Number.isInteger(payload.maxDurationSeconds)
           || Number(payload.maxDurationSeconds) < 1 || Number(payload.maxDurationSeconds) > TIMING.maxVoiceSessionSeconds) throw new Error('The voice broker returned an invalid session.');
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
+        if (typeof payload.telemetryReceipt === 'string' && /^[a-f0-9]{64}$/.test(payload.telemetryReceipt)) {
+          resource.telemetry = createRealtimeTelemetry({ endpoint: new URL('/api/realtime/telemetry', endpoint).href,
+            receipt: payload.telemetryReceipt, fetch: deps.fetch });
+        }
         await peer.setRemoteDescription({ type: 'answer', sdp: payload.sdp });
         await opened;
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');

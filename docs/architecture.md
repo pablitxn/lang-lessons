@@ -25,7 +25,7 @@ checkout concerned setup; the later implementation mandate now authorizes code.
 | Persistence | Versioned localStorage for non-sensitive preferences only; memory for lesson evidence | Durable progress requirements and deletion policy are agreed |
 | Voice | Provider-neutral adapter; deterministic mock by default; WebRTC transport through a same-origin server SDP broker | Comparative real-audio evaluations justify a provider change |
 | Provider candidate | OpenAI Realtime, configurable server-side model; no claim of provider quality or account access | Scoped credentials, budget and audio evaluation become available |
-| Backend | Minimal Node HTTP broker for local opt-in voice; no database, account system or telemetry | Public hosting/authentication are selected |
+| Backend | Minimal Node HTTP broker for local opt-in voice; no database or account system; optional content-free Phoenix/OTLP tracing | Public hosting/authentication are selected |
 | Hosting | Loopback-only local dev/build preview; no deployment target | Separate deployment mandate |
 | Sentence advancement | Explicit Continue only after translation and explanation | Product owner decides EN-Q07 |
 
@@ -169,3 +169,11 @@ No real provider calls, deployment or user acceptance are implied.
 Requested architecture routing is Astra/ultra. This executor's actual model and
 speed configuration are not exposed in its session metadata; no verified routing
 receipt or silent substitution claim is made. No additional agents were spawned.
+
+## Phoenix observability extension (2026-10-17)
+
+The requested integration adds opt-in server-only OpenTelemetry export and a
+content-free browser observer for WebRTC operations. It does not replace voice
+contracts or authorize paid validation. See [observability](observability.md) for
+configuration, captured metadata, trust labels, failure behavior and evidence
+limits. Provider usage reported through the browser is not authoritative billing.
