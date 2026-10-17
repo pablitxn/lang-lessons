@@ -1,4 +1,5 @@
-import { TIMING, type ExerciseContext, type VoiceAdapter, type VoiceEvent } from '../contracts';
+import { TIMING, sameExercise, type ExerciseContext, type VoiceAdapter, type VoiceEvent } from '../contracts';
+import { assessSpelling } from '../assessment/spelling';
 import { createRealtimeProtocol, isObject, type RealtimeProtocol } from './protocol';
 
 export interface RealtimeDependencies {
@@ -18,6 +19,35 @@ interface Resources {
   releaseAbort: () => void; stream?: MediaStream; peer?: RTCPeerConnection;
   channel?: RTCDataChannel; audio?: HTMLAudioElement; protocol?: RealtimeProtocol;
   timer?: ReturnType<typeof setTimeout>; startedAt: number;
+  endpoint?: string; releaseToken?: string; releaseRequested?: boolean;
+}
+class PreviousCallCloseError extends Error {
+  constructor() { super('The previous call could not close. Retry to finish closing it before starting another.'); }
+}
+interface ReleaseTask { endpoint: string; run(): Promise<void> }
+// Shared across adapter instances so selecting another lesson also waits for
+// the preceding call to close. Tokens remain only in this in-memory queue.
+const pendingReleases = new Set<ReleaseTask>();
+function releaseSession(endpoint: string, releaseToken: string, request: typeof fetch) {
+  let pending: Promise<void> | null = null;
+  const task: ReleaseTask = { endpoint, run() {
+    if (pending) return pending;
+    pending = (async () => {
+      try {
+        const response = await request(`${endpoint}/end`, { method: 'POST', credentials: 'same-origin', keepalive: true,
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ releaseToken }), signal: AbortSignal.timeout(10000) });
+        if (!response.ok) throw new PreviousCallCloseError();
+        const body: unknown = await response.json();
+        if (!isObject(body) || body.ended !== true) throw new PreviousCallCloseError();
+        pendingReleases.delete(task);
+      } catch { throw new PreviousCallCloseError(); }
+    })().finally(() => { pending = null; });
+    return pending;
+  } };
+  pendingReleases.add(task);
+  // Cleanup is immediate locally. A failed release is retained and retried only
+  // by the learner's next explicit start, before requesting media or a new call.
+  void task.run().catch(() => {});
 }
 /** Native browser WebRTC through the same-origin SDP broker; no client API keys. */
 export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): VoiceAdapter {
@@ -35,14 +65,20 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
   const emit = (event: VoiceEvent) => { for (const listener of listeners) listener(event); };
   const base = (resource: Resources) => ({ sessionId: resource.sessionId, eventId: `rtc-${++sequence}` });
   const current = (resource: Resources) => active === resource && !resource.closed;
+  function release(resource: Resources) {
+    if (resource.releaseRequested || !resource.endpoint || !resource.releaseToken) return;
+    resource.releaseRequested = true;
+    releaseSession(resource.endpoint, resource.releaseToken, deps.fetch);
+  }
   function cleanup(resource: Resources) {
-    if (resource.closed) return;
+    if (resource.closed) { release(resource); return; }
     resource.closed = true; resource.ready = false; resource.controller.abort(); resource.releaseAbort();
     resource.protocol?.dispose();
     if (resource.timer) clearTimeout(resource.timer);
     resource.channel?.close(); resource.peer?.close();
     resource.stream?.getTracks().forEach(track => track.stop());
     if (resource.audio) { resource.audio.muted = true; resource.audio.pause(); resource.audio.srcObject = null; }
+    release(resource);
   }
   function failure(resource: Resources, message: string, code: Extract<VoiceEvent, { type: 'error' }>['code'] = 'connection') {
     if (!current(resource)) return;
@@ -69,6 +105,9 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
       try {
         const endpoint = new URL(optionsForEndpoint(), deps.origin);
         if (endpoint.origin !== deps.origin || endpoint.username || endpoint.password) throw new Error('A same-origin session endpoint is required.');
+        resource.endpoint = endpoint.href;
+        await Promise.all([...pendingReleases].filter(task => task.endpoint === endpoint.href).map(task => task.run()));
+        if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
         const stream = await deps.getUserMedia();
         if (!current(resource)) { stream.getTracks().forEach(track => track.stop()); throw new DOMException('Session cancelled.', 'AbortError'); }
         resource.stream = stream;
@@ -125,7 +164,9 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         const payload: unknown = await response.json();
         if (!isObject(payload) || typeof payload.sdp !== 'string' || !payload.sdp.startsWith('v=0')
           || payload.sdp.length > 60000 || !Number.isInteger(payload.maxDurationSeconds)
-          || Number(payload.maxDurationSeconds) < 1 || Number(payload.maxDurationSeconds) > TIMING.maxVoiceSessionSeconds) throw new Error('The voice broker returned an invalid session.');
+          || Number(payload.maxDurationSeconds) < 1 || Number(payload.maxDurationSeconds) > TIMING.maxVoiceSessionSeconds
+          || typeof payload.releaseToken !== 'string' || !/^[A-Za-z0-9_-]{32,128}$/.test(payload.releaseToken)) throw new Error('The voice broker returned an invalid session.');
+        resource.releaseToken = payload.releaseToken;
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
         await peer.setRemoteDescription({ type: 'answer', sdp: payload.sdp });
         await opened;
@@ -142,13 +183,26 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
       } catch (error) {
         if (current(resource)) {
           const denied = error instanceof DOMException && (error.name === 'NotAllowedError' || error.name === 'NotFoundError');
-          failure(resource, denied ? 'Microphone access was not available. Check browser permission and try again.' : 'Voice could not start. Check the local broker and browser connection, then retry.', denied ? 'permission' : 'connection');
+          failure(resource, denied ? 'Microphone access was not available. Check browser permission and try again.'
+            : error instanceof PreviousCallCloseError ? error.message : 'Voice could not start. Check the local broker and browser connection, then retry.', denied ? 'permission' : 'connection');
         } else cleanup(resource);
         throw error;
       }
     },
     setContext(next) { context = next; if (active?.sessionId === next.sessionId) active.protocol?.setContext(next); },
-    async submit(input) { protocol().submit(input); },
+    async submit(input) {
+      // Spelling is deterministic local evidence, including before voice starts
+      // and while a call is paused or unavailable.
+      if (input.kind === 'typed' && !active?.ready) {
+        if (!context || !sameExercise(context, input) || !input.attempts.length
+          || input.attempts.some(ref => !sameExercise(context!, ref))) return;
+        const eventId = `rtc-local-${++sequence}`;
+        emit({ sessionId: context.sessionId, eventId, type: 'assessment', batch: { ...context, eventId,
+          results: input.attempts.map(ref => assessSpelling(context!, ref, input.text, input.inputId)) } });
+        return;
+      }
+      protocol().submit(input);
+    },
     async requestHint(request) { protocol().requestHint(request); },
     cancelPendingHints() { active?.protocol?.cancelPendingHints(); },
     async askQuestion(question) { protocol().askQuestion(question); },

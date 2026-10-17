@@ -4,7 +4,7 @@ import { VERB_IDS, type VerbMode } from '../src/contracts';
 import { createVerbSession, type VerbSession } from '../src/features/verbs/session';
 import { VerbFixtureAdapter } from '../src/features/verbs/__fixtures__/adapter';
 import { FakeClock } from './helpers/assessment-fixtures';
-import { createMockVoiceAdapter } from '../src/voice';
+import { createMockVoiceAdapter, createRealtimeVoiceAdapter } from '../src/voice';
 import { createSessionRuntime } from '../src/app/session-runtime';
 
 const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
@@ -76,6 +76,65 @@ test('typing is idempotent across processing-ref changes and an edited field pre
   session.dispose();
 });
 
+test('real-adapter spelling works offline without transport and preserves independent oral fixture evidence', async () => {
+  for (const mode of ['verb-image', 'verb-visible'] as const) {
+    let transportCalls = 0;
+    const voice = createRealtimeVoiceAdapter({ dependencies: {
+      async fetch() { transportCalls++; throw new Error('This test must not call a provider or broker.'); },
+      async getUserMedia() { transportCalls++; throw new Error('This test must not request a microphone.'); },
+      createPeer() { transportCalls++; throw new Error('This test must not create a peer connection.'); },
+      createAudio() { transportCalls++; throw new Error('This test must not create audio.'); },
+    } });
+    const session = createVerbSession({ voice, mode, sessionId: `offline-${mode}`, random: () => 0, onComplete() {} });
+    const initial = session.getSnapshot().assessment;
+    const oralRefs = session.controller.beginAttempt(['meaning', 'pronunciation:base']);
+    // Seed controller evidence explicitly; no real audio is captured or assessed.
+    session.controller.applyBatch({ ...initial, eventId: 'seeded-oral-fixture', results: oralRefs.map(ref => ({
+      ref, status: 'accepted', source: { kind: 'audio', utteranceId: 'seeded-audio-fixture', audioAvailable: true },
+      feedback: 'Seeded unit fixture only.',
+    })) });
+
+    session.edit('past', 'was'); session.finalize('past', 'was'); await flush();
+    const accepted = session.getSnapshot().assessment;
+    assert.equal(accepted.evidence['spelling:past']?.status, 'accepted');
+    assert.equal(accepted.evidence['spelling:past']?.source?.kind, 'typed');
+    assert.equal(accepted.systemError, null);
+    assert.equal(accepted.interaction.connection, 'offline');
+
+    session.edit('past', 'wuz'); session.finalize('past', 'wuz'); await flush();
+    const incorrect = session.getSnapshot().assessment;
+    assert.equal(incorrect.evidence['spelling:past']?.status, 'incorrect');
+    assert.ok(incorrect.results['spelling:past']?.spelling?.incorrectGraphemeIndices.length);
+    assert.equal(incorrect.evidence.meaning?.status, 'accepted');
+    assert.equal(incorrect.evidence['pronunciation:base']?.status, 'accepted');
+    assert.equal(incorrect.systemError, null);
+    assert.equal(incorrect.interaction.processingCount, 0);
+    assert.equal(transportCalls, 0);
+    session.dispose();
+  }
+});
+
+test('offline verb questions and hints never submit remote work or create connection failures', async () => {
+  const { session, voice } = setup();
+  voice.emit({ type: 'state', state: 'offline' });
+  session.ask('Could you explain that?');
+  session.requestHint();
+  await flush();
+  const snapshot = session.getSnapshot();
+  assert.equal(voice.inputs.length, 0);
+  assert.equal(voice.hints.length, 0);
+  assert.equal(snapshot.assessment.systemError, null);
+  assert.equal(snapshot.assessment.interaction.questionPending, false);
+  assert.equal(snapshot.assessment.hintPending, false);
+  assert.equal(snapshot.clarification, 'Connect the conversation before asking a question.');
+  voice.emit({ type: 'state', state: 'ready' });
+  session.requestHint();
+  assert.equal(voice.hints.length, 1);
+  session.ask('Could you explain that?');
+  assert.equal(voice.inputs.length, 1);
+  session.dispose();
+});
+
 test('continuing utterances queue without superseding pending refs; accepted work survives a later partial turn', async () => {
   const { session, voice } = setup();
   voice.utterance('First turn', false, 'first'); await flush();
@@ -127,7 +186,9 @@ test('uncertain audio never becomes incorrect, and transcript text cannot certif
   const records = Object.values(session.getSnapshot().assessment.evidence);
   assert.equal(records.length, 7);
   assert.ok(records.every(record => record.status === 'uncertain'));
+  assert.match(session.getSnapshot().clarification, /Please say it again/);
   voice.utterance("He's been here; he buys bread. Natural connected speech."); await flush();
+  assert.equal(session.getSnapshot().clarification, '');
   assert.equal(voice.inputs.at(-1)!.text, "He's been here; he buys bread. Natural connected speech.");
   voice.settle(voice.inputs.at(-1)!, 'accepted', { kind: 'audio', utteranceId: 'no-audio', audioAvailable: false });
   assert.equal(session.getSnapshot().assessment.evidence['pronunciation:base']?.status, 'uncertain');
@@ -137,6 +198,21 @@ test('uncertain audio never becomes incorrect, and transcript text cannot certif
   real.voice.settle(real.voice.inputs.at(-1)!); // Mock source is forbidden in real mode.
   assert.equal(real.session.getSnapshot().assessment.evidence.meaning?.status, 'uncertain');
   real.session.dispose();
+});
+
+test('a queued unclear turn after oral completion retains a visible clarification without a model request', async () => {
+  const { session, voice } = setup();
+  voice.utterance('All oral requirements.', false, 'first'); await flush();
+  voice.utterance('', true, 'unclear-second'); await flush();
+  assert.equal(voice.inputs.length, 1);
+  voice.settle(voice.inputs[0]!); await flush();
+  assert.equal(voice.inputs.length, 1);
+  assert.equal(session.getSnapshot().assessment.evidence.meaning?.status, 'accepted');
+  assert.equal(session.getSnapshot().assessment.interaction.questionPending, true);
+  assert.match(session.getSnapshot().clarification, /Please clarify before we move on/);
+  voice.emit({ type: 'intent', intent: 'question-resolved' });
+  assert.equal(session.getSnapshot().clarification, '');
+  session.dispose();
 });
 
 test('transport failure preserves accepted oral work and reconnect never automatically resubmits an old draft', async () => {

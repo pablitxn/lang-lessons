@@ -7,22 +7,40 @@ This module implements image/three-input and visible-base/two-input lessons
 against the shared assessment controller, curriculum and mobile UI. It does
 not add a reducer, provider, connection owner, spelling algorithm or route.
 
+## Current application flow, 2026-10-17
+
+The current working tree uses the root's automatic voice call when a lesson is
+selected. It shows the image or supplied base, required spelling fields and
+requested hints. **Your progress** and **Reference table** open native dialogs
+with root mute/pause controls. Helper holds preserve the current exercise and
+block automatic advancement while open.
+
+The production feature has no simulated-evidence notice, coach response panel,
+typed question form or independent call controls. Questions are spoken. Unclear
+oral input that is withheld from model assessment displays a concise repeat
+request, including an unclear queued turn after oral completion. Fresh clear
+speech, question resolution or a new exercise clears that notice. Internal
+fixtures retain explicit simulation controls and source markers.
+
+The 2026-10-16 integration request and verification receipt below describe the
+original checkpoint; they do not describe the current production interface.
+
 ## Entry point and ownership
 
 Import `VerbLesson` from `src/features/verbs/index.ts`.
 The required props are `LessonModuleProps & { mode: VerbMode }`.
 Two optional feature-local integration props are supported:
 
-- `sessionControls?: ReactNode`: actual root Start/Stop controls, also rendered
-  inside the modal reference sheet so Stop stays reachable.
+- `sessionControls?: ReactNode`: root microphone mute and call pause/resume
+  controls, rendered inside progress/reference dialogs only.
 - `claimUtterance?: (utteranceId: string) => void`: root reservation of a live
   transcript while its assessment is queued. Required before live oral assessment
   is enabled; see the concrete root integration request below.
 
 Settings changes and callback identity changes preserve the mounted controller.
 A mode, adapter or session-ID replacement disposes the old feature. The feature
-never calls `voice.connect` or `voice.disconnect`. Root connection, Stop, provider
-selection, media teardown and route composition remain with EN-WP-01/04.
+never calls `voice.connect` or `voice.disconnect`. Root connection, pause/resume, media teardown and route composition remain with
+EN-WP-01/04. Provider selection is not part of the learner interface.
 
 New authored paths are exclusively `src/features/verbs/**`, this document and
 `tests/verbs*.test.ts`. Dependencies were incorporated through additive merges:
@@ -96,7 +114,11 @@ connection problem. Stay here pauses rather than immediately advancing. After
 a genuine safe pause, `onComplete(exerciseId)` fires once and the next approved
 verb appears without a repeated permission-to-continue question.
 
-## Root integration request: live transcript reservation
+## 2026-10-16 root integration request: live transcript reservation
+
+Historical request: the integrated root now supplies `claimUtterance`. The
+following request and dependency description are preserved as checkpoint
+provenance, not outstanding application work.
 
 Integration `34a5185` forwards a final live transcript as conversation if the
 feature has not submitted it by the next microtask. That behavior preserves

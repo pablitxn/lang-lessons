@@ -4,7 +4,8 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { AttemptRef, EvidenceResult } from '../src/contracts';
 import { currentSpellingResult, progressItems, spellingSegments } from '../src/ui/mobile/presentation';
-import { ObligationProgress, SentencePrompt, VoiceControls } from '../src/ui/mobile/components';
+import { ObligationProgress, SentencePrompt } from '../src/ui/mobile/components';
+import { VoiceControls } from '../src/ui/mobile/__fixtures__/conversation-controls';
 
 const identity = { sessionId: 's', exerciseId: 'buy', generation: 1 };
 const ref: AttemptRef = { ...identity, obligation: 'spelling:past', attemptId: 'a', revision: 2 };

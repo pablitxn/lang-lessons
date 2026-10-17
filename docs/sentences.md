@@ -7,6 +7,21 @@ content PR #1 at `5e0fec5e3f3c20c4327d59c77d72c75d07250dde`. Their owning
 branches and published receipts remain unchanged. This task owns only
 `src/features/sentences/**`, this file and `tests/sentences*.test.ts`.
 
+## Current application flow, 2026-10-17
+
+The root starts the voice call after the selected lesson has established an
+exercise context; an unsupported difficulty pair waits for corrected settings.
+The lesson presents its Spanish prompt, current stage, requested hint and
+concise uncertainty/error notices. **Your progress** and **Reference table**
+open native dialogs that preserve stage/evidence and hold advancement. Root
+mute/pause controls remain available within them.
+
+The production interface contains no mock textarea or simulation notice, typed
+question composer, coach response panel or independent call controls. Questions
+are spoken during the call. Fixtures deliver transcripts and verdicts through
+injected adapters; the obsolete feature `submitMockResponse` API was removed.
+The dated receipts below preserve the original implementation evidence.
+
 ## Integration entry point
 
 Import `SentenceLesson` from `src/features/sentences/index.ts`. It accepts the
@@ -17,16 +32,12 @@ optional feature-local composition props:
 | --- | --- |
 | `connectionState` | Seed/update the current root-owned connection state, especially when mounting after connection |
 | `microphoneMuted` | Seed the microphone indicator until adapter events arrive |
-| `onStartVoice` | Optional explicit root connection/retry callback; no microphone starts on mount |
-| `onStopVoice` | Optional root stop callback; pauses feature work before asking the root to stop transport |
+| `sessionControls` | Root mute/pause controls rendered inside progress/reference dialogs |
 
-Without start/stop callbacks, the feature directs the learner to root
-conversation controls. It can request mute/unmute and pause practice but never
-calls `voice.connect` or `voice.disconnect`. Root ownership of the continuous
-adapter and its costs/lifetime is preserved. There is no routing, root app,
-shared type, configuration, manifest or global-style edit here. The integration
-owner must compose the feature into the final application and supply the root's
-current connection state and callbacks.
+The feature never calls `voice.connect` or `voice.disconnect`. The root owns
+automatic connection, retry, mute and pause/resume. The integration supplies
+current connection state and dialog controls while keeping one continuous
+adapter for the lesson.
 
 `session.ts` is orchestration around the existing `createAssessmentController`,
 not a separate evidence reducer. Each mounted feature creates one controller,
@@ -79,8 +90,9 @@ target and progressive level 1–3. New attempts/stages invalidate late replies.
 The current `HintResult` contract has no semantic safety verdict. Consequently,
 pre-translation output uses a conservative exact envelope of reviewed Spanish
 or English meaning-focused questions at each level. Matching model output can
-be displayed; all other generated text is suppressed and replaced by a clearly
-labelled authored fallback. This is intentionally stricter than keyword filters
+be displayed; all other generated text is suppressed and replaced by a reviewed
+authored fallback. Its origin remains explicit in the session snapshot; internal
+validation details are not displayed in the lesson. This is intentionally stricter than keyword filters
 and blocks direct answers, tense labels, formulas, cloze, fragments and encoded
 answers. It does not claim to understand arbitrary paraphrased spoilers.
 
@@ -109,24 +121,20 @@ success. Transport errors preserve accepted work, settle pending work to
 uncertainty and never expose raw provider error bodies or trigger automatic
 resubmission/spending.
 
-Question submission establishes `questionPending` before releasing the draft
-hold. It prefers the current adapter's optional `askQuestion` conversation API,
-with a conversation-only typed-input fallback for earlier adapters; neither
-path creates assessment attempts. Questions never count as translations/explanations. The adapter should emit
-question intent before a question-directed final transcript, then a resolution
-intent after responding. An explicit "My question is resolved" action also
-releases the hold. In-call tables use scoped presentation holds and keep the
-same exercise/stage/evidence. Ongoing oral work can still be assessed while a
-table is open; the hold blocks changing prompts rather than muting the call.
+Spoken questions establish `questionPending` through adapter intent events before
+question-directed final transcripts, then release it on resolution. The session's
+question methods remain available to internal tests and orchestration; the
+production lesson has no typed form or manual question-resolution button.
+Neither conversational questions nor text establish translation/pronunciation
+evidence. In-call progress/reference dialogs use scoped presentation holds and
+keep the same exercise/stage/evidence. Ongoing oral work can still be assessed
+while a dialog is open; the hold blocks changing prompts rather than muting the
+call.
 
-Mock mode displays a persistent simulated-evidence notice and a mock oral-response
-textarea. This is a typed fixture, never microphone evidence. It forwards work
-to the injected mock adapter and does not grade it locally. With the current
-mock adapter, it registers an explicit acceptance fixture using `simulateUtterance`;
-the UI states that this is not an English evaluation. Real mode has no
-such input and rejects the mock submission method. IME composition blocks mock
-submission; nonempty drafts and focus hold manual advancement. No learner
-responses or scores are persisted.
+Simulation exists only in internal fixtures and transport tests, with explicit
+source provenance. Fixtures send transcript and assessment events through an
+injected adapter, never a production response textarea. No learner responses or
+scores are persisted.
 
 ## Validation receipt, 2026-10-16
 

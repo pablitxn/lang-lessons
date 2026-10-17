@@ -1,6 +1,5 @@
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
 import { SENTENCES } from '../../content';
-import { isMockVoiceAdapter } from '../../voice/mock';
 import { guardTranslationHint, guardTranslationFeedback } from '../../assessment/coaching-policy';
 export { TRANSLATION_HINTS, guardTranslationHint } from '../../assessment/coaching-policy';
 import { isQuiet, sameExercise, type Difficulty, type ExerciseContext, type LearnerInput,
@@ -50,7 +49,6 @@ export interface SentenceSession {
   pause(paused: boolean): void;
   askQuestion(text: string): void;
   resolveQuestion(): void;
-  submitMockResponse(text: string): boolean;
   requestHint(): boolean;
   reviseTranslation(): void;
   next(): boolean;
@@ -224,14 +222,6 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       } else submit({ ...identity, inputId: `question-${++sequence}`, kind: 'typed', text: text.trim(), attempts: [] }, identity);
     },
     resolveQuestion() { controller.setInteraction({ questionPending: false }); },
-    submitMockResponse(text) {
-      if (voice.mode !== 'mock' || !text.trim() || !readyForResponse()) return false;
-      if (isMockVoiceAdapter(voice)) {
-        try { voice.simulateUtterance(text.trim(), 'accepted'); return true; }
-        catch { reportFailure(controller.getSnapshot().context); return false; }
-      }
-      return processResponse(text.trim(), `mock-utterance-${++sequence}`, false);
-    },
     requestHint() {
       const snapshot = controller.getSnapshot();
       if (disposed || snapshot.completed || snapshot.sentenceStage === 'complete' || snapshot.hintPending

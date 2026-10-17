@@ -36,6 +36,14 @@ test('both verb lessons render real images and enforce their shared-controller g
         await lesson.waitFor();
         const original = await lesson.getAttribute('data-exercise');
         assert.equal(await lesson.getAttribute('data-verb'), 'be');
+        assert.equal(await lesson.getByRole('region', { name: 'Coach response' }).count(), 0);
+        assert.equal(await lesson.getByRole('textbox', { name: 'Ask your coach a question' }).count(), 0);
+        assert.equal(await lesson.getByRole('region', { name: 'Your progress' }).count(), 0);
+        assert.doesNotMatch(await lesson.innerText(), /Mock|simulated|microphone or provider requests/);
+        await page.getByRole('button', { name: 'Send uncertain fixture', exact: true }).click();
+        await lesson.locator('.verbs-clarification').filter({ hasText: /Please say it again/ }).waitFor();
+        assert.equal(await page.getByTestId('observations').getAttribute('data-submissions'), '0');
+
         assert.equal(await page.getByRole('textbox', { name: 'Base form', exact: true }).count(), mode === 'image' ? 1 : 0);
         if (mode === 'image') {
           assert.equal(await lesson.locator('.ll-cue img').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0), true);
@@ -64,8 +72,21 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         const observations = page.getByTestId('observations');
         assert.equal(await observations.getAttribute('data-spelling-submissions'), mode === 'image' ? '4' : '2');
-        await page.getByRole('button', { name: 'Send oral fixture', exact: true }).click();
-        await page.waitForFunction(() => document.querySelector('.ll-progress-count')?.textContent?.includes('requirements accepted') && document.querySelector('.ll-progress progress')?.getAttribute('value') === document.querySelector('.ll-progress progress')?.getAttribute('max'));
+        await page.getByRole('button', { name: 'Send oral then uncertain fixture', exact: true }).click();
+        await lesson.locator('.verbs-clarification').filter({ hasText: /Please clarify before we move on/ }).waitFor();
+        assert.equal(Number(await observations.getAttribute('data-submissions')), (mode === 'image' ? 4 : 2) + 1);
+        await page.getByRole('button', { name: 'Answer question fixture', exact: true }).click();
+        assert.equal(await lesson.locator('.verbs-clarification').count(), 0);
+        await page.getByRole('button', { name: 'Your progress', exact: true }).click();
+        const progress = page.getByRole('dialog', { name: 'Lesson progress', exact: true });
+        await progress.waitFor();
+        await page.waitForFunction(() => document.querySelector('.ll-progress progress')?.getAttribute('value') === document.querySelector('.ll-progress progress')?.getAttribute('max'));
+        assert.equal(await progress.getByRole('button', { name: 'Mock Stop session', exact: true }).count(), 1);
+        await page.clock.runFor(3000);
+        assert.equal(await lesson.getAttribute('data-exercise'), original);
+        await page.keyboard.press('Escape');
+        await progress.waitFor({ state: 'hidden' });
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).evaluate((element: HTMLElement) => document.activeElement === element), true);
         await page.getByRole('button', { name: 'Reference table', exact: true }).click();
         const sheet = page.getByRole('dialog', { name: 'Verb practice reference', exact: true });
         await sheet.waitFor();
@@ -76,9 +97,7 @@ test('both verb lessons render real images and enforce their shared-controller g
         await sheet.waitFor({ state: 'hidden' });
         const past = page.getByRole('textbox', { name: 'Past', exact: true });
         assert.equal(await past.inputValue(), 'was');
-        const question = page.getByRole('textbox', { name: 'Ask your coach a question', exact: true });
-        await question.fill('Why can I use this form?');
-        await page.getByRole('button', { name: 'Ask', exact: true }).click();
+        await page.getByRole('button', { name: 'Ask question fixture', exact: true }).click();
         await page.clock.runFor(3000);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.getByRole('button', { name: 'Answer question fixture', exact: true }).click();
@@ -86,10 +105,10 @@ test('both verb lessons render real images and enforce their shared-controller g
         await page.clock.runFor(3000);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.getByRole('button', { name: 'Finish speaking', exact: true }).click();
-        await page.getByRole('button', { name: 'Stay here', exact: true }).click();
+        await page.getByRole('button', { name: 'Pause fixture', exact: true }).click();
         await page.clock.runFor(3000);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
-        await page.getByRole('button', { name: 'Back to practice', exact: true }).click();
+        await page.getByRole('button', { name: 'Resume fixture', exact: true }).click();
         await page.clock.runFor(1799);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.clock.runFor(1);
@@ -105,7 +124,7 @@ test('both verb lessons render real images and enforce their shared-controller g
           await page.screenshot({ path: `/tmp/en-wp-05-${mode}.png`, fullPage: true });
         }
         assert.deepEqual(errors, []); assert.deepEqual(external, []);
-        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'deduplicated finalization', 'full oral/written gate', 'helper/question/speech/pause holds', 'quiet auto-next', 'no repeat', 'reflow', '200% text', 'no external requests'] }));
+        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/question/speech/pause holds', 'quiet auto-next', 'no repeat', 'reflow', '200% text', 'no external requests'] }));
         await context.close();
       }
     }

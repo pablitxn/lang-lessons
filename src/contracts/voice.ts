@@ -58,4 +58,4 @@ export interface VoiceAdapter {
 }
 /** A server exchanges SDP for the browser. Permanent API keys never enter client JS. */
 export interface RealtimeSessionRequest { sdp: string }
-export interface RealtimeSessionResponse { sdp: string; maxDurationSeconds: number }
+export interface RealtimeSessionResponse { sdp: string; maxDurationSeconds: number; releaseToken: string }

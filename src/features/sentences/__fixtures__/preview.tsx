@@ -22,8 +22,7 @@ function Preview() {
     <output data-testid="completion-count">{completed}</output>
     {mounted && <SentenceLesson voice={voice as VoiceAdapter} sessionId="sentence-browser" connectionState="ready"
       settings={{ ...DEFAULT_SETTINGS, difficulty }} onComplete={() => setCompleted(value => value + 1)}
-      onStartVoice={() => voice.emit({ type: 'state', eventId: voice.id(), sessionId: voice.context.sessionId, state: 'ready' })}
-      onStopVoice={() => voice.emit({ type: 'state', eventId: voice.id(), sessionId: voice.context.sessionId, state: 'offline' })} />}
+      sessionControls={<button type="button" className="ll-button" onClick={() => voice.emit({ type: 'state', eventId: voice.id(), sessionId: voice.context.sessionId, state: 'offline' })}>Mock Stop session</button>} />}
   </main>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><Preview /></StrictMode>);

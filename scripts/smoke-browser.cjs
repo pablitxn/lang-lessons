@@ -1,72 +1,123 @@
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
+const verbContent = require('../content/en-wp-03/verbs.json');
+const { installBrowserTransport, inspectTransport } = require('../tests/helpers/browser-transport.cjs');
 
-// Uses the selected Cloud environment's supplied Playwright/Chromium tooling.
-// No certificate bypass, external navigation or microphone permission is used.
+// Actual app rendering with a disabled, intercepted broker. No microphone/provider.
 (async () => {
   const ports = process.argv.slice(2).length ? process.argv.slice(2) : ['5174'];
   for (const port of ports) assert.match(port, /^\d{4,5}$/);
-  const browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium',
-    headless: true,
-    env: { ...process.env, XDG_CONFIG_HOME: '/tmp/lang-lessons-browser-config', XDG_CACHE_HOME: '/tmp/lang-lessons-browser-cache' },
-  });
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium', headless: true,
+    env: { ...process.env, XDG_CONFIG_HOME: '/tmp/lang-lessons-browser-config', XDG_CACHE_HOME: '/tmp/lang-lessons-browser-cache' } });
   try {
-    for (const port of ports) {
-      for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
-        const context = await browser.newContext({ viewport });
-        const page = await context.newPage();
-        const errors = [];
-        const externalRequests = [];
-        page.on('pageerror', error => errors.push(error.message));
-        page.on('request', request => {
-          if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) externalRequests.push(request.url());
-        });
-        const response = await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'networkidle' });
-        assert.equal(response.status(), 200);
-        await page.getByRole('heading', { name: 'Picture practice', exact: true }).waitFor();
-        const nav = page.getByRole('navigation', { name: 'Practice mode' });
-        await nav.getByRole('link', { name: 'Sentence', exact: true }).click();
-        await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
-        await page.reload({ waitUntil: 'networkidle' });
-        await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
-        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
-        await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('3');
-        await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('1');
-        await page.getByLabel('Offer sound guidance after a spelling error').check();
-        await page.getByLabel('Keep sound-help offers available until dismissed').check();
-        await page.reload({ waitUntil: 'networkidle' });
-        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
-        assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).inputValue(), '3');
-        assert.equal(await page.getByLabel('Vocabulary difficulty', { exact: true }).inputValue(), '1');
-        assert.equal(await page.getByLabel('Keep sound-help offers available until dismissed').isChecked(), true);
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-        await page.getByRole('button', { name: 'Clear saved preferences' }).click();
-        assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).inputValue(), '1');
-        await page.getByRole('button', { name: 'Close', exact: true }).click();
-        await nav.getByRole('link', { name: 'Verb', exact: true }).click();
-        await page.getByRole('heading', { name: 'Verb practice', exact: true }).waitFor();
-        await page.goBack({ waitUntil: 'networkidle' });
-        await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
-        await page.getByRole('button', { name: 'Start mock session', exact: true }).click();
-        await page.getByRole('region', { name: 'Conversation controls', exact: true }).getByText('Mock session · ready', { exact: false }).waitFor();
-        await page.getByRole('button', { name: 'Preferences', exact: true }).click();
-        await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('2');
-        assert.equal(await page.getByRole('region', { name: 'Conversation controls', exact: true }).getByText('Mock session · ready', { exact: false }).count(), 1);
-        await page.getByRole('button', { name: 'Close', exact: true }).click();
-        await page.getByRole('region', { name: 'Conversation controls', exact: true }).getByRole('button', { name: 'Mute microphone', exact: true }).click();
-        await page.getByRole('region', { name: 'Conversation controls', exact: true }).getByRole('button', { name: 'Resume microphone', exact: true }).waitFor();
-        await page.getByRole('button', { name: 'Stop session', exact: true }).click();
-        await page.getByRole('button', { name: 'Start mock session', exact: true }).waitFor();
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
-        assert.deepEqual(errors, []);
-        assert.deepEqual(externalRequests, []);
-        if (process.env.SCREENSHOT_PATH && port === ports[0] && viewport.width === 390) {
-          await page.screenshot({ path: process.env.SCREENSHOT_PATH, fullPage: true });
-        }
-        console.log(JSON.stringify({ status: 'passed', port, viewport, checks: ['render', 'three modes', 'reload', 'history', 'independent preferences', 'persistence', 'reset', 'mock lifecycle', 'settings preserve session', 'reflow', 'no external requests'], errors: errors.length }));
-        await context.close();
+    for (const port of ports) for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
+      const origin = `http://127.0.0.1:${port}`;
+      const context = await browser.newContext({ viewport, colorScheme: 'light' });
+      const transport = await installBrowserTransport(context, origin, { enabled: false });
+      const page = await context.newPage(); const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      const response = await page.goto(`${origin}/`, { waitUntil: 'networkidle' }); assert.equal(response.status(), 200);
+      await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+      const lessons = page.getByRole('navigation', { name: 'Lessons', exact: true });
+      for (const name of ['Picture', 'Verb', 'Sentence']) assert.equal(await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).count(), 1);
+      assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
+      assert.equal((await inspectTransport(page)).mediaCalls, 0);
+      assert.doesNotMatch(await page.locator('body').innerText(), /mock|session mode|local development|make english feel natural/i);
+      assert.equal(await page.locator('footer').count(), 0);
+      assert.equal(await page.locator('.catalog-note').count(), 0);
+
+      const preferences = page.getByRole('button', { name: 'Preferences', exact: true });
+      const dialog = page.getByRole('dialog', { name: 'Preferences', exact: true });
+      await preferences.click(); await dialog.waitFor();
+      const sections = dialog.getByRole('navigation', { name: 'Preferences sections' });
+      const selectSection = name => sections.getByRole('button', { name, exact: true }).click();
+      assert.equal(await sections.getByRole('button', { name: 'Appearance', exact: true }).getAttribute('aria-current'), 'page');
+      assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).count(), 0);
+      if (viewport.width >= 540) {
+        const navBounds = await sections.boundingBox();
+        const contentBounds = await dialog.locator('.preferences-content').boundingBox();
+        assert.ok(navBounds.x + navBounds.width <= contentBounds.x + 1, 'Preferences sections sit left of the content');
       }
+      await selectSection('Voice');
+      await dialog.getByRole('button', { name: 'Check microphone access', exact: true }).click();
+      await dialog.getByText('Microphone access is allowed.', { exact: true }).waitFor();
+      assert.equal((await inspectTransport(page)).mediaCalls, 1);
+      assert.equal((await inspectTransport(page)).tracks[0].stopped, true);
+      assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
+      await selectSection('Learning');
+      await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('3');
+      await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('1');
+      await page.getByLabel('Offer sound guidance after a spelling error').check();
+      await page.getByLabel('Keep sound-help offers available until dismissed').check();
+      await selectSection('Appearance');
+      await page.getByLabel('Theme', { exact: true }).selectOption('dark');
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+      for (let index = 0; index < 14; index += 1) await page.keyboard.press('Tab');
+      assert.equal(await dialog.evaluate(element => element.contains(document.activeElement)), true);
+      await page.keyboard.press('Escape'); await dialog.waitFor({ state: 'hidden' });
+      assert.equal(await preferences.evaluate(element => element === document.activeElement), true);
+      await page.evaluate(() => localStorage.setItem('unrelated.preference', 'preserve'));
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); await preferences.click();
+      await selectSection('Learning');
+      assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).inputValue(), '3');
+      assert.equal(await page.getByLabel('Vocabulary difficulty', { exact: true }).inputValue(), '1');
+      assert.equal(await page.getByLabel('Keep sound-help offers available until dismissed').isChecked(), true);
+      await selectSection('Appearance');
+      assert.equal(await page.getByLabel('Theme', { exact: true }).inputValue(), 'dark');
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+      if (port === ports[0] && viewport.width === 390) await page.screenshot({ path: '/tmp/lang-lessons-preferences-390.png', fullPage: true });
+      await page.getByLabel('Theme', { exact: true }).selectOption('system');
+      await page.emulateMedia({ colorScheme: 'dark' });
+      await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
+      await page.emulateMedia({ colorScheme: 'light' });
+      await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+      await selectSection('Storage');
+      await page.getByRole('button', { name: 'Clear saved preferences' }).click();
+      await dialog.getByText('Saved preferences cleared.', { exact: true }).waitFor();
+      await selectSection('Learning');
+      assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).inputValue(), '1');
+      await selectSection('Appearance');
+      assert.equal(await page.getByLabel('Theme', { exact: true }).inputValue(), 'system');
+      assert.equal(await page.evaluate(() => localStorage.getItem('unrelated.preference')), 'preserve');
+      await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
+
+      for (const name of ['Picture', 'Verb', 'Sentence']) {
+        await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).click();
+        await page.getByRole('heading', { name: `${name} practice`, exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        if (name !== 'Sentence') {
+          const exercise = page.locator('.verbs-lesson');
+          const verbId = await exercise.getAttribute('data-verb');
+          const expectedPast = verbContent.verbs.find(verb => verb.lemma === verbId).forms.past[0].text;
+          const past = page.getByRole('textbox', { name: 'Past', exact: true });
+          await past.fill('zzzz');
+          await page.getByRole('button', { name: 'Check Past', exact: true }).click();
+          await exercise.locator('.ll-incorrect').first().waitFor();
+          await past.fill(expectedPast);
+          await page.getByRole('button', { name: 'Check Past', exact: true }).click();
+          await exercise.locator('.ll-correct').first().waitFor();
+          assert.doesNotMatch(await exercise.innerText(), /This response could not be processed/);
+          assert.equal(transport.sessionRequests, 0);
+          assert.equal((await inspectTransport(page)).mediaCalls, 0);
+        }
+        assert.doesNotMatch(await page.locator('body').innerText(), /mock|session mode|ask your coach a question/i);
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+      }
+      await page.goBack({ waitUntil: 'networkidle' });
+      await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+      await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+      await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+      assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).mediaCalls, 0);
+      assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
+      if (process.env.SCREENSHOT_PATH && port === ports[0] && viewport.width === 390) await page.screenshot({ path: process.env.SCREENSHOT_PATH, fullPage: true });
+      console.log(JSON.stringify({ status: 'passed', port, viewport, evidence: 'actual browser rendering; mocked permission check and disabled broker; no real audio/provider', checks: ['lesson cards', 'preferences section navigation and focus/Escape', 'microphone permission check releases device without call', 'theme and system preference', 'independent preferences', 'persistence', 'owned reset', 'offline spelling without voice', 'three routes', 'reload/history', 'reflow', 'no external requests'], errors: errors.length }));
+      await context.close();
     }
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSessionRuntime } from '../src/app/session-runtime';
+import { checkVoiceAvailability, createSessionRuntime } from '../src/app/session-runtime';
 import { createMockVoiceAdapter } from '../src/voice';
 import { createAssessmentController } from '../src/assessment';
 import { FakeClock, batch, verbContext } from './helpers/assessment-fixtures';
@@ -150,4 +150,94 @@ test('a claimed unclear turn after oral completion asks for clarification instea
   assert.equal(session.getSnapshot().assessment.interaction.questionPending, true);
   assert.match(session.getSnapshot().coachText, /clarify/);
   session.dispose(); runtime.stop();
+});
+
+test('voice readiness accepts only an enabled service before starting the adapter', async () => {
+  for (const payload of [{ enabled: false }, { enabled: false, reason: 'disabled' }, { enabled: false, reason: 'missing-credentials' }]) {
+    const base = createMockVoiceAdapter(); let connections = 0;
+    const connect = base.connect; base.connect = async options => { connections++; await connect(options); };
+    const runtime = createSessionRuntime(base, 's1', { prepareConnection: signal => checkVoiceAvailability(signal,
+      async () => new Response(JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })) });
+    await assert.rejects(runtime.start(), /Voice/);
+    assert.equal(connections, 0); assert.equal(runtime.getSnapshot().state, 'error');
+    assert.match(runtime.getSnapshot().error, /Voice/); runtime.stop();
+  }
+  await checkVoiceAvailability(new AbortController().signal, async () => new Response('{"enabled":true}'));
+});
+
+test('unavailable or malformed readiness responses never become a connected call', async () => {
+  for (const request of [async () => new Response('', { status: 503 }), async () => new Response('<html>'),
+    async () => { throw new Error('Network fixture'); },
+    ...[{ enabled: 'true' }, {}, null].map(payload => async () => new Response(JSON.stringify(payload)))]) {
+    await assert.rejects(checkVoiceAvailability(new AbortController().signal, request), /unavailable/);
+  }
+});
+
+test('immediate effect cleanup cancels startup before readiness or microphone activity', async () => {
+  const base = createMockVoiceAdapter(); let preparations = 0; let connections = 0;
+  const connect = base.connect; base.connect = async options => { connections++; await connect(options); };
+  const runtime = createSessionRuntime(base, 's1', { prepareConnection: async () => { preparations++; } });
+  const first = runtime.start(); const cancelled = assert.rejects(first, { name: 'AbortError' });
+  runtime.stop();
+  const second = runtime.start();
+  await Promise.all([cancelled, second]);
+  assert.equal(preparations, 1); assert.equal(connections, 1); assert.equal(runtime.getSnapshot().state, 'ready');
+  runtime.stop();
+});
+
+test('overlapping start actions share one readiness check and one connection', async () => {
+  const base = createMockVoiceAdapter(); let preparations = 0; let connections = 0;
+  const connect = base.connect; base.connect = async options => { connections++; await connect(options); };
+  const runtime = createSessionRuntime(base, 's1', { prepareConnection: async () => { preparations++; } });
+  const first = runtime.start(); const second = runtime.start();
+  assert.equal(first, second); await Promise.all([first, second]); await runtime.start();
+  assert.equal(preparations, 1); assert.equal(connections, 1); runtime.stop();
+});
+
+test('pause during readiness cancels the call and a late failure cannot overwrite a resumed call', async () => {
+  const base = createMockVoiceAdapter(); let rejectFirst!: (error: Error) => void; let preparations = 0; let connections = 0;
+  const connect = base.connect; base.connect = async options => { connections++; await connect(options); };
+  const runtime = createSessionRuntime(base, 's1', { prepareConnection: () => ++preparations === 1
+    ? new Promise<void>((_resolve, reject) => { rejectFirst = reject; }) : Promise.resolve() });
+  const first = runtime.start(); const failed = assert.rejects(first, /Old readiness fixture/);
+  await Promise.resolve(); runtime.pause();
+  assert.equal(runtime.getSnapshot().state, 'offline'); assert.equal(runtime.getSnapshot().paused, true);
+  await runtime.resume(); rejectFirst(new Error('Old readiness fixture')); await failed;
+  assert.equal(connections, 1); assert.equal(runtime.getSnapshot().state, 'ready');
+  assert.equal(runtime.getSnapshot().error, ''); assert.equal(runtime.getSnapshot().paused, false); runtime.stop();
+});
+
+test('pause releases the call while preserving the exercise and accepted evidence for explicit resume', async () => {
+  const base = createMockVoiceAdapter(); const runtime = createSessionRuntime(base, 's1');
+  const context = verbContext(); const controller = createAssessmentController({ context, allowMock: true });
+  runtime.voice.setContext(context); runtime.voice.subscribe(controller.handleVoiceEvent); await runtime.start();
+  const refs = controller.beginAttempt(['meaning']); controller.applyBatch(batch(refs));
+  runtime.pause();
+  assert.equal(runtime.getSnapshot().state, 'offline'); assert.equal(runtime.getSnapshot().muted, true);
+  assert.equal(controller.getSnapshot().interaction.intent, 'pause');
+  assert.equal(controller.getSnapshot().evidence.meaning?.status, 'accepted');
+  assert.equal(runtime.getContext(), context);
+  await runtime.resume();
+  assert.equal(runtime.getSnapshot().state, 'ready'); assert.equal(controller.getSnapshot().interaction.intent, 'practice');
+  assert.equal(controller.getSnapshot().evidence.meaning?.status, 'accepted');
+  runtime.stop(); controller.dispose();
+});
+
+test('a spoken pause intent disconnects rather than leaving the microphone active', async () => {
+  const base = createMockVoiceAdapter(); const runtime = createSessionRuntime(base, 's1');
+  runtime.voice.setContext(verbContext()); await runtime.start(); base.simulateIntent('pause');
+  assert.equal(runtime.getSnapshot().state, 'offline'); assert.equal(runtime.getSnapshot().muted, true);
+  assert.equal(runtime.getSnapshot().paused, true); runtime.stop();
+});
+
+
+test('voice readiness distinguishes disabled calls from missing server credentials without exposing provider details', async () => {
+  const signal = new AbortController().signal;
+  for (const [reason, expected] of [
+    ['disabled', /turned off/], ['missing-credentials', /API key/], ['unknown', /not ready/],
+  ] as const) {
+    await assert.rejects(checkVoiceAvailability(signal, async () => new Response(JSON.stringify({
+      enabled: false, reason, error: 'Untrusted provider detail that must never be shown',
+    }))), expected);
+  }
 });

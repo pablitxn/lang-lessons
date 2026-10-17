@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import { randomUUID } from 'node:crypto';
 import { TIMING } from '../src/contracts/settings';
 
 export interface BrokerConfig {
@@ -40,25 +41,75 @@ async function readBody(request: IncomingMessage): Promise<unknown> {
 /** Loopback development broker only. No auth/database/public deployment is installed. */
 export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch) {
   let pending = false;
-  let leaseUntil = 0;
+  interface Lease { token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean }
+  let lease: Lease | null = null;
+  function callId(location: string | null): string | null {
+    if (!location) return null;
+    try {
+      const url = new URL(location, 'https://api.openai.com');
+      if (url.origin !== 'https://api.openai.com' || url.username || url.password || url.search || url.hash) return null;
+      return /^\/v1\/realtime\/calls\/([A-Za-z0-9_-]{1,200})$/.exec(url.pathname)?.[1] ?? null;
+    } catch { return null; }
+  }
+  function endSession(current: Lease): Promise<boolean> {
+    if (current.ended) return Promise.resolve(true);
+    if (current.closing) return current.closing;
+    if (!current.callId) return Promise.resolve(false);
+    current.closing = (async () => {
+      try {
+        const ended = await fetcher(`https://api.openai.com/v1/realtime/calls/${current.callId}/hangup`, {
+          method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, signal: AbortSignal.timeout(10000),
+        });
+        if (!ended.ok) return false;
+        current.ended = true;
+        if (lease === current) lease = null;
+        return true;
+      } catch { return false; }
+    })().finally(() => { delete current.closing; });
+    return current.closing;
+  }
   return createServer(async (request, response) => {
     const localHosts = new Set([`127.0.0.1:${request.socket.localPort}`, `localhost:${request.socket.localPort}`,
       ...config.allowedOrigins.map(origin => new URL(origin).host)]);
     if (!request.headers.host || !localHosts.has(request.headers.host)) { reply(response, 403, { error: 'Origin not allowed.' }); return; }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {
-      reply(response, 200, { enabled: config.enabled && Boolean(config.apiKey), maxDurationSeconds: config.maxDurationSeconds }); return;
+      const reason = !config.enabled ? 'disabled' : !config.apiKey ? 'missing-credentials' : 'ready';
+      reply(response, 200, { enabled: reason === 'ready', reason, maxDurationSeconds: config.maxDurationSeconds }); return;
     }
-    if (request.url !== '/api/realtime/session') { reply(response, 404, { error: 'Not found.' }); return; }
+    const ending = request.url === '/api/realtime/session/end';
+    if (request.url !== '/api/realtime/session' && !ending) { reply(response, 404, { error: 'Not found.' }); return; }
     if (request.method !== 'POST') { reply(response, 405, { error: 'POST required.' }); return; }
     if (!request.headers.origin || !config.allowedOrigins.includes(request.headers.origin)
       || request.headers['sec-fetch-site'] === 'cross-site') { reply(response, 403, { error: 'Origin not allowed.' }); return; }
     if (!config.enabled || !config.apiKey) { reply(response, 503, { error: 'Real voice is not enabled on this local server.' }); return; }
     if (request.headers['content-type']?.split(';')[0] !== 'application/json') { reply(response, 415, { error: 'JSON required.' }); return; }
     if (Number(request.headers['content-length'] ?? 0) > 65536) { reply(response, 413, { error: 'Request too large.' }); return; }
-    if (pending || Date.now() < leaseUntil) { reply(response, 429, { error: 'A local voice session is already active. Wait for its time limit before opening another.' }); return; }
+    if (ending) {
+      try {
+        const body = await readBody(request);
+        if (typeof body !== 'object' || body === null || Array.isArray(body) || Object.keys(body).length !== 1
+          || !('releaseToken' in body) || typeof body.releaseToken !== 'string' || !/^[A-Za-z0-9_-]{32,128}$/.test(body.releaseToken)) {
+          reply(response, 400, { error: 'A valid session release token is required.' }); return;
+        }
+        if (!lease) { reply(response, 200, { ended: true }); return; }
+        if (lease.token !== body.releaseToken) { reply(response, 403, { error: 'Session release token does not match.' }); return; }
+        const ended = await endSession(lease);
+        reply(response, ended ? 200 : 502, ended ? { ended: true } : { error: 'The previous voice call could not be closed. Please retry.' });
+      } catch { reply(response, 400, { error: 'A valid session release token is required.' }); }
+      return;
+    }
+    // A new explicit start may wait for an already requested hangup, but it may
+    // never bypass a current lease or automatically retry paid session creation.
+    if (lease?.closing) await lease.closing;
+    if (pending || (lease && Date.now() < lease.until)) { reply(response, 429, { error: 'A local voice session is already active. Close it before opening another.' }); return; }
     pending = true;
-    const lifecycle = new AbortController();
-    const disconnect = () => { if (!response.writableEnded) lifecycle.abort(); };
+    let disconnected = false;
+    let created: Lease | null = null;
+    const disconnect = () => {
+      if (response.writableEnded) return;
+      disconnected = true;
+      if (created) void endSession(created);
+    };
     response.on('close', disconnect);
     try {
       const body = await readBody(request);
@@ -67,19 +118,35 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
         || body.sdp.length < 5 || body.sdp.length > 60000 || !body.sdp.startsWith('v=0')) {
         reply(response, 400, { error: 'A valid SDP offer is required.' }); return;
       }
-      if (lifecycle.signal.aborted) return;
+      if (disconnected) return;
       const form = new FormData(); form.set('sdp', body.sdp); form.set('session', JSON.stringify(providerSession(config)));
+      // Reserve before dispatch: a timeout can hide a successful paid call.
+      // Only a definitive provider rejection or confirmed hangup releases it.
+      created = { token: randomUUID(), until: Date.now() + config.maxDurationSeconds * 1000, callId: null };
+      lease = created;
       const upstream = await fetcher('https://api.openai.com/v1/realtime/calls', {
         method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, body: form,
-        signal: AbortSignal.any([lifecycle.signal, AbortSignal.timeout(15000)]),
+        // Keep the bounded exchange alive after a browser disconnect so its
+        // call receipt can be hung up instead of losing an already-created call.
+        signal: AbortSignal.timeout(15000),
       });
-      if (!upstream.ok) { reply(response, 502, { error: 'The voice provider could not create a session.' }); return; }
+      if (!upstream.ok) {
+        if (lease === created) lease = null;
+        reply(response, 502, { error: 'The voice provider could not create a session.' }); return;
+      }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
-      leaseUntil = Date.now() + config.maxDurationSeconds * 1000;
+      created.callId = callId(upstream.headers.get('location'));
       const sdp = await upstream.text();
-      if (sdp.length > 60000 || !sdp.startsWith('v=0')) { reply(response, 502, { error: 'The voice provider returned an invalid session.' }); return; }
-      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds });
+      if (disconnected) { await endSession(created); return; }
+      if (sdp.length > 60000 || !sdp.startsWith('v=0') || !created.callId) {
+        if (created.callId) await endSession(created);
+        reply(response, 502, { error: 'The voice provider returned an invalid session.' }); return;
+      }
+      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds, releaseToken: created.token });
     } catch (error) {
+      // A successful call whose SDP cannot be read never reaches the browser.
+      // Use its validated receipt to close it; an unconfirmed hangup keeps the lease.
+      if (created?.callId) await endSession(created);
       const malformed = error instanceof SyntaxError;
       reply(response, malformed ? 400 : 502, { error: malformed ? 'Malformed JSON.' : 'The voice session could not be started. No provider details are logged.' });
     } finally { pending = false; response.off('close', disconnect); }

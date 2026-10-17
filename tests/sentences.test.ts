@@ -159,9 +159,8 @@ test('difficulty changes preserve current work; absent combinations wait rather 
   f.session.setDifficulty({ grammar: 2, vocabulary: 1 }); assert.equal(f.session.next(), true);
   assert.equal(f.completed.length, 1); assert.notEqual(f.snapshot().exerciseId, id); f.session.dispose();
 });
-test('real mode cannot submit a typed mock or accept text-only evidence as oral success', () => {
+test('real mode rejects text-only evidence as oral success', () => {
   const f = setup(true);
-  assert.equal(f.session.submitMockResponse('We have lived here since 2020.'), false);
   assert.equal(f.voice.inputs.length, 0); f.voice.transcript('We have lived here since 2020.');
   f.voice.assess('accepted', f.voice.inputs[0], { kind: 'typed', inputId: 'typed' });
   assert.equal(f.snapshot().evidence.translation?.status, 'uncertain');
@@ -205,7 +204,7 @@ test('current root runtime replays connection and holds; the actual mock adapter
     difficulty: { grammar: 2, vocabulary: 1 }, sentences: [residence], random: () => 0, onComplete() {} });
   assert.equal(session.getSnapshot().assessment.interaction.connection, 'ready');
   assert.deepEqual(session.getSnapshot().assessment.interaction.presentationHolds, ['root-preferences']);
-  assert.equal(session.submitMockResponse('We have lived here since 2020.'), true);
+  base.simulateUtterance('We have lived here since 2020.', 'accepted');
   await Promise.resolve(); await Promise.resolve();
   assert.equal(session.getSnapshot().assessment.evidence.translation?.status, 'accepted');
   runtime.hold('root-preferences', false);
