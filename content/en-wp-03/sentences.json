@@ -5,7 +5,11 @@
     "present_simple",
     "present_continuous",
     "present_perfect",
-    "present_perfect_continuous"
+    "present_perfect_continuous",
+    "past_simple",
+    "past_continuous",
+    "past_perfect",
+    "past_perfect_continuous"
   ],
   "difficulty_scale": {
     "1": "single affirmative main clause / everyday vocabulary",
@@ -714,6 +718,652 @@
       "source_refs": [
         "atlas-en-d09-d11",
         "british-council-aspect"
+      ]
+    },
+    {
+      "id": "sentence-past-simple-work",
+      "primary_tense": "past_simple",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Ayer trabajé en casa.",
+      "context_es": "El día de ayer terminó; hoy estoy en la oficina.",
+      "accepted_examples": [
+        {
+          "text": "I worked at home yesterday.",
+          "tense": "past_simple",
+          "structure": "subject + regular -ed past verb",
+          "meaning": "A completed event in a finished past period."
+        },
+        {
+          "text": "Yesterday, I worked from home.",
+          "tense": "past_simple",
+          "structure": "subject + regular -ed past verb",
+          "meaning": "A completed event in a finished past period."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A completed event in a finished past period.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-simple-supplier",
+      "primary_tense": "past_simple",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "El comité eligió al proveedor el martes pasado.",
+      "context_es": "La selección ocurrió y terminó en esa reunión del martes.",
+      "accepted_examples": [
+        {
+          "text": "The committee chose the supplier last Tuesday.",
+          "tense": "past_simple",
+          "structure": "subject + irregular past chose",
+          "meaning": "A completed selection at a specified past time."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A completed selection at a specified past time.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-simple-negative",
+      "primary_tense": "past_simple",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "sentence_form": "negative",
+      "prompt_es": "Él no compró leche ayer.",
+      "context_es": "Hablamos de una compra que no ocurrió durante el día de ayer.",
+      "accepted_examples": [
+        {
+          "text": "He did not buy milk yesterday.",
+          "tense": "past_simple",
+          "structure": "subject + did not + base buy, not bought",
+          "meaning": "Negates a completed-past purchase; did carries the past tense."
+        },
+        {
+          "text": "He didn't buy milk yesterday.",
+          "tense": "past_simple",
+          "structure": "subject + did not + base buy, not bought",
+          "meaning": "Negates a completed-past purchase; did carries the past tense."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Negates a completed-past purchase; did carries the past tense.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-simple-question",
+      "primary_tense": "past_simple",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "sentence_form": "question",
+      "prompt_es": "¿Dónde vivían ellos el año pasado?",
+      "context_es": "Pregunta por su residencia durante el año pasado, no por una acción temporal en progreso.",
+      "accepted_examples": [
+        {
+          "text": "Where did they live last year?",
+          "tense": "past_simple",
+          "structure": "where + did + subject + base live",
+          "meaning": "Asks about their residence during last year, without asserting where they live now. Simple and continuous past readings are both valid."
+        },
+        {
+          "text": "Where were they living last year?",
+          "tense": "past_continuous",
+          "structure": "where + were + subject + living",
+          "meaning": "Asks about their residence during last year, using a valid continuous past reading."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Asks about their residence during last year, without asserting where they live now. Simple and continuous past readings are both valid.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-continuous-drawing",
+      "primary_tense": "past_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Estaba dibujando un árbol cuando llamaste.",
+      "context_es": "El dibujo ya estaba en progreso en el momento de tu llamada.",
+      "accepted_examples": [
+        {
+          "text": "I was drawing a tree when you called.",
+          "tense": "past_continuous",
+          "structure": "subject + was + drawing; when + past event",
+          "meaning": "An activity in progress at a past interruption, without asserting completion."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "An activity in progress at a past interruption, without asserting completion.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-continuous-negotiation",
+      "primary_tense": "past_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Estaban negociando el contrato a las tres de ayer.",
+      "context_es": "Las negociaciones estaban en progreso a esa hora; no decimos que terminaron.",
+      "accepted_examples": [
+        {
+          "text": "They were negotiating the contract at three yesterday.",
+          "tense": "past_continuous",
+          "structure": "subject + were + negotiating",
+          "meaning": "An activity in progress at a specified past reference time."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "An activity in progress at a specified past reference time.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-continuous-negative",
+      "primary_tense": "past_continuous",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "sentence_form": "negative",
+      "prompt_es": "No estaba durmiendo cuando llegaste.",
+      "context_es": "En el momento de tu llegada yo estaba despierto.",
+      "accepted_examples": [
+        {
+          "text": "I was not sleeping when you arrived.",
+          "tense": "past_continuous",
+          "structure": "subject + was not + sleeping",
+          "meaning": "Negates an activity in progress at the time of another past event."
+        },
+        {
+          "text": "I wasn't sleeping when you arrived.",
+          "tense": "past_continuous",
+          "structure": "subject + was not + sleeping",
+          "meaning": "Negates an activity in progress at the time of another past event."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Negates an activity in progress at the time of another past event.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-continuous-question",
+      "primary_tense": "past_continuous",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "sentence_form": "question",
+      "prompt_es": "¿Por qué estaba ella estudiando a medianoche anoche?",
+      "context_es": "Pregunta por la actividad que estaba en progreso a esa hora de anoche.",
+      "accepted_examples": [
+        {
+          "text": "Why was she studying at midnight last night?",
+          "tense": "past_continuous",
+          "structure": "why + was + subject + studying",
+          "meaning": "Asks about an activity in progress at a past reference time."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Asks about an activity in progress at a past reference time.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-homework",
+      "primary_tense": "past_perfect",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Ya había terminado la tarea cuando llamaste.",
+      "context_es": "Primero terminé la tarea; después recibí tu llamada.",
+      "accepted_examples": [
+        {
+          "text": "I had already finished my homework when you called.",
+          "tense": "past_perfect",
+          "structure": "subject + had + regular past participle finished",
+          "meaning": "The homework was complete before the later past call."
+        },
+        {
+          "text": "I'd already finished my homework when you called.",
+          "tense": "past_perfect",
+          "structure": "subject + had + regular past participle finished",
+          "meaning": "The homework was complete before the later past call."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "The homework was complete before the later past call.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-bridge",
+      "primary_tense": "past_perfect",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Los ingenieros ya habían construido el puente cuando llegó el inspector.",
+      "context_es": "La construcción estaba terminada antes de la llegada del inspector.",
+      "accepted_examples": [
+        {
+          "text": "The engineers had already built the bridge when the inspector arrived.",
+          "tense": "past_perfect",
+          "structure": "subject + had + irregular past participle built",
+          "meaning": "A completed construction before a later past reference event."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "A completed construction before a later past reference event.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-negative",
+      "primary_tense": "past_perfect",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "sentence_form": "negative",
+      "prompt_es": "No había comido nada cuando llegaste.",
+      "context_es": "Hasta el momento de tu llegada no había comido; después cenamos juntos.",
+      "accepted_examples": [
+        {
+          "text": "I had not eaten anything when you arrived.",
+          "tense": "past_perfect",
+          "structure": "subject + had not + irregular past participle eaten",
+          "meaning": "Negates an earlier event up to a later past arrival; eaten, not ate, follows had."
+        },
+        {
+          "text": "I hadn't eaten anything when you arrived.",
+          "tense": "past_perfect",
+          "structure": "subject + had not + irregular past participle eaten",
+          "meaning": "Negates an earlier event up to a later past arrival; eaten, not ate, follows had."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Negates an earlier event up to a later past arrival; eaten, not ate, follows had.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-question",
+      "primary_tense": "past_perfect",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "sentence_form": "question",
+      "prompt_es": "¿Dónde había estudiado ella antes de mudarse a Madrid?",
+      "context_es": "Pregunta por sus estudios anteriores a la mudanza, que también ocurrió en el pasado.",
+      "accepted_examples": [
+        {
+          "text": "Where had she studied before she moved to Madrid?",
+          "tense": "past_perfect",
+          "structure": "where + had + subject + regular past participle studied",
+          "meaning": "Asks about an event earlier than another past event."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Asks about an event earlier than another past event.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-continuous-waiting",
+      "primary_tense": "past_perfect_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Llevaba una hora esperando cuando llegó el autobús.",
+      "context_es": "La espera empezó antes y continuó hasta la llegada del autobús; destaca su duración.",
+      "accepted_examples": [
+        {
+          "text": "I had been waiting for an hour when the bus arrived.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had been + waiting + for duration",
+          "meaning": "Duration of an activity continuing up to a later past event."
+        },
+        {
+          "text": "I'd been waiting for an hour when the bus arrived.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had been + waiting + for duration",
+          "meaning": "Duration of an activity continuing up to a later past event."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Duration of an activity continuing up to a later past event.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-continuous-trench",
+      "primary_tense": "past_perfect_continuous",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "sentence_form": "affirmative",
+      "prompt_es": "Llevaban dos horas cavando la zanja cuando llegó la inspectora.",
+      "context_es": "La excavación estaba en curso antes y hasta esa llegada; no afirmamos que la zanja estuviera terminada.",
+      "accepted_examples": [
+        {
+          "text": "They had been digging the trench for two hours when the inspector arrived.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had been + digging + for duration",
+          "meaning": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
+        },
+        {
+          "text": "They'd been digging the trench for two hours when the inspector arrived.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had been + digging + for duration",
+          "meaning": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-continuous-negative",
+      "primary_tense": "past_perfect_continuous",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "sentence_form": "negative",
+      "prompt_es": "No había estado durmiendo bien antes de las vacaciones.",
+      "context_es": "Durante las semanas anteriores a esas vacaciones del año pasado dormía mal; ahora duermo bien.",
+      "accepted_examples": [
+        {
+          "text": "I had not been sleeping well before the holiday.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had not been + sleeping",
+          "meaning": "Negates a repeated or continuing activity over a period leading up to a past reference."
+        },
+        {
+          "text": "I hadn't been sleeping well before the vacation.",
+          "tense": "past_perfect_continuous",
+          "structure": "subject + had not been + sleeping",
+          "meaning": "Negates a repeated or continuing activity over a period leading up to a past reference."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Negates a repeated or continuing activity over a period leading up to a past reference.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
+      ]
+    },
+    {
+      "id": "sentence-past-perfect-continuous-question",
+      "primary_tense": "past_perfect_continuous",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "sentence_form": "question",
+      "prompt_es": "¿Cuánto tiempo llevaban trabajando allí cuando cerró la fábrica?",
+      "context_es": "El trabajo empezó antes y continuó hasta el cierre de la fábrica, que ocurrió el año pasado.",
+      "accepted_examples": [
+        {
+          "text": "How long had they been working there when the factory closed?",
+          "tense": "past_perfect_continuous",
+          "structure": "how long + had + subject + been + working",
+          "meaning": "Asks for duration of an activity continuing up to a later past event."
+        }
+      ],
+      "acceptance_policy": "semantic-open-set",
+      "meaning_requirements": [
+        "Asks for duration of an activity continuing up to a later past event.",
+        "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
+      ],
+      "post_acceptance": [
+        "tense",
+        "structure",
+        "meaning-fit"
+      ],
+      "hint_intents": [
+        "Attend to the message in the Spanish sentence.",
+        "Relate the activity to the reference moment without naming a tense.",
+        "Invite a complete retry without giving words, auxiliaries or endings."
+      ],
+      "source_refs": [
+        "atlas-en-d15"
       ]
     }
   ]

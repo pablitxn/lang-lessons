@@ -72,7 +72,10 @@ remaining obligations. A translation stays accepted when an explanation is
 partial. Both residence constructions and their contractions are forwarded
 unchanged; their actual construction, not an exclusive target tense, governs
 the explanation. Other grammatical variants require semantic assessment rather
-than closed-string rejection. Four present tenses remain the initial curriculum.
+than closed-string rejection. EN-WP-08 adds four past tenses alongside the four
+present tenses. Preferences can select all eight or one; a change filters the
+next prompt without replacing the current exercise or accepted explanation work.
+The reference guide shows all eight structures only after translation acceptance.
 
 All four accepted requirements enable manual Next only when speech, questions,
 processing, composition, focused drafts and helper holds permit it. There is no

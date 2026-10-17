@@ -9,7 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 VERSION = "en-wp-03/1"
 EXACT25 = "be beat become begin bend bet bite bleed blow break bring build burn burst buy catch choose come cost cut deal dig do draw dream".split()
-TENSES = {"present_simple", "present_continuous", "present_perfect", "present_perfect_continuous"}
+PAST_TENSES = {"past_simple", "past_continuous", "past_perfect", "past_perfect_continuous"}
+TENSES = {"present_simple", "present_continuous", "present_perfect", "present_perfect_continuous"} | PAST_TENSES
 FILES = ("verbs.json", "sentences.json", "evaluation-fixtures.json", "hint-policy.json", "asset-ledger.json")
 
 
@@ -58,6 +59,13 @@ def validate(bundle):
                 require(bool(form["sound_guide_refs"]) and set(form["sound_guide_refs"]) <= set(guides), f"{vid}: missing/dangling Spanish sound guide")
                 require(bool(form["sound_note_es"]), f"{vid}: missing Spanish sound note")
         examples = v["sentence_examples"]
+        tense_examples = v.get("tense_examples", [])
+        expected_tenses = {"past_simple", "past_perfect"} if v["lemma"] == "be" else PAST_TENSES
+        require({e["tense"] for e in tense_examples} == expected_tenses, f"{vid}: missing contextual past-tense examples")
+        families = {"past_simple": "past", "past_continuous": "base", "past_perfect": "participle", "past_perfect_continuous": "base"}
+        for example in tense_examples:
+            require(example.get("family") == families.get(example["tense"]), f"{vid}: tense example cannot certify the wrong form family")
+            require(bool(example.get("text")) and bool(example.get("explanation")), f"{vid}: incomplete tense example")
         require(sorted(e["family"] for e in examples) == ["base", "participle", "past"], f"{vid}: needs three distinct sentence families")
         require(all(e["text"].endswith(".") and e["construction"] for e in examples), f"{vid}: missing sentence/construction")
         # Check the specifically authored perfect examples have a finite auxiliary.
@@ -83,8 +91,8 @@ def validate(bundle):
             require(v is not None and {f["text"] for f in v["forms"][role]} == required, f"{lemma}/{role}: missing standard alternatives")
         pairs = {(c["input"]["past"], c["input"]["participle"]) for c in cases if c["id"].startswith("forms-" + lemma + "-") and c["expected"]["decision"] == "accept"}
         require(pairs == {(a, b) for a in required for b in required}, f"{lemma}: fixture coverage must accept every variant pair")
-    require(set(bundle["sentences.json"]["scope"]) == TENSES, "sentence scope must contain exactly four present tenses")
-    require({s["primary_tense"] for s in sentences} == TENSES, "all four primary tenses need content")
+    require(set(bundle["sentences.json"]["scope"]) == TENSES, "sentence scope must contain all eight present/past tenses")
+    require({s["primary_tense"] for s in sentences} == TENSES, "all eight primary tenses need content")
     for s in sentences:
         sid = s["id"]
         require(s["acceptance_policy"] == "semantic-open-set", f"{sid}: exact-answer-only policy forbidden")
@@ -101,6 +109,9 @@ def validate(bundle):
         cells = {(s["difficulty"]["grammar"], s["difficulty"]["vocabulary"]) for s in sentences if s["primary_tense"] == tense}
         require(any(g1 == g2 and v1 != v2 for g1, v1 in cells for g2, v2 in cells), f"{tense}: vocabulary cannot vary at fixed grammar")
         require(any(g1 != g2 and v1 == v2 for g1, v1 in cells for g2, v2 in cells), f"{tense}: grammar cannot vary at fixed vocabulary")
+        if tense in PAST_TENSES:
+            forms = {s.get("sentence_form") for s in sentences if s["primary_tense"] == tense}
+            require({"affirmative", "negative", "question"} <= forms, f"{tense}: affirmative, negative and question coverage required")
     since = next((s for s in sentences if s["id"] == "sentence-since-2020"), None)
     live_examples = {
         "We have lived here since 2020.": "present_perfect",
@@ -130,6 +141,8 @@ def validate(bundle):
         "hint-contracted-answer": "block", "hint-prefix-leak": "block", "hint-blank-leak": "block",
         "hint-metalanguage-leak": "block", "hint-suffix-shortcut": "block", "hint-ongoing-shortcut": "block",
         "hint-encoded-leak": "block", "hint-pending-no-reveal": "block",
+        "past-did-base": "incorrect", "past-was-ing": "incorrect", "past-had-participle": "incorrect",
+        "past-had-been-ing": "incorrect", "past-reference-fit": "incorrect",
     }
     for cid, decision in required_oracles.items():
         require(cid in by_case and by_case[cid]["expected"]["decision"] == decision, f"{cid}: missing or changed required oracle")

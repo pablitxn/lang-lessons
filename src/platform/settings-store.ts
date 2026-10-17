@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, type LearnerSettings } from '../contracts';
+import { DEFAULT_SETTINGS, TENSES, type LearnerSettings } from '../contracts';
 
 export const SETTINGS_KEY = 'lang-lessons.settings.v1';
 export interface StoragePort {
@@ -20,6 +20,7 @@ export function parseSettings(value: unknown): LearnerSettings | null {
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.helpEnabled !== 'boolean'
     || (value.untimedHelp !== undefined && typeof value.untimedHelp !== 'boolean')
     || (value.theme !== undefined && (typeof value.theme !== 'string' || !['system', 'light', 'dark'].includes(value.theme)))
+    || (value.sentenceTense !== undefined && value.sentenceTense !== 'all' && !TENSES.some(tense => tense === value.sentenceTense))
     || !isRecord(value.difficulty) || !isLevel(value.difficulty.grammar)
     || !isLevel(value.difficulty.vocabulary)
     || !['verb-image', 'verb-visible', 'sentence'].includes(String(value.preferredMode))) return null;
@@ -28,6 +29,7 @@ export function parseSettings(value: unknown): LearnerSettings | null {
     difficulty: { grammar: value.difficulty.grammar, vocabulary: value.difficulty.vocabulary },
     preferredMode: value.preferredMode as LearnerSettings['preferredMode'],
     theme: (value.theme as LearnerSettings['theme'] | undefined) ?? 'system',
+    sentenceTense: (value.sentenceTense as LearnerSettings['sentenceTense'] | undefined) ?? 'all',
   };
 }
 export function browserStorage(): StoragePort | undefined {

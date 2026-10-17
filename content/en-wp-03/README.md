@@ -7,6 +7,13 @@ EN-WP-01 contracts, plus 25 original repository-native SVG illustrations, ready
 for educational review. No shared application types, routing, manifests, runtime
 provider or audio recordings are edited by this package.
 
+EN-WP-08 (2026-10-17) extends the existing package to eight tenses: 33 sentence
+prompts, 99 authored oracle cases and 98 additional contextual past-tense verb
+examples. The original present prompts, three-family examples and exact25 remain.
+The root integration role now also owns the compatible shared-contract/selection
+extension. See [current curriculum integration](../../docs/curriculum.md).
+The original package scope and dated validation receipts below remain historical.
+
 The active dispatch in conversation `01a118ed-6bf7-7481-93e6-336de48270f7`
 authorizes this work and supersedes Atlas's historical dispatch-pending status.
 Product requirements remain EN-D01–D14 at Atlas main
@@ -15,7 +22,7 @@ Product requirements remain EN-D01–D14 at Atlas main
 | Deliverable | Purpose |
 | --- | --- |
 | [verbs.json](verbs.json) | Exact ordered 25-verb inventory, all three forms, variants, Spanish meanings, broad IPA, Spanish sound guides, 75 grammatical examples and 25 image briefs |
-| [sentences.json](sentences.json) | 17 Spanish prompts/context records across four present tenses, accepted examples and explanations, independent grammar/vocabulary dimensions |
+| [sentences.json](sentences.json) | 33 Spanish prompts/context records across eight present/past tenses, accepted examples and explanations, independent grammar/vocabulary dimensions |
 | [hint-policy.json](hint-policy.json) | Stage-aware constraints for future model-generated coaching |
 | [evaluation-fixtures.json](evaluation-fixtures.json) | Authored positive, negative, partial, uncertain and adversarial expected outcomes |
 | [CONTRACT.md](CONTRACT.md) | Proposed portable data shape and assessment semantics |

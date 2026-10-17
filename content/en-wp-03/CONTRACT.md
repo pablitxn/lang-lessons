@@ -1,5 +1,19 @@
 # Proposed content contract, revision en-wp-03/1
 
+## EN-WP-08 compatible extensions
+
+`scope`, `primary_tense` and example `tense` now accept the four past values
+alongside the four present values, using the existing underscore JSON spelling.
+New sentence records include `sentence_form` for affirmative/negative/question
+coverage. Verb records add `tense_examples` with `tense`, form `family`, `text`
+and contextual `explanation`. The adapter exposes these as optional typed
+`tenseExamples`; legacy three-family examples and all existing IDs are preserved.
+Shared types use hyphenated `Tense`, while `PresentTense` remains compatible.
+The additive version-one preference `sentenceTense` selects a next-prompt pool;
+it does not change evidence identity or make alternatives a closed whitelist.
+
+## Original package contract
+
 This local content format is a proposal. EN-WP-01 owns the shared schema;
 the thin adapter maps these records to its version-1 schema at foundation
 `aff7aabe8b755090924fca176ffeb82ff5dbe384` without adding shared app types here. Stable
@@ -83,7 +97,7 @@ label alone does not complete the explanation obligations.
 
 Do not infer tense from `-ing`, `-ed` or ongoingness alone. Present perfect
 continuous can also describe a recently stopped activity with current evidence.
-Stative/dynamic readings and dialect choices require context; the four-tense
+Stative/dynamic readings and dialect choices require context; the eight-tense
 teaching scope is not a universal ban on grammatical constructions outside it.
 If a valid response uses a construction outside the current practice scope,
 acknowledge it and request a scoped reformulation without calling it bad grammar.

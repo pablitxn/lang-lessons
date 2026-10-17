@@ -120,6 +120,7 @@ Then run the existing helpers (omit port 4174 if preview is not running):
 ```sh
 npm run test:browser -- 5174 4174
 node scripts/smoke-practice.cjs 5174 4174
+node scripts/smoke-past-tenses.cjs 5174
 ```
 
 The helpers check 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
@@ -143,7 +144,7 @@ Owned UI and feature fixtures run independently with
 - [Typed contracts](src/contracts/index.ts): shared implementation authority.
 - [Atlas intake](docs/atlas-intake-en-wp-01.md): coordinator-owned knowledge update.
 
-Only theme, help, untimed-help, difficulty and preferred-mode settings persist under
+Only theme, help, untimed-help, difficulty, sentence-tense and preferred-mode settings persist under
 `lang-lessons.settings.v1`. No transcript, audio, score, token, provider mode,
 analytics identifier or learning history is stored. Clearing preferences removes
 only that key. Blocked/malformed storage falls back to in-memory defaults.
@@ -164,6 +165,19 @@ or audio. Trace export does not need an OpenAI key or make paid model calls.
 ## Published reconciliation
 
 The [October 17 reconciliation](docs/evidence/published-reconciliation-2026-10-17.md)
-pins published code, PRs, current checks and the Atlas handoff. Earlier dated
-receipts describe their original local revisions. The four past tenses are
-planned alongside the existing four present tenses; implementation has not begun.
+pins the pre-feature published code, PRs, checks and Atlas handoff. Earlier dated
+receipts describe their original local revisions.
+
+## Eight-tense practice
+
+Sentence practice includes present and past simple, continuous, perfect and
+perfect continuous. In **Preferences → Learning → Sentence tenses**, choose all
+eight or one tense. Grammar and vocabulary stay independent. Changed settings
+apply to the next prompt and preserve current progress; unsupported combinations
+show a message instead of silently changing difficulty. Older saved preferences
+adopt all eight tenses. Both verb modes retain their three spelling/form families
+and use the expanded context and reference guide for original oral sentences.
+
+See [curriculum](docs/curriculum.md) for tense/family distinctions and evidence
+limits. The integrated EN-WP-08 curriculum uses the same compact lesson controls;
+the dated reconciliation above remains its historical prerequisite receipt.

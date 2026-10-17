@@ -95,7 +95,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); await assertReleased(page);
           assert.equal(transport.releaseRequests, 2);
           const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
-          assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'theme', 'untimedHelp']);
+          assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'sentenceTense', 'theme', 'untimedHelp']);
           assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
           console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual app rendering; mocked browser transport; no real microphone/provider', checks: ['one automatic connection', 'progress modal', 'settings preserve exercise/session', 'microphone mute', 'pause release/resume', 'reference modal', 'route cleanup', '200% text/reflow', 'preferences-only storage', 'no external requests'] }));
           await context.close();

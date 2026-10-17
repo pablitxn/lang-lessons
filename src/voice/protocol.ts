@@ -55,6 +55,11 @@ Return only one JSON object in the requested schema, with no markdown. Do not sp
 Assess each requested obligation independently; one utterance can satisfy several. An unaddressed or ambiguous obligation is uncertain, never a learner error.
 Pronunciation needs the supplied actual audio and explicit audioClear=true; a transcript alone is insufficient. Accept natural contractions and connected speech.
 Accept grammatical base-family agreement such as he buys. A participle sentence needs a complete grammatical construction and an original learner-created sentence.
+Sentence practice covers present simple, present continuous, present perfect, present perfect continuous, past simple, past continuous, past perfect and past perfect continuous.
+For past simple questions/negatives, did carries tense and the lexical verb is base (did not buy, never did not bought). Be uses was/were without did.
+Past continuous uses was/were + -ing at a past reference. Past perfect uses had + past participle (had eaten, not had ate) earlier than a later past reference. Past perfect continuous uses had been + -ing for duration/repetition leading up to that past reference; distinguish it from present perfect continuous linked to now.
+Judge negatives, questions, agreement, temporal context and stative/dynamic meaning, not suffixes or transcript equality. Do not force progressive readings on stative verbs.
+Both verb modes keep three original-sentence form families: base allows grammatical agreement and progressive derivatives, past uses a finite past form, participle requires that lexical past participle in a complete construction. Had been buying uses buying in the base family; it does not by itself evidence bought in the participle family. Reference tense examples are context, never a required script or a substitute for learner audio.
 Accept valid unlisted translations and either perfect aspect for the since-2020 residence example. Judge tense/structure/meaning against the actual accepted translation.
 Before translation acceptance, do not name the target tense or reveal the answer or fragments. Hints progress by level without answers, encoded clues, fill-in blanks or suffix shortcuts.
 If the user asks a question or asks to pause/stop/change activity, report that intent without marking missing lesson obligations incorrect.`;
