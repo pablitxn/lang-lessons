@@ -1,4 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
+import type { PhoenixTelemetry, SessionTrace } from './telemetry';
 import { TIMING } from '../src/contracts/settings';
 
 export interface BrokerConfig {
@@ -28,17 +29,17 @@ function reply(response: ServerResponse, status: number, body: object) {
   response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   response.end(JSON.stringify(body));
 }
-async function readBody(request: IncomingMessage): Promise<unknown> {
+async function readBody(request: IncomingMessage, limit = 65536): Promise<unknown> {
   const chunks: Buffer[] = []; let size = 0;
   for await (const chunk of request) {
     size += Buffer.byteLength(chunk);
-    if (size > 65536) throw new Error('body-too-large');
+    if (size > limit) throw new Error('body-too-large');
     chunks.push(Buffer.from(chunk));
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
 /** Loopback development broker only. No auth/database/public deployment is installed. */
-export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch) {
+export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry) {
   let pending = false;
   let leaseUntil = 0;
   return createServer(async (request, response) => {
@@ -47,6 +48,21 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     if (!request.headers.host || !localHosts.has(request.headers.host)) { reply(response, 403, { error: 'Origin not allowed.' }); return; }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {
       reply(response, 200, { enabled: config.enabled && Boolean(config.apiKey), maxDurationSeconds: config.maxDurationSeconds }); return;
+    }
+    if (request.url === '/api/realtime/telemetry' && request.method === 'POST') {
+      if (!request.headers.origin || !config.allowedOrigins.includes(request.headers.origin)
+        || request.headers['sec-fetch-site'] === 'cross-site') { reply(response, 403, { error: 'Origin not allowed.' }); return; }
+      if (!telemetry?.enabled) { reply(response, 404, { error: 'Tracing disabled.' }); return; }
+      if (request.headers['content-type']?.split(';')[0] !== 'application/json') { reply(response, 415, { error: 'JSON required.' }); return; }
+      try {
+        const body = await readBody(request, 4096);
+        if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).length !== 2
+          || !('receipt' in body) || typeof body.receipt !== 'string' || !/^[a-f0-9]{64}$/.test(body.receipt)
+          || !('report' in body)) { reply(response, 400, { error: 'Invalid telemetry.' }); return; }
+        const result = telemetry.accept(body.receipt, body.report);
+        reply(response, result === 'expired' ? 403 : result === 'invalid' ? 400 : 202, { accepted: result === 'accepted' || result === 'duplicate' });
+      } catch { reply(response, 400, { error: 'Invalid telemetry.' }); }
+      return;
     }
     if (request.url !== '/api/realtime/session') { reply(response, 404, { error: 'Not found.' }); return; }
     if (request.method !== 'POST') { reply(response, 405, { error: 'POST required.' }); return; }
@@ -60,6 +76,8 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     const lifecycle = new AbortController();
     const disconnect = () => { if (!response.writableEnded) lifecycle.abort(); };
     response.on('close', disconnect);
+    let sessionTrace: SessionTrace | undefined;
+    let setupComplete = false;
     try {
       const body = await readBody(request);
       if (typeof body !== 'object' || body === null || Array.isArray(body)
@@ -68,20 +86,25 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
         reply(response, 400, { error: 'A valid SDP offer is required.' }); return;
       }
       if (lifecycle.signal.aborted) return;
+      sessionTrace = telemetry?.open(config.model, config.maxDurationSeconds);
       const form = new FormData(); form.set('sdp', body.sdp); form.set('session', JSON.stringify(providerSession(config)));
       const upstream = await fetcher('https://api.openai.com/v1/realtime/calls', {
         method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, body: form,
         signal: AbortSignal.any([lifecycle.signal, AbortSignal.timeout(15000)]),
       });
-      if (!upstream.ok) { reply(response, 502, { error: 'The voice provider could not create a session.' }); return; }
+      if (!upstream.ok) { sessionTrace?.setup('failed', upstream.status); reply(response, 502, { error: 'The voice provider could not create a session.' }); return; }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
       leaseUntil = Date.now() + config.maxDurationSeconds * 1000;
       const sdp = await upstream.text();
       if (sdp.length > 60000 || !sdp.startsWith('v=0')) { reply(response, 502, { error: 'The voice provider returned an invalid session.' }); return; }
-      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds });
+      sessionTrace?.setup('completed', upstream.status); setupComplete = true;
+      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds,
+        ...(sessionTrace ? { telemetryReceipt: sessionTrace.receipt } : {}) });
     } catch (error) {
       const malformed = error instanceof SyntaxError;
       reply(response, malformed ? 400 : 502, { error: malformed ? 'Malformed JSON.' : 'The voice session could not be started. No provider details are logged.' });
-    } finally { pending = false; response.off('close', disconnect); }
+    } finally {
+      if (!setupComplete) { sessionTrace?.setup('failed'); sessionTrace?.end('failed'); }
+      pending = false; response.off('close', disconnect); }
   });
 }

@@ -99,3 +99,9 @@ broker with `npm run dev:voice`. See [voice integration](docs/voice-integration.
 for adapter/controller APIs, setup, privacy and limits. Real calls require
 separately scoped credentials, budget and authorization; no real pronunciation,
 latency, retention or cost validation has occurred in this task.
+
+## Model-call observability
+
+Optional server-side [Phoenix tracing](docs/observability.md) records model-call
+latency, outcomes and available token usage without capturing prompts, responses
+or audio. Trace export does not need an OpenAI key or make paid model calls.

@@ -84,3 +84,13 @@ are ready, verifies current remote heads and runs combined checks. Each task
 owns its independent draft PR; stacked PRs may target this foundation until main
 exists. Shared Atlas edits remain with the coordinator. Foundation supplies
 `docs/atlas-intake-en-wp-01.md` for eventual sourced integration.
+
+## Phoenix integration ownership (2026-10-17)
+
+This scoped continuation uses the EN-WP-01 integration role as the single writer
+for the manifest, lockfile, server wiring and optional voice observation hook.
+The isolated `codex/phoenix-tracing` candidate starts at
+`57db399d8ea5ee800b915390622a73f10a9cd8c2`; concurrent local development and UI
+changes in the original checkout are preserved and excluded. No worker is
+delegated a shared-path edit. The patch does not change `src/contracts`, routing,
+global styles, provider prompts or feature assessment policies.
