@@ -13,6 +13,10 @@ export const PRESENT_TENSES = [
   'present-simple', 'present-continuous', 'present-perfect', 'present-perfect-continuous',
 ] as const;
 export type PresentTense = (typeof PRESENT_TENSES)[number];
+export const PAST_TENSES = ['past-simple', 'past-continuous', 'past-perfect', 'past-perfect-continuous'] as const;
+export const TENSES = [...PRESENT_TENSES, ...PAST_TENSES] as const;
+export type Tense = (typeof TENSES)[number];
+export type SentenceTenseSelection = 'all' | Tense;
 /** Independently selectable dimensions; numbers are local defaults, not CEFR claims. */
 export interface Difficulty { grammar: 1 | 2 | 3; vocabulary: 1 | 2 | 3 }
 
@@ -28,11 +32,13 @@ export interface VerbEntry {
   image: { src: string; alt: string; attribution: string };
   /** Rubric examples are provider context, never prefilled learner responses. */
   examples: Readonly<Record<VerbForm, readonly string[]>>;
+  /** Additional contextual teaching examples, not required learner scripts. */
+  tenseExamples?: readonly { tense: Tense; family: VerbForm; text: string; explanation: string }[];
   notes: readonly string[];
 }
 export interface TranslationAlternative {
   text: string;
-  tense: PresentTense;
+  tense: Tense;
   explanation: string;
 }
 export interface SentenceEntry {

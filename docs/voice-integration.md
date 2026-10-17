@@ -7,6 +7,14 @@ The feature owners retain `src/features/verbs` and `src/features/sentences`.
 
 ## Stable composition
 
+EN-WP-08 extends provider task data and instructions to eight present/past tenses,
+including questions/negatives, regular/irregular auxiliary rules, temporal context
+and actual accepted-translation explanation. Both verb modes receive contextual
+past examples. Progressive base-family evidence cannot certify the separate
+lexical participle. These are prompt/contract integration changes, not a claim
+that a real model has evaluated the new curriculum. Existing audio provenance,
+stale-stage/attempt guards and no-spoiler envelopes remain required.
+
 `createMockVoiceAdapter()` and `createRealtimeVoiceAdapter()` implement
 `VoiceAdapter`. Root `LessonSession` supplies a memory-only `sessionId`, adapter,
 settings and completion callback through `LessonModuleProps`. It owns automatic

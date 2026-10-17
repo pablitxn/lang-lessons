@@ -161,6 +161,19 @@ or audio. Trace export does not need an OpenAI key or make paid model calls.
 ## Published reconciliation
 
 The [October 17 reconciliation](docs/evidence/published-reconciliation-2026-10-17.md)
-pins published code, PRs, current checks and the Atlas handoff. Earlier dated
-receipts describe their original local revisions. The four past tenses are
-planned alongside the existing four present tenses; implementation has not begun.
+pins the pre-feature published code, PRs, checks and Atlas handoff. Earlier dated
+receipts describe their original local revisions.
+
+## Eight-tense practice
+
+Sentence practice includes present and past simple, continuous, perfect and
+perfect continuous. In **Preferences → Learning → Sentence tenses**, choose all
+eight or one tense. Grammar and vocabulary stay independent. Changed settings
+apply to the next prompt and preserve current progress; unsupported combinations
+show a message instead of silently changing difficulty. Older saved preferences
+adopt all eight tenses. Both verb modes retain their three spelling/form families
+and use the expanded context and reference guide for original oral sentences.
+
+See [curriculum](docs/curriculum.md) for tense/family distinctions and evidence
+limits. The EN-WP-08 implementation is a separate feature candidate; the dated
+reconciliation above remains its historical prerequisite receipt.

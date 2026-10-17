@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { VERB_IDS, PRESENT_TENSES } from '../src/contracts/curriculum';
+import { VERB_IDS, TENSES } from '../src/contracts/curriculum';
 import { VERBS, SENTENCES, VERB_CUE_BRIEFS, pickNextVerb } from '../src/content/index';
 
 test('content exports exactly the contract inventory with guidance and three complete example families', () => {
@@ -60,12 +60,12 @@ test('sentence adapter preserves both residence constructions, contractions and 
   assert.ok(sentence.alternatives.some(a => a.text === 'We have been living here since 2020.'));
   assert.ok(sentence.alternatives.some(a => a.text.startsWith("We've")));
   for (const alternative of sentence.alternatives) assert.ok(alternative.explanation);
-  assert.equal(SENTENCES.length, 17);
+  assert.equal(SENTENCES.length, 33);
 });
 
 test('all tenses have independent grammar and vocabulary selection cells', () => {
-  assert.deepEqual(new Set(SENTENCES.flatMap(s => s.alternatives.map(a => a.tense))), new Set(PRESENT_TENSES));
-  for (const tense of PRESENT_TENSES) {
+  assert.deepEqual(new Set(SENTENCES.flatMap(s => s.alternatives.map(a => a.tense))), new Set(TENSES));
+  for (const tense of TENSES) {
     const entries = SENTENCES.filter(s => s.alternatives.some(a => a.tense === tense));
     assert.ok(entries.some(a => entries.some(b => a.difficulty.grammar === b.difficulty.grammar && a.difficulty.vocabulary !== b.difficulty.vocabulary)));
     assert.ok(entries.some(a => entries.some(b => a.difficulty.grammar !== b.difficulty.grammar && a.difficulty.vocabulary === b.difficulty.vocabulary)));

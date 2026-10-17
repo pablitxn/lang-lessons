@@ -1,5 +1,5 @@
 /** EN-WP-03: thin adapter over the independently reviewable authored JSON. */
-import type { FormGuidance, PresentTense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
+import type { FormGuidance, Tense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
 
@@ -37,6 +37,7 @@ export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
     past: examplesFor(verb.sentence_examples, 'past'),
     participle: examplesFor(verb.sentence_examples, 'participle'),
   },
+  tenseExamples: verb.tense_examples.map(example => ({ ...example, tense: authoredTense(example.tense), family: example.family as VerbForm })),
   notes: [...verb.notes, `Cue sense: ${verb.cue_sense}.`,
     'Reference IPA is guidance, not an accent whitelist. Pronunciation needs audio evidence.'],
 }));
@@ -45,12 +46,16 @@ function examplesFor(examples: readonly { family: string; text: string }[], fami
   return examples.filter(example => example.family === family).map(example => example.text);
 }
 
-function presentTense(value: string): PresentTense {
+function authoredTense(value: string): Tense {
   switch (value) {
     case 'present_simple': return 'present-simple';
     case 'present_continuous': return 'present-continuous';
     case 'present_perfect': return 'present-perfect';
     case 'present_perfect_continuous': return 'present-perfect-continuous';
+    case 'past_simple': return 'past-simple';
+    case 'past_continuous': return 'past-continuous';
+    case 'past_perfect': return 'past-perfect';
+    case 'past_perfect_continuous': return 'past-perfect-continuous';
     default: throw new Error(`Unsupported authored tense: ${value}`);
   }
 }
@@ -71,7 +76,7 @@ export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.m
   },
   alternatives: sentence.accepted_examples.map(example => ({
     text: example.text,
-    tense: presentTense(example.tense),
+    tense: authoredTense(example.tense),
     explanation: `${example.structure}. ${example.meaning}`,
   })),
   hintSeeds: sentence.hint_intents,

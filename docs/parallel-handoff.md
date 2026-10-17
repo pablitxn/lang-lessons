@@ -8,6 +8,14 @@ as each worker's base. Do not independently create alternative scaffolds.
 
 ## Exclusive file ownership
 
+EN-WP-08 continuation (2026-10-17): the same root integration executor is the
+sole writer for this feature across shared curriculum/settings contracts, app
+preferences, content, voice guidance, both verb and sentence consumers and their
+tests/docs. Base: `58658440109c7344a40d67e17dad6cb3cae7f720`; branch
+`feat/en-wp-08-past-tenses`. No agents or concurrent shared-path writers are
+dispatched. Atlas/Notion receive an app-owned completion handoff after validation;
+the separate Tailscale/infrastructure documentation owner remains untouched.
+
 | Owner | Owned paths | Public output |
 | --- | --- | --- |
 | EN-WP-01 foundation/integration | Root manifests/lockfile/config, AGENTS, README, `src/contracts/**`, `src/app/**`, `src/platform/**`, `src/main.tsx`, `index.html`, `.github/**`, `docs/architecture.md`, this handoff, foundation tests/scripts | Shared types, routing, settings, feature composition |

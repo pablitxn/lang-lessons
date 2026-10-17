@@ -110,11 +110,27 @@
       },
       "notes": [
         "Present family includes am/is/are. Was agrees with I/he/she/it in ordinary indicative clauses; were with you/we/they. Contextual subjunctive were is valid.",
-        "Been may be /bɪn/, /bɛn/ or /biːn/ by accent/context; do not require a single reference accent."
+        "Been may be /bɪn/, /bɛn/ or /biːn/ by accent/context; do not require a single reference accent.",
+        "Do not force progressive be for a static location or identity. Progressive be needs an appropriate temporary-behaviour context; the examples here use natural simple/perfect state readings."
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I was at home yesterday.",
+          "explanation": "was is a finite past form describing a past location."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had been at home for an hour when you called.",
+          "explanation": "had + been describes a state before a later past reference."
+        }
       ]
     },
     {
@@ -200,7 +216,34 @@
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I beat the drum last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was beating the drum at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had beaten the drum before the parade ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been beating the drum for ten minutes before the parade ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -285,7 +328,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I became more confident last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was becoming more confident at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had become more confident before the course ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been becoming more confident for weeks before the course ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -370,7 +440,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I began each lesson with a song last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was beginning each lesson with a song at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had begun each lesson with a song before the term ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been beginning each lesson with a song for weeks before the term ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -453,7 +550,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I bent wire into small circles last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was bending wire into small circles at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had bent wire into small circles before the class ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been bending wire into small circles for an hour before the class ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -556,7 +680,34 @@
       "source_refs": [
         "atlas-en-d12",
         "cambridge-irregular-table",
-        "mw-bet"
+        "mw-bet",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I bet small amounts on football matches last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was betting small amounts on football matches at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had bet small amounts on football matches before the tournament ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been betting small amounts on football matches for weeks before the tournament ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -639,7 +790,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I bit my nails last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was biting my nails at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had bitten my nails before the interview started.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been biting my nails for ten minutes before the interview started.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -721,7 +899,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I bled from a small cut last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was bleeding from a small cut at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had bled from a small cut before the nurse arrived.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been bleeding from a small cut for ten minutes before the nurse arrived.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -803,7 +1008,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I blew soap bubbles last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was blowing soap bubbles at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had blown soap bubbles before the party ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been blowing soap bubbles for ten minutes before the party ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -890,7 +1122,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I broke old tiles into small pieces last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was breaking old tiles into small pieces at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had broken old tiles into small pieces before the rubbish was collected.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been breaking old tiles into small pieces for an hour before the rubbish was collected.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -978,7 +1237,34 @@
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I brought food to the shelter last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was bringing food to the shelter at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had brought food to the shelter before I moved away.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been bringing food to the shelter for weeks before I moved away.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1060,7 +1346,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I built model boats last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was building model boats at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had built model boats before the exhibition opened.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been building model boats for weeks before the exhibition opened.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1162,7 +1475,34 @@
       "source_refs": [
         "atlas-en-d12",
         "cambridge-irregular-table",
-        "mw-burn"
+        "mw-burn",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I burned dry leaves in the garden last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was burning dry leaves in the garden at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had burned dry leaves in the garden before the rain began.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been burning dry leaves in the garden for an hour before the rain began.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1245,7 +1585,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I burst balloons at the party last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was bursting balloons at the party at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had burst balloons at the party before the party ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been bursting balloons at the party for ten minutes before the party ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1327,7 +1694,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I bought bread at that shop last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was buying bread at that shop at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had bought bread at that shop before the shop closed down.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been buying bread at that shop for years before the shop closed down.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1411,7 +1805,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I caught fish by the river last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was catching fish by the river at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had caught fish by the river before the storm arrived.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been catching fish by the river for two hours before the storm arrived.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1501,7 +1922,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I chose pictures for the album last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was choosing pictures for the album at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had chosen pictures for the album before the guests arrived.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been choosing pictures for an hour before the guests arrived.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1585,7 +2033,34 @@
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I came to the club every week last summer.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was coming to the club every week that summer.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had come to the club many times before it closed down.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been coming to the club every week for years before it closed down.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1670,7 +2145,34 @@
       "source_refs": [
         "atlas-en-d12",
         "cambridge-irregular-table",
-        "mw-cost"
+        "mw-cost",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "The repairs cost us extra money last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "The repairs were costing us extra money at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "The repairs had cost us extra money before we stopped the project.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "The repairs had been costing us extra money for weeks before we stopped the project.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1752,7 +2254,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I cut paper into small squares last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was cutting paper into small squares at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had cut paper into small squares before the lesson ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been cutting paper into small squares for an hour before the lesson ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1837,7 +2366,34 @@
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I dealt with customer enquiries last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was dealing with customer enquiries at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had dealt with customer enquiries before the office closed.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been dealing with customer enquiries for two hours before the office closed.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -1919,7 +2475,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I dug in the garden last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was digging in the garden at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had dug in the garden before the rain began.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been digging in the garden for an hour before the rain began.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -2002,7 +2585,34 @@
       "notes": [],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I did the exercises last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was doing the exercises at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had done the exercises before the teacher arrived.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been doing the exercises for ten minutes before the teacher arrived.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -2089,7 +2699,34 @@
       ],
       "source_refs": [
         "atlas-en-d12",
-        "cambridge-irregular-table"
+        "cambridge-irregular-table",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I drew pictures of trees last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was drawing pictures of trees at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had drawn pictures of trees before the class ended.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been drawing pictures of trees for an hour before the class ended.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     },
     {
@@ -2197,7 +2834,34 @@
         "atlas-en-d12",
         "cambridge-irregular-table",
         "mw-dream",
-        "cambridge-dream-variants"
+        "cambridge-dream-variants",
+        "atlas-en-d15"
+      ],
+      "tense_examples": [
+        {
+          "tense": "past_simple",
+          "family": "past",
+          "text": "I dreamed about that house last week.",
+          "explanation": "Finite past form in a finished past period."
+        },
+        {
+          "tense": "past_continuous",
+          "family": "base",
+          "text": "I was dreaming about that house at that time last week.",
+          "explanation": "was/were + present participle; activity or changing situation in progress at a past reference."
+        },
+        {
+          "tense": "past_perfect",
+          "family": "participle",
+          "text": "I had dreamed about that house before I finally visited it.",
+          "explanation": "had + past participle; an event earlier than a later past event."
+        },
+        {
+          "tense": "past_perfect_continuous",
+          "family": "base",
+          "text": "I had been dreaming about that house for years before I finally visited it.",
+          "explanation": "had been + present participle; continuing or repeated activity leading up to a past reference."
+        }
       ]
     }
   ]

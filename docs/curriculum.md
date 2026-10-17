@@ -1,5 +1,41 @@
 # EN-WP-03 curriculum integration
 
+## EN-WP-08 eight-tense extension
+
+The feature candidate adds past simple, past continuous, past perfect and past
+perfect continuous alongside all four present tenses. Existing 17 prompts and
+their alternatives remain; 16 new prompts bring the total to 33, with independent
+difficulty axes and affirmative/negative/question coverage for each new tense.
+Each prompt supplies visible past-time context and an open-set meaning rubric.
+Regular and irregular constructions include did + base, was/were + -ing,
+had + past participle and had been + -ing; explanation assesses the actual
+accepted response, including contractions and valid alternative wording.
+
+`TENSES` and `Tense` cover eight; `PRESENT_TENSES`/`PresentTense` remain compatible
+exports. `sentenceTense` selects all eight or one tense and defaults to all for
+older version-one preferences. Matching uses accepted alternative metadata,
+so either residence construction remains selectable. Selection does not impose
+a closed translation whitelist. Unsupported difficulty/tense cells stay explicit.
+Changes apply at Next/Skip and preserve current identity, evidence, hints and stage.
+
+Both verb modes retain ten/nine existing obligations, exact25 and spelling
+variants. They receive 98 additional contextual past-tense teaching examples
+through `tenseExamples`, plus a generic eight-tense reference guide. A progressive
+derivative belongs to the base family; `had been buying` does not prove the
+lexical participle `bought`. Past-family examples require a finite past form;
+participle examples require a complete construction with the lexical participle.
+Do not force progressive stative readings: be's location examples remain simple/
+perfect, while the provider considers contextually valid dynamic uses separately.
+Examples are model context, not prefilled responses or learner evidence.
+
+The authored oracle set grows from 69 to 98. Integrity/mutation tests check
+coverage, references and required error cases; they are not an NLP grammar
+classifier. Provider instructions, protocol/state regressions and actual Chromium
+with injected verdicts verify integration without paid calls. Real acoustic,
+linguistic/device acceptance, Phoenix readback and deployment remain deferred.
+
+## Original integration checkpoint
+
 The [authored reference package](../content/en-wp-03/README.md) owns standalone
 data, source notes, assessment specifications, no-spoiler policy and authored
 evaluation fixtures. Its proposed content shape is independent of the UI.

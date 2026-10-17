@@ -4,6 +4,8 @@ import { createRealtimeProtocol, isSafeCoachText } from '../src/voice/protocol';
 import type { AttemptRef, HintRequest, VoiceEvent } from '../src/contracts';
 import { FakeClock, batch, sentenceContext, verbContext } from './helpers/assessment-fixtures';
 import { createAssessmentController } from '../src/assessment';
+import { SENTENCES, VERBS } from '../src/content';
+import { PAST_TENSES } from '../src/contracts';
 
 function setup(clock?: FakeClock) {
   const sent: Record<string, unknown>[] = []; const events: VoiceEvent[] = []; const output: boolean[] = [];
@@ -15,6 +17,48 @@ function setup(clock?: FakeClock) {
   return { protocol, sent, events, output, receive, requestId, finish };
 }
 const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'pronunciation:base', attemptId: 'a1', revision: 1 };
+
+for (const tense of PAST_TENSES) test(`${tense} reaches provider task context with safe translation and actual accepted construction`, () => {
+  const s = setup(new FakeClock()); const initial = sentenceContext();
+  if (initial.mode !== 'sentence') throw Error('Sentence fixture required.');
+  const sentence = SENTENCES.find(item => item.difficulty.grammar === 1 && item.difficulty.vocabulary === 1
+    && item.alternatives[0]?.tense === tense)!;
+  const context = { ...initial, sentence };
+  try {
+    s.protocol.setContext(context);
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'past-audio' });
+    const attempt: AttemptRef = { ...context, obligation: 'translation', attemptId: 'past-translation', revision: 1 };
+    const text = sentence.alternatives[0]!.text;
+    s.protocol.submit({ ...context, inputId: 'past-response', kind: 'utterance', utteranceId: 'past-audio', text, attempts: [attempt] });
+    const response = s.sent.filter(e => e.type === 'response.create').at(-1)!.response as { instructions: string };
+    assert.ok(response.instructions.includes(tense));
+    assert.ok(response.instructions.includes(JSON.stringify(sentence.spanish).slice(1, -1)));
+    assert.match(response.instructions, /did not buy, never did not bought/);
+    assert.match(response.instructions, /had eaten, not had ate/);
+    assert.equal(isSafeCoachText(`Use ${tense} and say ${text}`, context), false);
+    const id = s.requestId();
+    s.finish(id, { requestId: id, results: [{ obligation: 'translation', status: 'accepted', audioClear: true, feedback: 'Injected verdict.' }], intent: 'practice' });
+    s.protocol.setContext({ ...context, stage: 'explanation' });
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'past-explanation' });
+    s.protocol.submit({ ...context, inputId: 'explanation', kind: 'utterance', utteranceId: 'past-explanation', text: 'Explain the actual construction.', attempts: [{ ...attempt, obligation: 'tense', attemptId: 'past-tense' }] });
+    const explanation = s.sent.filter(e => e.type === 'response.create').at(-1)!.response as { instructions: string };
+    assert.ok(explanation.instructions.includes(`"acceptedLearnerTranslation":"${text}"`));
+  } finally { s.protocol.dispose(); }
+});
+
+for (const mode of ['verb-image', 'verb-visible'] as const) test(`${mode} sends past-tense examples without conflating form families`, () => {
+  const s = setup(new FakeClock()); const initial = verbContext();
+  const context = { ...initial, mode, verb: VERBS.find(v => v.id === 'buy')! };
+  try {
+    s.protocol.setContext(context); s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'verb-audio' });
+    s.protocol.submit({ ...context, inputId: 'verb-response', kind: 'utterance', utteranceId: 'verb-audio', text: 'I had bought bread before lunch.',
+      attempts: [{ ...ref, obligation: 'sentence:participle' }] });
+    const response = s.sent.filter(e => e.type === 'response.create').at(-1)!.response as { instructions: string };
+    assert.ok(response.instructions.includes('had bought'));
+    assert.ok(response.instructions.includes('had been buying'));
+    assert.match(response.instructions, /does not by itself evidence bought/);
+  } finally { s.protocol.dispose(); }
+});
 
 for (const returnedToTranslation of [false, true]) test(`captured sentence audio cannot be reassessed after a stage transition${returnedToTranslation ? ' and return' : ''}`, () => {
   const s = setup(new FakeClock()); const original = sentenceContext();

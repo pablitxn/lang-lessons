@@ -21,7 +21,7 @@ function Preview() {
     </div></details>
     <output data-testid="completion-count">{completed}</output>
     {mounted && <SentenceLesson voice={voice as VoiceAdapter} sessionId="sentence-browser" connectionState="ready"
-      settings={{ ...DEFAULT_SETTINGS, difficulty }} onComplete={() => setCompleted(value => value + 1)}
+      settings={{ ...DEFAULT_SETTINGS, difficulty, sentenceTense: 'present-perfect' }} onComplete={() => setCompleted(value => value + 1)}
       sessionControls={<button type="button" className="ll-button" onClick={() => voice.emit({ type: 'state', eventId: voice.id(), sessionId: voice.context.sessionId, state: 'offline' })}>Mock Stop session</button>} />}
   </main>;
 }

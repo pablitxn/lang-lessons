@@ -1,5 +1,17 @@
 # EN-WP-03 coverage matrix
 
+## EN-WP-08 extension
+
+Current feature totals: 25 original verbs/SVGs; the original 75 form-family
+examples plus 98 contextual past-tense verb examples; 33 sentence prompts and
+98 authored oracle cases. Each past tense includes affirmative, negative and
+question contexts, regular/irregular forms and independently varied difficulty.
+The checker now covers all eight tenses and mutation tests enforce missing-tense,
+question/negative coverage, correct form-family attribution and auxiliary-error
+oracle preservation. Real grammar/acoustic evaluation is still deferred.
+
+## Original authoring checkpoint
+
 Inventory and authoring coverage at content revision `en-wp-03/1`: 25 verbs,
 82 form-slot alternatives (including repeated spellings across slots), 75
 sentence-family examples, 25 image briefs, 17 sentence prompts, 32 accepted
