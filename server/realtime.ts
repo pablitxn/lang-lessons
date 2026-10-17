@@ -1,5 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
+import type { PhoenixTelemetry, SessionTrace } from './telemetry';
 import { TIMING } from '../src/contracts/settings';
 
 export interface BrokerConfig {
@@ -29,17 +30,17 @@ function reply(response: ServerResponse, status: number, body: object) {
   response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   response.end(JSON.stringify(body));
 }
-async function readBody(request: IncomingMessage): Promise<unknown> {
+async function readBody(request: IncomingMessage, limit = 65536): Promise<unknown> {
   const chunks: Buffer[] = []; let size = 0;
   for await (const chunk of request) {
     size += Buffer.byteLength(chunk);
-    if (size > 65536) throw new Error('body-too-large');
+    if (size > limit) throw new Error('body-too-large');
     chunks.push(Buffer.from(chunk));
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
 /** Loopback development broker only. No auth/database/public deployment is installed. */
-export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch) {
+export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry) {
   let pending = false;
   interface Lease { token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean }
   let lease: Lease | null = null;
@@ -77,6 +78,21 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       reply(response, 200, { enabled: reason === 'ready', reason, maxDurationSeconds: config.maxDurationSeconds }); return;
     }
     const ending = request.url === '/api/realtime/session/end';
+    if (request.url === '/api/realtime/telemetry' && request.method === 'POST') {
+      if (!request.headers.origin || !config.allowedOrigins.includes(request.headers.origin)
+        || request.headers['sec-fetch-site'] === 'cross-site') { reply(response, 403, { error: 'Origin not allowed.' }); return; }
+      if (!telemetry?.enabled) { reply(response, 404, { error: 'Tracing disabled.' }); return; }
+      if (request.headers['content-type']?.split(';')[0] !== 'application/json') { reply(response, 415, { error: 'JSON required.' }); return; }
+      try {
+        const body = await readBody(request, 4096);
+        if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).length !== 2
+          || !('receipt' in body) || typeof body.receipt !== 'string' || !/^[a-f0-9]{64}$/.test(body.receipt)
+          || !('report' in body)) { reply(response, 400, { error: 'Invalid telemetry.' }); return; }
+        const result = telemetry.accept(body.receipt, body.report);
+        reply(response, result === 'expired' ? 403 : result === 'invalid' ? 400 : 202, { accepted: result === 'accepted' || result === 'duplicate' });
+      } catch { reply(response, 400, { error: 'Invalid telemetry.' }); }
+      return;
+    }
     if (request.url !== '/api/realtime/session' && !ending) { reply(response, 404, { error: 'Not found.' }); return; }
     if (request.method !== 'POST') { reply(response, 405, { error: 'POST required.' }); return; }
     if (!request.headers.origin || !config.allowedOrigins.includes(request.headers.origin)
@@ -111,6 +127,8 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       if (created) void endSession(created);
     };
     response.on('close', disconnect);
+    let sessionTrace: SessionTrace | undefined;
+    let setupComplete = false;
     try {
       const body = await readBody(request);
       if (typeof body !== 'object' || body === null || Array.isArray(body)
@@ -119,6 +137,7 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
         reply(response, 400, { error: 'A valid SDP offer is required.' }); return;
       }
       if (disconnected) return;
+      sessionTrace = telemetry?.open(config.model, config.maxDurationSeconds);
       const form = new FormData(); form.set('sdp', body.sdp); form.set('session', JSON.stringify(providerSession(config)));
       // Reserve before dispatch: a timeout can hide a successful paid call.
       // Only a definitive provider rejection or confirmed hangup releases it.
@@ -132,6 +151,7 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       });
       if (!upstream.ok) {
         if (lease === created) lease = null;
+        sessionTrace?.setup('failed', upstream.status); sessionTrace?.end('failed'); setupComplete = true;
         reply(response, 502, { error: 'The voice provider could not create a session.' }); return;
       }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
@@ -140,15 +160,20 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       if (disconnected) { await endSession(created); return; }
       if (sdp.length > 60000 || !sdp.startsWith('v=0') || !created.callId) {
         if (created.callId) await endSession(created);
+        sessionTrace?.setup('failed'); sessionTrace?.end('failed'); setupComplete = true;
         reply(response, 502, { error: 'The voice provider returned an invalid session.' }); return;
       }
-      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds, releaseToken: created.token });
+      sessionTrace?.setup('completed', upstream.status); setupComplete = true;
+      reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds,
+        releaseToken: created.token, ...(sessionTrace ? { telemetryReceipt: sessionTrace.receipt } : {}) });
     } catch (error) {
       // A successful call whose SDP cannot be read never reaches the browser.
       // Use its validated receipt to close it; an unconfirmed hangup keeps the lease.
       if (created?.callId) await endSession(created);
       const malformed = error instanceof SyntaxError;
       reply(response, malformed ? 400 : 502, { error: malformed ? 'Malformed JSON.' : 'The voice session could not be started. No provider details are logged.' });
-    } finally { pending = false; response.off('close', disconnect); }
+    } finally {
+      if (!setupComplete) { sessionTrace?.setup('failed'); sessionTrace?.end('failed'); }
+      pending = false; response.off('close', disconnect); }
   });
 }

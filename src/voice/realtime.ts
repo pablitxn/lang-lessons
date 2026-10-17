@@ -1,5 +1,6 @@
 import { TIMING, sameExercise, type ExerciseContext, type VoiceAdapter, type VoiceEvent } from '../contracts';
 import { assessSpelling } from '../assessment/spelling';
+import { createRealtimeTelemetry, type RealtimeTelemetry } from './telemetry';
 import { createRealtimeProtocol, isObject, type RealtimeProtocol } from './protocol';
 
 export interface RealtimeDependencies {
@@ -17,7 +18,7 @@ export interface RealtimeVoiceOptions {
 interface Resources {
   sessionId: string; controller: AbortController; closed: boolean; ready: boolean;
   releaseAbort: () => void; stream?: MediaStream; peer?: RTCPeerConnection;
-  channel?: RTCDataChannel; audio?: HTMLAudioElement; protocol?: RealtimeProtocol;
+  channel?: RTCDataChannel; audio?: HTMLAudioElement; protocol?: RealtimeProtocol; telemetry?: RealtimeTelemetry;
   timer?: ReturnType<typeof setTimeout>; startedAt: number;
   endpoint?: string; releaseToken?: string; releaseRequested?: boolean;
 }
@@ -70,9 +71,10 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
     resource.releaseRequested = true;
     releaseSession(resource.endpoint, resource.releaseToken, deps.fetch);
   }
-  function cleanup(resource: Resources) {
+  function cleanup(resource: Resources, outcome: 'completed' | 'failed' = 'completed') {
     if (resource.closed) { release(resource); return; }
     resource.closed = true; resource.ready = false; resource.controller.abort(); resource.releaseAbort();
+    resource.telemetry?.close(outcome);
     resource.protocol?.dispose();
     if (resource.timer) clearTimeout(resource.timer);
     resource.channel?.close(); resource.peer?.close();
@@ -82,7 +84,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
   }
   function failure(resource: Resources, message: string, code: Extract<VoiceEvent, { type: 'error' }>['code'] = 'connection') {
     if (!current(resource)) return;
-    cleanup(resource); active = null;
+    cleanup(resource, 'failed'); active = null;
     emit({ ...base(resource), type: 'error', code, retryable: true, message });
     emit({ ...base(resource), type: 'state', state: 'error' });
   }
@@ -118,6 +120,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         for (const track of stream.getTracks()) peer.addTrack(track, stream);
         const channel = peer.createDataChannel('oai-events'); resource.channel = channel;
         resource.protocol = createRealtimeProtocol({ sessionId: resource.sessionId,
+          observeRequest(id, operation) { resource.telemetry?.start(id, operation); },
           send(message) { if (current(resource) && channel.readyState === 'open') channel.send(JSON.stringify(message)); },
           emit(event) {
             if (!current(resource)) return;
@@ -130,7 +133,11 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
           },
         });
         if (context?.sessionId === resource.sessionId) resource.protocol.setContext(context);
-        channel.onmessage = event => { if (current(resource) && typeof event.data === 'string') resource.protocol?.receive(event.data); };
+        channel.onmessage = event => {
+          if (current(resource) && typeof event.data === 'string') {
+            resource.telemetry?.receive(event.data); resource.protocol?.receive(event.data);
+          }
+        };
         peer.onconnectionstatechange = () => {
           if (peer.connectionState === 'failed' || peer.connectionState === 'disconnected') failure(resource, 'Voice disconnected. Your local lesson progress is preserved.');
         };
@@ -168,6 +175,10 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
           || typeof payload.releaseToken !== 'string' || !/^[A-Za-z0-9_-]{32,128}$/.test(payload.releaseToken)) throw new Error('The voice broker returned an invalid session.');
         resource.releaseToken = payload.releaseToken;
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
+        if (typeof payload.telemetryReceipt === 'string' && /^[a-f0-9]{64}$/.test(payload.telemetryReceipt)) {
+          resource.telemetry = createRealtimeTelemetry({ endpoint: new URL('/api/realtime/telemetry', endpoint).href,
+            receipt: payload.telemetryReceipt, fetch: deps.fetch });
+        }
         await peer.setRemoteDescription({ type: 'answer', sdp: payload.sdp });
         await opened;
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
