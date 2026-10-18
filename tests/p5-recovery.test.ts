@@ -105,3 +105,20 @@ test('failed local acknowledgment deletion retains the durable pending row until
   store.failWrite = false; failDeletion = false; await sink.flush();
   assert.equal(remote.revision(), 1); assert.equal((await store.list(scope)).length, 0);
 });
+test('local append during a held canonical fence is durable and included before flush acknowledgment', async () => {
+  const store = new MemoryStore(); const remote = server();
+  let release!: () => void; let fenceStarted!: () => void;
+  const started = new Promise<void>(resolve => { fenceStarted = resolve; });
+  const held = new Promise<void>(resolve => { release = resolve; }); let holdFirst = true;
+  const sink = createQueuedProgressSink({ scope, store, isCurrentUser: () => true, send: remote.send,
+    readFence: async () => { const value = await remote.readFence(); if (holdFirst) { holdFirst = false; fenceStarted(); await held; } return value; } });
+  const first = sink.submit([event()]); await started;
+  let secondAcknowledged = false;
+  const second = sink.submit([event(2)]).then(result => { secondAcknowledged = true; return result; });
+  for (let i = 0; i < 100 && !(await store.list(scope)).some(row => row.eventId === 'event-2'); i++) await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual((await store.list(scope)).map(row => row.eventId), ['event-2']);
+  assert.equal(secondAcknowledged, false); assert.equal(sink.getSnapshot().unsaved, 0);
+  release();
+  const result = await first; assert.equal(result.current.journalRevision, 2);
+  await second; assert.equal((await store.list(scope)).length, 0);
+});

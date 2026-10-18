@@ -10,19 +10,31 @@ export function createWrittenUsageQueue(options: {
   const scope = { ...options.scope };
   const staged: { eventId: string; kind: WrittenObservation['kind'] }[] = [];
   let chain: Promise<unknown> = Promise.resolve(); let inactive = false;
+  let localWrites: Promise<void> = Promise.resolve(); let enqueueRevision = 0;
   let state: ProgressQueueStatus = { phase: 'loading', pending: 0, unsaved: 0, error: null };
   const listeners = new Set<() => void>();
   function publish(patch: Partial<ProgressQueueStatus>) { state = Object.freeze({ ...state, ...patch, unsaved: staged.length }); for (const listener of listeners) listener(); }
   function fail(error: NonNullable<ProgressQueueStatus['error']>): never { publish({ phase: error === 'identity-changed' ? 'inactive' : 'error', error }); throw new Error(`Written activity sync failed: ${error}.`); }
   function current() { if (inactive || !options.isCurrentUser()) fail('identity-changed'); }
   function serialize<T>(work: () => Promise<T>) { const result = chain.then(work); chain = result.catch(() => {}); return result; }
-  async function drain() {
-    for (;;) {
+  function persist(): Promise<void> {
+    const saved = localWrites.then(async () => {
       while (staged.length) {
         const event = staged[0]!;
         try { await options.store.append(scope, options.streamId, event.eventId, event.kind); } catch { fail('local-write'); }
         staged.shift();
+        let pending: number;
+        try { pending = (await options.store.list(scope)).length; } catch { fail('local-write'); }
+        publish({ pending, phase: inactive || !options.isCurrentUser() ? 'inactive' : 'pending' });
       }
+    });
+    localWrites = saved.catch(() => {});
+    return saved;
+  }
+  async function drain() {
+    for (;;) {
+      await persist();
+      const observedEnqueueRevision = enqueueRevision;
       current(); let rows: readonly WrittenObservation[];
       try { rows = (await options.store.list(scope)).map(row => validateWrittenObservation(scope, row)); } catch { fail('local-write'); }
       publish({ phase: 'syncing', pending: rows.length, error: null });
@@ -35,7 +47,7 @@ export function createWrittenUsageQueue(options: {
           || !(receipt.intervalId === null || typeof receipt.intervalId === 'string' && receipt.intervalId.length > 0)) fail('invalid-receipt');
         try { await options.store.acknowledge(scope, row); } catch { fail('local-write'); }
       }
-      if (staged.length) continue;
+      if (staged.length || enqueueRevision !== observedEnqueueRevision) continue;
       publish({ phase: 'idle', pending: 0, error: null }); return;
     }
   }
@@ -45,9 +57,10 @@ export function createWrittenUsageQueue(options: {
   });
   return {
     record(kind: WrittenObservation['kind']) {
-      current(); staged.push({ eventId: crypto.randomUUID(), kind }); publish({ phase: 'pending', error: null }); return serialize(drain);
+      current(); staged.push({ eventId: crypto.randomUUID(), kind }); enqueueRevision++;
+      publish({ phase: 'pending', error: null }); return persist().then(() => serialize(drain));
     },
-    flush: () => serialize(drain),
+    flush: () => persist().then(() => serialize(drain)),
     getSnapshot: () => state,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     deactivate() { inactive = true; publish({ phase: 'inactive', error: 'identity-changed' }); },
