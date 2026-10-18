@@ -263,3 +263,36 @@ test('direct WebRTC reports orientative intervals and awaits cleanup before clos
   const exit = lifecycle.requestExit('home'); await tick(); assert.equal(lifecycle.getSnapshot().confirming, true);
   lifecycle.decide('confirm'); await exit; assert.deepEqual(order, ['reported','cleanup','flush','close']); lifecycle.dispose(); f.lifecycle.dispose();
 });
+
+test('timing observer survives cleanup/reactivation without duplicate subscriptions or counting disposed time', async t => {
+  const f = fixture(); f.lifecycle.dispose();
+  let now = Date.parse('2026-10-18T12:00:00Z');
+  t.mock.method(Date, 'now', () => now);
+  const subscribe = f.runtime.subscribe;
+  let observers = 0;
+  f.runtime.subscribe = listener => {
+    observers++;
+    const unsubscribe = subscribe(listener);
+    return () => { observers--; unsubscribe(); };
+  };
+  const reports: (readonly { start: string; end: string }[])[] = [];
+  const lifecycle = createSessionLifecycle(f.runtime, {
+    sessions: f.sessions, progress: { async flush() { return { sessionId: 's1', journalRevision: 0 }; } },
+    async reportCall(_segment, intervals) { reports.push([...intervals]); },
+    freezeWrites() {}, releasePreparation() {}, operationId: () => crypto.randomUUID(), isCurrent: () => true, navigate() {},
+  });
+  try {
+    assert.equal(observers, 1);
+    lifecycle.dispose(); lifecycle.dispose(); assert.equal(observers, 0);
+    lifecycle.activate(); lifecycle.activate(); assert.equal(observers, 1);
+    await lifecycle.start(); now += 1000; await lifecycle.stop();
+    assert.deepEqual(reports, [[{ start: '2026-10-18T12:00:00.000Z', end: '2026-10-18T12:00:01.000Z' }]]);
+    await lifecycle.start(); now += 2000;
+    lifecycle.dispose(); assert.equal(observers, 0);
+    now += 60000;
+    lifecycle.activate(); lifecycle.activate(); assert.equal(observers, 1);
+    await lifecycle.stop();
+    assert.deepEqual(reports[1], [{ start: '2026-10-18T12:00:01.000Z', end: '2026-10-18T12:00:03.000Z' }]);
+  } finally { lifecycle.dispose(); }
+  assert.equal(observers, 0);
+});

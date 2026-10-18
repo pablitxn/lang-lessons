@@ -30,7 +30,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
     if (segment && ready && connectedAt === null) connectedAt = Date.now();
     if (!ready && connectedAt !== null) { intervals.push({ start: new Date(connectedAt).toISOString(), end: new Date(Math.max(connectedAt, Date.now())).toISOString() }); connectedAt = null; }
   };
-  const unsubscribe = runtime.subscribe(observe);
+  let unsubscribe: (() => void) | null = runtime.subscribe(observe);
   let callOperation: Promise<void> | null = null;
   let epoch = 0;
   let disposed = false;
@@ -145,8 +145,17 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
       update({ error: '', uncertainClose: false, canRetryExit: false });
       return requestExit(exitTarget);
     },
-    activate() { disposed = false; },
-    dispose() { disposed = true; unsubscribe(); epoch++; decision?.('cancel'); decision = null; runtime.stop(); listeners.clear(); },
+    activate() {
+      disposed = false;
+      if (!unsubscribe) unsubscribe = runtime.subscribe(observe);
+      observe();
+    },
+    dispose() {
+      disposed = true; epoch++; decision?.('cancel'); decision = null;
+      // Observe the final offline transition before detaching so cleanup ends measured time.
+      runtime.stop(); observe();
+      unsubscribe?.(); unsubscribe = null; listeners.clear();
+    },
   };
 }
 export type SessionLifecycle = ReturnType<typeof createSessionLifecycle>;
