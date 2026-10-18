@@ -1,8 +1,11 @@
+import type { ProviderCapture } from './provider-capture';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import type { PhoenixTelemetry, SessionTrace } from './telemetry';
 import { TIMING } from '../src/contracts/settings';
 import { createSentenceHintHandler } from './sentence-hints';
+import type { BrokerAuthority, BrokerBinding } from './broker/authority';
+import { RepositoryError } from './data/database';
 
 export interface BrokerConfig {
   enabled: boolean;
@@ -42,12 +45,12 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
-/** Loopback development broker only. No auth/database/public deployment is installed. */
-export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry) {
+/** Loopback broker; account-enabled composition supplies canonical authorization and durable receipts. */
+export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>, authority?: BrokerAuthority, capture?: ProviderCapture) {
   const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
     model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
   let pending = false;
-  interface Lease { token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean }
+  interface Lease { binding?: BrokerBinding; token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean; capture?: { stop(): Promise<void> } }
   let lease: Lease | null = null;
   function callId(location: string | null): string | null {
     if (!location) return null;
@@ -63,11 +66,15 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     if (!current.callId) return Promise.resolve(false);
     current.closing = (async () => {
       try {
+        if (current.binding && await authority!.isEnded(current.binding)) {
+          await current.capture?.stop(); current.ended = true; if (lease === current) lease = null; return true;
+        }
         const ended = await fetcher(`https://api.openai.com/v1/realtime/calls/${current.callId}/hangup`, {
           method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, signal: AbortSignal.timeout(10000),
         });
         if (!ended.ok) return false;
-        current.ended = true;
+        if (current.binding) await authority!.ended(current.binding);
+        await current.capture?.stop(); current.ended = true;
         if (lease === current) lease = null;
         return true;
       } catch { return false; }
@@ -78,6 +85,12 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     const localHosts = new Set([`127.0.0.1:${request.socket.localPort}`, `localhost:${request.socket.localPort}`,
       ...config.allowedOrigins.map(origin => new URL(origin).host)]);
     if (!request.headers.host || !localHosts.has(request.headers.host)) { reply(response, 403, { error: 'Origin not allowed.' }); return; }
+    if (application && await application(request, response)) return;
+    let actor: import('./accounts/authorization').AuthenticatedIdentity | undefined;
+    if (authority) {
+      try { actor = await authority.authenticate(request); }
+      catch (error) { reply(response, error instanceof RepositoryError && error.code === 'unauthenticated' ? 401 : 403, { error: 'Voice access denied.' }); return; }
+    }
     if (request.url === '/api/realtime/sentence-hint') { await sentenceHint(request, response); return; }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {
       const reason = !config.enabled ? 'disabled' : !config.apiKey ? 'missing-credentials' : 'ready';
@@ -113,16 +126,27 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
           || !('releaseToken' in body) || typeof body.releaseToken !== 'string' || !/^[A-Za-z0-9_-]{32,128}$/.test(body.releaseToken)) {
           reply(response, 400, { error: 'A valid session release token is required.' }); return;
         }
+        const stored = authority && actor ? await authority.authorizeRelease(actor, body.releaseToken) : null;
+        if (!lease && stored && !['ended', 'rejected'].includes(stored.state)) {
+          // A server restart must not turn an unresolved provider call into a
+          // successful close receipt. Reuse the durable call ID for explicit cleanup.
+          if (!stored.providerCallId) { reply(response, 409, { error: 'The previous call still needs reconciliation.' }); return; }
+          const restored: Lease = { token: body.releaseToken, until: 0, callId: stored.providerCallId, binding: stored.binding };
+          const ended = await endSession(restored);
+          reply(response, ended ? 200 : 502, ended ? { ended: true } : { error: 'The previous call could not be closed.' }); return;
+        }
         if (!lease) { reply(response, 200, { ended: true }); return; }
         if (lease.token !== body.releaseToken) { reply(response, 403, { error: 'Session release token does not match.' }); return; }
         const ended = await endSession(lease);
         reply(response, ended ? 200 : 502, ended ? { ended: true } : { error: 'The previous voice call could not be closed. Please retry.' });
-      } catch { reply(response, 400, { error: 'A valid session release token is required.' }); }
+      } catch (error) { reply(response, error instanceof RepositoryError && error.code === 'forbidden' ? 403 : 400, { error: 'A valid owned session release token is required.' }); }
       return;
     }
     // A new explicit start may wait for an already requested hangup, but it may
     // never bypass a current lease or automatically retry paid session creation.
     if (lease?.closing) await lease.closing;
+    try { if (lease?.binding && authority && await authority.isEnded(lease.binding)) lease = null; }
+    catch { reply(response, 503, { error: 'Previous call status could not be confirmed.' }); return; }
     if (pending || (lease && Date.now() < lease.until)) { reply(response, 429, { error: 'A local voice session is already active. Close it before opening another.' }); return; }
     pending = true;
     let disconnected = false;
@@ -138,7 +162,7 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     try {
       const body = await readBody(request);
       if (typeof body !== 'object' || body === null || Array.isArray(body)
-        || Object.keys(body).length !== 1 || !('sdp' in body) || typeof body.sdp !== 'string'
+        || Object.keys(body).length !== (authority ? 2 : 1) || (authority && !('segment' in body)) || !('sdp' in body) || typeof body.sdp !== 'string'
         || body.sdp.length < 5 || body.sdp.length > 60000 || !body.sdp.startsWith('v=0')) {
         reply(response, 400, { error: 'A valid SDP offer is required.' }); return;
       }
@@ -148,6 +172,13 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       // Reserve before dispatch: a timeout can hide a successful paid call.
       // Only a definitive provider rejection or confirmed hangup releases it.
       created = { token: randomUUID(), until: Date.now() + config.maxDurationSeconds * 1000, callId: null };
+      if (authority && actor) created.binding = await authority.reserve(actor, 'segment' in body ? body.segment : undefined, created.token);
+      // Reservation may wait for database locks after the browser has gone away.
+      // No provider request has been sent, so release that reservation explicitly.
+      if (disconnected || response.destroyed || request.aborted) {
+        if (created.binding) await authority!.rejected(created.binding);
+        return;
+      }
       lease = created;
       const upstream = await fetcher('https://api.openai.com/v1/realtime/calls', {
         method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, body: form,
@@ -156,12 +187,19 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
         signal: AbortSignal.timeout(15000),
       });
       if (!upstream.ok) {
+        if (created.binding) await authority!.rejected(created.binding);
         if (lease === created) lease = null;
         sessionTrace?.setup('failed', upstream.status); sessionTrace?.end('failed'); setupComplete = true;
         reply(response, 502, { error: 'The voice provider could not create a session.' }); return;
       }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
       created.callId = callId(upstream.headers.get('location'));
+      // Persist the provider receipt before reading a body that may fail or stall.
+      if (created.binding && created.callId) await authority!.created(created.binding, created.callId);
+      if (capture && created.binding && created.callId) {
+        try { created.capture = capture.start(created.binding, created.callId); }
+        catch { telemetry?.captureGap(created.binding.segment); /* Never lose the call receipt on observer failure. */ }
+      }
       const sdp = await upstream.text();
       if (disconnected) { await endSession(created); return; }
       if (sdp.length > 60000 || !sdp.startsWith('v=0') || !created.callId) {
@@ -177,7 +215,8 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       // Use its validated receipt to close it; an unconfirmed hangup keeps the lease.
       if (created?.callId) await endSession(created);
       const malformed = error instanceof SyntaxError;
-      reply(response, malformed ? 400 : 502, { error: malformed ? 'Malformed JSON.' : 'The voice session could not be started. No provider details are logged.' });
+      const status = error instanceof RepositoryError ? ({ unauthenticated: 401, forbidden: 403, 'not-found': 404, conflict: 409, 'invalid-input': 400, 'policy-unresolved': 503 } as const)[error.code] : malformed ? 400 : 502;
+      reply(response, status, { error: malformed ? 'Malformed JSON.' : 'The voice session could not be started. No provider details are logged.' });
     } finally {
       if (!setupComplete) { sessionTrace?.setup('failed'); sessionTrace?.end('failed'); }
       pending = false; response.off('close', disconnect); }

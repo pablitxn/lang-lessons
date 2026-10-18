@@ -1,4 +1,5 @@
-import type { ExerciseContext, VoiceAdapter, VoiceEvent, VoiceState } from '../contracts';
+import { assessSpelling } from '../assessment/spelling';
+import { sameExercise, type ExerciseContext, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../contracts';
 
 /** Check configuration before requesting microphone access or starting a call. */
 export async function checkVoiceAvailability(signal: AbortSignal, request: typeof fetch = fetch): Promise<void> {
@@ -38,7 +39,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   let context: ExerciseContext | null = null;
   let abort: AbortController | null = null;
   let starting: Promise<void> | null = null;
-  let snapshot = { state: 'offline' as VoiceState, muted: true, learnerSpeaking: false, assistantSpeaking: false, error: '', contextReady: false, paused: false };
+  let snapshot = { state: 'offline' as VoiceState, muted: true, learnerSpeaking: false, assistantSpeaking: false, error: '', contextReady: false, paused: false, hadConnectedCall: false };
   const eventBase = () => ({ sessionId, eventId: `root-${++sequence}` });
   function claimUtterance(utteranceId: string) {
     submittedUtterances.add(utteranceId);
@@ -46,6 +47,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   }
   function emit(event: VoiceEvent) {
     if (event.sessionId !== sessionId) return;
+    if (event.type === 'state' && event.state === 'ready') snapshot = { ...snapshot, hadConnectedCall: true };
     if (event.type === 'state') snapshot = { ...snapshot, state: event.state, error: event.state === 'ready' || event.state === 'connecting' ? '' : snapshot.error,
       ...(event.state === 'offline' || event.state === 'error' ? { muted: true, learnerSpeaking: false, assistantSpeaking: false } : {}) };
     if (event.type === 'microphone') snapshot = { ...snapshot, muted: event.muted };
@@ -64,6 +66,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
           || context.exerciseId !== event.identity.exerciseId || context.generation !== event.identity.generation) return;
         void voice.submit({ ...event.identity, inputId: `conversation-${event.utteranceId}`, kind: 'utterance',
           utteranceId: event.utteranceId, text: event.text, attempts: [] }).catch(() => {
+          if (epoch !== connectionEpoch) return;
           emit({ ...eventBase(), type: 'error', code: 'provider', retryable: true, message: 'The spoken conversation could not be processed. Please retry.' });
         });
       });
@@ -71,19 +74,21 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
     for (const observer of observers) observer();
     if (event.type === 'intent' && (event.intent === 'pause' || event.intent === 'stop' || event.intent === 'change-mode')) stop();
   }
-  base.subscribe(emit);
+  let unsubscribe: (() => void) | null = null;
   function stop() {
     connectionEpoch++;
+    unsubscribe?.(); unsubscribe = null;
     const pending = abort; abort = null; starting = null;
     pending?.abort(); base.disconnect();
     if (snapshot.state !== 'offline') emit({ ...eventBase(), type: 'state', state: 'offline' });
   }
-  function start(): Promise<void> {
+  function start(segment?: import('../contracts').CallSegmentRef): Promise<void> {
     if (starting) return starting;
     if (snapshot.state === 'ready') return Promise.resolve();
     stop();
     const attempt = new AbortController(); abort = attempt;
     const epoch = connectionEpoch;
+    unsubscribe = base.subscribe(event => { if (epoch === connectionEpoch) emit(event); });
     emit({ ...eventBase(), type: 'intent', intent: 'practice' });
     emit({ ...eventBase(), type: 'intent', intent: 'question-resolved' });
     emit({ ...eventBase(), type: 'state', state: 'connecting' });
@@ -93,11 +98,20 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
       attempt.signal.throwIfAborted();
       await options.prepareConnection?.(attempt.signal);
       attempt.signal.throwIfAborted();
-      await voice.connect({ sessionId, signal: attempt.signal });
+      // Browser permission prompts may remain pending after cancellation. Detach
+      // the lifecycle wait immediately; the adapter still owns late-track cleanup.
+      let onAbort!: () => void;
+      try {
+        await Promise.race([voice.connect({ sessionId, signal: attempt.signal, ...(segment ? { segment } : {}) }), new Promise<never>((_, reject) => {
+          onAbort = () => reject(attempt.signal.reason);
+          attempt.signal.addEventListener('abort', onAbort, { once: true });
+          if (attempt.signal.aborted) onAbort();
+        })]);
+      } finally { attempt.signal.removeEventListener('abort', onAbort); }
       attempt.signal.throwIfAborted();
     })().catch(error => {
       if (epoch === connectionEpoch && !attempt.signal.aborted) {
-        base.disconnect();
+        stop();
         if (!snapshot.error) emit({ ...eventBase(), type: 'error', code: 'connection', retryable: true,
           message: error instanceof Error ? error.message : 'Voice could not start. Please try again.' });
         emit({ ...eventBase(), type: 'state', state: 'error' });
@@ -109,6 +123,16 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   }
   const voice: VoiceAdapter = { ...base,
     async submit(input) {
+      // Call subscriptions are deliberately detached after stop. Deterministic
+      // offline spelling belongs to the exercise and must not reopen audio listeners.
+      if (base.mode === 'openai-realtime' && !unsubscribe && input.kind === 'typed') {
+        if (!context || !sameExercise(context, input) || !input.attempts.length
+          || input.attempts.some(ref => !sameExercise(context!, ref) || !ref.obligation.startsWith('spelling:'))) return;
+        const eventId = `root-local-${++sequence}`;
+        emit({ sessionId, eventId, type: 'assessment', batch: { ...context, eventId,
+          results: input.attempts.map(ref => assessSpelling(context!, ref, input.text, input.inputId)) } });
+        return;
+      }
       if (input.utteranceId) claimUtterance(input.utteranceId);
       await base.submit(input);
     },

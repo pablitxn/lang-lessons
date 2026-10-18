@@ -1,25 +1,67 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { DEFAULT_SETTINGS, type LearnerSettings, type LessonMode } from '../contracts';
 import { browserStorage, loadSettings, resetSettings, saveSettings } from '../platform/settings-store';
 import { MODES, modeHref, resolveLessonRoute } from './routes';
 import { LessonSession, type LessonRenderer } from './LessonSession';
+import { PersistedLesson, type PersistedSessionServices } from './PersistedLesson';
 import { Preferences } from './Preferences';
+import { LessonDialog, ReferenceTable } from '../ui/mobile';
+import { LessonToolsVisible } from '../ui/mobile/lesson-tools-context';
+import { TENSE_GUIDE } from '../content/tense-guide';
+import { createRootNavigator } from './root-navigation';
+import { RootExitRegistration, type RegisterRootExit } from './navigation-context';
 import './global.css';
+const noHold = () => {};
 
-export interface AppProps { lessons?: Partial<Record<LessonMode, ReactNode>>; renderLesson?: LessonRenderer }
+export interface AppProps {
+  lessons?: Partial<Record<LessonMode, ReactNode>>; renderLesson?: LessonRenderer;
+  /** Enable when P4 is integrated; no registered exit ports then means fail closed. */
+  requireExitRegistration?: boolean;
+  /** Supplied only after the owning feature/server authorizes its data. No access grant here. */
+  homeProgress?: ReactNode;
+  sessionServices?: PersistedSessionServices;
+  homeContent?: ReactNode;
+  resumedSession?: import('./session-recovery').RecoveryRecord | null;
+  onHome?: () => void;
+}
 
-export function App({ lessons = {}, renderLesson }: AppProps) {
+export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices, homeContent, resumedSession, onHome }: AppProps) {
   const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceStatusTarget, setVoiceStatusTarget] = useState<HTMLDivElement | null>(null);
   const [notice, setNotice] = useState('');
   const current = MODES.find(item => item.id === mode);
+  const modeRef = useRef(mode); modeRef.current = mode;
+  const requireGuard = useRef(requireExitRegistration); requireGuard.current = requireExitRegistration || Boolean(sessionServices);
+  const guard = useRef<null | ((hash: string) => Promise<string | null>)>(null);
+  const navigator = useRef<ReturnType<typeof createRootNavigator> | null>(null);
+  const [navigationError, setNavigationError] = useState('');
+  const homeCallback = useRef(onHome); homeCallback.current = onHome;
+  const registerExit = useCallback<RegisterRootExit>(handler => {
+    let alive = true;
+    const registered = async (hash: string) => {
+      const approved = await handler(hash);
+      return alive && guard.current === registered ? approved : null;
+    };
+    guard.current = registered;
+    return () => { alive = false; if (guard.current === registered) guard.current = null; };
+  }, []);
 
   useEffect(() => {
-    const update = () => setMode(resolveLessonRoute(window.location.hash));
-    window.addEventListener('hashchange', update);
-    return () => window.removeEventListener('hashchange', update);
+    const routing = createRootNavigator(window, hash => {
+      setNavigationError(''); setMode(resolveLessonRoute(hash));
+      if (!resolveLessonRoute(hash)) homeCallback.current?.();
+      requestAnimationFrame(() => document.getElementById('lesson')?.focus());
+    }, async hash => {
+      setNavigationError('');
+      if (!modeRef.current) return hash;
+      if (guard.current) return guard.current(hash);
+      if (requireGuard.current) { setNavigationError('Please wait until your lesson is ready to close.'); return null; }
+      return hash; // Existing runtime until P4's separately reviewed integration enables the guard.
+    }, () => setNavigationError('Your lesson is still open. Please try leaving again.'));
+    navigator.current = routing;
+    return () => { routing.dispose(); navigator.current = null; };
   }, []);
   useEffect(() => {
     const query = window.matchMedia('(prefers-color-scheme: dark)');
@@ -41,7 +83,12 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
     setNotice(removed ? 'Saved preferences cleared.' : 'Preferences reset for this visit. Device storage is unavailable.');
   }
 
-  return <div className="app-shell">
+  return <RootExitRegistration.Provider value={registerExit}><div className="app-shell" onClickCapture={event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#/"]') : null;
+    if (!anchor || anchor.target || anchor.hasAttribute('download')) return;
+    event.preventDefault(); void navigator.current?.request(anchor.hash);
+  }}>
     <a href="#lesson" className="skip-link" onClick={event => { event.preventDefault(); document.getElementById('lesson')?.focus(); }}>Skip to lesson</a>
     <header className="app-header">
       <a className="brand" href="#/" aria-label="English practice home">
@@ -56,6 +103,7 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
         </button>
       </div>
     </header>
+    {navigationError && <p role="alert">{navigationError}</p>}
     <main id="lesson" tabIndex={-1}>
       {mode && current ? <>
         <div className="lesson-heading">
@@ -66,8 +114,13 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
           <span className="lesson-heading-divider" aria-hidden="true">/</span>
           <h1 aria-label={current.title}>{current.short}</h1>
         </div>
-        <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
-          renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />
+        <LessonToolsVisible.Provider value={false}>{sessionServices ?
+          <PersistedLesson key={`${sessionServices.actorId}:${mode}:${resumedSession?.sessionId ?? "new"}`} mode={mode} services={sessionServices}
+            {...(resumedSession?.session.mode === mode ? { resumedSession } : {})} settings={settings}
+            preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget} renderLesson={renderLesson}
+            fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /> :
+          <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
+            renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />}</LessonToolsVisible.Provider>
       </> : <section className="lesson-catalog" aria-labelledby="catalog-title">
         <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Practice with your voice, or write a translation.</p></div>
         <nav className="lesson-cards" aria-label="Lessons">
@@ -82,8 +135,17 @@ export function App({ lessons = {}, renderLesson }: AppProps) {
               <span className="lesson-card-start">Start lesson <span aria-hidden="true">↗</span></span></div>
           </a>)}
         </nav>
+        {homeContent}
+        <nav className="home-tools ll-mobile" aria-label="Learning tools">
+          <LessonDialog title="Progress" triggerLabel="Your progress" triggerText="Progress" triggerIcon="progress"
+            closeLabel="Close progress" onHoldChange={noHold}>
+            {homeProgress ?? <p>No saved progress is available here yet.</p>}
+          </LessonDialog>
+          <ReferenceTable title="Reference" caption="English tense reference" columns={['Tense', 'Structure and use']}
+            rows={TENSE_GUIDE.map(item => [item.label, item.guidance])} onHoldChange={noHold} />
+        </nav>
       </section>}
     </main>
     {settingsOpen && <Preferences settings={settings} onChange={updateSettings} onReset={reset} onClose={() => setSettingsOpen(false)} notice={notice} />}
-  </div>;
+  </div></RootExitRegistration.Provider>;
 }

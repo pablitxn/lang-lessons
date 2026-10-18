@@ -165,7 +165,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
         await peer.setLocalDescription(offer);
         const response = await deps.fetch(endpoint.href, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sdp: offer.sdp }), credentials: 'same-origin',
+          body: JSON.stringify({ sdp: offer.sdp, ...(options.segment ? { segment: options.segment } : {}) }), credentials: 'same-origin',
           signal: AbortSignal.any([resource.controller.signal, AbortSignal.timeout(15000)]) });
         if (!response.ok) throw new Error(response.status === 503 ? 'The local voice broker is disabled or missing server credentials.' : 'The voice session broker could not start this session.');
         const payload: unknown = await response.json();

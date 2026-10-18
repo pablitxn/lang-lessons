@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "dev:voice": "node --import tsx server/index.ts",
@@ -13,20 +15,26 @@
     "test:content": "python3 content/en-wp-03/check_content.py && python3 -m unittest discover -s content/en-wp-03/tests",
     "check": "npm test && npm run test:content && npm run build",
     "test:browser": "node scripts/smoke-browser.cjs",
-    "telemetry:smoke": "node --import tsx scripts/smoke-telemetry.ts"
+    "telemetry:smoke": "node --import tsx scripts/smoke-telemetry.ts",
+    "db:migrate": "node --import tsx server/migrate.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
     "@opentelemetry/exporter-trace-otlp-proto": "0.223.0",
     "@opentelemetry/resources": "2.12.0",
     "@opentelemetry/sdk-trace-base": "2.12.0",
+    "better-auth": "1.7.10",
+    "pg": "8.23.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "ws": "8.22.0"
   },
   "devDependencies": {
     "@types/node": "26.6.3",
+    "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/ws": "8.18.2",
     "@vitejs/plugin-react": "6.1.1",
     "tsx": "4.23.15",
     "typescript": "7.0.2",

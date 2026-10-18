@@ -1,6 +1,10 @@
+import { snapshotIdentity, snapshotId, snapshotObject, type VerbWrittenSnapshot, type WrittenPracticeSnapshot } from '../progress/written-snapshot';
+import type { EvidenceLedger } from '../../contracts';
+import { createAssessmentProgress } from '../progress/assessment-progress';
+import type { ProgressSink } from '../../contracts';
 import { assessSpelling, createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot } from '../../assessment';
 import { VERB_PHOTOS, VERBS } from '../../content';
-import { isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
+import { hasValidEvidenceSource, isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
 
 export interface VerbSessionSnapshot {
   assessment: AssessmentSnapshot;
@@ -11,12 +15,20 @@ export interface VerbSessionSnapshot {
   question: string;
   muted: boolean;
   canGoBack: boolean;
+  pictureComplete: boolean;
+  nextPicture: import("../../contracts").NextPicture | null;
 }
 export interface VerbSessionOptions {
   voice: VoiceAdapter;
   sessionId: string;
   mode: VerbMode;
   onComplete: (exerciseId: string) => void;
+  progressSink?: ProgressSink;
+  writtenPracticeUserId?: string;
+  onWrittenPracticeChange?: (snapshot: WrittenPracticeSnapshot) => void;
+  /** Root supplies a stable gate for its ordered close preparation. */
+  canWrite?: () => boolean;
+  onProgressError?: () => void;
   clock?: AssessmentClock;
   random?: () => number;
   /** Injectable ephemeral namespace for deterministic fixtures, never persisted. */
@@ -37,8 +49,14 @@ export function createVerbSession(options: VerbSessionOptions) {
   const { voice, mode, sessionId } = options;
   const namespace = options.namespace ?? crypto.randomUUID();
   const listeners = new Set<() => void>();
+  const reportProgress = createAssessmentProgress(options.progressSink, () => { if (!disposed) options.onProgressError?.(); });
   const fields: readonly VerbForm[] = mode === 'verb-image' ? ['base', 'past', 'participle'] : ['past', 'participle'];
   let generation = 1;
+  let restoredExerciseId: string | null = null;
+  let oralEpoch = crypto.randomUUID();
+  let restoring = false;
+  let spellingRestoreAttempts: Partial<Record<VerbForm, string>> = {};
+  let spellingOffsets: Partial<Record<VerbForm, number>> = {};
   let sequence = 0;
   let disposed = false;
   let initialized = false;
@@ -105,16 +123,17 @@ export function createVerbSession(options: VerbSessionOptions) {
     return verbs.map(verb => newEntry(mode === 'verb-image' ? withNextPhoto(verb) : verb));
   }
   function context(verb: VerbEntry): ExerciseContext {
-    return { sessionId, exerciseId: `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, verb };
+    return { sessionId, exerciseId: restoredExerciseId ?? `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, verb };
   }
   function visit(index: number) {
-    if (disposed || index === historyIndex || !history[index]) return false;
+    if (disposed || options.canWrite?.() === false || index === historyIndex || !history[index]) return false;
     const current = history[historyIndex]!;
     current.drafts = { ...drafts };
     current.finalized = fields.filter(form => submittedRevisions[form] === draftRevisions[form]);
     const next = history[index]!;
     voice.interrupt();
     historyIndex = index;
+    restoredExerciseId = null; spellingOffsets = {}; spellingRestoreAttempts = {};
     generation++; drafts = { ...next.drafts }; queue = []; heard = new Set();
     draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
     hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
@@ -139,7 +158,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     return true;
   }
   function startNext() {
-    if (disposed) return false;
+    if (disposed || options.canWrite?.() === false) return false;
     if (historyIndex === history.length - 1) {
       history.push(...shuffledDeck(history[historyIndex]!.verb));
     }
@@ -149,9 +168,88 @@ export function createVerbSession(options: VerbSessionOptions) {
     if (disposed || historyIndex === 0) return false;
     return visit(historyIndex - 1);
   }
+  function progressLedger(): EvidenceLedger {
+    const ledger = { ...controller.getSnapshot().evidence };
+    for (const form of fields) {
+      const key = `spelling:${form}` as const; const record = ledger[key];
+      if (record) ledger[key] = { ...record, ref: { ...record.ref, revision: record.ref.revision + (spellingOffsets[form] ?? 0), attemptId: record.ref.revision === 1 ? spellingRestoreAttempts[form] ?? record.ref.attemptId : record.ref.attemptId } };
+    }
+    return ledger;
+  }
+  function snapshotWrittenPractice(): VerbWrittenSnapshot | null {
+    if (!options.writtenPracticeUserId) return null;
+    const current = controller.getSnapshot(); if (current.context.mode === 'sentence') return null;
+    const ledger = progressLedger();
+    return { schemaVersion: 1, kind: mode, userId: options.writtenPracticeUserId,
+      identity: { sessionId, exerciseId: current.exerciseId, generation: current.generation },
+      verbId: current.context.verb.id, photoSrc: current.context.verb.image.src, drafts: { ...drafts },
+      records: fields.flatMap(form => { const record = ledger[`spelling:${form}`]; return record ? [{ form,
+        revision: record.ref.revision, attemptId: record.ref.attemptId,
+        finalized: submittedRevisions[form] === draftRevisions[form] && ['accepted', 'incorrect', 'uncertain'].includes(record.status) }] : []; }) };
+  }
+  function restoreWrittenPractice(value: unknown): boolean {
+    if (disposed || options.canWrite?.() === false || !snapshotObject(value) || Object.keys(value).length !== 8
+      || value.schemaVersion !== 1 || value.kind !== mode || !options.writtenPracticeUserId || value.userId !== options.writtenPracticeUserId
+      || !snapshotIdentity(value.identity, sessionId) || value.identity.exerciseId === controller.getSnapshot().exerciseId || !snapshotObject(value.drafts) || Object.keys(value.drafts).length !== 3
+      || !Object.values(value.drafts).every(draft => typeof draft === 'string' && draft.length <= 1000) || !['base','past','participle'].every(form => Object.hasOwn(value.drafts as object, form))
+      || !Array.isArray(value.records) || value.records.length > fields.length) return false;
+    const verb = VERBS.find(item => item.id === value.verbId); if (!verb) return false;
+    const photo = VERB_PHOTOS.find(item => item.verbId === verb.id && item.src === value.photoSrc);
+    if (mode === 'verb-image' ? !photo : value.photoSrc !== verb.image.src) return false;
+    const forms = new Set<string>();
+    for (const record of value.records) {
+      if (!snapshotObject(record) || Object.keys(record).length !== 4 || !fields.includes(record.form as VerbForm) || forms.has(record.form as string)
+        || !Number.isSafeInteger(record.revision) || (record.revision as number) < 1 || !snapshotId(record.attemptId)
+        || typeof record.finalized !== 'boolean' || record.finalized && !(value.drafts[record.form as string] as string).trim()) return false;
+      forms.add(record.form as string);
+    }
+    const saved = value as unknown as VerbWrittenSnapshot;
+    restoring = true;
+    try {
+      voice.interrupt(); oralEpoch = crypto.randomUUID(); queue = []; heard = new Set(); muted = true;
+      lastUtterance = ''; question = ''; pendingQuestionId = ''; pendingHintId = ''; clarification = '';
+      generation = saved.identity.generation; restoredExerciseId = saved.identity.exerciseId;
+      const index = history.findIndex(entry => entry.verb.id === verb.id);
+      if (index > 0) [history[0], history[index]] = [history[index]!, history[0]!];
+      historyIndex = 0;
+      const selected = photo ? { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } } : verb;
+      history[0] = newEntry(selected); drafts = { ...saved.drafts }; submittedRevisions = {};
+      draftRevisions = { base: 0, past: 0, participle: 0 }; spellingOffsets = {}; spellingRestoreAttempts = {};
+      controller.startExercise(context(selected));
+      for (const record of saved.records) {
+        spellingOffsets[record.form] = record.revision - 1; spellingRestoreAttempts[record.form] = record.attemptId;
+        const obligation = `spelling:${record.form}` as const;
+        if (record.finalized) {
+          const refs = controller.beginAttempt([obligation], record.attemptId);
+          const current = controller.getSnapshot();
+          controller.applyBatch({ sessionId, exerciseId: current.exerciseId, generation, eventId: `local-restore-${crypto.randomUUID()}`,
+            results: refs.map(ref => assessSpelling(current.context, ref, drafts[record.form], 'local-restore')) });
+          submittedRevisions[record.form] = 0;
+        } else controller.invalidate(obligation);
+      }
+      controller.setInteraction({ connection: 'offline', learnerSpeaking: false, assistantSpeaking: false });
+    } finally { restoring = false; }
+    publish(); return true;
+  }
+  // Dictionary presentation is written-only; it must not alter the oral completion ledger.
+  function pictureWrittenComplete() {
+    if (mode !== 'verb-image') return false;
+    const snapshot = controller.getSnapshot();
+    return fields.every(form => {
+      const obligation = `spelling:${form}` as const;
+      const record = snapshot.evidence[obligation];
+      return record?.status === 'accepted' && record.ref.obligation === obligation
+        && sameExercise(snapshot, record.ref) && record.source !== undefined
+        && hasValidEvidenceSource({ ref: record.ref, source: record.source }, voice.mode === 'mock');
+    });
+  }
   function publish() {
     if (disposed || !initialized) return;
-    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted, canGoBack: historyIndex > 0 };
+    if (options.canWrite?.() !== false) reportProgress(progressLedger(), controller.getSnapshot().exerciseId, !restoring);
+    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted, canGoBack: historyIndex > 0,
+      pictureComplete: pictureWrittenComplete(),
+      nextPicture: mode === 'verb-image' && history[historyIndex + 1] ? { key: `${namespace}:${generation}:${historyIndex + 1}`, src: history[historyIndex + 1]!.verb.image.src } : null };
+    if (!restoring) { const saved = snapshotWrittenPractice(); if (saved) options.onWrittenPracticeChange?.(saved); }
     for (const listener of listeners) listener();
   }
   function scheduleDrain() {
@@ -184,7 +282,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     return controller.getOpenObligations().filter(obligation => !obligation.startsWith('spelling:'));
   }
   function drain() {
-    if (disposed || !queue.length) return;
+    if (disposed || options.canWrite?.() === false || !queue.length) return;
     const snapshot = controller.getSnapshot();
     if (snapshot.interaction.questionPending || snapshot.interaction.intent !== 'practice' || snapshot.interaction.connection !== 'ready') {
       clearQueue(); return;
@@ -195,7 +293,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     const utterance = queue.shift()!;
     if (!sameExercise(snapshot, utterance)) { scheduleDrain(); if (!queue.length) clearQueue(); return; }
     if (targets.length) {
-      const refs = controller.beginAttempt(targets, `utterance-${utterance.utteranceId}`);
+      const refs = controller.beginAttempt(targets, `utterance-${oralEpoch}-${utterance.utteranceId}`);
       if (refs.length && utterance.uncertain) {
         controller.applyBatch({ ...utterance, eventId: `uncertain-${++sequence}`, results: refs.map(ref => ({
           ref, status: 'uncertain', source: { kind: 'audio', utteranceId: utterance.utteranceId, audioAvailable: false },
@@ -220,6 +318,7 @@ export function createVerbSession(options: VerbSessionOptions) {
   }
   function handleEvent(event: VoiceEvent) {
     if (disposed || event.sessionId !== sessionId) return;
+    if (options.canWrite?.() === false && (event.type === 'assessment' || event.type === 'transcript')) return;
     controller.handleVoiceEvent(event);
     if (event.type === 'microphone') { muted = event.muted; publish(); }
     if (event.type === 'intent' && event.intent === 'question-resolved') {
@@ -267,6 +366,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       entry.completed = true;
       options.onComplete(snapshot.exerciseId);
       if (disposed || controller.getSnapshot().interaction.intent !== 'practice') return;
+      if (mode === 'verb-image') { publish(); return; }
       startNext();
     },
   });
@@ -276,7 +376,7 @@ export function createVerbSession(options: VerbSessionOptions) {
   for (const event of initialEvents) handleEvent(event);
 
   function finalize(form: VerbForm, value: string) {
-    if (disposed || !fields.includes(form) || value !== drafts[form] || !value.trim()) return;
+    if (disposed || options.canWrite?.() === false || !fields.includes(form) || value !== drafts[form] || !value.trim()) return;
     // Controller refs change from editing to processing; that is not a new draft.
     if (submittedRevisions[form] === draftRevisions[form]) return;
     submittedRevisions[form] = draftRevisions[form];
@@ -288,16 +388,21 @@ export function createVerbSession(options: VerbSessionOptions) {
   }
 
   return {
-    mode, sessionId, voice, fields, controller,
+    mode, sessionId, voice, fields, controller, snapshotWrittenPractice, restoreWrittenPractice,
     getSnapshot: () => view,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     edit(form: VerbForm, value: string) {
-      if (disposed || !fields.includes(form)) return;
+      if (disposed || options.canWrite?.() === false || controller.getSnapshot().completed || !fields.includes(form)) return;
       drafts = { ...drafts, [form]: value };
       draftRevisions[form]++;
       controller.invalidate(`spelling:${form}`);
     },
     finalize,
+    nextPicture(expectedExerciseId: string) {
+      if (disposed || mode !== 'verb-image' || controller.getSnapshot().exerciseId !== expectedExerciseId
+        || !pictureWrittenComplete()) return false;
+      return startNext();
+    },
     // Explicit history navigation never reports completion.
     skip: startNext,
     previous,

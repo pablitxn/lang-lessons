@@ -1,13 +1,15 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import type { EvidenceLedger, ExerciseIdentity, LessonMode, SentenceStage } from '../../contracts';
+import { LessonToolsVisible } from './lesson-tools-context';
 import { progressItems, STATUS_TEXT } from './presentation';
 
 export function PracticeLayout({ children, controls }: {
   children: ReactNode; controls?: ReactNode;
 }) {
+  const showTools = useContext(LessonToolsVisible);
   return <div className="ll-mobile">
     <div className="ll-exercise">{children}</div>
-    {controls && <footer className="ll-dock" aria-label="Lesson tools">{controls}</footer>}
+    {showTools && controls && <footer className="ll-dock" aria-label="Lesson tools">{controls}</footer>}
   </div>;
 }
 

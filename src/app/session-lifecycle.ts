@@ -1,0 +1,161 @@
+import type { CallSegmentRef, ProgressSink, SessionCommands } from '../contracts';
+import { createExitCoordinator } from '../foundation/exit-coordinator';
+import type { createSessionRuntime } from './session-runtime';
+
+export interface SessionLifecyclePorts {
+  /** Authoritative recovery history, never inferred from current transport state. */
+  hadConnectedCall?: boolean | null;
+  sessions: SessionCommands;
+  reconcileClose?(): Promise<void>;
+  reportCall?(segment: CallSegmentRef, intervals: readonly { start: string; end: string }[]): Promise<void>;
+  progress: Pick<ProgressSink, 'flush'>;
+  freezeWrites(): void;
+  releasePreparation(): void;
+  operationId(): string;
+  isCurrent(): boolean;
+  navigate(target: string): void;
+}
+
+/** Memory-only UI coordination. Server commands remain the authority for lifecycle revisions. */
+export function createSessionLifecycle(runtime: ReturnType<typeof createSessionRuntime>, ports: SessionLifecyclePorts) {
+  let snapshot = { confirming: false, callStarting: false, busy: false, frozen: false, error: '', uncertainClose: false, canRetryExit: false };
+  const listeners = new Set<() => void>();
+  const update = (patch: Partial<typeof snapshot>) => { snapshot = { ...snapshot, ...patch }; listeners.forEach(listener => listener()); };
+  let decision: ((choice: 'cancel' | 'confirm') => void) | null = null;
+  let segment: CallSegmentRef | null = null;
+  let intervals: { start: string; end: string }[] = [];
+  let connectedAt: number | null = null;
+  const observe = () => {
+    const ready = runtime.getSnapshot().state === 'ready';
+    if (segment && ready && connectedAt === null) connectedAt = Date.now();
+    if (!ready && connectedAt !== null) { intervals.push({ start: new Date(connectedAt).toISOString(), end: new Date(Math.max(connectedAt, Date.now())).toISOString() }); connectedAt = null; }
+  };
+  let unsubscribe: (() => void) | null = runtime.subscribe(observe);
+  let callOperation: Promise<void> | null = null;
+  let epoch = 0;
+  let disposed = false;
+  let exitTarget: string | null = null;
+  const current = () => !disposed && ports.isCurrent();
+  async function mutation() {
+    const session = await ports.sessions.read(runtime.sessionId);
+    if (!current() || session.sessionId !== runtime.sessionId || session.status !== 'open') throw new Error('Session is no longer active.');
+    return { sessionId: runtime.sessionId, operationId: ports.operationId(), expectedRevision: session.revision };
+  }
+  async function endSegment() {
+    if (!segment) return;
+    observe();
+    const ending = segment;
+    if (ports.reportCall) { try { await ports.reportCall(ending, intervals); } catch { /* Missing metrics stay unavailable; never prevent safe cleanup. */ } }
+    const result = await ports.sessions.stopCall({ ...await mutation(), segment: ending });
+    if (result.sessionId !== runtime.sessionId || result.status !== 'open') throw new Error('Call stop response mismatch.');
+    if (segment === ending) segment = null;
+  }
+  const coordinator = createExitCoordinator({
+    exit: {
+      sessionId: runtime.sessionId,
+      async requestExit() {
+        if (callOperation && snapshot.callStarting && runtime.getSnapshot().state !== 'ready') {
+          epoch++; runtime.pause();
+        }
+        if (callOperation) await callOperation;
+        if (!current()) return 'cancel';
+        if (snapshot.error) throw new Error('Call lifecycle needs reconciliation.');
+        if (ports.hadConnectedCall !== null && !ports.hadConnectedCall && !runtime.getSnapshot().hadConnectedCall) return 'confirm';
+        runtime.hold('session-exit', true);
+        update({ confirming: true });
+        return new Promise<'cancel' | 'confirm'>(resolve => { decision = resolve; });
+      },
+      freezeWrites() { ports.freezeWrites(); update({ frozen: true }); runtime.hold('session-exit', true); },
+      releasePreparation() { ports.releasePreparation(); update({ frozen: false }); runtime.hold('session-exit', false); },
+    },
+    progress: { async flush() {
+      // Stop media only after confirmation. Finish lifecycle writes before reading the close revision.
+      runtime.pause();
+      await endSegment();
+      await ports.reconcileClose?.();
+      return ports.progress.flush();
+    } },
+    sessions: {
+      read: ports.sessions.read.bind(ports.sessions),
+      async confirmClose(request) {
+        try { return await ports.sessions.confirmClose(request); }
+        catch (error) { update({ uncertainClose: true }); throw error; }
+      },
+    },
+    operationId: ports.operationId, isCurrent: current, navigate: ports.navigate,
+  });
+  async function requestExit(target: string) {
+    if (!current() || snapshot.uncertainClose || snapshot.error) return;
+    if (!snapshot.busy && !snapshot.frozen) exitTarget = target;
+    update({ busy: true });
+    try { return await coordinator.request(target); }
+    catch { if (current()) update({ canRetryExit: true, error: snapshot.frozen
+      ? 'Session close could not be confirmed. Your session is held for reconciliation.'
+      : 'Progress could not be saved. Your session remains open.' }); }
+    finally { if (current()) update({ busy: false }); }
+  }
+  return {
+    getSnapshot: () => snapshot,
+    subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    start(): Promise<void> {
+      if (callOperation) return callOperation;
+      if (!current() || snapshot.busy || snapshot.confirming || snapshot.frozen || snapshot.error) return Promise.resolve();
+      const state = runtime.getSnapshot().state;
+      if (segment && state !== 'offline' && state !== 'error') return Promise.resolve();
+      const token = ++epoch;
+      update({ busy: true, callStarting: true, error: '' });
+      callOperation = (async () => {
+        // A transport disconnect is not a server stop receipt. Reconcile before replacement.
+        if (segment) { runtime.stop(); await endSegment(); }
+        if (!current() || token !== epoch) return;
+        const result = await ports.sessions.startCall(await mutation());
+        if (result.session.sessionId !== runtime.sessionId || result.segment.sessionId !== runtime.sessionId
+          || result.session.status !== 'open') throw new Error('Call start response mismatch.');
+        segment = result.segment; intervals = []; connectedAt = null;
+        if (!current()) return;
+        if (token !== epoch) { await endSegment(); return; }
+        try { await runtime.start(segment); }
+        catch {
+          // Media failure/cancellation is recoverable after an authoritative stop
+          // receipt. The runtime retains its transport error for explicit retry.
+          // A failed stop still reaches the outer unresolved-lifecycle fence.
+          await endSegment();
+        }
+      })().catch(() => { if (current()) update({ error: 'The tutor call could not be started. Session state needs checking.' }); })
+        .finally(() => { callOperation = null; if (current()) update({ busy: false, callStarting: false }); });
+      return callOperation;
+    },
+    stop(): Promise<void> {
+      epoch++; runtime.pause();
+      if (callOperation) return callOperation;
+      update({ busy: true, error: '' });
+      callOperation = endSegment().catch(() => { if (current()) update({ error: 'Audio stopped. The call record could not be confirmed.' }); })
+        .finally(() => { callOperation = null; if (current()) update({ busy: false }); });
+      return callOperation;
+    },
+    decide(choice: 'cancel' | 'confirm') {
+      const resolve = decision; decision = null;
+      update({ confirming: false });
+      if (choice === 'cancel') runtime.hold('session-exit', false);
+      resolve?.(choice);
+    },
+    requestExit(target: string) { return requestExit(target); },
+    retryExit() {
+      if (!snapshot.canRetryExit || snapshot.busy || exitTarget === null || !current()) return Promise.resolve();
+      update({ error: '', uncertainClose: false, canRetryExit: false });
+      return requestExit(exitTarget);
+    },
+    activate() {
+      disposed = false;
+      if (!unsubscribe) unsubscribe = runtime.subscribe(observe);
+      observe();
+    },
+    dispose() {
+      disposed = true; epoch++; decision?.('cancel'); decision = null;
+      // Observe the final offline transition before detaching so cleanup ends measured time.
+      runtime.stop(); observe();
+      unsubscribe?.(); unsubscribe = null; listeners.clear();
+    },
+  };
+}
+export type SessionLifecycle = ReturnType<typeof createSessionLifecycle>;

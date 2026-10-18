@@ -1,3 +1,5 @@
+import { createPhoenixDebugSink, type DebugEvidenceSink } from './debug-evidence';
+import type { FeedbackTelemetry } from './feedback/telemetry';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { ROOT_CONTEXT, SpanKind, SpanStatusCode, trace, type Span } from '@opentelemetry/api';
 import { resourceFromAttributes } from '@opentelemetry/resources';
@@ -62,6 +64,38 @@ export class PhoenixTelemetry {
       'service.name': 'lang-lessons-voice', 'openinference.project.name': config.project,
     }), spanProcessors: [new BatchSpanProcessor(safeExporter, { maxQueueSize: 128, maxExportBatchSize: 32,
       scheduledDelayMillis: 1000, exportTimeoutMillis: 2500 })] });
+  }
+  captureGap(segment: import('../src/contracts/session').CallSegmentRef): void {
+    if (!this.provider) return;
+    const span = this.provider.getTracer('lang-lessons.debug', '1.0.0').startSpan('learning.debug.capture-gap', { attributes: {
+      'app.exercise_session.id': segment.sessionId, 'app.call_segment.id': segment.segmentId,
+      'app.connection.epoch': segment.connectionEpoch, 'app.telemetry.content_capture': false,
+      'app.telemetry.audio_capture': false,
+    } });
+    span.end();
+  }
+  /** Content capture requires an additional explicit server opt-in at composition. */
+  debugSink(): DebugEvidenceSink | undefined {
+    return this.provider ? createPhoenixDebugSink(this.provider.getTracer('lang-lessons.debug', '1.0.0')) : undefined;
+  }
+  /** Reuse the configured collector for canonical, metadata-only feedback outcomes. */
+  feedback(synthetic = false): FeedbackTelemetry | undefined {
+    if (!this.provider) return undefined;
+    const tracer = this.provider.getTracer('lang-lessons.feedback', '1.0.0');
+    return { route: 'phoenix', publish: async (route, event) => {
+      const validId = (value: unknown) => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value);
+      if (route !== 'phoenix' || event.operation !== 'session-feedback' || !validId(event.jobId)
+        || event.sessionId !== undefined && !validId(event.sessionId)
+        || !['blocked','not-claimed','stored','failed','insufficient-evidence','stale','repository-error'].includes(event.outcome)
+        || Object.keys(event).some(key => !['operation','jobId','sessionId','outcome'].includes(key))) return;
+      const span = tracer.startSpan('learning.feedback', { attributes: {
+        'openinference.span.kind': 'CHAIN', 'app.feedback.job_id': event.jobId,
+        ...(event.sessionId ? { 'app.exercise_session.id': event.sessionId } : {}),
+        'app.feedback.outcome': event.outcome, 'app.telemetry.synthetic': synthetic,
+        'app.telemetry.content_capture': false, 'app.telemetry.audio_capture': false,
+      } }, ROOT_CONTEXT);
+      span.end();
+    } };
   }
   open(model: string, maxDurationSeconds: number, synthetic = false): SessionTrace | undefined {
     if (!this.provider) return undefined;

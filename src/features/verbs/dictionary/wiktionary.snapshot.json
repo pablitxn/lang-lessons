@@ -1,0 +1,659 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "en-wiktionary-25-verbs-2026-10-18",
+  "retrievedOn": "2026-10-18",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "English Wiktionary contributors",
+  "modifications": "Selected one English verb sense and one pronunciation line per lemma; omitted other senses and pronunciation variants, cited quotations, media, etymology and translations. Removed link markup and list numbering; normalized display whitespace. No definitions or examples generated or paraphrased. Contributor usage examples retained verbatim apart from whitespace.",
+  "entries": [
+    {
+      "revision": "93578862",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=be&oldid=93578862#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/be#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=be&action=history",
+      "content": {
+        "lemma": "be",
+        "partOfSpeech": "Verb",
+        "definition": "To occupy a place.",
+        "pronunciation": {
+          "ipa": "/ˈbiː/",
+          "label": "English — stressed form"
+        },
+        "examples": [
+          "The cup is on the table."
+        ]
+      },
+      "contentHash": "sha256:cb419ea8411d7d7f22253505825e92a63509d051277a075e9781e66bfc7d6430",
+      "review": {
+        "senseExcerpt": "3. To occupy a place.",
+        "pronunciationExcerpt": "* (stressed form) IPA ^{(key)}: /ˈbiː/, [ˈbɪi̯]",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93658769",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=beat&oldid=93658769#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/beat#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=beat&action=history",
+      "content": {
+        "lemma": "beat",
+        "partOfSpeech": "Verb",
+        "definition": "To mix food in a rapid fashion. Compare whip.",
+        "pronunciation": {
+          "ipa": "/biːt/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "Beat the eggs and whip the cream."
+        ]
+      },
+      "contentHash": "sha256:1e898381570fbe76c54d87cddeaff2ce6212229cbb7aa8414c0adecc402e7206",
+      "review": {
+        "senseExcerpt": "8. To mix food in a rapid fashion. Compare whip.",
+        "pronunciationExcerpt": "* enPR: bēt, IPA ^{(key)}: /biːt/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "92514771",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=become&oldid=92514771#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/become#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=become&action=history",
+      "content": {
+        "lemma": "become",
+        "partOfSpeech": "Verb",
+        "definition": "(copulative, followed by an adjective or a noun) begin to be; turn into (often with permanent states). [from 12th c.]",
+        "pronunciation": {
+          "ipa": "/bɪˈkʌm/, /biˈkʌm/, /bəˈkʌm/",
+          "label": "US"
+        },
+        "examples": [
+          "She became a doctor when she was 25."
+        ]
+      },
+      "contentHash": "sha256:f6b9ef28aa647630405c973a6557b0b680f095adf41ea9aa9f12237c1c0d2eba",
+      "review": {
+        "senseExcerpt": "1. 2. (copulative, followed by an adjective or a noun) begin to be; turn into (often with permanent states). [from 12th c.]",
+        "pronunciationExcerpt": "* (US) IPA ^{(key)}: /bɪˈkʌm/, /biˈkʌm/, /bəˈkʌm/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93523688",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=begin&oldid=93523688#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/begin#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=begin&action=history",
+      "content": {
+        "lemma": "begin",
+        "partOfSpeech": "Verb",
+        "definition": "(ergative) To start, to initiate or take the first step into something.",
+        "pronunciation": {
+          "ipa": "/bɪˈɡɪn/, /bəˈɡɪn/, /biˈɡɪn/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "I began playing the piano at the age of five. (transitive)"
+        ]
+      },
+      "contentHash": "sha256:032dc33d43fcd6a749f45ff86b98a11e4eef1bdf257689d40d67dc50c4d8e5bb",
+      "review": {
+        "senseExcerpt": "1. (ergative) To start, to initiate or take the first step into something.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /bɪˈɡɪn/, /bəˈɡɪn/, /biˈɡɪn/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93473420",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=bend&oldid=93473420#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/bend#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=bend&action=history",
+      "content": {
+        "lemma": "bend",
+        "partOfSpeech": "Verb",
+        "definition": "(intransitive, usually with \"down\") To stoop.",
+        "pronunciation": {
+          "ipa": "/bɛnd/",
+          "label": "Received Pronunciation, General American, Canada"
+        },
+        "examples": [
+          "He bent down to pick up the pieces."
+        ]
+      },
+      "contentHash": "sha256:0556654c6a9d738363dee69e24d82716ccac264c1423a78724235260a6742d03",
+      "review": {
+        "senseExcerpt": "6. (intransitive, usually with \"down\") To stoop.",
+        "pronunciationExcerpt": "* (Received Pronunciation, General American, Canada) IPA ^{(key)}: /bɛnd/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93524932",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=bet&oldid=93524932#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/bet#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=bet&action=history",
+      "content": {
+        "lemma": "bet",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive, ditransitive) To stake or pledge upon the outcome of an event; to wager.",
+        "pronunciation": {
+          "ipa": "/bɛt/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "I bet you dinner at the Ritz that you can't run faster than me."
+        ]
+      },
+      "contentHash": "sha256:df2b81ce4ab4f290b6de4467076076f17e8010fc55125829a176871dab55646f",
+      "review": {
+        "senseExcerpt": "1. (transitive, ditransitive) To stake or pledge upon the outcome of an event; to wager.",
+        "pronunciationExcerpt": "* enPR: bĕt, IPA ^{(key)}: /bɛt/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93533132",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=bite&oldid=93533132#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/bite#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=bite&action=history",
+      "content": {
+        "lemma": "bite",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To cut into something by clamping the teeth.",
+        "pronunciation": {
+          "ipa": "/baɪt/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "As soon as you bite that sandwich, you'll know how good it is."
+        ]
+      },
+      "contentHash": "sha256:1730a592167b6d46dd095ce2f330ca04d87e9490a6ad33cc5a4d86f50ef4245e",
+      "review": {
+        "senseExcerpt": "1. (transitive) To cut into something by clamping the teeth.",
+        "pronunciationExcerpt": "* enPR: bīt, IPA ^{(key)}: /baɪt/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "92074311",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=bleed&oldid=92074311#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/bleed#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=bleed&action=history",
+      "content": {
+        "lemma": "bleed",
+        "partOfSpeech": "Verb",
+        "definition": "(intransitive, of a person, animal or body part) To shed blood through an injured blood vessel.",
+        "pronunciation": {
+          "ipa": "/ˈbliːd/",
+          "label": "English — regional label not specified"
+        },
+        "examples": []
+      },
+      "contentHash": "sha256:c8f4237cc5b3c5fd726fc0ea96c8657852497b8ccf0498db3dce9a2032e3a8c1",
+      "review": {
+        "senseExcerpt": "1. (intransitive, of a person, animal or body part) To shed blood through an injured blood vessel.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /ˈbliːd/, [ˈblɪi̯d]",
+        "exampleKind": "unavailable in this snapshot",
+        "omissionReason": "The example for this selected sense gives medical instructions; omitted from the learning card.",
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93618079",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=blow&oldid=93618079#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/blow#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=blow&action=history",
+      "content": {
+        "lemma": "blow",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To propel by an air current (or, if under water, a water current), usually with the mouth.",
+        "pronunciation": {
+          "ipa": "/bloʊ/",
+          "label": "General American"
+        },
+        "examples": [
+          "Blow the dust off that book and open it up."
+        ]
+      },
+      "contentHash": "sha256:abc0d4cd5e0e9256fccd87a10bffeebf4652c224d536febf495e3ed47faf91ff",
+      "review": {
+        "senseExcerpt": "2. (transitive) To propel by an air current (or, if under water, a water current), usually with the mouth.",
+        "pronunciationExcerpt": "* (General American) IPA ^{(key)}: /bloʊ/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93547668",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=break&oldid=93547668#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/break#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=break&action=history",
+      "content": {
+        "lemma": "break",
+        "partOfSpeech": "Verb",
+        "definition": "(ergative, transitive, intransitive) To separate into two or more pieces, to fracture or crack, by a process that cannot easily be reversed for reassembly.",
+        "pronunciation": {
+          "ipa": "/bɹeɪk/",
+          "label": "Received Pronunciation, General American, Canada"
+        },
+        "examples": [
+          "If the vase falls to the floor, it might break."
+        ]
+      },
+      "contentHash": "sha256:10f3872d907dfd97ffeba1c3b851d2f8fa72bcfc0b4f1e9a3c52a51834452945",
+      "review": {
+        "senseExcerpt": "1. 2. (ergative, transitive, intransitive) To separate into two or more pieces, to fracture or crack, by a process that cannot easily be reversed for reassembly.",
+        "pronunciationExcerpt": "* (Received Pronunciation, General American, Canada) enPR: brāk, IPA ^{(key)}: /bɹeɪk/, [bɹʷeɪ̯k]",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93389757",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=bring&oldid=93389757#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/bring#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=bring&action=history",
+      "content": {
+        "lemma": "bring",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive, ditransitive) To transport toward somebody/somewhere.",
+        "pronunciation": {
+          "ipa": "/ˈbɹɪŋ/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "Waiter, please bring me a single malt whiskey."
+        ]
+      },
+      "contentHash": "sha256:823f625dfa64fd0287a76a94eb247515ca7212d56e32c8a4d51dd3512889dab5",
+      "review": {
+        "senseExcerpt": "1. (transitive, ditransitive) To transport toward somebody/somewhere.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /ˈbɹɪŋ/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "92700843",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=build&oldid=92700843#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/build#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=build&action=history",
+      "content": {
+        "lemma": "build",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To form (something) by combining materials or parts.",
+        "pronunciation": {
+          "ipa": "/bɪld/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "I built a shed in my backyard."
+        ]
+      },
+      "contentHash": "sha256:1404928abecfb68fb9e2eabe55ca77c15557dac14eef352334a196e03d7e0a2d",
+      "review": {
+        "senseExcerpt": "1. (transitive) To form (something) by combining materials or parts.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /bɪld/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93623058",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=burn&oldid=93623058#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/burn#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=burn&action=history",
+      "content": {
+        "lemma": "burn",
+        "partOfSpeech": "Verb",
+        "definition": "(intransitive) To be consumed by fire or in flames.",
+        "pronunciation": {
+          "ipa": "/bɝn/",
+          "label": "General American"
+        },
+        "examples": [
+          "The wood will not burn well because it is wet."
+        ]
+      },
+      "contentHash": "sha256:be0c7301231f2d221523e92e46bc272cf9e6d009560c0e55a29b7dd1fc4654f3",
+      "review": {
+        "senseExcerpt": "1. (intransitive) To be consumed by fire or in flames.",
+        "pronunciationExcerpt": "* (General American) enPR: bûrn, IPA ^{(key)}: /bɝn/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93122896",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=burst&oldid=93122896#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/burst#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=burst&action=history",
+      "content": {
+        "lemma": "burst",
+        "partOfSpeech": "Verb",
+        "definition": "(intransitive) To break from internal pressure.",
+        "pronunciation": {
+          "ipa": "/bɝst/",
+          "label": "General American, Canada"
+        },
+        "examples": [
+          "I blew the balloon up too much, and it burst."
+        ]
+      },
+      "contentHash": "sha256:dc58ef23df3c6e0eb21b39c3f9698e8866ce5cbdfc4e521afef2b06367d38e68",
+      "review": {
+        "senseExcerpt": "1. (intransitive) To break from internal pressure.",
+        "pronunciationExcerpt": "* (General American, Canada) IPA ^{(key)}: /bɝst/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93567361",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=buy&oldid=93567361#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/buy#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=buy&action=history",
+      "content": {
+        "lemma": "buy",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive, ditransitive) To obtain (something) in exchange for money or goods.",
+        "pronunciation": {
+          "ipa": "/baɪ/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "Who'd Father buy the car for? He bought it for me, not for you."
+        ]
+      },
+      "contentHash": "sha256:0c23c238f765dc248c393397c2df87bd63a4b86cdc2c20acf806889a20164e8f",
+      "review": {
+        "senseExcerpt": "1. (transitive, ditransitive) To obtain (something) in exchange for money or goods.",
+        "pronunciationExcerpt": "* enPR: bī, IPA ^{(key)}: /baɪ/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "92755285",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=catch&oldid=92755285#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/catch#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=catch&action=history",
+      "content": {
+        "lemma": "catch",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To seize or intercept an object moving through the air (or, sometimes, some other medium). [from 16th c.]",
+        "pronunciation": {
+          "ipa": "/kæt͡ʃ/, /kɛt͡ʃ/",
+          "label": "US, Canada"
+        },
+        "examples": [
+          "I will throw you the ball, and you catch it."
+        ]
+      },
+      "contentHash": "sha256:a357982b9fd0fc5ccea6bb5c7de520228b341a6c1c5119da6b4699ca751f733d",
+      "review": {
+        "senseExcerpt": "1. (transitive) To seize or intercept an object moving through the air (or, sometimes, some other medium). [from 16th c.]",
+        "pronunciationExcerpt": "* (US, Canada) enPR: kăch, kĕch, IPA ^{(key)}: /kæt͡ʃ/, /kɛt͡ʃ/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "92752261",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=choose&oldid=92752261#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/choose#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=choose&action=history",
+      "content": {
+        "lemma": "choose",
+        "partOfSpeech": "Verb",
+        "definition": "To pick; to make the choice of; to select.",
+        "pronunciation": {
+          "ipa": "/t͡ʃuz/",
+          "label": "General American, Canada"
+        },
+        "examples": [
+          "I chose a nice ripe apple from the fruit bowl."
+        ]
+      },
+      "contentHash": "sha256:eefd3f5bfc01cc500b0324db7131c119d513b7370ecdd0e797266ce6ae92abfa",
+      "review": {
+        "senseExcerpt": "1. To pick; to make the choice of; to select.",
+        "pronunciationExcerpt": "* (General American, Canada) IPA ^{(key)}: /t͡ʃuz/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93561257",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=come&oldid=93561257#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/come#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=come&action=history",
+      "content": {
+        "lemma": "come",
+        "partOfSpeech": "Verb",
+        "definition": "To move toward the speaker.",
+        "pronunciation": {
+          "ipa": "/kʌm/",
+          "label": "General American"
+        },
+        "examples": [
+          "I called the dog, but she wouldn't come."
+        ]
+      },
+      "contentHash": "sha256:797a4fbc2165dd60893d913ae7edbd781c098999bab1152af312a5e927ff6107",
+      "review": {
+        "senseExcerpt": "1. To move toward the speaker.",
+        "pronunciationExcerpt": "* (General American) IPA ^{(key)}: /kʌm/, [kʰʌm], enPR: kŭm",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93551725",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=cost&oldid=93551725#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/cost#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=cost&action=history",
+      "content": {
+        "lemma": "cost",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive, ditransitive) To incur a charge of; to require payment of a (specified) price.",
+        "pronunciation": {
+          "ipa": "/kɔst/",
+          "label": "Standard Southern British, Scotland, Australia"
+        },
+        "examples": [
+          "This shirt cost $50, while this was cheaper at only $30."
+        ]
+      },
+      "contentHash": "sha256:bc07699c0926a5e115acc6cbe130156d3ebbe1cc7ee9df33f7d40ab662b3db34",
+      "review": {
+        "senseExcerpt": "1. (transitive, ditransitive) To incur a charge of; to require payment of a (specified) price.",
+        "pronunciationExcerpt": "* (Standard Southern British, Scotland, Australia) IPA ^{(key)}: /kɔst/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93651409",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=cut&oldid=93651409#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/cut#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=cut&action=history",
+      "content": {
+        "lemma": "cut",
+        "partOfSpeech": "Verb",
+        "definition": "To divide with a knife, scissors, or another sharp instrument.",
+        "pronunciation": {
+          "ipa": "/kʌt/",
+          "label": "Received Pronunciation, General American"
+        },
+        "examples": [
+          "Would you please cut the cake?"
+        ]
+      },
+      "contentHash": "sha256:cff9a7d1c75c683abf276d820719c4b2939619cf31b867d1b9e23f0bc2e0c7bc",
+      "review": {
+        "senseExcerpt": "2. To divide with a knife, scissors, or another sharp instrument.",
+        "pronunciationExcerpt": "* (Received Pronunciation, General American) IPA ^{(key)}: /kʌt/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93548036",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=deal&oldid=93548036#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/deal#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=deal&action=history",
+      "content": {
+        "lemma": "deal",
+        "partOfSpeech": "Verb",
+        "definition": "(ambitransitive) To distribute cards to the players in a game.",
+        "pronunciation": {
+          "ipa": "/ˈdiːl/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "I was dealt four aces."
+        ]
+      },
+      "contentHash": "sha256:27a323c8d523a007ab61c268183be491fb8986c8dc938b479928c52a478ba920",
+      "review": {
+        "senseExcerpt": "4. (ambitransitive) To distribute cards to the players in a game.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /ˈdiːl/, [ˈdɪi̯l]",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93456055",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=dig&oldid=93456055#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/dig#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=dig&action=history",
+      "content": {
+        "lemma": "dig",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive, intransitive) To move hard-packed earth out of the way, especially downward to make a hole with a shovel. Or to drill, or the like, through rocks, roads, or the like. More generally, to make any similar hole by moving material out of the way.",
+        "pronunciation": {
+          "ipa": "/dɪɡ/",
+          "label": "English — regional label not specified"
+        },
+        "examples": [
+          "They dug an eight-foot ditch along the side of the road."
+        ]
+      },
+      "contentHash": "sha256:73aecdad6852850d17978db3b6be41895afc35044e1df63852875592913cc590",
+      "review": {
+        "senseExcerpt": "1. (transitive, intransitive) To move hard-packed earth out of the way, especially downward to make a hole with a shovel. Or to drill, or the like, through rocks, roads, or the like. More generally, to make any similar hole by moving material out of the way.",
+        "pronunciationExcerpt": "* IPA ^{(key)}: /dɪɡ/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93652318",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=do&oldid=93652318#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/do#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=do&action=history",
+      "content": {
+        "lemma": "do",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To perform; to execute.",
+        "pronunciation": {
+          "ipa": "/duː/",
+          "label": "English — strong form"
+        },
+        "examples": [
+          "I love doing puzzles, especially crosswords, but lately I've taken to sudokus too."
+        ]
+      },
+      "contentHash": "sha256:3bab2102e9decc96de1c1a63167f7baa461a242b4d4baccfc30da9c11b7d80a3",
+      "review": {
+        "senseExcerpt": "3. 4. (transitive) To perform; to execute.",
+        "pronunciationExcerpt": "* (strong form) IPA ^{(key)}: /duː/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93618473",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=draw&oldid=93618473#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/draw#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=draw&action=history",
+      "content": {
+        "lemma": "draw",
+        "partOfSpeech": "Verb",
+        "definition": "(transitive) To produce (a figure, line, picture, representation of something, etc.) with a piece of chalk, a crayon, a pen, a pencil, or other instrument. [from 14th c.]",
+        "pronunciation": {
+          "ipa": "/dɹɔː/",
+          "label": "Received Pronunciation, Northern England"
+        },
+        "examples": [
+          "He had drawn a mural on the wall of his apartment."
+        ]
+      },
+      "contentHash": "sha256:c565a356b2c56067226c35a8e397750e116a7730431ecf7793900ebaec6016e3",
+      "review": {
+        "senseExcerpt": "1. (transitive) To produce (a figure, line, picture, representation of something, etc.) with a piece of chalk, a crayon, a pen, a pencil, or other instrument. [from 14th c.]",
+        "pronunciationExcerpt": "* (Received Pronunciation, Northern England) IPA ^{(key)}: /dɹɔː/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    },
+    {
+      "revision": "93533971",
+      "sourceUrl": "https://en.wiktionary.org/w/index.php?title=dream&oldid=93533971#English",
+      "entryUrl": "https://en.wiktionary.org/wiki/dream#English",
+      "historyUrl": "https://en.wiktionary.org/w/index.php?title=dream&action=history",
+      "content": {
+        "lemma": "dream",
+        "partOfSpeech": "Verb",
+        "definition": "(intransitive) To see imaginary events in one's mind while sleeping.",
+        "pronunciation": {
+          "ipa": "/dɹim/",
+          "label": "General American"
+        },
+        "examples": [
+          "Although people primarily dream during the REM phase of sleeping, they can dream during non-REM sleep as well."
+        ]
+      },
+      "contentHash": "sha256:c10232edd3e04416868b14b812487316b098587977c6c1b250c2ced9897de26e",
+      "review": {
+        "senseExcerpt": "1. (intransitive) To see imaginary events in one's mind while sleeping.",
+        "pronunciationExcerpt": "* (General American) IPA ^{(key)}: /dɹim/",
+        "exampleKind": "contributor usage example",
+        "omissionReason": null,
+        "senseSelection": "English verb sense selected against the existing exercise photo cue; not an exhaustive dictionary entry."
+      }
+    }
+  ]
+}

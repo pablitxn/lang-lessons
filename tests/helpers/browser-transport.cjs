@@ -5,12 +5,69 @@ async function installBrowserTransport(context, origin, options = {}) {
   const fixture = {
     enabled: options.enabled ?? true, sessionStatus: 200, statusRequests: 0,
     sessionRequests: 0, releaseRequests: 0, releaseStatus: 200, externalRequests: [],
-    statusBarrier: null, sessionBarrier: null, releaseBarrier: null,
+    statusBarrier: null, sessionBarrier: null, releaseBarrier: null, progressBarrier: null, closeBarrier: null, learningCalls: [],
   };
+  const sessions = new Map(); const operations = new Map(); const eventReceipts = new Map();
+  let sequence = 0; let timeZone = null;
   await context.route('**/*', async route => {
     const request = route.request(); const url = new URL(request.url());
     if (url.origin !== origin) {
       fixture.externalRequests.push(request.url()); await route.abort(); return;
+    }
+    if (url.pathname === '/api/learning/config') {
+      await route.fulfill({ status: 200, json: { accountsEnabled: options.accountsEnabled ?? true } }); return;
+    }
+    if (url.pathname === '/api/me') {
+      await route.fulfill({ status: 200, json: { id: 'browser-fixture-student', role: 'student', capabilities: { granted: ['practice:own', 'timezone:own'] } } }); return;
+    }
+    // Mock only HTTP boundaries; main.tsx, account composition, durable queues,
+    // lifecycle and navigation are the shipped implementations.
+    if (url.pathname.startsWith('/api/learning/')) {
+      fixture.learningCalls.push(url.pathname);
+      if (url.pathname === '/api/learning/progress' && fixture.progressBarrier) await fixture.progressBarrier;
+      if (url.pathname === '/api/learning/session/confirm-close' && fixture.closeBarrier) await fixture.closeBarrier;
+      const body = request.method() === 'POST' ? request.postDataJSON() : null;
+      const sessionId = body?.sessionId ?? url.searchParams.get('sessionId');
+      let row = sessions.get(sessionId); let result;
+      const snapshot = () => ({ sessionId, mode: row.mode, status: row.status, revision: row.revision });
+      switch (url.pathname) {
+        case '/api/learning/time-zone':
+          if (body) { assert.equal(body.expectedRevision, timeZone?.revision ?? 0); timeZone = { timeZone: body.timeZone, revision: (timeZone?.revision ?? 0) + 1, effectiveAt: new Date().toISOString() }; }
+          result = timeZone; break;
+        case '/api/learning/session/create': {
+          if (operations.has(body.operationId)) { result = operations.get(body.operationId); break; }
+          const id = `fixture-session-${++sequence}`;
+          sessions.set(id, { mode: body.mode, status: 'open', revision: 0, journal: 0, epoch: 0, close: null });
+          result = { sessionId: id, mode: body.mode, status: 'open', revision: 0 }; operations.set(body.operationId, result); break;
+        }
+        case '/api/learning/session': assert.ok(row); result = snapshot(); break;
+        case '/api/learning/session/start-call': assert.equal(body.expectedRevision, row.revision); row.revision++; row.epoch++; result = { session: snapshot(), segment: { sessionId, segmentId: `fixture-segment-${++sequence}`, connectionEpoch: row.epoch } }; break;
+        case '/api/learning/session/stop-call': assert.equal(body.expectedRevision, row.revision); row.revision++; result = snapshot(); break;
+        case '/api/learning/session/confirm-close':
+          assert.equal(body.expectedRevision, row.revision); assert.equal(body.finalProgress.journalRevision, row.journal);
+          row.status = 'closed'; row.revision++; result = row.close = { sessionId, operationId: body.operationId, status: 'closed', revision: row.revision, feedback: row.epoch ? 'insufficient-evidence' : 'not-requested' }; break;
+        case '/api/learning/session/close': result = row.close; break;
+        case '/api/learning/usage/client-call': assert.ok(body.segment); assert.ok(Array.isArray(body.intervals)); result = { status: 'recorded' }; break;
+        case '/api/learning/usage/open': assert.ok(row); result = { streamId: `fixture-stream-${++sequence}` }; break;
+        case '/api/learning/usage/written': result = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
+        case '/api/learning/failed-feedback': result = { items: [], nextCursor: null }; break;
+        case '/api/learning/open-sessions': result = { items: options.recoveryEnabled ? [...sessions].filter(([, value]) => value.status === 'open').map(([id, value]) => ({ sessionId: id, mode: value.mode, status: value.status, revision: value.revision })) : [], nextCursor: null }; break;
+        case '/api/learning/session/history': assert.ok(row); result = { sessionId, hadConnectedCall: false }; break;
+        case '/api/learning/session/reconcile': assert.ok(row); result = { sessionId, status: 'reconciled' }; break;
+        case '/api/learning/recovery': assert.ok(row); result = { session: snapshot(), progress: { sessionId, journalRevision: row.journal }, activeSegments: [], feedback: null }; break;
+        case '/api/learning/instance/issue': result = operations.get(body.operationId) ?? { sessionId, exerciseId: `fixture-instance-${++sequence}`, generation: 0 }; operations.set(body.operationId, result); break;
+        case '/api/learning/progress': {
+          assert.ok(row);
+          const acknowledgments = body.map(event => {
+            const previous = eventReceipts.get(event.eventId);
+            if (previous) return { ...previous, status: 'duplicate' };
+            const receipt = { eventId: event.eventId, status: 'accepted', committedRevision: ++row.journal }; eventReceipts.set(event.eventId, receipt); return receipt;
+          });
+          result = { status: 'committed', acknowledgments, current: { sessionId, journalRevision: row.journal } }; break;
+        }
+        default: throw new Error(`Unexpected learning fixture request: ${url.pathname}`);
+      }
+      await route.fulfill({ status: 200, json: result }); return;
     }
     if (url.pathname === '/api/realtime/status') {
       fixture.statusRequests += 1;

@@ -1,0 +1,19 @@
+.p3-accounts, .p3-admin, .p3-professor { box-sizing: border-box; max-width: 64rem; margin-inline: auto; padding: 1rem; color: #202a36; background: #fff; overflow-wrap: anywhere; font-family: system-ui, sans-serif; }
+:is(.p3-accounts, .p3-admin, .p3-professor) * { box-sizing: border-box; }
+:is(.p3-accounts, .p3-admin, .p3-professor) button { min-height: 44px; padding: .65rem 1rem; margin: .25rem; white-space: normal; font: inherit; cursor: pointer; }
+:is(.p3-accounts, .p3-admin, .p3-professor) :focus-visible { outline: 3px solid #145fbc; outline-offset: 3px; }
+.p3-accounts form { display: grid; gap: 1rem; max-width: 28rem; }
+.p3-accounts label { display: grid; gap: .4rem; }
+.p3-accounts input { width: 100%; min-height: 44px; font: inherit; padding: .65rem; }
+:is(.p3-admin, .p3-professor) ul { padding: 0; list-style: none; }
+:is(.p3-admin, .p3-professor) li, .p3-professor article { border: 1px solid #c7cdd5; border-radius: .5rem; margin-block: .75rem; padding: 1rem; }
+.p3-professor .p3-comment { white-space: pre-wrap; }
+.p3-admin .p3-management-form, .p3-admin .p3-management-actions form { display: grid; gap: .75rem; max-width: 28rem; }
+.p3-admin label { display: grid; gap: .4rem; }
+.p3-admin input, .p3-admin select { min-width: 0; width: 100%; min-height: 44px; font: inherit; padding: .5rem; }
+.p3-admin dialog { max-width: min(32rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #697586; border-radius: .6rem; padding: 1rem; color: #202a36; background: #fff; }
+.p3-admin dialog::backdrop { background: #0008; }
+
+.p3-professor .p3-daily-totals { display: flex; flex-wrap: wrap; gap: 1rem; }
+.p3-professor .p3-daily-totals div { flex: 1 1 10rem; padding: .75rem; background: #f2f5f9; border-radius: .4rem; }
+.p3-professor dd { margin: .25rem 0 .75rem; }

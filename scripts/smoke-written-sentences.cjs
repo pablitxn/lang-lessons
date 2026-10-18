@@ -85,12 +85,12 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   async function assertLayout(page) {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'The translation field must not create horizontal overflow');
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true,
-      'The fixed footer must leave the exercise reachable');
+    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true,
+      'The exercise remains reachable at the bottom of the page');
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Written practice must reflow at 200% text size');
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true);
+    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true);
     await page.evaluate(() => { document.documentElement.style.fontSize = ''; window.scrollTo(0, 0); });
   }
 
@@ -103,8 +103,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const page = await context.newPage(); const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-        if (enabled) await page.getByText('Ready to talk', { exact: true }).waitFor();
-        else await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+        if (enabled) { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click(); await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open'); }
+        else { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor(); assert.equal(transport.statusRequests, 0); }
         const lesson = page.locator('.ll-sentences[data-exercise-id]');
         const exerciseId = await lesson.getAttribute('data-exercise-id');
         const field = page.getByRole('textbox', { name: 'English translation', exact: true });
@@ -139,6 +139,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await page.getByRole('listbox').count(), 0);
         await tenseChoice.click();
         const tenseOptions = page.getByRole('listbox');
+        await tenseOptions.waitFor({ state: 'visible' });
         assert.equal(await tenseOptions.getByRole('option').count(), 8);
         for (const label of tenseLabels) assert.equal(await tenseOptions.getByRole('option', { name: label, exact: true }).count(), 1);
         assert.equal(await tenseOptions.getByRole('group', { name: 'Present', exact: true }).count(), 1);
@@ -155,11 +156,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await tenseChoice.getAttribute('aria-invalid'), null);
         assert.equal(await lesson.getAttribute('data-stage'), 'translation', 'Written comparison must not manufacture oral evidence');
         assert.equal(await responseCount(page), before, 'Typing and local checks do not request a voice response');
-        await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-        const progress = page.getByRole('dialog', { name: 'Lesson progress', exact: true });
-        assert.equal(await progress.locator('progress').getAttribute('value'), '0');
-        assert.equal(await progress.getByText('Written tense: Checked', { exact: true }).count(), 1);
-        await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
         assert.equal(await field.inputValue(), answer);
 
         // IME confirmation is not an explicit Enter submission.
@@ -174,9 +171,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await field.dispatchEvent('compositionend', { data: answer });
         await written.locator('.ll-correct').first().waitFor();
         assert.equal(await tenseChoice.getAttribute('data-value'), '', 'A new matched attempt starts with no tense selected');
-        await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-        assert.equal(await progress.getByText('Written tense: Not checked', { exact: true }).count(), 1, 'Retyping the same translation must not restore its previous tense progress');
-        await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
         await chooseTense(page, 'Present simple');
         assert.equal(await responseCount(page), before);
         if (viewport.width === 390) await page.screenshot({ path: join(output, `sentence-written-${enabled ? 'call' : 'offline'}-tense.png`), fullPage: true });
@@ -228,7 +223,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(answer);
       const choice = page.getByRole('combobox', { name: 'Verb tense', exact: true });
       const listbox = page.getByRole('listbox');
@@ -283,7 +278,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByText('Ready to talk', { exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
+      await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open');
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       const previous = await lesson.getAttribute('data-exercise-id');
       await page.getByRole('button', { name: 'Preferences', exact: true }).click();
@@ -314,9 +310,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await chooseTense(page, 'Present perfect');
       assert.equal(await tense.getAttribute('data-status'), 'correct');
       assert.equal(await lesson.getAttribute('data-stage'), 'translation');
-      await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-      assert.equal(await page.getByRole('dialog', { name: 'Lesson progress', exact: true }).locator('progress').getAttribute('value'), '0');
-      await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+      assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
       assert.equal(await responseCount(page), before); assert.equal(hints.requests.length, 0);
       assert.equal(transport.sessionRequests, 1); assert.equal((await inspectTransport(page)).peers.length, 1);
       assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
@@ -333,7 +327,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       const field = page.getByRole('textbox', { name: 'English translation', exact: true });
       const written = page.locator('.sentences-written');
@@ -445,7 +439,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       await setHelp(page, true);
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(typo);
       const request = await hints.waitForCount(1);

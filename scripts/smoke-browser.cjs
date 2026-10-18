@@ -22,6 +22,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       assert.equal(await page.getByRole('button', { name: 'Preferences', exact: true }).innerText(), 'PC');
       assert.equal(await page.locator('.ll-dock').count(), 0);
       for (const name of ['Picture', 'Verb', 'Sentence']) assert.equal(await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).count(), 1);
+      await page.getByRole('button', { name: 'Your progress', exact: true }).click();
+      await page.getByRole('dialog', { name: 'Progress', exact: true }).waitFor();
+      await page.keyboard.press('Escape');
+      await page.getByRole('button', { name: 'Reference table', exact: true }).click();
+      await page.getByRole('dialog', { name: 'Reference', exact: true }).waitFor();
+      assert.equal(await page.getByRole('dialog', { name: 'Reference', exact: true }).locator('tbody tr').count(), 8);
+      await page.keyboard.press('Escape');
       assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
       assert.equal((await inspectTransport(page)).mediaCalls, 0);
       assert.doesNotMatch(await page.locator('body').innerText(), /mock|session mode|local development|make english feel natural/i);
@@ -90,10 +97,14 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const heading = page.getByRole('heading', { name: `${name} practice`, exact: true });
         await heading.waitFor();
         assert.equal(await heading.innerText(), name);
-        const headingBounds = await heading.boundingBox();
-        const backBounds = await page.getByRole('link', { name: 'All lessons', exact: true }).boundingBox();
-        assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, 'Lesson identity and back navigation share a compact row');
+        // Read both boxes in one frame: route focus may scroll between separate protocol calls.
+        const { headingBounds, backBounds } = await heading.evaluate(element => ({
+          headingBounds: element.getBoundingClientRect().toJSON(),
+          backBounds: element.parentElement.querySelector('.back-link').getBoundingClientRect().toJSON(),
+        }));
+        assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, `Lesson identity and back navigation share a compact row: ${JSON.stringify({ name, viewport, headingBounds, backBounds })}`);
         assert.ok(backBounds.height >= 44, 'Back navigation retains its touch target');
+        await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
         const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });
         await voiceBadge.waitFor();
         assert.equal(await page.locator('.voice-call-bar').count(), 0);
@@ -103,7 +114,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const voiceDetails = page.getByRole('dialog', { name: 'Voice call details', exact: true });
         await voiceDetails.waitFor();
         assert.equal(await voiceDetails.getByRole('button', { name: 'Unmute microphone', exact: true }).isDisabled(), true);
-        await voiceDetails.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        await voiceDetails.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
         assert.match(await voiceDetails.locator('.voice-call-status').innerText(), /Voice/);
         if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-voice-details.png' });
         await page.keyboard.press('Escape');
@@ -113,12 +124,9 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const next = page.getByRole('button', { name: name === 'Sentence' ? 'Next sentence' : name === 'Picture' ? 'Next image' : 'Next word', exact: true });
         if (name === 'Sentence') assert.equal((await next.innerText()).trim(), '→');
         else assert.equal(await next.locator('svg[aria-hidden="true"]').count(), 1);
-        const dock = page.locator('.ll-dock');
-        assert.equal(await dock.evaluate(element => getComputedStyle(element).position), 'fixed');
-        assert.equal(await dock.locator('svg').count(), 2);
-        await dock.getByRole('button', { name: 'Your progress', exact: true }).click();
-        await page.getByRole('dialog', { name: 'Lesson progress', exact: true }).waitFor();
-        await page.keyboard.press('Escape');
+        assert.equal(await page.locator('.ll-dock').count(), 0);
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
+        assert.equal(await page.getByRole('button', { name: 'Reference table', exact: true }).count(), 0);
         if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-compact-sentence-390.png', fullPage: true });
         if (name !== 'Sentence') {
           const exercise = page.locator('.verbs-lesson');

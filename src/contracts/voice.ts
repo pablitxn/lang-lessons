@@ -5,6 +5,8 @@ export type ProviderMode = 'mock' | 'openai-realtime';
 export type VoiceState = 'offline' | 'connecting' | 'ready' | 'reconnecting' | 'error';
 export interface VoiceConnectOptions {
   sessionId: string;
+  /** Canonical server-issued segment for the authenticated broker. */
+  segment?: import('./session').CallSegmentRef;
   /** Abort on unmount, stop, mode change or session replacement. */
   signal: AbortSignal;
 }
