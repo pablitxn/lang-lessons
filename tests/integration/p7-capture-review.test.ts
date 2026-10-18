@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { EventEmitter, once } from 'node:events';
 import WebSocket, { WebSocketServer } from 'ws';
 import { createProviderCapture } from '../../server/provider-capture';
@@ -27,10 +28,13 @@ test('P7 realistic loopback WebSocket frames export projected text only and isol
 test('P7 reproduction: JSON password and Basic authorization survive the live-enabled redaction path',async()=>{
  const exporter=new InMemorySpanExporter(); const telemetry=new PhoenixTelemetry({endpoint:'http://127.0.0.1:9999/v1/traces',project:'synthetic'},exporter);
  const socket=new Socket();const capture=createProviderCapture({policy,synthetic:true,sink:telemetry.debugSink()!,connect:()=>socket});
- const handle=capture.start(binding,'rtc_synthetic');socket.receive(event('e','{"password":"SYNTHETIC_PASSWORD"} Authorization: Basic U1lOVEhFVElDX09OTFk='));
+ const password = `synthetic-${randomUUID()}`;
+ const authorizationValue = Buffer.from(`synthetic-user:${randomUUID()}`).toString('base64');
+ const transcript = `${JSON.stringify({ password })} Authorization: Basic ${authorizationValue}`;
+ const handle=capture.start(binding,'rtc_synthetic');socket.receive(event('e',transcript));
  await handle.stop();await telemetry.flush();
  const text=JSON.stringify(exporter.getFinishedSpans().map(s=>s.attributes));
- assert.match(text,/SYNTHETIC_PASSWORD/);assert.match(text,/U1lOVEhFVElDX09OTFk=/);
+ assert.equal(text.includes(password),true);assert.equal(text.includes(authorizationValue),true);
  await capture.shutdown();await telemetry.shutdown();
 });
 test('P7 reproduction: shutdown omits a previously stopped observer that is still draining',async()=>{
