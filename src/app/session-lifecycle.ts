@@ -83,10 +83,15 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     start(): Promise<void> {
       if (callOperation) return callOperation;
-      if (!current() || snapshot.busy || snapshot.confirming || snapshot.frozen || snapshot.error || segment) return Promise.resolve();
+      if (!current() || snapshot.busy || snapshot.confirming || snapshot.frozen || snapshot.error) return Promise.resolve();
+      const state = runtime.getSnapshot().state;
+      if (segment && state !== 'offline' && state !== 'error') return Promise.resolve();
       const token = ++epoch;
       update({ busy: true, callStarting: true, error: '' });
       callOperation = (async () => {
+        // A transport disconnect is not a server stop receipt. Reconcile before replacement.
+        if (segment) { runtime.stop(); await endSegment(); }
+        if (!current() || token !== epoch) return;
         const result = await ports.sessions.startCall(await mutation());
         if (result.session.sessionId !== runtime.sessionId || result.segment.sessionId !== runtime.sessionId
           || result.session.status !== 'open') throw new Error('Call start response mismatch.');
@@ -94,7 +99,12 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         if (!current()) return;
         if (token !== epoch) { await endSegment(); return; }
         try { await runtime.start(); }
-        catch (error) { await endSegment(); throw error; }
+        catch (error) {
+          await endSegment();
+          // Explicit Stop invalidates this start. Its successful stop receipt completes cancellation.
+          if (token !== epoch) return;
+          throw error;
+        }
       })().catch(() => { if (current()) update({ error: 'The tutor call could not be started. Session state needs checking.' }); })
         .finally(() => { callOperation = null; if (current()) update({ busy: false, callStarting: false }); });
       return callOperation;
