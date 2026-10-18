@@ -1,3 +1,4 @@
+import { getPictureDictionaryEntry } from './dictionary';
 import { createWrittenPracticeBinding } from '../progress/written-practice-binding';
 import type { WrittenPracticeBinding } from '../progress/written-snapshot';
 import { useWrittenActivity, type WrittenActivityBinding } from '../progress/use-written-activity';
@@ -115,7 +116,7 @@ function VerbPractice({ session, settings, sessionControls, rootVoiceError, writ
           {!snapshot.hintPending && snapshot.hint && <p role="status" className="ll-hint">{snapshot.hint.text}</p>}
         </div>
       </div>
-      {state.pictureComplete && <PictureDictionaryCard completion={{ identity: snapshot, dictionary: null }}
+      {state.pictureComplete && <PictureDictionaryCard completion={{ identity: snapshot, dictionary: getPictureDictionaryEntry(context.verb.id) }}
         onNext={() => session.nextPicture(snapshot.exerciseId)} />}
     </PracticeLayout>
   </div>;
