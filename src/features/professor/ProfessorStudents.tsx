@@ -3,10 +3,32 @@ import type { CurrentUser, FeedbackState, ProfessorComment, PublicUser } from '.
 import { hasCapability, type Page, type ReadResult } from '../accounts/access';
 import { ReadPanel } from '../accounts/ReadPanel';
 
-/** View adapter only; no metric definitions or additional student fields are selected. */
+/** Server-grouped display DTOs: the browser never selects a timezone or aggregates visits. */
+export interface StudentSessionView {
+  readonly sessionId: string;
+  readonly feedback: FeedbackState;
+  readonly comment: ProfessorComment | null;
+  readonly startedAt?: string | null;
+  readonly endedAt?: string | null;
+}
+export interface DailyWrittenTotals {
+  readonly definitionVersion: string;
+  readonly performed: number;
+  readonly solved: number;
+  readonly mistakes: number;
+}
+export interface StudentDayView {
+  readonly dayId: string;
+  readonly label: string;
+  /** Null until metric definitions are approved; zero is a real supplied total. */
+  readonly written: DailyWrittenTotals | null;
+  readonly sessions: readonly StudentSessionView[];
+}
 export interface StudentProgressView {
   readonly studentId: string;
-  readonly sessions: readonly { sessionId: string; feedback: FeedbackState; comment: ProfessorComment | null }[];
+  readonly sessions: readonly StudentSessionView[];
+  /** Omit/null until the server has a selected daily boundary. Never infer browser local time. */
+  readonly daily?: { readonly timeZone: string; readonly days: readonly StudentDayView[] } | null;
 }
 export interface ProfessorApi {
   listAllStudents(cursor: string | null, signal: AbortSignal): Promise<ReadResult<Page<PublicUser>>>;
@@ -42,10 +64,23 @@ function StudentDetail({ id, api, onBack }: { id: string; api: ProfessorApi; onB
   const load = useCallback((signal: AbortSignal) => api.readProgress(id, signal), [api, id]);
   return <div><button onClick={onBack}>Back to students</button><h2 ref={heading} tabIndex={-1}>Progress for {id}</h2>
     <ReadPanel load={load}>{view => view.studentId !== id ? <p role="alert">Student data could not be verified.</p> : <>
-      <p>Metrics are not available yet. Written and oral results remain separate.</p>
-      <h3>Session comments</h3>{view.sessions.length === 0 ? <p>No session comments found.</p> : view.sessions.map(session => <article key={session.sessionId} aria-label={`Session ${session.sessionId}`}>
-        <h4>Session {session.sessionId}</h4><p>{feedbackLabels[session.feedback]}</p>
-        {session.feedback === 'succeeded' && (session.comment?.sessionId === session.sessionId ? <><p className="p3-comment">{session.comment.text}</p><small>Source version: {session.comment.provenanceVersion}</small></> : <p role="alert">Comment could not be verified.</p>)}
-      </article>)}
+      {view.daily ? <>
+        <p>Daily progress · {view.daily.timeZone}</p>
+        <p>Written results accumulate across all visits for the whole day, with or without tutor calls.</p>
+        {view.daily.days.length === 0 ? <p>No daily progress found.</p> : view.daily.days.map(day => <section key={day.dayId} aria-label={day.label}>
+          <h3>{day.label}</h3>
+          {day.written ? <><dl className="p3-daily-totals"><div><dt>Written exercises performed</dt><dd>{day.written.performed}</dd></div><div><dt>Written exercises solved</dt><dd>{day.written.solved}</dd></div><div><dt>Written mistakes</dt><dd>{day.written.mistakes}</dd></div></dl><p>Metric definition: {day.written.definitionVersion}</p></> : <p>Daily written totals are not available yet.</p>}
+          <h4>Tutor sessions and comments</h4><SessionComments sessions={day.sessions} />
+        </section>)}
+      </> : <><p>Daily grouping is not available until the day boundary is configured. Metrics are not available yet. Written and oral results remain separate.</p>
+        <h3>Session comments</h3><SessionComments sessions={view.sessions} /></>}
     </>}</ReadPanel></div>;
+}
+function SessionComments({ sessions }: { sessions: readonly StudentSessionView[] }) {
+  return <>{sessions.length === 0 ? <p>No session comments found.</p> : sessions.map(session => <article key={session.sessionId} aria-label={`Session ${session.sessionId}`}>
+    <h5>Session {session.sessionId}</h5>
+    <dl><dt>Started</dt><dd>{session.startedAt ?? 'Unavailable'}</dd><dt>Ended</dt><dd>{session.endedAt ?? 'Unavailable'}</dd></dl>
+    <p>{feedbackLabels[session.feedback]}</p>
+    {session.feedback === 'succeeded' && (session.comment?.sessionId === session.sessionId ? <><p className="p3-comment">{session.comment.text}</p><small>Source version: {session.comment.provenanceVersion}</small></> : <p role="alert">Comment could not be verified.</p>)}
+  </article>)}</>;
 }
