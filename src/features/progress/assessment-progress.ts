@@ -5,7 +5,7 @@ export function createAssessmentProgress(sink: ProgressSink | undefined, onError
   let previous: EvidenceLedger = {};
   let exercise = '';
   const sent = new Set<string>();
-  return (ledger: EvidenceLedger, exerciseId: string) => {
+  return (ledger: EvidenceLedger, exerciseId: string, emit = true) => {
     if (exercise !== exerciseId) { previous = {}; sent.clear(); exercise = exerciseId; }
     const events: PracticeEvent[] = [];
     for (const record of Object.values(ledger)) {
@@ -25,7 +25,7 @@ export function createAssessmentProgress(sink: ProgressSink | undefined, onError
         : { ...common, kind: 'attempt-invalidated' });
     }
     previous = ledger;
-    if (!sink || !events.length) return;
+    if (!emit || !sink || !events.length) return;
     try {
       void sink.submit(events).then(result => { if (result.status !== 'committed') onError(); }, onError);
     } catch { onError(); }
