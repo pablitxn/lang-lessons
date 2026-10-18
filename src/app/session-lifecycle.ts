@@ -42,6 +42,9 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
     exit: {
       sessionId: runtime.sessionId,
       async requestExit() {
+        if (callOperation && snapshot.callStarting && runtime.getSnapshot().state !== 'ready') {
+          epoch++; runtime.pause();
+        }
         if (callOperation) await callOperation;
         if (!current()) return 'cancel';
         if (snapshot.error) throw new Error('Call lifecycle needs reconciliation.');
@@ -99,11 +102,11 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         if (!current()) return;
         if (token !== epoch) { await endSegment(); return; }
         try { await runtime.start(); }
-        catch (error) {
+        catch {
+          // Media failure/cancellation is recoverable after an authoritative stop
+          // receipt. The runtime retains its transport error for explicit retry.
+          // A failed stop still reaches the outer unresolved-lifecycle fence.
           await endSegment();
-          // Explicit Stop invalidates this start. Its successful stop receipt completes cancellation.
-          if (token !== epoch) return;
-          throw error;
         }
       })().catch(() => { if (current()) update({ error: 'The tutor call could not be started. Session state needs checking.' }); })
         .finally(() => { callOperation = null; if (current()) update({ busy: false, callStarting: false }); });

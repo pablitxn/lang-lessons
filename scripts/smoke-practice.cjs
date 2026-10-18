@@ -93,7 +93,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
           if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-voice-ui-final-${mode}-${viewport.width}.png`, fullPage: true });
           const routeRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
-          await page.getByRole('link', { name: 'All lessons', exact: true }).click(); await routeRelease;
+          await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+          await page.getByRole('button', { name: 'Leave session', exact: true }).click(); await routeRelease;
           await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); await assertReleased(page);
           assert.equal(transport.releaseRequests, 2);
           const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
@@ -166,7 +167,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await startTutor(page); await ready(page);
         let release; transport.releaseBarrier = new Promise(resolve => { release = resolve; });
         const pendingRelease = page.waitForRequest(request => request.url().endsWith('/api/realtime/session/end'));
-        await page.getByRole('link', { name: 'All lessons', exact: true }).click(); await pendingRelease;
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('button', { name: 'Leave session', exact: true }).click(); await pendingRelease;
         await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
         const nextPreflight = page.waitForResponse(response => response.url().endsWith('/api/realtime/status'));
         await page.getByRole('link', { name: 'Start Verb practice', exact: true }).click(); await startTutor(page); await nextPreflight;

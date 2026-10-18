@@ -215,3 +215,27 @@ test('intentional startup cancellation still reports an unacknowledged segment s
   assert.equal(f.connects(), 0); assert.match(f.lifecycle.getSnapshot().error, /needs checking/);
   assert.equal(await f.lifecycle.requestExit('home'), undefined); f.lifecycle.dispose();
 });
+
+test('acknowledged cleanup after failed media preparation permits explicit retry and written-only exit', async () => {
+  const f = fixture({ prepareConnection: async () => { throw new Error('Service unavailable'); } });
+  await f.lifecycle.start();
+  assert.equal(f.lifecycle.getSnapshot().error, '');
+  assert.match(f.runtime.getSnapshot().error, /Service unavailable/);
+  assert.equal(f.runtime.getSnapshot().hadConnectedCall, false);
+  await f.lifecycle.start(); assert.equal(f.calls.filter(call => call === 'start').length, 2);
+  assert.equal(f.calls.filter(call => call === 'stop').length, 2);
+  assert.equal(await f.lifecycle.requestExit('home'), 'closed');
+  assert.equal(f.lifecycle.getSnapshot().confirming, false); f.lifecycle.dispose();
+});
+
+test('exit cancels pending connection preparation before flushing and closing the canonical session', async () => {
+  const f = fixture({ prepareConnection: signal => new Promise<void>((_, reject) => {
+    signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+  }) });
+  const start = f.lifecycle.start(); await tick();
+  assert.equal(await f.lifecycle.requestExit('home'), 'closed'); await start;
+  assert.equal(f.lifecycle.getSnapshot().confirming, false);
+  assert.equal(f.connects(), 0);
+  assert.ok(f.calls.indexOf('stop') < f.calls.indexOf('flush'));
+  assert.ok(f.calls.indexOf('flush') < f.calls.indexOf('close')); f.lifecycle.dispose();
+});
