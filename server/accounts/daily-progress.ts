@@ -7,6 +7,8 @@ import { authorize } from './authorization';
 import type { AuthenticatedIdentity } from './authorization';
 import { approvedAccountAccess } from './approved-policy';
 import type { DisclosurePolicy, Page } from './repository';
+import { readUsageForWindow } from '../data/usage';
+import type { UsageSummary } from '../data/usage';
 import { RepositoryError, requireId, transaction } from '../data/database';
 
 /** Q11 timezone and time attribution must be selected outside this adapter. No browser clock is trusted. */
@@ -20,7 +22,7 @@ export interface DailyProgressPage {
   readonly studentId: string; readonly day: string; readonly timeZone: string; readonly eventAttribution: 'server-received';
   readonly writtenEvents: Page<DailyResult>; readonly sessions: Page<DailySession>;
   /** No solved/mistake/performance denominator or time definition is inferred from raw outcomes. */
-  readonly totals: null; readonly usageTime: null; readonly hasUnattributedLegacyRecords: boolean;
+  readonly totals: null; readonly usageTime: UsageSummary; readonly hasUnattributedLegacyRecords: boolean;
 }
 export interface DailyPageRequest { readonly day: string; readonly eventCursor?: string | null; readonly sessionCursor?: string | null; readonly limit?: number }
 function cursor(input: string | null | undefined): string {
@@ -91,7 +93,7 @@ export function createDailyProgressRepository(pool: Pool, grouping?: DailyGroupi
         ) AS missing`, [studentId]);
         return { studentId, day: input.day, timeZone: zone, eventAttribution: 'server-received',
           writtenEvents: page(written, limit, result => JSON.stringify([result.event.ref.sessionId, result.event.eventId])),
-          sessions: page(sessionViews, limit, session => session.sessionId), totals: null, usageTime: null,
+          sessions: page(sessionViews, limit, session => session.sessionId), totals: null, usageTime: await readUsageForWindow(client, studentId, start, end),
           hasUnattributedLegacyRecords: legacy.rows[0]!.missing };
       });
     },

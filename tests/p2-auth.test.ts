@@ -23,7 +23,9 @@ test('P2 auth rejects unresolved settings without constructing an auth instance'
 test('P2 Better Auth isolated login/logout, expiry, disabled identity and blocked account routes', { skip: !database }, async () => {
   assert.ok(database); const url = new URL(database);
   assert.ok(['127.0.0.1', 'localhost'].includes(url.hostname) && url.pathname === '/p2_test');
-  const admin = new Pool({ connectionString: database }); const schema = `p2_auth_${randomUUID().replaceAll('-', '')}`;
+  const admin = new Pool({ connectionString: database });
+  // Better Auth introspects every accessible schema; serialize fixture lifetimes, not tested operations.
+  const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_auth_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
   try {
@@ -70,5 +72,5 @@ test('P2 Better Auth isolated login/logout, expiry, disabled identity and blocke
     await assert.rejects(adapter.identity(new Headers({ cookie: againCookie })), /unauthenticated/);
     await pool.query('UPDATE session SET "expiresAt"=CURRENT_TIMESTAMP - interval \'1 second\'');
     await assert.rejects(adapter.identity(new Headers({ cookie: againCookie })), /unauthenticated/);
-  } finally { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end(); }
+  } finally { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await guard.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); guard.release(); await admin.end(); }
 });

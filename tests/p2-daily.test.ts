@@ -11,10 +11,12 @@ const database = process.env.P2_DISPOSABLE_DATABASE_URL;
 async function fixture() {
   assert.ok(database); const url = new URL(database);
   assert.ok(['127.0.0.1', 'localhost'].includes(url.hostname) && url.pathname === '/p2_test');
-  const admin = new Pool({ connectionString: database }); const schema = `p2_daily_${randomUUID().replaceAll('-', '')}`;
+  const admin = new Pool({ connectionString: database });
+  // Better Auth introspects every accessible schema; serialize fixture lifetimes, not tested operations.
+  const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_daily_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
-  for (const file of ['p2-learning', 'p2-day-projection']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
+  for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('student','student'),('other','student'),('prof','professor'),('admin','administrator')");
   const repo = createLearningRepository(pool, { userId: 'student' }, { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, feedbackOnClose: () => 'not-requested' });
   async function visit(called: boolean) {
@@ -26,7 +28,7 @@ async function fixture() {
     if (called) await repo.commands.startCall({ sessionId: id, operationId: randomUUID(), expectedRevision: 0 });
     return { id, event, close: () => repo.commands.confirmClose({ sessionId: id, operationId: randomUUID(), expectedRevision: called ? 1 : 0, finalProgress: { sessionId: id, journalRevision: 1 } }) };
   }
-  return { pool, repo, visit, cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end(); } };
+  return { pool, repo, visit, cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await guard.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); guard.release(); await admin.end(); } };
 }
 const isolated = { skip: !database };
 
@@ -43,7 +45,7 @@ test('P2 daily written events span called/no-call visits and survive close, repl
     const next = await daily.read({ userId: 'prof' }, 'student', { day: '2026-10-18', limit: 1, eventCursor: page.writtenEvents.nextCursor });
     assert.equal(next.writtenEvents.items.length, 1); assert.equal(next.writtenEvents.nextCursor, null);
     assert.notEqual(next.writtenEvents.items[0]!.event.ref.sessionId, page.writtenEvents.items[0]!.event.ref.sessionId);
-    assert.equal(page.totals, null); assert.equal(page.usageTime, null);
+    assert.equal(page.totals, null); assert.equal(page.usageTime.totalMs, 0);
     const all = await daily.read({ userId: 'prof' }, 'student', { day: '2026-10-18' });
     assert.equal(all.writtenEvents.items.length, 2); assert.equal(all.sessions.items.length, 3);
     assert.equal(all.sessions.items.filter(s => s.closedAt !== null).length, 2);
