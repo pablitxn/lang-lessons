@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { Pool } from 'pg';
+import { createUserManagementRepository } from '../server/accounts/management';
 import { hashPassword } from 'better-auth/crypto';
 import { createAuthAdapter, authOptions } from '../server/auth/better-auth';
 import type { AuthConfiguration } from '../server/auth/better-auth';
@@ -28,6 +29,7 @@ test('P2 Better Auth isolated login/logout, expiry, disabled identity and blocke
   try {
     await pool.query(await readFile(new URL('../server/data/migrations/p2-auth.sql', import.meta.url), 'utf8'));
     await pool.query(await readFile(new URL('../server/data/migrations/p2-learning.sql', import.meta.url), 'utf8'));
+    await pool.query(await readFile(new URL('../server/data/migrations/p2-admin.sql', import.meta.url), 'utf8'));
     // Disposable synthetic user only: no public signup or production account provisioning.
     await pool.query('INSERT INTO "user"(id,name,email,"emailVerified") VALUES ($1,$2,$3,true)', ['fixture', 'Fixture', 'fixture@example.invalid']);
     await pool.query('INSERT INTO account(id,"accountId","providerId","userId",password,"updatedAt") VALUES ($1,$2,$3,$4,$5,CURRENT_TIMESTAMP)', ['account', 'fixture', 'credential', 'fixture', await hashPassword('disposable-fixture-password')]);
@@ -55,7 +57,17 @@ test('P2 Better Auth isolated login/logout, expiry, disabled identity and blocke
     assert.equal((await adapter.handle(request('sign-out', {}, cookie))).status, 200);
     await assert.rejects(adapter.identity(new Headers({ cookie })), /unauthenticated/);
     const again = await adapter.handle(request('sign-in/email', { email: 'fixture@example.invalid', password: 'disposable-fixture-password' }));
+    assert.equal(again.status, 200);
     const againCookie = again.headers.getSetCookie().map(value => value.split(';')[0]).join('; ');
+    const priorSession = (await pool.query('SELECT * FROM session')).rows[0];
+    await pool.query('INSERT INTO "user"(id,name,email,"emailVerified") VALUES ($1,$1,$2,false)', ['admin', 'admin@example.invalid']);
+    await pool.query("INSERT INTO learning_users(id,role) VALUES ('admin','administrator')");
+    const management = createUserManagementRepository(pool);
+    await management.update({ userId: 'admin' }, { operationId: 'disable', userId: 'fixture', expectedRevision: 0, kind: 'set-disabled', disabled: true });
+    await management.update({ userId: 'admin' }, { operationId: 'reactivate', userId: 'fixture', expectedRevision: 1, kind: 'set-disabled', disabled: false });
+    // Simulate a login insert racing deactivation: even a surviving old signed cookie stays revoked.
+    await pool.query('INSERT INTO session SELECT * FROM jsonb_populate_record(NULL::session,$1::jsonb)', [JSON.stringify(priorSession)]);
+    await assert.rejects(adapter.identity(new Headers({ cookie: againCookie })), /unauthenticated/);
     await pool.query('UPDATE session SET "expiresAt"=CURRENT_TIMESTAMP - interval \'1 second\'');
     await assert.rejects(adapter.identity(new Headers({ cookie: againCookie })), /unauthenticated/);
   } finally { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end(); }

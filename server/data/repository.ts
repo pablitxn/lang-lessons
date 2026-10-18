@@ -102,7 +102,7 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
             if (!['not-requested', 'pending', 'insufficient-evidence'].includes(feedback)) throw new RepositoryError('policy-unresolved');
           }
           const result: CloseResult = { sessionId: row.id, operationId: input.operationId, status: 'closed', revision: row.revision + 1, feedback };
-          await client.query("UPDATE learning_sessions SET status='closed', revision=revision+1 WHERE id=$1", [row.id]);
+          await client.query("UPDATE learning_sessions SET status='closed', revision=revision+1, closed_at=clock_timestamp() WHERE id=$1", [row.id]);
           await client.query('UPDATE learning_segments SET ended=true WHERE session_id=$1 AND NOT ended', [row.id]);
           if (feedback !== 'not-requested') await client.query('INSERT INTO learning_feedback_jobs(id,session_id,state) VALUES ($1,$2,$3)', [randomUUID(), row.id, feedback]);
           await client.query('INSERT INTO learning_closes(session_id,result) VALUES ($1,$2)', [row.id, JSON.stringify(result)]);
@@ -151,8 +151,8 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
         for (const [eventId, receipt] of applied.state.receipts) {
           if (original.receipts.has(eventId)) continue;
           const event = events.find(item => item.eventId === eventId)!;
-          await client.query('INSERT INTO learning_events(session_id,event_id,exercise_id,generation,fingerprint,committed_revision) VALUES ($1,$2,$3,$4,$5,$6)',
-            [sessionId, eventId, event.ref.exerciseId, event.ref.generation, receipt.fingerprint, receipt.committedRevision]);
+          await client.query('INSERT INTO learning_events(session_id,event_id,exercise_id,generation,fingerprint,committed_revision,event_payload) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+            [sessionId, eventId, event.ref.exerciseId, event.ref.generation, receipt.fingerprint, receipt.committedRevision, JSON.stringify(event)]);
         }
         for (const [key, revision] of applied.state.attempts) {
           await client.query('INSERT INTO learning_attempts(session_id,attempt_key,revision) VALUES ($1,$2,$3) ON CONFLICT (session_id,attempt_key) DO UPDATE SET revision=EXCLUDED.revision', [sessionId, key, revision]);
