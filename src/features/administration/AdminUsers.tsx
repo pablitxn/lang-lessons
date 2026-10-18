@@ -1,22 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { CurrentUser, PublicUser } from '../../contracts';
 import { hasCapability, type Page, type ReadResult } from '../accounts/access';
 import { ReadPanel } from '../accounts/ReadPanel';
 import { changeDescription, CreateUserForm, UserActions } from './ManagementControls';
 import { managementMessages, unboundManagement, type ManagedUser, type ManagementCapabilities, type UserChange, type UserManagementApi } from './management';
 export interface AdminUsersApi { listUsers(cursor: string | null, signal: AbortSignal): Promise<ReadResult<Page<PublicUser | ManagedUser>>> }
-export function AdminUsers({ user, capability = null, api = null, managementApi = null, managementCapabilities = unboundManagement, onAccountChanged }: {
+export function AdminUsers({ user, capability = null, api = null, managementApi = null, managementCapabilities = unboundManagement, onAccountChanged, credentialActions }: {
   user: CurrentUser | null; capability?: string | null; api?: AdminUsersApi | null;
   managementApi?: UserManagementApi | null; managementCapabilities?: ManagementCapabilities;
   /** Root refreshes current actor/grants after a successful mutation, including self changes. */
   onAccountChanged?: () => void;
+  credentialActions?: (user: ManagedUser) => ReactNode;
 }) {
   return <section className="p3-admin"><h1>User management</h1>{!hasCapability(user, capability) ? <p role="alert">Access denied.</p> : !api || !user ? <p role="status">User management is not available yet.</p> :
-    <UserList key={JSON.stringify([user, capability, managementCapabilities])} actor={user} api={api} managementApi={managementApi} capabilities={managementCapabilities} onAccountChanged={onAccountChanged} />}
-    <p>Public signup, deletion and recovery are not available.</p></section>;
+    <UserList key={JSON.stringify([user, capability, managementCapabilities])} actor={user} api={api} managementApi={managementApi} capabilities={managementCapabilities} onAccountChanged={onAccountChanged} credentialActions={credentialActions} />}
+    <p>Public signup and account deletion are not available. Setup and recovery links are delivered manually by an administrator.</p></section>;
 }
-function UserList({ actor, api, managementApi, capabilities, onAccountChanged }: {
-  actor: CurrentUser; api: AdminUsersApi; managementApi: UserManagementApi | null; capabilities: ManagementCapabilities; onAccountChanged: (() => void) | undefined;
+function UserList({ actor, api, managementApi, capabilities, onAccountChanged, credentialActions }: {
+  actor: CurrentUser; api: AdminUsersApi; managementApi: UserManagementApi | null; capabilities: ManagementCapabilities; credentialActions: ((user: ManagedUser) => ReactNode) | undefined; onAccountChanged: (() => void) | undefined;
 }) {
   const [cursors, setCursors] = useState<(string | null)[]>([null]);
   const [revision, setRevision] = useState(0);
@@ -65,6 +66,7 @@ function UserList({ actor, api, managementApi, capabilities, onAccountChanged }:
       {page.items.length ? <ul aria-label="Users">{page.items.map(user => <li key={`${user.id}:${user.role}:${'disabled' in user ? user.disabled : 'unknown'}`}>
         <p>{user.id} · {user.role}{'disabled' in user ? ` · ${user.disabled ? 'Inactive' : 'Active'}` : ''}</p>
         {managementApi && 'disabled' in user && <UserActions target={user} actor={actor} capabilities={capabilities} disabled={locked} onChange={requestChange} />}
+        {'disabled' in user && credentialActions?.(user)}
       </li>)}</ul> : <p>No users found.</p>}
       <button disabled={locked || cursors.length === 1} onClick={() => setCursors(value => value.slice(0, -1))}>Previous users</button>
       <button disabled={locked || !page.nextCursor || cursors.includes(page.nextCursor)} onClick={() => { if (page.nextCursor) setCursors(value => [...value, page.nextCursor]); }}>Next users</button>

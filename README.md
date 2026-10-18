@@ -244,7 +244,19 @@ these values in Vite variables. The JSON contains `origin`, `login` and
 
 Run `npm ci`, `npm run db:migrate` with that configuration, then `npm run build`.
 Migration is explicit and checksum-checked; startup does not migrate automatically.
-A privileged initial administrator must exist before account management can be used.
+Bootstrap the first administrator with the operator-only command
+`node --import tsx scripts/bootstrap-admin.ts --confirm-initial-administrator`.
+Supply a JSON object containing `email` and `password` on standard input from a
+protected input source; do not put secrets in command arguments or shell history.
+The command refuses an existing administrator, hashes the password, and prints no
+credential. This command was tested only with synthetic disposable accounts.
+After login, create accounts in User management and use **Issue setup link**;
+use **Issue reset link** for an existing password. Deliver the displayed link
+privately yourself: no email is sent. Links expire after 30 minutes, are single-use,
+and issuing a replacement revokes the previous link. Successful redemption signs
+out existing sessions; users then log in normally. Configure hosting to serve
+`index.html` for `/account/credentials`, preserve the fragment until the app clears
+it, and keep request bodies out of proxy/analytics logs. No public signup exists.
 Students explicitly select their own IANA timezone before daily grouping is available.
 Do not substitute the professor's or server's timezone.
 

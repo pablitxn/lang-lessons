@@ -1,3 +1,4 @@
+import { CredentialLinkActions } from './CredentialLinks';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StudentApplication } from './StudentApplication';
 import { createBrowserProgressBinding } from './browser-progress';
@@ -47,7 +48,7 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
   if (user?.role === 'student' && services) return <StudentApplication user={user} key={JSON.stringify(user)} renderLesson={renderLesson} services={services} client={client} />;
   return <AccountShell state={state} loginApi={client.login} onAuthenticated={next => setState({ status: 'authenticated', user: next })}>
     {user?.role === 'administrator' ? <AdminUsers key={JSON.stringify(user)} user={user} capability="users:list" api={client.administration}
-      managementApi={client.management} managementCapabilities={{ create: 'users:manage', changeRole: 'users:manage', deactivate: 'users:manage', reactivate: 'users:manage' }} onAccountChanged={() => { void refresh(); }} />
+      credentialActions={target => <CredentialLinkActions key={target.id} userId={target.id} disabled={target.disabled} json={client.json} />} managementApi={client.management} managementCapabilities={{ create: 'users:manage', changeRole: 'users:manage', deactivate: 'users:manage', reactivate: 'users:manage' }} onAccountChanged={() => { void refresh(); }} />
       : user?.role === 'professor' ? <ProfessorStudents key={JSON.stringify(user)} user={user} listCapability="students:list" progressCapability="students:feedback:read" api={client.professor} />
       : <p role="status">Practice synchronization is unavailable. Your saved work has not been discarded.</p>}
   </AccountShell>;

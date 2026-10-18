@@ -9,6 +9,8 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  credentialPasswordPolicy?: { min: number; max: number };
+  credentialLinks?: ReturnType<typeof import('./auth/credential-links').createCredentialLinkRepository>;
   clientCallTime?: ReturnType<typeof import('./data/client-call-time').createClientCallTime>;
   timeZone?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./accounts/student-timezone').createStudentTimeZoneRepository>;
   feedback?: Pick<ReturnType<typeof import('./feedback/service').createFeedbackService>, 'afterConfirmedClose' | 'afterManualRetry'>;
@@ -52,6 +54,8 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
         const response = await services.auth.handle(request, clientAddress);
         response.headers.set('cache-control', 'private, no-store'); return response;
       }
+      if (url.pathname === '/api/learning/credential-links/policy' && request.method === 'GET' && services.credentialPasswordPolicy) return reply(200, services.credentialPasswordPolicy);
+      if (url.pathname === '/api/learning/credential-links/redeem' && request.method === 'POST' && services.credentialLinks) return reply(200, await services.credentialLinks.redeem(await readBoundedJson(request) as never));
       const identity = await services.auth.identity(request.headers);
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
@@ -72,6 +76,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
         if (url.pathname === '/api/learning/session/close' && id) return reply(200, await services.learning(identity).commands.readClose(id));
         return reply(404, { error: 'not-found' });
       }
+      if (url.pathname === '/api/learning/credential-links/issue' && services.credentialLinks) return reply(200, await services.credentialLinks.issue(identity, await readBoundedJson(request) as never));
       const repository = services.learning(identity);
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.

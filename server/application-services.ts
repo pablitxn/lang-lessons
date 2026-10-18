@@ -1,3 +1,4 @@
+import { createCredentialLinkRepository } from './auth/credential-links';
 import { createClientCallTime } from './data/client-call-time';
 import type { Pool } from 'pg';
 import { createAuthAdapter, type LoginPolicy } from './auth/better-auth';
@@ -40,6 +41,8 @@ export function createApplicationServices(config: {
   }) };
   const auth = createAuthAdapter({ pool: config.pool, origin: config.origin, secret: config.secret, policy: config.login });
   return {
+    credentialPasswordPolicy: { min: config.login.minPasswordLength, max: config.login.maxPasswordLength },
+    credentialLinks: createCredentialLinkRepository({ pool: config.pool, origin: config.origin, passwordPolicy: config.login }),
     clientCallTime: createClientCallTime(config.pool, access),
     feedback: createCanonicalFeedbackService(config.pool, config.feedbackTelemetry ? { telemetry: config.feedbackTelemetry } : {}),
     reconcile: createBrokerRecovery({ pool: config.pool, access, ...(config.terminateProviderCall ? { terminate: config.terminateProviderCall } : {}) }),
