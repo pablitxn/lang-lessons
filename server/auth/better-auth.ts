@@ -1,4 +1,5 @@
 import { isIP } from 'node:net';
+import { withCredentialLock } from './credential-lock';
 import { betterAuth } from 'better-auth';
 import type { BetterAuthOptions } from 'better-auth';
 import type { Pool } from 'pg';
@@ -91,7 +92,9 @@ export function createAuthAdapter(config: AuthConfiguration) {
         if (!config.policy.allowRememberMe) input.rememberMe = false;
       } else if (Object.keys(input).length) return new Response(null, { status: 400 });
       const forwardedHeaders = new Headers(request.headers); forwardedHeaders.set('x-p2-client-ip', clientAddress);
-      const response = await auth.handler(new Request(request.url, { method: 'POST', headers: forwardedHeaders, body: JSON.stringify(input) }));
+      // Reset holds the exclusive lock until password update and session revocation commit.
+      const execute = () => auth.handler(new Request(request.url, { method: 'POST', headers: forwardedHeaders, body: JSON.stringify(input) }));
+      const response = path.endsWith('/email') ? await withCredentialLock(config.pool, false, execute) : await execute();
       // Keep the library's Set-Cookie headers; never expose its bearer token or user profile DTO.
       const headers = new Headers(response.headers); headers.set('cache-control', 'no-store'); headers.delete('content-length');
       return new Response(JSON.stringify({ ok: response.ok }), { status: response.status, headers });
