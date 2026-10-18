@@ -139,6 +139,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await page.getByRole('listbox').count(), 0);
         await tenseChoice.click();
         const tenseOptions = page.getByRole('listbox');
+        await tenseOptions.waitFor({ state: 'visible' });
         assert.equal(await tenseOptions.getByRole('option').count(), 8);
         for (const label of tenseLabels) assert.equal(await tenseOptions.getByRole('option', { name: label, exact: true }).count(), 1);
         assert.equal(await tenseOptions.getByRole('group', { name: 'Present', exact: true }).count(), 1);

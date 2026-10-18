@@ -1,6 +1,7 @@
 import type { Pool } from 'pg';
 import { createAuthAdapter, type LoginPolicy } from './auth/better-auth';
 import { approvedAccountAccess } from './accounts/approved-policy';
+import { createStudentTimeZoneRepository } from './accounts/student-timezone';
 import { createAccountRepository } from './accounts/repository';
 import { createUserManagementRepository } from './accounts/management';
 import { createDailyProgressRepository, type DailyGroupingPolicy } from './accounts/daily-progress';
@@ -42,9 +43,10 @@ export function createApplicationServices(config: {
     brokerAuthority: createBrokerAuthority({ pool: config.pool, auth, access, origin: config.origin, allowRequest: config.allowRequest }),
     origin: config.origin, allowRequest: config.allowRequest,
     auth,
+    timeZone: identity => createStudentTimeZoneRepository(config.pool, identity),
     accounts: createAccountRepository(config.pool, access, { allowStudentFeedback: true }),
     management: createUserManagementRepository(config.pool),
-    daily: createDailyProgressRepository(config.pool, config.grouping, { allowStudentFeedback: true }),
+    daily: createDailyProgressRepository(config.pool, { eventAttribution: 'server-received' }, { allowStudentFeedback: true }),
     learning: identity => createLearningRepository(config.pool, identity, data),
     usage: identity => createUsageRepository(config.pool, identity, data),
     recovery: identity => createRecoveryRepository(config.pool, identity, data),

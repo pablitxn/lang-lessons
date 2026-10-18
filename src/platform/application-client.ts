@@ -6,6 +6,11 @@ import type { UserManagementApi } from '../features/administration/management';
 import type { ProfessorApi, StudentSessionView } from '../features/professor';
 const object = (value: unknown): value is Record<string, any> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 256;
+const instant = (value: unknown) => value === null || typeof value === 'string' && Number.isFinite(Date.parse(value));
+const timeZone = (value: unknown): value is string => {
+  if (typeof value !== 'string' || value.length > 128 || !(value === 'UTC' || /^[A-Za-z_]+(?:\/[A-Za-z0-9_+\-]+)+$/u.test(value))) return false;
+  try { new Intl.DateTimeFormat('en', { timeZone: value }); return true; } catch { return false; }
+};
 const role = (value: unknown) => ['administrator', 'professor', 'student'].includes(String(value));
 const revision = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0;
 export class ApplicationRequestError extends Error { constructor(readonly status: number) { super('Application request failed'); } }
@@ -89,7 +94,7 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
         if (!object(value) || value.studentId !== studentId || !object(value.sessions) || !Array.isArray(value.sessions.items) || value.sessions.items.length > 100
           || !(value.sessions.nextCursor === null || id(value.sessions.nextCursor))) throw new Error('Invalid progress page');
         for (const session of value.sessions.items) {
-          if (!object(session) || !id(session.sessionId) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)
+          if (!object(session) || !id(session.sessionId) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)
             || session.comment !== null && (!object(session.comment) || session.comment.sessionId !== session.sessionId || typeof session.comment.text !== 'string' || !id(session.comment.provenanceVersion))) throw new Error('Invalid session feedback');
         }
         return { status: 'ok', value: { studentId, sessions: { items: value.sessions.items, nextCursor: value.sessions.nextCursor } } };
@@ -102,14 +107,14 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
         if (input.sessionCursor) params.set('sessionCursor', input.sessionCursor);
         const value = await json(`/api/learning/daily-progress?${params}`, undefined, signal);
         const page = (page: unknown) => object(page) && Array.isArray(page.items) && page.items.length <= 100 && (page.nextCursor === null || id(page.nextCursor));
-        if (!object(value) || value.studentId !== studentId || value.day !== input.day || typeof value.timeZone !== 'string' || value.eventAttribution !== 'server-received'
+        if (!object(value) || value.studentId !== studentId || value.day !== input.day || !timeZone(value.timeZone) || !Array.isArray(value.attributionTimeZones) || value.attributionTimeZones.some((zone: unknown) => !timeZone(zone)) || value.eventAttribution !== 'server-received'
           || !page(value.writtenEvents) || !page(value.sessions) || value.totals !== null || typeof value.hasUnattributedLegacyRecords !== 'boolean'
           || !object(value.usageTime) || value.usageTime.writtenTrust !== 'client-reported-interaction' || value.usageTime.tutorTrust !== 'server-observed-connection'
           || ['writtenMs','tutorConnectedMs','totalMs'].some(key => !Number.isFinite(value.usageTime[key]) || value.usageTime[key] < 0)) throw new Error('Invalid daily progress');
         new Intl.DateTimeFormat('en', { timeZone: value.timeZone });
         for (const row of value.writtenEvents.items) {
           const event = object(row) ? parsePracticeEvent(row.event) : null;
-          if (!event || event.source !== 'typed' || !revision(row.committedRevision) || row.committedRevision < 1 || typeof row.receivedAt !== 'string' || !Number.isFinite(Date.parse(row.receivedAt))) throw new Error('Invalid daily event');
+          if (!timeZone(row.timeZone) || !value.attributionTimeZones.includes(row.timeZone) || !event || event.source !== 'typed' || !revision(row.committedRevision) || row.committedRevision < 1 || typeof row.receivedAt !== 'string' || !Number.isFinite(Date.parse(row.receivedAt))) throw new Error('Invalid daily event');
         }
         for (const row of value.sessions.items) {
           if (!object(row) || !id(row.sessionId) || !['sentence','verb-image','verb-visible'].includes(row.mode)
@@ -131,7 +136,7 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
           if (!object(value) || value.studentId !== studentId || !object(value.sessions) || !Array.isArray(value.sessions.items)
             || value.sessions.items.length > 100 || !(value.sessions.nextCursor === null || id(value.sessions.nextCursor))) throw new Error('Invalid progress page');
           for (const session of value.sessions.items) {
-            if (!object(session) || !id(session.sessionId) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)) throw new Error('Invalid session feedback');
+            if (!object(session) || !id(session.sessionId) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)) throw new Error('Invalid session feedback');
             if (session.comment !== null && (!object(session.comment) || session.comment.sessionId !== session.sessionId || typeof session.comment.text !== 'string' || !id(session.comment.provenanceVersion))) throw new Error('Invalid comment response');
             sessions.push(session as unknown as StudentSessionView);
           }
@@ -175,7 +180,28 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       return { sessionId: value.sessionId, jobId: value.jobId, state: 'pending', retryRevision: value.retryRevision };
     },
   };
-  return { json, me, login, administration, management, professor, commands, recovery,
+  function setting(value: unknown): import('../contracts').StudentTimeZoneSetting {
+    if (!object(value) || !timeZone(value.timeZone) || !revision(value.revision) || value.revision < 1 || typeof value.effectiveAt !== 'string' || !instant(value.effectiveAt)) throw new Error('Invalid timezone setting');
+    return { timeZone: value.timeZone, revision: value.revision, effectiveAt: value.effectiveAt };
+  }
+  const studentTimeZone = {
+    async read(signal: AbortSignal): Promise<import('../features/accounts/access').ReadResult<import('../contracts').StudentTimeZoneSetting | null>> {
+      try { const value = await json('/api/learning/time-zone', undefined, signal); return { status: 'ok', value: value === null ? null : setting(value) }; }
+      catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' }; throw error; }
+    },
+    async set(input: { operationId: string; expectedRevision: number; timeZone: string }, signal: AbortSignal): Promise<{ status: 'ok'; value: import('../contracts').StudentTimeZoneSetting } | { status: 'denied' | 'conflict' | 'invalid-input' }> {
+      try { return { status: 'ok', value: setting(await json('/api/learning/time-zone', input, signal)) }; }
+      catch (error) {
+        if (error instanceof ApplicationRequestError) {
+          if ([401,403].includes(error.status)) return { status: 'denied' };
+          if (error.status === 409) return { status: 'conflict' };
+          if (error.status === 400) return { status: 'invalid-input' };
+        }
+        throw error;
+      }
+    },
+  };
+  return { timeZone: studentTimeZone, json, me, login, administration, management, professor, commands, recovery,
     async readFence(sessionId: string): Promise<import('../contracts').ProgressFence> {
       const value = await json(`/api/learning/recovery?sessionId=${encodeURIComponent(sessionId)}`);
       if (!object(value) || !object(value.progress) || value.progress.sessionId !== sessionId || !revision(value.progress.journalRevision)) throw new Error('Invalid progress fence');

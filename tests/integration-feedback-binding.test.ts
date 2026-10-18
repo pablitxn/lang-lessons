@@ -50,9 +50,9 @@ test('canonical feedback reader fences claims and excludes invalidated or unlink
     let generated = 0;
     const service = createCanonicalFeedbackService(pool, { client: { generate: async snapshot => { generated++; return { text: snapshot.value.allowedComments[0] }; } } });
     const result = await service.afterManualRetry(claim.jobId);
-    // Until P6 admits session-scoped written observations, its policy safely returns insufficient.
-    assert.equal(result.status, 'insufficient-evidence');
-    assert.equal(generated, 0);
+    // Session-scoped written evidence is accepted without invented segment attribution.
+    assert.equal(result.status, 'stored');
+    assert.equal(generated, 1);
     assert.equal((await service.afterManualRetry(claim.jobId)).status, 'not-claimed');
   } finally {
     await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await lock.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); lock.release(); await admin.end();

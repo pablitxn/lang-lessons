@@ -32,17 +32,17 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
   const currentActor = useRef<string | null>(null); currentActor.current = user?.id ?? null;
   const services = useMemo<PersistedSessionServices | undefined>(() => user ? {
     actorId: user.id, commands: client.commands,
-    progress: sessionId => {
+    progress: (sessionId, mode) => {
       const send = createIssuedProgressSender({ issue: client.issue, send: client.send });
       return progressFactory ? progressFactory(user.id, sessionId, send) : createBrowserProgressBinding({
-        actorId: user.id, sessionId, send, usage: client.usage, readFence: () => client.readFence(sessionId),
+        actorId: user.id, sessionId, ...(mode ? { mode } : {}), send, usage: client.usage, readFence: () => client.readFence(sessionId),
         isCurrentUser: () => currentActor.current === user.id,
       });
     },
   } : undefined, [user, client, progressFactory]);
   if (enabled === false) return <p role="alert">The account service is unavailable. Practice cannot open until it is configured.</p>;
   if (enabled === null) return <p role="status">Opening English practice…</p>;
-  if (user?.role === 'student' && services) return <StudentApplication key={JSON.stringify(user)} renderLesson={renderLesson} services={services} client={client} />;
+  if (user?.role === 'student' && services) return <StudentApplication user={user} key={JSON.stringify(user)} renderLesson={renderLesson} services={services} client={client} />;
   return <AccountShell state={state} loginApi={client.login} onAuthenticated={next => setState({ status: 'authenticated', user: next })}>
     {user?.role === 'administrator' ? <AdminUsers key={JSON.stringify(user)} user={user} capability="users:list" api={client.administration}
       managementApi={client.management} managementCapabilities={{ create: 'users:manage', changeRole: 'users:manage', deactivate: 'users:manage', reactivate: 'users:manage' }} onAccountChanged={() => { void refresh(); }} />

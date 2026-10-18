@@ -4,7 +4,7 @@ import { createApplicationClient } from '../src/platform/application-client';
 
 const signal = new AbortController().signal;
 const day = {
-  studentId: 'student', day: '2026-10-18', timeZone: 'Europe/Madrid', eventAttribution: 'server-received',
+  studentId: 'student', day: '2026-10-18', timeZone: 'Europe/Madrid', attributionTimeZones: ['Europe/Madrid'], eventAttribution: 'server-received',
   writtenEvents: { items: [], nextCursor: 'events-next' }, sessions: { items: [], nextCursor: 'sessions-next' }, totals: null,
   usageTime: { writtenMs: 120000, tutorConnectedMs: 90000, totalMs: 150000, writtenTrust: 'client-reported-interaction', tutorTrust: 'server-observed-connection' },
   hasUnattributedLegacyRecords: false,
@@ -27,4 +27,19 @@ test('unselected daily boundary leaves session pagination available; foreign dai
   await assert.rejects(foreign.professor.readDaily('student', { day: day.day }, signal), /Invalid daily/);
   const forged = createApplicationClient(async () => Response.json({ ...day, usageTime: { ...day.usageTime, tutorTrust: 'client-reported' } }));
   await assert.rejects(forged.professor.readDaily('student', { day: day.day }, signal), /Invalid daily/);
+});
+
+test('student timezone client preserves explicit missing state and idempotent update coordinates', async () => {
+  const requests: unknown[] = []; let configured = false;
+  const setting = { timeZone: 'America/New_York', revision: 1, effectiveAt: '2026-10-18T12:00:00.000Z' };
+  const client = createApplicationClient(async (_input, init) => {
+    if (init?.method === 'POST') { requests.push(JSON.parse(String(init.body))); configured = true; }
+    return Response.json(configured ? setting : null);
+  });
+  assert.deepEqual(await client.timeZone.read(signal), { status: 'ok', value: null });
+  const input = { operationId: 'stable-operation', expectedRevision: 0, timeZone: 'America/New_York' };
+  assert.deepEqual(await client.timeZone.set(input, signal), { status: 'ok', value: setting });
+  assert.deepEqual(requests, [input]);
+  const stale = createApplicationClient(async () => Response.json({ error: 'conflict' }, { status: 409 }));
+  assert.deepEqual(await stale.timeZone.set(input, signal), { status: 'conflict' });
 });

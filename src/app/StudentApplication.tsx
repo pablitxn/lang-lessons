@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { StudentTimeZoneSettings } from '../features/accounts';
+import type { CurrentUser } from '../contracts';
 import { App } from './App';
 import type { LessonRenderer } from './LessonSession';
 import type { PersistedSessionServices } from './PersistedLesson';
@@ -13,8 +15,8 @@ import { createP2RecoveryAdapter } from './p2-recovery-adapter';
 import { RecoveryCatalog, type RecoveryCatalogPorts } from './RecoveryCatalog';
 import { modeHref } from './routes';
 
-export function StudentApplication({ services, client, renderLesson }: {
-  services: PersistedSessionServices; client: ReturnType<typeof createApplicationClient>; renderLesson: LessonRenderer;
+export function StudentApplication({ services, client, renderLesson, user }: {
+  user: CurrentUser; services: PersistedSessionServices; client: ReturnType<typeof createApplicationClient>; renderLesson: LessonRenderer;
 }) {
   const current = useRef(true);
   const invalidations = useRef(new Set<() => void>());
@@ -41,7 +43,7 @@ export function StudentApplication({ services, client, renderLesson }: {
         },
         read: adapter.read, retryFeedback: adapter.retryFeedback, operationId: () => crypto.randomUUID(),
         async preparePractice(record, signal) {
-          const progress = await services.progress(sessionId);
+          const progress = await services.progress(sessionId, record.session.mode);
           if (signal.aborted || !current.current) { progress.dispose?.(); throw new Error('Recovery account changed'); }
           const runtime = createSessionRuntime(createRealtimeVoiceAdapter(), sessionId);
           const lifecycle = createSessionLifecycle(runtime, { sessions: services.commands, progress: { ...progress.sink, async flush() {
@@ -60,5 +62,5 @@ export function StudentApplication({ services, client, renderLesson }: {
     },
   }), [client, services]);
   return <App renderLesson={renderLesson} sessionServices={services} resumedSession={resumed} onHome={() => setResumed(null)}
-    homeContent={<RecoveryCatalog ports={ports} />} />;
+    homeContent={<><StudentTimeZoneSettings user={user} capability="timezone:own" api={client.timeZone} /><RecoveryCatalog ports={ports} /></>} />;
 }

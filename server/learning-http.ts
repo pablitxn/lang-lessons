@@ -9,6 +9,7 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  timeZone?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./accounts/student-timezone').createStudentTimeZoneRepository>;
   feedback?: Pick<ReturnType<typeof import('./feedback/service').createFeedbackService>, 'afterConfirmedClose' | 'afterManualRetry'>;
   reconcile?: (identity: AuthenticatedIdentity, input: unknown) => Promise<{ sessionId: string; status: 'reconciled' }>;
   brokerAuthority?: import('./broker/authority').BrokerAuthority;
@@ -54,6 +55,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
       if (request.method === 'GET') {
+        if (url.pathname === '/api/learning/time-zone' && services.timeZone) return reply(200, await services.timeZone(identity).read());
         if (url.pathname === '/api/learning/session/history' && id && services.recovery) return reply(200, await services.recovery(identity).readCallHistory(id));
         if (url.pathname === '/api/learning/failed-feedback' && services.recovery) return reply(200, await services.recovery(identity).listFailedFeedback(cursor));
         if (url.pathname === '/api/learning/open-sessions' && services.recovery) return reply(200, await services.recovery(identity).listOpen(cursor));
@@ -73,6 +75,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.
       const body = await readBoundedJson(request);
+      if (url.pathname === '/api/learning/time-zone' && services.timeZone) return reply(200, await services.timeZone(identity).set(body as never));
       if (url.pathname === '/api/learning/session/reconcile' && services.reconcile) return reply(200, await services.reconcile(identity, body));
       if (url.pathname === '/api/learning/users/create' && services.management) return reply(200, await services.management.create(identity, body as never));
       if (url.pathname === '/api/learning/users/update' && services.management) return reply(200, await services.management.update(identity, body as never));

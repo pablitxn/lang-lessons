@@ -21,8 +21,10 @@ export async function readApplicationConfiguration(env: NodeJS.ProcessEnv): Prom
     || !Number.isSafeInteger(config.requestLimit.maximum) || config.requestLimit.maximum < 1
     || !env.LEARNING_DATABASE_URL || !env.LEARNING_AUTH_SECRET) throw new Error('Learning application configuration is incomplete.');
   if (config.grouping) {
-    if (typeof config.grouping.timeZone !== 'string' || config.grouping.eventAttribution !== 'server-received') throw new Error('Invalid daily grouping configuration.');
-    try { new Intl.DateTimeFormat('en', { timeZone: config.grouping.timeZone }); } catch { throw new Error('Invalid daily grouping timezone.'); }
+    if (config.grouping.eventAttribution !== 'server-received') throw new Error('Invalid daily grouping configuration.');
+    if (config.grouping.timeZone !== undefined) {
+      try { new Intl.DateTimeFormat('en', { timeZone: config.grouping.timeZone }); } catch { throw new Error('Invalid legacy daily grouping timezone.'); }
+    }
   }
   return { origin: config.origin, login: config.login, requestLimit: config.requestLimit,
     ...(config.grouping ? { grouping: config.grouping } : {}), databaseUrl: env.LEARNING_DATABASE_URL, secret: env.LEARNING_AUTH_SECRET };

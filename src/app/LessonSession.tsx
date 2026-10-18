@@ -11,6 +11,7 @@ const idleSubscribe = () => () => {};
 const idleSnapshot = () => idleLifecycle;
 
 export interface ComposedLessonProps extends LessonModuleProps {
+  writtenPractice?: import('../features/progress/written-snapshot').WrittenPracticeBinding;
   writtenActivity?: import('../features/progress/use-written-activity').WrittenActivityBinding;
   connectionState: VoiceState; microphoneMuted: boolean; onStartVoice: () => void; onStopVoice: () => void;
   claimUtterance: (utteranceId: string) => void;

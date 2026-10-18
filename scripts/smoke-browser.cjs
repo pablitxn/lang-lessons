@@ -97,9 +97,12 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const heading = page.getByRole('heading', { name: `${name} practice`, exact: true });
         await heading.waitFor();
         assert.equal(await heading.innerText(), name);
-        const headingBounds = await heading.boundingBox();
-        const backBounds = await page.getByRole('link', { name: 'All lessons', exact: true }).boundingBox();
-        assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, 'Lesson identity and back navigation share a compact row');
+        // Read both boxes in one frame: route focus may scroll between separate protocol calls.
+        const { headingBounds, backBounds } = await heading.evaluate(element => ({
+          headingBounds: element.getBoundingClientRect().toJSON(),
+          backBounds: element.parentElement.querySelector('.back-link').getBoundingClientRect().toJSON(),
+        }));
+        assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, `Lesson identity and back navigation share a compact row: ${JSON.stringify({ name, viewport, headingBounds, backBounds })}`);
         assert.ok(backBounds.height >= 44, 'Back navigation retains its touch target');
         await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
         const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });

@@ -8,7 +8,7 @@ async function installBrowserTransport(context, origin, options = {}) {
     statusBarrier: null, sessionBarrier: null, releaseBarrier: null, progressBarrier: null, closeBarrier: null, learningCalls: [],
   };
   const sessions = new Map(); const operations = new Map(); const eventReceipts = new Map();
-  let sequence = 0;
+  let sequence = 0; let timeZone = null;
   await context.route('**/*', async route => {
     const request = route.request(); const url = new URL(request.url());
     if (url.origin !== origin) {
@@ -18,7 +18,7 @@ async function installBrowserTransport(context, origin, options = {}) {
       await route.fulfill({ status: 200, json: { accountsEnabled: options.accountsEnabled ?? true } }); return;
     }
     if (url.pathname === '/api/me') {
-      await route.fulfill({ status: 200, json: { id: 'browser-fixture-student', role: 'student', capabilities: { granted: ['practice:own'] } } }); return;
+      await route.fulfill({ status: 200, json: { id: 'browser-fixture-student', role: 'student', capabilities: { granted: ['practice:own', 'timezone:own'] } } }); return;
     }
     // Mock only HTTP boundaries; main.tsx, account composition, durable queues,
     // lifecycle and navigation are the shipped implementations.
@@ -31,6 +31,9 @@ async function installBrowserTransport(context, origin, options = {}) {
       let row = sessions.get(sessionId); let result;
       const snapshot = () => ({ sessionId, mode: row.mode, status: row.status, revision: row.revision });
       switch (url.pathname) {
+        case '/api/learning/time-zone':
+          if (body) { assert.equal(body.expectedRevision, timeZone?.revision ?? 0); timeZone = { timeZone: body.timeZone, revision: (timeZone?.revision ?? 0) + 1, effectiveAt: new Date().toISOString() }; }
+          result = timeZone; break;
         case '/api/learning/session/create': {
           if (operations.has(body.operationId)) { result = operations.get(body.operationId); break; }
           const id = `fixture-session-${++sequence}`;
@@ -46,8 +49,10 @@ async function installBrowserTransport(context, origin, options = {}) {
         case '/api/learning/session/close': result = row.close; break;
         case '/api/learning/usage/open': assert.ok(row); result = { streamId: `fixture-stream-${++sequence}` }; break;
         case '/api/learning/usage/written': result = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
-        case '/api/learning/failed-feedback':
-        case '/api/learning/open-sessions': result = { items: [], nextCursor: null }; break;
+        case '/api/learning/failed-feedback': result = { items: [], nextCursor: null }; break;
+        case '/api/learning/open-sessions': result = { items: options.recoveryEnabled ? [...sessions].filter(([, value]) => value.status === 'open').map(([id, value]) => ({ sessionId: id, mode: value.mode, status: value.status, revision: value.revision })) : [], nextCursor: null }; break;
+        case '/api/learning/session/history': assert.ok(row); result = { sessionId, hadConnectedCall: false }; break;
+        case '/api/learning/session/reconcile': assert.ok(row); result = { sessionId, status: 'reconciled' }; break;
         case '/api/learning/recovery': assert.ok(row); result = { session: snapshot(), progress: { sessionId, journalRevision: row.journal }, activeSegments: [], feedback: null }; break;
         case '/api/learning/instance/issue': result = operations.get(body.operationId) ?? { sessionId, exerciseId: `fixture-instance-${++sequence}`, generation: 0 }; operations.set(body.operationId, result); break;
         case '/api/learning/progress': {

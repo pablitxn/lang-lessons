@@ -7,12 +7,13 @@ import type { WrittenActivityBinding } from '../features/progress/use-written-ac
 
 export interface SessionProgressBinding {
   sink: ProgressSink; canWrite(): boolean; freezeWrites(): void; releasePreparation(): void;
+  writtenPractice?: import('../features/progress/written-snapshot').WrittenPracticeBinding;
   writtenActivity?: WrittenActivityBinding; status?: ReactNode; dispose?(): void;
 }
 export interface PersistedSessionServices {
   readonly actorId: string;
   readonly commands: SessionCommands;
-  progress(sessionId: string): SessionProgressBinding | Promise<SessionProgressBinding>;
+  progress(sessionId: string, mode?: LessonMode): SessionProgressBinding | Promise<SessionProgressBinding>;
 }
 /** Root creates canonical sessions before mounting any producer. Stable operation ID survives explicit retry. */
 export function PersistedLesson({ mode, services, resumedSession, ...props }: {
@@ -30,7 +31,7 @@ export function PersistedLesson({ mode, services, resumedSession, ...props }: {
     let current = true; const generation = ++lifetime.current; setFailed(false);
     pending.current ??= (resumedSession ? services.commands.read(resumedSession.sessionId) : services.commands.create({ mode, operationId })).then(async session => {
       if (session.mode !== mode || session.status !== 'open' || !session.sessionId) throw new Error('Canonical session mismatch');
-      return { session, progress: await services.progress(session.sessionId) };
+      return { session, progress: await services.progress(session.sessionId, mode) };
     });
     const work = pending.current;
     void work.then(({ session: value, progress }) => {
@@ -69,7 +70,7 @@ function BoundLesson({ sessionId, services, progress, hadConnectedCall, renderLe
   return <>{saveFailed && <p role="alert">Some practice results have not been saved. Keep this lesson open while the pending queue is recovered.</p>}
     <LessonSession {...props} sessionId={sessionId} lifecyclePorts={lifecyclePorts} registerLifecycle={registerLifecycle}
       renderLesson={(mode, lesson) => {
-        const bound = { ...lesson, ...(progress.writtenActivity ? { writtenActivity: progress.writtenActivity } : {}), progressSink: progress.sink, canWrite: progress.canWrite, onProgressError: () => setSaveFailed(true) };
+        const bound = { ...lesson, ...(progress.writtenPractice ? { writtenPractice: progress.writtenPractice } : {}), ...(progress.writtenActivity ? { writtenActivity: progress.writtenActivity } : {}), progressSink: progress.sink, canWrite: progress.canWrite, onProgressError: () => setSaveFailed(true) };
         return renderLesson?.(mode, bound);
       }} />{progress.status}</>;
 }
