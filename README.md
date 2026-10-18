@@ -256,7 +256,10 @@ privately yourself: no email is sent. Links expire after 30 minutes, are single-
 and issuing a replacement revokes the previous link. Successful redemption signs
 out existing sessions; users then log in normally. Configure hosting to serve
 `index.html` for `/account/credentials`, preserve the fragment until the app clears
-it, and keep request bodies out of proxy/analytics logs. No public signup exists.
+it, and keep request bodies out of proxy/analytics logs. No public signup exists. Login and password redemption share a per-process cap of
+eight concurrent requests; excess work receives HTTP 429 rather than opening
+unbounded database lock connections. Configure the database connection budget for
+the number of application processes.
 Students explicitly select their own IANA timezone before daily grouping is available.
 Do not substitute the professor's or server's timezone.
 
@@ -274,3 +277,9 @@ device and live Phoenix acceptance were not performed by synthetic tests. Set an
 verify operational retention/deletion/access policies before real learner use.
 Historical GitGuardian findings on fabricated test credentials remain disclosed;
 a NEUTRAL scanner check is not a clean result.
+
+
+The picture dictionary uses a reviewed, locally served Wiktionary snapshot for all
+25 current verbs. Definitions, POS and IPA retain exact revision attribution and
+CC BY-SA 4.0 notices; 24 entries include sourced usage examples. Missing fields
+remain unavailable. See [dictionary source/reuse notice](src/features/verbs/dictionary/NOTICE.md).

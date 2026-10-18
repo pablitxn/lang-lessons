@@ -34,6 +34,14 @@ function reply(status: number, body: unknown) {
 const owns = (path: string) => path === '/api/me' || path.startsWith('/api/auth/') || path.startsWith('/api/learning/');
 /** Unselected services fail closed; no auth/storage object is constructed as an import side effect. */
 export function createLearningHttpHandler(services: LearningHttpServices | null) {
+  // Dedicated credential-lock connections must not grow with concurrent HTTP requests.
+  // Reject excess work immediately rather than queueing passwords in memory.
+  let credentialRequests = 0;
+  async function credentialAdmission(work: () => Promise<Response>): Promise<Response> {
+    if (credentialRequests >= 8) return reply(429, { error: 'credential-capacity' });
+    credentialRequests++;
+    try { return await work(); } finally { credentialRequests--; }
+  }
   return async (request: Request, clientAddress: string): Promise<Response | null> => {
     const url = new URL(request.url);
     // An account-enabled application must not inherit the old unauthenticated broker.
@@ -51,11 +59,11 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       if (url.pathname === '/api/auth/sign-out') return reply(503, { error: 'policy-unresolved' });
       if (url.pathname.startsWith('/api/auth/')) {
         if (url.pathname !== '/api/auth/sign-in/email' || request.method !== 'POST') return reply(404, { error: 'not-found' });
-        const response = await services.auth.handle(request, clientAddress);
+        const response = await credentialAdmission(() => services.auth.handle(request, clientAddress));
         response.headers.set('cache-control', 'private, no-store'); return response;
       }
       if (url.pathname === '/api/learning/credential-links/policy' && request.method === 'GET' && services.credentialPasswordPolicy) return reply(200, services.credentialPasswordPolicy);
-      if (url.pathname === '/api/learning/credential-links/redeem' && request.method === 'POST' && services.credentialLinks) return reply(200, await services.credentialLinks.redeem(await readBoundedJson(request) as never));
+      if (url.pathname === '/api/learning/credential-links/redeem' && request.method === 'POST' && services.credentialLinks) return await credentialAdmission(async () => reply(200, await services.credentialLinks!.redeem(await readBoundedJson(request) as never)));
       const identity = await services.auth.identity(request.headers);
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
