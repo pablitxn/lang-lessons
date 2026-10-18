@@ -84,3 +84,47 @@ test('production entry binds authenticated account, canonical identities and Ind
     assert.deepEqual(external, []); assert.deepEqual(errors, []); await context.close();
   } finally { await browser?.close(); if (server.exitCode === null) await new Promise<void>(resolve => { server.once('exit', () => resolve()); server.kill('SIGTERM'); }); }
 });
+
+
+test('shipped root requires account service and confirmed connected exit waits for durable flush and close', { skip: process.env.PERSISTED_BROWSER !== '1', timeout: 60000 }, async () => {
+  const require = createRequire(import.meta.url); const { chromium } = require('playwright');
+  const { installBrowserTransport } = require('./helpers/browser-transport.cjs');
+  const port = 5207; const origin = `http://127.0.0.1:${port}`;
+  const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--port', String(port), '--strictPort']);
+  let log = ''; server.stdout.on('data', chunk => { log += chunk; }); server.stderr.on('data', chunk => { log += chunk; });
+  let browser: any;
+  try {
+    for (let i = 0; i < 100 && !log.includes('Local:'); i++) await new Promise(resolve => setTimeout(resolve, 50));
+    assert.match(log, /Local:/); browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true });
+    const unavailable = await browser.newContext(); const blocked = await installBrowserTransport(unavailable, origin, { accountsEnabled: false });
+    const blockedPage = await unavailable.newPage(); await blockedPage.goto(origin);
+    await blockedPage.getByRole('alert').filter({ hasText: 'account service is unavailable' }).waitFor();
+    assert.equal(await blockedPage.getByRole('link', { name: 'Start Picture practice', exact: true }).count(), 0);
+    assert.equal(blocked.sessionRequests, 0); await unavailable.close();
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const transport = await installBrowserTransport(context, origin); const page = await context.newPage();
+    const errors: string[] = []; page.on('pageerror', (error: Error) => errors.push(error.message));
+    await page.goto(origin); await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+    await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
+    await page.waitForFunction('window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === "open"');
+    let progress!: () => void; let close!: () => void;
+    transport.progressBarrier = new Promise<void>(resolve => { progress = resolve; });
+    transport.closeBarrier = new Promise<void>(resolve => { close = resolve; });
+    const field = page.getByRole('textbox', { name: 'Base form', exact: true }); await field.fill('be'); await field.press('Enter');
+    await page.locator('.ll-correct').first().waitFor();
+    await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Leave this exercise session?' }); await dialog.waitFor();
+    assert.equal(transport.learningCalls.includes('/api/learning/session/confirm-close'), false);
+    await page.getByRole('button', { name: 'Keep practicing', exact: true }).click();
+    assert.equal(await field.inputValue(), 'be'); assert.equal(await page.getByRole('heading', { name: 'Choose a lesson' }).count(), 0);
+    await page.getByRole('link', { name: 'All lessons', exact: true }).click(); await dialog.waitFor();
+    await page.getByRole('button', { name: 'Leave session', exact: true }).click();
+    assert.equal(await field.inputValue(), 'be'); assert.equal(transport.learningCalls.includes('/api/learning/session/confirm-close'), false);
+    const closing = page.waitForRequest((request: { url(): string }) => new URL(request.url()).pathname === '/api/learning/session/confirm-close');
+    progress(); await closing; assert.equal(await field.inputValue(), 'be');
+    close(); await page.getByRole('heading', { name: 'Choose a lesson' }).waitFor();
+    assert.equal(transport.learningCalls.filter((path: string) => path === '/api/learning/session/confirm-close').length, 1);
+    assert.equal(transport.sessionRequests, 1); assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
+    await context.close();
+  } finally { await browser?.close(); if (server.exitCode === null) await new Promise<void>(resolve => { server.once('exit', () => resolve()); server.kill('SIGTERM'); }); }
+});

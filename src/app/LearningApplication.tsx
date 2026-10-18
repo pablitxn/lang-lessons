@@ -40,13 +40,13 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
       });
     },
   } : undefined, [user, client, progressFactory]);
-  if (enabled === false) return <App renderLesson={renderLesson} />;
+  if (enabled === false) return <p role="alert">The account service is unavailable. Practice cannot open until it is configured.</p>;
   if (enabled === null) return <p role="status">Opening English practice…</p>;
+  if (user?.role === 'student' && services) return <App key={JSON.stringify(user)} renderLesson={renderLesson} sessionServices={services} />;
   return <AccountShell state={state} loginApi={client.login} onAuthenticated={next => setState({ status: 'authenticated', user: next })}>
     {user?.role === 'administrator' ? <AdminUsers key={JSON.stringify(user)} user={user} capability="users:list" api={client.administration}
       managementApi={client.management} managementCapabilities={{ create: 'users:manage', changeRole: 'users:manage', deactivate: 'users:manage', reactivate: 'users:manage' }} onAccountChanged={() => { void refresh(); }} />
       : user?.role === 'professor' ? <ProfessorStudents key={JSON.stringify(user)} user={user} listCapability="students:list" progressCapability="students:feedback:read" api={client.professor} />
-      : services ? <App key={JSON.stringify(user)} renderLesson={renderLesson} sessionServices={services} />
       : <p role="status">Practice synchronization is unavailable. Your saved work has not been discarded.</p>}
   </AccountShell>;
 }
