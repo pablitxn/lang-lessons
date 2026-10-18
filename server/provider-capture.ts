@@ -43,32 +43,43 @@ export function createProviderCapture(options: {
   synthetic: boolean;
   gap?: (segment: BrokerBinding['segment']) => void;
 }): ProviderCapture {
-  const active = new Map<string, { stop(): Promise<void>; supersede(): void }>();
-  const recorders = new Map<string, ReturnType<typeof createDebugEvidenceRecorder>>();
+  type Handle = { stop(): Promise<void>; supersede(): void };
+  const active = new Map<string, Handle>();
+  // Includes stopped/draining handles until their actual queue settles, even after timeout.
+  const owned = new Set<Handle>();
+  const recorders = new Map<string, { recorder: ReturnType<typeof createDebugEvidenceRecorder>; users: number }>();
   let shutdown = false;
   return {
     start(binding, callId) {
       if (shutdown || !/^[A-Za-z0-9_-]{1,200}$/.test(callId)) throw new Error('Invalid capture lifecycle.');
       const segment = { ...binding.segment }; const key = segment.sessionId;
-      active.get(key)?.supersede();
       const recorderKey = JSON.stringify([segment.sessionId, segment.segmentId, segment.connectionEpoch]);
-      if (!recorders.has(recorderKey) && recorders.size >= 256) throw new Error('Capture capacity exhausted.');
-      const recorder = recorders.get(recorderKey) ?? createDebugEvidenceRecorder(options.policy, options.sink);
-      recorders.set(recorderKey, recorder);
+      if (owned.size >= 256) throw new Error('Capture capacity exhausted.');
+      if (!recorders.has(recorderKey) && recorders.size >= 256) {
+        const idle = [...recorders].find(([, entry]) => entry.users === 0);
+        if (!idle) throw new Error('Capture capacity exhausted.');
+        recorders.delete(idle[0]);
+      }
+      const entry = recorders.get(recorderKey) ?? { recorder: createDebugEvidenceRecorder(options.policy, options.sink), users: 0 };
+      // LRU replay window: only fully drained, inactive entries can be evicted.
+      recorders.delete(recorderKey); recorders.set(recorderKey, entry);
+      const recorder = entry.recorder;
       const socket = options.connect(callId);
+      active.get(key)?.supersede();
+      entry.users++;
       let accepting = true; let draining = true; let superseded = false; let pending = 0; let queue = Promise.resolve(); let stopped: Promise<void> | undefined;
       const gap = () => { try { options.gap?.(segment); } catch { /* Metadata diagnostics must not break cleanup. */ } };
       const handle = { supersede() { superseded = true; void handle.stop(); }, stop() {
         if (stopped) return stopped;
         accepting = false; if (active.get(key) === handle) active.delete(key);
-        socket.terminate();
         stopped = new Promise<void>(resolve => {
           const timer = setTimeout(() => { draining = false; gap(); resolve(); }, 2000);
-          void queue.finally(() => { clearTimeout(timer); resolve(); });
+          void queue.finally(() => { clearTimeout(timer); entry.users--; owned.delete(handle); resolve(); });
         });
+        try { socket.terminate(); } catch { gap(); }
         return stopped;
       } };
-      active.set(key, handle);
+      owned.add(handle); active.set(key, handle);
       socket.on('message', raw => {
         if (!accepting || active.get(key) !== handle) return;
         // Size-check bytes before decoding; never retain raw provider payloads.
@@ -89,7 +100,7 @@ export function createProviderCapture(options: {
       socket.on('error', lost); socket.on('close', lost);
       return handle;
     },
-    async shutdown() { shutdown = true; await Promise.all([...active.values()].map(handle => handle.stop())); },
+    async shutdown() { shutdown = true; await Promise.all([...owned].map(handle => handle.stop())); },
   };
 }
 

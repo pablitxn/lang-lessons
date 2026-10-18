@@ -90,3 +90,52 @@ test('real broker starts capture after durable receipt and stops it only after c
     assert.equal(ended.status, 200); assert.deepEqual(order, ['receipt','capture','ended','stop']);
   } finally { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); }
 });
+
+test('socket close followed immediately by shutdown drains all accepted synthetic spans before exporter shutdown', async () => {
+  const exporter = new InMemorySpanExporter(); const provider = new BasicTracerProvider({ spanProcessors: [new SimpleSpanProcessor(exporter)] });
+  const sink = createPhoenixDebugSink(provider.getTracer('drain-regression'));
+  let release!: () => void; const held = new Promise<void>(resolve => { release = resolve; });
+  const f = fixture({ async record(value) { await held; await sink.record(value); } });
+  f.capture.start(binding, 'rtc_fixture');
+  for (let i = 0; i < 10; i++) f.sockets[0]!.receive({ ...learner, event_id: `drain-${i}` });
+  f.sockets[0]!.emit('close'); let finished = false;
+  const stopping = f.capture.shutdown().then(() => { finished = true; });
+  await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(finished, false);
+  release(); await stopping; await provider.forceFlush();
+  assert.equal(exporter.getFinishedSpans().length, 10); await provider.shutdown();
+});
+test('shutdown drains both an explicitly stopped observer and an active observer', async () => {
+  const f = fixture(); const first = f.capture.start(binding, 'rtc_fixture'); f.sockets[0]!.receive(learner); void first.stop();
+  f.capture.start({ ...binding, segment: { ...binding.segment, sessionId: 'second' } }, 'rtc_second'); f.sockets[1]!.receive(learner);
+  await f.capture.shutdown(); assert.equal(f.records.length, 2);
+});
+test('sequential sessions beyond 256 continue within a bounded inactive replay window', async () => {
+  const f = fixture();
+  for (let i = 0; i < 300; i++) {
+    const h = f.capture.start({ ...binding, segment: { sessionId: `s${i}`, segmentId: `c${i}`, connectionEpoch: 1 } }, `rtc_${i}`);
+    f.sockets[i]!.receive(learner); await h.stop();
+  }
+  assert.equal(f.records.length, 300);
+  const recent = f.capture.start({ ...binding, segment: { sessionId: 's299', segmentId: 'c299', connectionEpoch: 1 } }, 'rtc_299');
+  f.sockets.at(-1)!.receive(learner); await recent.stop(); assert.equal(f.records.length, 300);
+  // Evicted history is explicitly outside the replay guarantee, not remembered forever.
+  const old = f.capture.start({ ...binding, segment: { sessionId: 's0', segmentId: 'c0', connectionEpoch: 1 } }, 'rtc_0');
+  f.sockets.at(-1)!.receive(learner); await old.stop(); assert.equal(f.records.length, 301);
+  await f.capture.shutdown();
+});
+test('live observer capacity is bounded and becomes available after draining', async () => {
+  const f = fixture(); const handles = [];
+  for (let i = 0; i < 256; i++) handles.push(f.capture.start({ ...binding, segment: { sessionId: `s${i}`, segmentId: `c${i}`, connectionEpoch: 1 } }, `rtc_${i}`));
+  assert.throws(() => f.capture.start(binding, 'rtc_overflow'), /capacity/);
+  await handles[0]!.stop(); const h = f.capture.start(binding, 'rtc_next'); await h.stop(); await f.capture.shutdown();
+});
+
+test('shutdown retains the two-second bound and suppresses queued exports after a stalled sink resumes', async () => {
+  let release!: () => void; const held = new Promise<void>(resolve => { release = resolve; }); let calls = 0;
+  const f = fixture({ async record() { calls++; await held; } }); f.capture.start(binding, 'rtc_fixture');
+  for (let i = 0; i < 3; i++) f.sockets[0]!.receive({ ...learner, event_id: `timeout-${i}` });
+  await new Promise<void>(resolve => setImmediate(resolve)); f.sockets[0]!.emit('close');
+  const start = Date.now(); await f.capture.shutdown(); assert.ok(Date.now() - start < 3000);
+  assert.equal(calls, 1); assert.ok(f.gaps() >= 2);
+  release(); await new Promise<void>(resolve => setImmediate(resolve)); assert.equal(calls, 1);
+});

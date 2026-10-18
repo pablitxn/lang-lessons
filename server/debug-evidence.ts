@@ -23,10 +23,14 @@ export interface DebugEvidenceSink {
 const validId = (value: unknown): value is string => typeof value === 'string' && /^[a-zA-Z0-9_:.-]{1,256}$/.test(value);
 export function redactDebugText(text: string) {
   return text
-    .replace(/\bBearer\s+[A-Za-z0-9._~+\/-]+=*/giu, 'Bearer [REDACTED]')
+    // Quoted JSON/config fields may contain spaces, escaped quotes and separators.
+    .replace(/(["']?(?:api[_ -]?key|password|secret|authorization|cookie)["']?\s*[:=]\s*)("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/giu, '$1"[REDACTED]"')
+    // Authorization values contain a scheme and can have multiple parameters.
+    .replace(/(\bauthorization\s*[:=]\s*)[^\r\n}\]]+/giu, '$1[REDACTED]')
+    .replace(/\b(?:Bearer|Basic)\s+[A-Za-z0-9._~+\/-]+=*/giu, '[REDACTED]')
     .replace(/\bsk-[A-Za-z0-9_-]{8,}\b/gu, '[REDACTED]')
     .replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/gu, '[REDACTED]')
-    .replace(/\b(api[_ -]?key|password|secret|authorization|cookie)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]');
+    .replace(/\b(api[_ -]?key|password|secret|cookie)\s*[:=]\s*[^\s,;]+/giu, '$1=[REDACTED]');
 }
 /** Server binds the canonical segment; input may never override session, epoch, routing or trust.
  * Default callers remain synthetic-only; approved provider capture requires explicit server policy. */

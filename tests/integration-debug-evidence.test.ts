@@ -44,3 +44,21 @@ test('Phoenix debug sink keeps canonical correlation and parent trace using only
   assert.equal(child.attributes['app.telemetry.audio_capture'], false);
   await provider.shutdown();
 });
+
+test('synthetic quoted secret fields and full Authorization values are redacted before Phoenix export', async () => {
+  const exporter = new InMemorySpanExporter(); const provider = new BasicTracerProvider({ spanProcessors: [new SimpleSpanProcessor(exporter)] });
+  const recorder = createDebugEvidenceRecorder(policy, createPhoenixDebugSink(provider.getTracer('redaction-regression')));
+  const samples = [
+    '{"password":"fixture-json-secret", "authorization":"Basic Zml4dHVyZTpzZWNyZXQ="}',
+    "{'secret': 'fixture spaced secret', 'api_key': 'fixture-key-value'}",
+    'Authorization: Basic Zml4dHVyZTpzZWNyZXQ=\nOrdinary lesson text.',
+    'Authorization: Digest username="fixture-user", response="fixture-response"\nLesson.',
+    '{"password":"fixture \\"escaped\\" secret", "cookie":"fixture=session; value=private"}',
+    'password=fixture-plain-secret Bearer fixture.token Basic Zml4dHVyZQ==',
+  ];
+  for (const [i, text] of samples.entries()) await recorder.record(segment, { ...event, eventId: `redact-${i}`, text }, true);
+  await provider.forceFlush(); const spans = exporter.getFinishedSpans(); assert.equal(spans.length, samples.length);
+  const output = JSON.stringify(spans.map(span => span.attributes));
+  assert.doesNotMatch(output, /fixture-json-secret|Zml4dHVy|fixture spaced secret|fixture-key-value|fixture-user|fixture-response|escaped|fixture=session|private|fixture-plain-secret|fixture\.token/);
+  assert.match(output, /Ordinary lesson text/); await provider.shutdown();
+});
