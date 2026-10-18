@@ -143,12 +143,14 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       } catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' }; throw error; }
     },
   };
+  async function recoveryPage(path: string, cursor: string | null, signal: AbortSignal) {
+    const value = await json(`${path}${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, undefined, signal);
+    if (!object(value) || !Array.isArray(value.items) || value.items.length > 100 || !(value.nextCursor === null || id(value.nextCursor))) throw new Error('Invalid recovery page');
+    return { items: value.items.map(snapshot), nextCursor: value.nextCursor as string | null };
+  }
   const recovery = {
-    async list(cursor: string | null, signal: AbortSignal) {
-      const value = await json(`/api/learning/open-sessions${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, undefined, signal);
-      if (!object(value) || !Array.isArray(value.items) || value.items.length > 100 || !(value.nextCursor === null || id(value.nextCursor))) throw new Error('Invalid recovery page');
-      return { items: value.items.map(snapshot), nextCursor: value.nextCursor as string | null };
-    },
+    list: (cursor: string | null, signal: AbortSignal) => recoveryPage('/api/learning/open-sessions', cursor, signal),
+    listFailed: (cursor: string | null, signal: AbortSignal) => recoveryPage('/api/learning/failed-feedback', cursor, signal),
     async read(sessionId: string, signal: AbortSignal): Promise<import('../app/p2-recovery-adapter').P2RecoverySnapshot> {
       const value = await json(`/api/learning/recovery?sessionId=${encodeURIComponent(sessionId)}`, undefined, signal);
       if (!object(value) || !object(value.progress) || value.progress.sessionId !== sessionId || !revision(value.progress.journalRevision)

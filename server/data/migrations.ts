@@ -11,6 +11,7 @@ export const MIGRATIONS = [
   { version: '2026-10-18-day-projection', source: new URL('./migrations/p2-day-projection.sql', import.meta.url) },
   { version: '2026-10-18-usage', source: new URL('./migrations/p2-usage.sql', import.meta.url) },
   { version: '2026-10-18-recovery', source: new URL('./migrations/p2-recovery.sql', import.meta.url) },
+  { version: '2026-10-18-call-history', source: new URL('./migrations/p2-call-history.sql', import.meta.url) },
   { version: '2026-10-18-broker-receipts', source: new URL('../broker/receipts.sql', import.meta.url) },
 ] as const;
 export async function migrateLearningDatabase(pool: Pool) {

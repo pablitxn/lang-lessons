@@ -51,3 +51,29 @@ test('root HTTP keeps session pagination and rejects expired authentication with
   assert.deepEqual(f.calls.at(-1), [{ userId: 'canonical' }, 'student', 'opaque']);
   f.deny(); assert.equal((await f.request('/api/me'))?.status, 401);
 });
+
+test('root dispatches canonical feedback jobs only after close or committed manual retry', async () => {
+  const dispatched: string[] = []; const calls: string[] = [];
+  const services = {
+    origin, allowRequest: async () => true, auth: { identity: async () => ({ userId: 'actor' }) },
+    learning: () => ({ commands: {
+      confirmClose: async () => { calls.push('close-committed'); return { sessionId: 'canonical-session', operationId: 'close', status: 'closed', revision: 3, feedback: 'pending' }; },
+      stopCall: async () => { calls.push('stop-committed'); return { sessionId: 'canonical-session', status: 'open', mode: 'sentence', revision: 2 }; },
+    } }),
+    recovery: () => ({ read: async (sessionId: string) => {
+      assert.equal(sessionId, 'canonical-session'); assert.equal(calls.at(-1), 'close-committed');
+      return { feedback: { jobId: 'canonical-job', state: 'pending', retryRevision: 0 } };
+    }, retryFailedFeedback: async () => { calls.push('retry-committed'); return { sessionId: 'canonical-session', jobId: 'canonical-job', state: 'pending', retryRevision: 1 }; } }),
+    feedback: {
+      afterConfirmedClose: async (jobId: string) => { dispatched.push(`close:${jobId}`); return { status: 'stored' }; },
+      afterManualRetry: async (jobId: string) => { assert.equal(calls.at(-1), 'retry-committed'); dispatched.push(`retry:${jobId}`); return { status: 'stored' }; },
+    },
+  } as unknown as LearningHttpServices;
+  const handler = createLearningHttpHandler(services);
+  const post = (path: string) => handler(new Request(origin + path, { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: '{}' }), '127.0.0.1');
+  assert.equal((await post('/api/learning/session/stop-call'))?.status, 200); assert.deepEqual(dispatched, []);
+  assert.equal((await post('/api/learning/session/confirm-close'))?.status, 200);
+  assert.deepEqual(dispatched, ['close:canonical-job']);
+  assert.equal((await post('/api/learning/feedback/retry'))?.status, 200);
+  assert.deepEqual(dispatched, ['close:canonical-job', 'retry:canonical-job']);
+});

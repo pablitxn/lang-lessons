@@ -46,6 +46,7 @@ async function installBrowserTransport(context, origin, options = {}) {
         case '/api/learning/session/close': result = row.close; break;
         case '/api/learning/usage/open': assert.ok(row); result = { streamId: `fixture-stream-${++sequence}` }; break;
         case '/api/learning/usage/written': result = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
+        case '/api/learning/failed-feedback':
         case '/api/learning/open-sessions': result = { items: [], nextCursor: null }; break;
         case '/api/learning/recovery': assert.ok(row); result = { session: snapshot(), progress: { sessionId, journalRevision: row.journal }, activeSegments: [], feedback: null }; break;
         case '/api/learning/instance/issue': result = operations.get(body.operationId) ?? { sessionId, exerciseId: `fixture-instance-${++sequence}`, generation: 0 }; operations.set(body.operationId, result); break;

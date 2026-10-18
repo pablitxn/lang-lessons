@@ -12,7 +12,9 @@ const telemetry = configurePhoenix(process.env);
 const application = await readApplicationConfiguration(process.env);
 if (application && !config.allowedOrigins.includes(application.origin)) throw new Error('Learning origin must match an explicitly allowed frontend origin.');
 const pool = application ? new Pool({ connectionString: application.databaseUrl }) : null;
+const feedbackTelemetry = telemetry.feedback();
 const services = application && pool ? createApplicationServices({ pool, origin: application.origin, secret: application.secret,
+  ...(feedbackTelemetry ? { feedbackTelemetry } : {}),
   terminateProviderCall: async callId => {
     if (!config.enabled || !config.apiKey || !/^[A-Za-z0-9_-]{1,200}$/.test(callId)) return false;
     try { return (await fetch(`https://api.openai.com/v1/realtime/calls/${callId}/hangup`, {

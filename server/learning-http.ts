@@ -9,6 +9,7 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  feedback?: Pick<ReturnType<typeof import('./feedback/service').createFeedbackService>, 'afterConfirmedClose' | 'afterManualRetry'>;
   reconcile?: (identity: AuthenticatedIdentity, input: unknown) => Promise<{ sessionId: string; status: 'reconciled' }>;
   brokerAuthority?: import('./broker/authority').BrokerAuthority;
   management?: ReturnType<typeof import('./accounts/management').createUserManagementRepository>;
@@ -53,6 +54,8 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
       if (request.method === 'GET') {
+        if (url.pathname === '/api/learning/session/history' && id && services.recovery) return reply(200, await services.recovery(identity).readCallHistory(id));
+        if (url.pathname === '/api/learning/failed-feedback' && services.recovery) return reply(200, await services.recovery(identity).listFailedFeedback(cursor));
         if (url.pathname === '/api/learning/open-sessions' && services.recovery) return reply(200, await services.recovery(identity).listOpen(cursor));
         if (url.pathname === '/api/learning/recovery' && id && services.recovery) return reply(200, await services.recovery(identity).read(id));
         if (url.pathname === '/api/learning/daily-progress' && services.daily) return reply(200, await services.daily.read(identity, url.searchParams.get('studentId') ?? '', {
@@ -78,7 +81,11 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
         return reply(200, { streamId: await services.usage(identity).openWrittenStream(body.sessionId) });
       }
       if (url.pathname === '/api/learning/usage/written' && services.usage) return reply(200, await services.usage(identity).written(body as never));
-      if (url.pathname === '/api/learning/feedback/retry' && services.recovery) return reply(200, await services.recovery(identity).retryFailedFeedback(body as never));
+      if (url.pathname === '/api/learning/feedback/retry' && services.recovery) {
+        const retried = await services.recovery(identity).retryFailedFeedback(body as never);
+        if (services.feedback) void services.feedback.afterManualRetry(retried.jobId).catch(() => {});
+        return reply(200, retried);
+      }
       if (url.pathname === '/api/learning/instance/issue') return services.issueInstance ? reply(200, await services.issueInstance(identity, body)) : reply(503, { error: 'policy-unresolved' });
       if (url.pathname === '/api/learning/progress' && id) return reply(200, await repository.submit(id, body));
       const operations = {
@@ -89,7 +96,14 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       };
       const operation = operations[url.pathname as keyof typeof operations];
       if (!operation) return reply(404, { error: 'not-found' });
-      return reply(200, await operation(body as never));
+      const result = await operation(body as never);
+      if (url.pathname === '/api/learning/session/confirm-close' && services.feedback && services.recovery) {
+        const closed = result as import('../src/contracts').CloseResult;
+        // Only server-resolved canonical job IDs reach the internal worker.
+        const recovered = await services.recovery(identity).read(closed.sessionId);
+        if (recovered.feedback?.state === 'pending') void services.feedback.afterConfirmedClose(recovered.feedback.jobId).catch(() => {});
+      }
+      return reply(200, result);
     } catch (error) {
       return error instanceof RepositoryError ? reply(statuses[error.code], { error: error.code }) : reply(500, { error: 'request-failed' });
     }

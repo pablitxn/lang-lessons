@@ -172,6 +172,12 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       // Only a definitive provider rejection or confirmed hangup releases it.
       created = { token: randomUUID(), until: Date.now() + config.maxDurationSeconds * 1000, callId: null };
       if (authority && actor) created.binding = await authority.reserve(actor, 'segment' in body ? body.segment : undefined, created.token);
+      // Reservation may wait for database locks after the browser has gone away.
+      // No provider request has been sent, so release that reservation explicitly.
+      if (disconnected || response.destroyed || request.aborted) {
+        if (created.binding) await authority!.rejected(created.binding);
+        return;
+      }
       lease = created;
       const upstream = await fetcher('https://api.openai.com/v1/realtime/calls', {
         method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, body: form,

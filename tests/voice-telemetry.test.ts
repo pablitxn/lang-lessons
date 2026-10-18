@@ -222,3 +222,20 @@ test('missing terminal responses time out without inventing usage or completing 
   assert.deepEqual(reports[0], { kind: 'response', sequence: 1, operation: 'assessment', outcome: 'timeout', durationMs: 20_000 });
   assert.deepEqual(reports[1], { kind: 'session', outcome: 'failed' });
 });
+
+test('feedback outcomes use the configured Phoenix sink with canonical metadata only', async t => {
+  const exporter = new InMemorySpanExporter(); const telemetry = new PhoenixTelemetry(collector, exporter);
+  t.after(() => telemetry.shutdown());
+  const feedback = telemetry.feedback(true)!;
+  await feedback.publish('phoenix', { operation: 'session-feedback', jobId: 'fixture-job', sessionId: 'fixture-session', outcome: 'stored' });
+  await feedback.publish('phoenix', { operation: 'session-feedback', jobId: 'fixture-job', outcome: 'failed', transcript: 'private' } as any);
+  await feedback.publish('unexpected-route', { operation: 'session-feedback', jobId: 'fixture-job', outcome: 'failed' });
+  await telemetry.flush();
+  const spans = exporter.getFinishedSpans(); assert.equal(spans.length, 1);
+  assert.deepEqual(spans[0]!.attributes, {
+    'openinference.span.kind': 'CHAIN', 'app.feedback.job_id': 'fixture-job', 'app.exercise_session.id': 'fixture-session',
+    'app.feedback.outcome': 'stored', 'app.telemetry.synthetic': true,
+    'app.telemetry.content_capture': false, 'app.telemetry.audio_capture': false,
+  });
+  assert.equal(new PhoenixTelemetry(null).feedback(), undefined);
+});

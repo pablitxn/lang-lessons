@@ -21,7 +21,7 @@ export function StudentApplication({ services, client, renderLesson }: {
   const [resumed, setResumed] = useState<RecoveryRecord | null>(null);
   useEffect(() => { current.current = true; return () => { current.current = false; for (const invalidate of invalidations.current) invalidate(); }; }, []);
   const ports = useMemo<RecoveryCatalogPorts>(() => ({
-    list: client.recovery.list,
+    list: client.recovery.list, failed: client.recovery.listFailed,
     async pending(signal) {
       const progress = createIndexedDbProgressStore(); const usage = createIndexedDbWrittenUsageStore();
       try {
