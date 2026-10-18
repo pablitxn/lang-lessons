@@ -6,6 +6,8 @@ import type { FeedbackState } from '../../src/contracts/feedback';
 import type { AuthenticatedIdentity } from '../accounts/authorization';
 import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import type { DataPolicy } from './repository';
+import { readCallHistoryInTransaction } from './call-history';
+import type { CallHistory } from './call-history';
 import { exactKeys, requireId, requireRevision, RepositoryError, transaction } from './database';
 
 export interface RecoverySnapshot {
@@ -21,6 +23,25 @@ export function createRecoveryRepository(pool: Pool, identity: AuthenticatedIden
     await authorize(client, identity, policy.access, 'practice:own'); return work(client);
   });
   return {
+    readCallHistory(sessionId: string): Promise<CallHistory> {
+      requireId(sessionId);
+      return run(async client => {
+        const session = await client.query('SELECT id FROM learning_sessions WHERE id=$1 AND user_id=$2 FOR UPDATE', [sessionId, identity.userId]);
+        if (!session.rowCount) throw new RepositoryError('not-found');
+        return readCallHistoryInTransaction(client, sessionId);
+      });
+    },
+    /** Separate cursor from listOpen; only closed failed jobs without a stored final comment are discoverable. */
+    listFailedFeedback(cursor: string | null = null, limit = 50): Promise<{ items: readonly SessionSnapshot[]; nextCursor: string | null }> {
+      return run(async client => {
+        if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new RepositoryError('invalid-input');
+        const after = cursor ?? ''; if (cursor !== null) requireId(cursor);
+        const { rows } = await client.query<{ id: string; mode: LessonMode; status: 'closed'; revision: number }>(
+          "SELECT s.id,s.mode,s.status,s.revision FROM learning_sessions s JOIN learning_feedback_jobs j ON j.session_id=s.id WHERE s.user_id=$1 AND s.status='closed' AND j.state='failed' AND NOT EXISTS (SELECT 1 FROM learning_comments c WHERE c.session_id=s.id) AND s.id>$2 ORDER BY s.id LIMIT $3", [identity.userId, after, limit + 1]);
+        const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision }));
+        return { items, nextCursor: rows.length > limit ? items.at(-1)!.sessionId : null };
+      });
+    },
     listOpen(cursor: string | null = null, limit = 50): Promise<{ items: readonly SessionSnapshot[]; nextCursor: string | null }> {
       return run(async client => {
         if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new RepositoryError('invalid-input');

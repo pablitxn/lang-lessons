@@ -142,7 +142,7 @@ test('P2 PostgreSQL call starts use fresh epochs, stop never enqueues, and calle
 test('P2 PostgreSQL feedback atomic enqueue, one claimant, foreign/stale fences and terminal failure', isolated, async () => {
   const f = await fixture();
   try {
-    const { repo, session } = await opened(f.pool, { ...policy, feedbackOnClose: () => 'pending' }); const id = session.sessionId;
+    const { repo, session } = await opened(f.pool, { ...policy, evaluateClose: async () => 'pending' }); const id = session.sessionId;
     await repo.commands.startCall({ sessionId: id, operationId: 'start', expectedRevision: 0 });
     const request = { sessionId: id, operationId: 'close', expectedRevision: 1, finalProgress: { sessionId: id, journalRevision: 0 } };
     await Promise.all([repo.commands.confirmClose(request), repo.commands.confirmClose(request)]);
@@ -160,7 +160,7 @@ test('P2 PostgreSQL feedback atomic enqueue, one claimant, foreign/stale fences 
     assert.equal(await feedback.fail(claim), 'stale');
     assert.equal(await feedback.claim(jobId), null);
     assert.equal((await f.pool.query('SELECT * FROM learning_comments')).rowCount, 1);
-    const other = await opened(f.pool, { ...policy, feedbackOnClose: () => 'pending' }); const otherId = other.session.sessionId;
+    const other = await opened(f.pool, { ...policy, evaluateClose: async () => 'pending' }); const otherId = other.session.sessionId;
     await other.repo.commands.startCall({ sessionId: otherId, operationId: 'other-start', expectedRevision: 0 });
     await other.repo.commands.confirmClose({ sessionId: otherId, operationId: 'other-close', expectedRevision: 1, finalProgress: { sessionId: otherId, journalRevision: 0 } });
     const secondId = (await f.pool.query<{ id: string }>('SELECT id FROM learning_feedback_jobs WHERE session_id=$1', [otherId])).rows[0]!.id;
@@ -186,7 +186,7 @@ test('P2 migration body is atomic when the registry transaction fails', isolated
 test('P2 PostgreSQL insufficient-evidence is terminal and fenced across every claim coordinate', isolated, async () => {
   const f = await fixture();
   try {
-    const { repo, session } = await opened(f.pool, { ...policy, feedbackOnClose: () => 'pending' }); const id = session.sessionId;
+    const { repo, session } = await opened(f.pool, { ...policy, evaluateClose: async () => 'pending' }); const id = session.sessionId;
     await repo.commands.startCall({ sessionId: id, operationId: 'start', expectedRevision: 0 });
     await repo.commands.confirmClose({ sessionId: id, operationId: 'close', expectedRevision: 1, finalProgress: { sessionId: id, journalRevision: 0 } });
     const jobId = (await f.pool.query<{ id: string }>('SELECT id FROM learning_feedback_jobs')).rows[0]!.id;
@@ -229,7 +229,7 @@ test('P2 PostgreSQL paginated account views require explicit grants and disclosu
 test('P2 PostgreSQL close/job and comment/state writes roll back together on storage failure', isolated, async () => {
   const f = await fixture();
   try {
-    const { repo, session } = await opened(f.pool, { ...policy, feedbackOnClose: () => 'pending' }); const id = session.sessionId;
+    const { repo, session } = await opened(f.pool, { ...policy, evaluateClose: async () => 'pending' }); const id = session.sessionId;
     await repo.commands.startCall({ sessionId: id, operationId: 'start', expectedRevision: 0 });
     const close = { sessionId: id, operationId: 'close', expectedRevision: 1, finalProgress: { sessionId: id, journalRevision: 0 } };
     await f.pool.query("CREATE FUNCTION reject_storage() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'fixture storage failure'; END $$");
@@ -253,7 +253,7 @@ test('P2 actual P6 coordinator records insufficient evidence through the Postgre
   const { createFeedbackCoordinator } = await import(process.env.P2_P6_COORDINATOR!);
   const f = await fixture();
   try {
-    const { repo, session } = await opened(f.pool, { ...policy, feedbackOnClose: () => 'pending' }); const id = session.sessionId;
+    const { repo, session } = await opened(f.pool, { ...policy, evaluateClose: async () => 'pending' }); const id = session.sessionId;
     await repo.commands.startCall({ sessionId: id, operationId: 'start', expectedRevision: 0 });
     await repo.commands.confirmClose({ sessionId: id, operationId: 'close', expectedRevision: 1, finalProgress: { sessionId: id, journalRevision: 0 } });
     const jobId = (await f.pool.query<{ id: string }>('SELECT id FROM learning_feedback_jobs')).rows[0]!.id;
