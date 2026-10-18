@@ -112,7 +112,7 @@ export function Preferences({ settings, onChange, onReset, onClose, notice }: {
             <select aria-label={`${dimension === 'grammar' ? 'Grammar' : 'Vocabulary'} difficulty`} value={settings.difficulty[dimension]} onChange={event => onChange({ ...settings, difficulty: { ...settings.difficulty, [dimension]: Number(event.target.value) as 1 | 2 | 3 } })}>
               <option value="1">1 · Start gently</option><option value="2">2 · Build confidence</option><option value="3">3 · Add a challenge</option>
             </select></label>)}</div>
-          <label className="check-label"><input type="checkbox" checked={settings.helpEnabled} onChange={event => onChange({ ...settings, helpEnabled: event.target.checked })} />Offer sound guidance after a spelling error</label>
+          <label className="check-label"><input type="checkbox" checked={settings.helpEnabled} onChange={event => onChange({ ...settings, helpEnabled: event.target.checked })} />Offer help after written corrections</label>
           <label className="check-label"><input type="checkbox" checked={settings.untimedHelp} onChange={event => onChange({ ...settings, untimedHelp: event.target.checked })} />Keep sound-help offers available until dismissed</label>
         </section>}
         {section === 'device' && <section className="preferences-section" aria-labelledby="device-title">

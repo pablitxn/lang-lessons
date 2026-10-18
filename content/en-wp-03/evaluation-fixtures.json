@@ -1099,9 +1099,23 @@
       },
       "expected": {
         "decision": "accept",
-        "reason": "Asks about a past state in a finished period, not a continuing present residence."
+        "reason": "Asks about their residence during last year, without asserting where they live now. Simple and continuous past readings are both valid."
       },
       "expected_tense": "past_simple",
+      "explanation_required": true
+    },
+    {
+      "id": "sentence-past-simple-question-accept-1",
+      "area": "translation",
+      "content_ref": "sentence-past-simple-question",
+      "input": {
+        "text": "Where were they living last year?"
+      },
+      "expected": {
+        "decision": "accept",
+        "reason": "Asks about their residence during last year, using a valid continuous past reading."
+      },
+      "expected_tense": "past_continuous",
       "explanation_required": true
     },
     {
@@ -1295,7 +1309,7 @@
       },
       "expected": {
         "decision": "accept",
-        "reason": "Duration of an ongoing activity before a later past event, not a completed trench."
+        "reason": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
       },
       "expected_tense": "past_perfect_continuous",
       "explanation_required": true
@@ -1309,7 +1323,7 @@
       },
       "expected": {
         "decision": "accept",
-        "reason": "Duration of an ongoing activity before a later past event, not a completed trench."
+        "reason": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
       },
       "expected_tense": "past_perfect_continuous",
       "explanation_required": true

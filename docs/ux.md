@@ -17,12 +17,19 @@ Repository contracts and `TIMING` are authoritative for implementation.
 The published voice-first application supersedes the original presentation described at the
 2026-10-16 checkpoint; its dated receipt below remains historical evidence.
 The home screen contains lesson cards. Selecting an available lesson starts the
-root-owned voice call. A single call bar offers microphone mute and call
-pause/resume. Preferences opens a native dialog with appearance, microphone,
-learning and local-storage sections. The root supplies light/dark theme tokens.
+root-owned voice call. A call bar offers microphone mute and call pause/resume
+while available. Voice failures collapse into a red microphone badge in the
+header; opening it shows the current message and call controls in a native
+dialog, with a scoped advancement hold and focus restoration. Duplicate root
+connection errors stay out of the exercise; feature-local failures remain visible.
+The temporary **PC** avatar opens Preferences with appearance, microphone,
+learning and local-storage sections. It does not represent a stored user account.
+The root supplies light/dark theme tokens.
 
 Lessons retain their prompts, spelling fields where applicable, requested hints
-and reference helpers. Progress opens from **Your progress** in a native dialog;
+and reference helpers. Arrow-only next controls retain descriptive accessible
+names. A fixed footer contains icon-and-label **Progress** and **Reference**
+buttons. Progress opens with the accessible name **Your progress** in a native dialog;
 it is no longer a permanent sidebar. Coach transcript panels, typed question
 forms, provider-mode selection and simulation notices are absent from the
 production interface. Simulation controls live only in `__fixtures__` and test
@@ -96,8 +103,9 @@ disconnects or mutes the call.
 A calm single-column practice space uses warm neutral surfaces, restrained
 borders and themed actions. The lesson remains one column at every width, with
 progress and reference material available in dialogs.
-The dock stays in document flow, with safe-area padding, to avoid covering a
-focused input when a software keyboard occupies the viewport. No per-key color
+The dock stays at the viewport bottom, with safe-area padding and reserved
+document clearance. Enlarged text and scroll checks verify that exercise controls
+can remain above it; physical software-keyboard behavior remains unverified. No per-key color
 animation is used. Scoped CSS consumes the root appearance variables for ink,
 surfaces, borders, actions and feedback; selectors remain under `ll-*` classes.
 
@@ -122,8 +130,9 @@ Typing-field focus does not turn an 8-second offer into an indefinite offer.
 Untimed help is the separate accessibility preference. Closing a guide dismisses
 its offer even with untimed help enabled; explicit Check can reoffer an expired
 error's help without duplicate assessment. Turning help off or changing the
-current result removes the guide. Activation reveals phonetics and a Spanish
-textual sound guide below the relevant input. Uncertainty and service failures
+current result removes the guide. Activation reveals IPA phonetics and a short
+Spanish-readable pronunciation approximation below the relevant input, without
+articulatory explanations. Uncertainty and service failures
 never qualify, and no prerecorded audio collection is required.
 
 Progress and reference dialogs are separate from conditional spelling help. A persistent

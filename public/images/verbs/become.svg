@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Un cubo de hielo pierde gotas y se transforma en un charco de agua.</title>
-<desc id="cue-desc">Describe el cambio de estado del hielo. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M45 178 Q74 149 110 172 Q135 183 162 168 Q213 151 265 180 Q288 202 239 208 L82 211 Q29 205 45 178Z" fill="#95c9d0" /><path d="M100 73 L163 48 L214 84 L210 151 L147 178 L96 139Z" fill="#d6f0ec" /><path d="M100 73 L151 111 L214 84 M151 111 L147 178 M114 86 L131 101 M171 66 L186 78" fill="none" stroke="#5a9ca5"/><path d="M227 130 Q246 157 227 161 Q210 158 227 130Z" fill="#82bdc7" /><path d="M77 112 Q91 133 77 140 Q64 135 77 112Z" fill="#82bdc7" /></g>
-</svg>

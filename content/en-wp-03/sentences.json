@@ -78,7 +78,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Habitual selection; vocabulary is harder without adding a new clause."
+        "Careful tool selection by her; accept a habitual or current reading supported by the sentence."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",
@@ -294,7 +294,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Negative current movement; is agrees with he."
+        "Negative current movement toward home; the unstated subject may be he, she or formal you, with matching agreement."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",
@@ -648,7 +648,7 @@
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "A question about activity over the morning with present evidence."
+        "A question about the reason for digging here throughout the morning; no additional present evidence is required."
       ],
       "post_acceptance": [
         "identify the tense used in the accepted response",
@@ -755,7 +755,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -792,7 +792,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -835,7 +835,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -858,12 +858,18 @@
           "text": "Where did they live last year?",
           "tense": "past_simple",
           "structure": "where + did + subject + base live",
-          "meaning": "Asks about a past state in a finished period, not a continuing present residence."
+          "meaning": "Asks about their residence during last year, without asserting where they live now. Simple and continuous past readings are both valid."
+        },
+        {
+          "text": "Where were they living last year?",
+          "tense": "past_continuous",
+          "structure": "where + were + subject + living",
+          "meaning": "Asks about their residence during last year, using a valid continuous past reading."
         }
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Asks about a past state in a finished period, not a continuing present residence.",
+        "Asks about their residence during last year, without asserting where they live now. Simple and continuous past readings are both valid.",
         "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
       ],
       "post_acceptance": [
@@ -872,7 +878,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -909,7 +915,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -946,7 +952,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -989,7 +995,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1026,7 +1032,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1069,7 +1075,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1106,7 +1112,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1149,7 +1155,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1186,7 +1192,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1229,7 +1235,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1252,18 +1258,18 @@
           "text": "They had been digging the trench for two hours when the inspector arrived.",
           "tense": "past_perfect_continuous",
           "structure": "subject + had been + digging + for duration",
-          "meaning": "Duration of an ongoing activity before a later past event, not a completed trench."
+          "meaning": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
         },
         {
           "text": "They'd been digging the trench for two hours when the inspector arrived.",
           "tense": "past_perfect_continuous",
           "structure": "subject + had been + digging + for duration",
-          "meaning": "Duration of an ongoing activity before a later past event, not a completed trench."
+          "meaning": "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete."
         }
       ],
       "acceptance_policy": "semantic-open-set",
       "meaning_requirements": [
-        "Duration of an ongoing activity before a later past event, not a completed trench.",
+        "Duration of an ongoing activity before a later past event, without asserting whether the trench was complete.",
         "Accept equivalent wording, natural contractions and a contextually valid alternative construction; explain the construction actually used."
       ],
       "post_acceptance": [
@@ -1272,7 +1278,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1315,7 +1321,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],
@@ -1352,7 +1358,7 @@
         "meaning-fit"
       ],
       "hint_intents": [
-        "Attend to the message and the visible context.",
+        "Attend to the message in the Spanish sentence.",
         "Relate the activity to the reference moment without naming a tense.",
         "Invite a complete retry without giving words, auxiliaries or endings."
       ],

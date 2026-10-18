@@ -3,7 +3,7 @@ import type { AttemptRef, EvidenceResult, ExerciseContext, VerbForm } from '../c
 const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
 const graphemes = (text: string) => [...segmenter.segment(text.normalize('NFC'))].map(part => part.segment);
 
-function alignment(input: string[], target: string[]) {
+export function alignGraphemes(input: string[], target: string[]) {
   const distances = Array.from({ length: input.length + 1 }, () => Array<number>(target.length + 1).fill(0));
   for (let i = 0; i <= input.length; i++) distances[i]![0] = i;
   for (let j = 0; j <= target.length; j++) distances[0]![j] = j;
@@ -36,7 +36,7 @@ export function assessSpelling(context: ExerciseContext, ref: AttemptRef, text: 
     return { ...base, status: 'accepted', feedback: 'Correct form.',
       spelling: { submittedText, incorrectGraphemeIndices: [], missingGraphemeIndices: [] } };
   }
-  const best = variants.map(value => alignment(graphemes(submittedText), graphemes(value.toLowerCase())))
+  const best = variants.map(value => alignGraphemes(graphemes(submittedText), graphemes(value.toLowerCase())))
     .sort((a, b) => a.distance - b.distance)[0]!;
   return { ...base, status: 'incorrect', feedback: 'Check the highlighted letters and missing-letter markers.',
     spelling: { submittedText, incorrectGraphemeIndices: best.incorrectGraphemeIndices, missingGraphemeIndices: best.missingGraphemeIndices } };

@@ -2,18 +2,21 @@ import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react
 import type { LearnerSettings, LessonMode, LessonModuleProps, VoiceAdapter, VoiceState } from '../contracts';
 import { createRealtimeVoiceAdapter } from '../voice/realtime';
 import { checkVoiceAvailability, createSessionRuntime } from './session-runtime';
+import { VoiceStatus } from './VoiceStatus';
 
 export interface ComposedLessonProps extends LessonModuleProps {
   connectionState: VoiceState; microphoneMuted: boolean; onStartVoice: () => void; onStopVoice: () => void;
   claimUtterance: (utteranceId: string) => void;
   sessionControls: ReactNode;
+  rootVoiceError: string;
 }
 export type LessonRenderer = (mode: LessonMode, props: ComposedLessonProps) => ReactNode;
-export function LessonSession({ mode, settings, preferencesOpen, renderLesson, fallback, voiceAdapter }: {
+export function LessonSession({ mode, settings, preferencesOpen, renderLesson, fallback, voiceAdapter, voiceStatusTarget = null }: {
   mode: LessonMode; settings: LearnerSettings; preferencesOpen: boolean;
   renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
   /** Internal fixture seam. The application always creates the live adapter. */
   voiceAdapter?: VoiceAdapter;
+  voiceStatusTarget?: HTMLElement | null;
 }) {
   const [runtime] = useState(() => createSessionRuntime(voiceAdapter ?? createRealtimeVoiceAdapter(), crypto.randomUUID(), {
     prepareConnection: checkVoiceAvailability,
@@ -49,12 +52,10 @@ export function LessonSession({ mode, settings, preferencesOpen, renderLesson, f
   </div> : null;
   const lesson = renderLesson?.(mode, { settings, voice: runtime.voice, sessionId: runtime.sessionId, onComplete: () => {},
     connectionState: state.state, microphoneMuted: state.muted, onStartVoice: start, onStopVoice: runtime.pause,
-    claimUtterance: runtime.claimUtterance, sessionControls });
+    claimUtterance: runtime.claimUtterance, sessionControls, rootVoiceError: voiceStatusTarget ? state.error : '' });
   return <div className="lesson-workspace">
-    <section className="voice-call-bar" aria-label="Voice call">
-      <p className="voice-call-status" role="status"><span aria-hidden="true" className={state.state === 'ready' ? 'call-indicator active' : 'call-indicator'} />{status}</p>
-      {sessionControls}
-    </section>
+    <VoiceStatus runtime={runtime} status={status} ready={state.state === 'ready'} failed={Boolean(state.error) || state.state === 'error'}
+      controls={sessionControls} target={voiceStatusTarget} />
     <section className="lesson-panel panel" aria-label="Current exercise">{lesson ?? fallback}</section>
   </div>;
 }

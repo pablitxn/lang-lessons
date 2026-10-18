@@ -25,8 +25,11 @@ The reference IPA and Spanish articulation tips are authored broad rhotic
 guidance from linguistic knowledge, not a scraped pronunciation dataset.
 They require educational review and real acoustic testing before serving as a
 pronunciation assessment baseline. Other legitimate accents remain accepted.
-Spanish tips describe articulatory differences, not exact Spanish respellings;
-no Spanish phrase can reproduce every English sound faithfully.
+Reference tips describe articulatory differences. Each form also has an authored
+`sound_spelling_es` mnemonic for the compact sound-help panel. These approximate
+Spanish-readable spellings use `ii` for the reference /i/ and `i` for /ɪ/, and
+accent marks to show stress in multisyllabic forms. They cannot reproduce every
+English sound faithfully and do not replace IPA or acoustic evidence.
 
 Burned/burnt and dreamed/dreamt are accepted in both slots, with no requirement
 to select the same variant twice. Bet includes less common betted. Costed is

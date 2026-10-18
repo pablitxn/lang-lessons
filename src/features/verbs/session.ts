@@ -1,5 +1,5 @@
-import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot } from '../../assessment';
-import { pickNextVerb } from '../../content';
+import { assessSpelling, createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot } from '../../assessment';
+import { VERB_PHOTOS, VERBS } from '../../content';
 import { isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
 
 export interface VerbSessionSnapshot {
@@ -10,6 +10,7 @@ export interface VerbSessionSnapshot {
   lastUtterance: string;
   question: string;
   muted: boolean;
+  canGoBack: boolean;
 }
 export interface VerbSessionOptions {
   voice: VoiceAdapter;
@@ -24,6 +25,12 @@ export interface VerbSessionOptions {
   claimUtterance?: ((utteranceId: string) => void) | undefined;
 }
 interface PendingUtterance extends ExerciseIdentity { text: string; utteranceId: string; uncertain: boolean }
+interface HistoryEntry {
+  verb: VerbEntry;
+  drafts: Record<VerbForm, string>;
+  finalized: readonly VerbForm[];
+  completed: boolean;
+}
 
 /** Feature orchestration only. The shared controller owns every evidence gate and timer. */
 export function createVerbSession(options: VerbSessionOptions) {
@@ -54,13 +61,97 @@ export function createVerbSession(options: VerbSessionOptions) {
   let controller: AssessmentController;
   const initialEvents: VoiceEvent[] = [];
   const queueHold = `${namespace}-queued-utterances`;
+  const reviewHold = `${namespace}-completed-review`;
+  const photoBags = new Map<VerbEntry['id'], (typeof VERB_PHOTOS)[number][]>();
+  const lastPhotos = new Map<VerbEntry['id'], string>();
+  const history = shuffledDeck();
+  let historyIndex = 0;
 
+  function newEntry(verb: VerbEntry): HistoryEntry {
+    return { verb, drafts: { base: '', past: '', participle: '' }, finalized: [], completed: false };
+  }
+  function shuffle<T>(items: T[]): T[] {
+    for (let index = 0; index < items.length - 1; index++) {
+      const sample = (options.random ?? Math.random)();
+      if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
+        throw new RangeError('Random sample must be finite and within [0, 1).');
+      }
+      const swap = index + Math.floor(sample * (items.length - index));
+      [items[index], items[swap]] = [items[swap]!, items[index]!];
+    }
+    return items;
+  }
+  function withNextPhoto(verb: VerbEntry): VerbEntry {
+    let photos = photoBags.get(verb.id);
+    if (!photos?.length) {
+      photos = shuffle(VERB_PHOTOS.filter(photo => photo.verbId === verb.id));
+      if (!photos.length) throw new Error(`No reviewed photograph for ${verb.id}.`);
+      if (photos.length > 1 && photos[0]!.src === lastPhotos.get(verb.id)) {
+        [photos[0], photos[1]] = [photos[1]!, photos[0]!];
+      }
+      photoBags.set(verb.id, photos);
+    }
+    const photo = photos.shift()!;
+    lastPhotos.set(verb.id, photo.src);
+    return { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } };
+  }
+  function shuffledDeck(previous?: VerbEntry): HistoryEntry[] {
+    // Every round contains each verb once, regardless of its photo collection size.
+    const verbs = shuffle([...VERBS]);
+    if (verbs.length > 1 && verbs[0]!.id === previous?.id) {
+      [verbs[0], verbs[1]] = [verbs[1]!, verbs[0]!];
+    }
+    // Photo bags are consumed only for new rounds, never while revisiting history.
+    return verbs.map(verb => newEntry(mode === 'verb-image' ? withNextPhoto(verb) : verb));
+  }
   function context(verb: VerbEntry): ExerciseContext {
     return { sessionId, exerciseId: `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, verb };
   }
+  function visit(index: number) {
+    if (disposed || index === historyIndex || !history[index]) return false;
+    const current = history[historyIndex]!;
+    current.drafts = { ...drafts };
+    current.finalized = fields.filter(form => submittedRevisions[form] === draftRevisions[form]);
+    const next = history[index]!;
+    voice.interrupt();
+    historyIndex = index;
+    generation++; drafts = { ...next.drafts }; queue = []; heard = new Set();
+    draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
+    hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
+    pendingHintId = ''; pendingQuestionId = ''; question = '';
+    coachText = 'Keep speaking naturally, and ask questions whenever you need.';
+    controller.startExercise(context(next.verb));
+    controller.setInteraction({ learnerSpeaking: false, assistantSpeaking: false });
+    // Retain only typed work. Each visit has fresh refs, and oral/provider work
+    // from a previous visit can never be replayed into the current exercise.
+    for (const form of next.finalized) {
+      if (!drafts[form].trim()) continue;
+      const refs = controller.beginAttempt([`spelling:${form}`]);
+      const snapshot = controller.getSnapshot();
+      const inputId = `restored-spelling-${form}-${++sequence}`;
+      controller.applyBatch({ ...snapshot.context, eventId: inputId,
+        results: refs.map(ref => assessSpelling(snapshot.context, ref, drafts[form], inputId)) });
+      submittedRevisions[form] = draftRevisions[form];
+    }
+    // A previously completed exercise remains editable for review; advancing
+    // from it is manual and must not report the same completion again.
+    if (next.completed) controller.setPresentationHold(reviewHold, true);
+    return true;
+  }
+  function startNext() {
+    if (disposed) return false;
+    if (historyIndex === history.length - 1) {
+      history.push(...shuffledDeck(history[historyIndex]!.verb));
+    }
+    return visit(historyIndex + 1);
+  }
+  function previous() {
+    if (disposed || historyIndex === 0) return false;
+    return visit(historyIndex - 1);
+  }
   function publish() {
     if (disposed || !initialized) return;
-    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted };
+    view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted, canGoBack: historyIndex > 0 };
     for (const listener of listeners) listener();
   }
   function scheduleDrain() {
@@ -165,22 +256,18 @@ export function createVerbSession(options: VerbSessionOptions) {
 
   // Subscribe before setContext so synchronously replayed adapter state is retained.
   const unsubscribeVoice = voice.subscribe(event => initialized ? handleEvent(event) : initialEvents.push(event));
-  controller = createAssessmentController({ context: context(pickNextVerb(undefined, options.random)), allowMock: voice.mode === 'mock',
+  controller = createAssessmentController({ context: context(history[0]!.verb), allowMock: voice.mode === 'mock',
     ...(options.clock ? { clock: options.clock } : {}),
     onContextChange: next => voice.setContext(next),
     onCancelHint: () => voice.cancelPendingHints?.(),
     onAdvance: snapshot => {
       if (disposed || snapshot.context.mode === 'sentence') return;
+      const entry = history[historyIndex]!;
+      if (entry.completed) return;
+      entry.completed = true;
       options.onComplete(snapshot.exerciseId);
       if (disposed || controller.getSnapshot().interaction.intent !== 'practice') return;
-      const next = pickNextVerb(snapshot.context.verb.id, options.random);
-      generation++; drafts = { base: '', past: '', participle: '' }; queue = []; heard = new Set();
-      draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
-      hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
-      pendingHintId = ''; pendingQuestionId = '';
-      question = '';
-      coachText = 'A new verb. Keep speaking naturally, and ask questions whenever you need.';
-      controller.startExercise(context(next));
+      startNext();
     },
   });
   const unsubscribeController = controller.subscribe(() => { publish(); scheduleDrain(); });
@@ -211,6 +298,9 @@ export function createVerbSession(options: VerbSessionOptions) {
       controller.invalidate(`spelling:${form}`);
     },
     finalize,
+    // Explicit history navigation never reports completion.
+    skip: startNext,
+    previous,
     retrySpelling(form: VerbForm) {
       if (disposed || controller.getSnapshot().evidence[`spelling:${form}`]?.status !== 'uncertain') return;
       delete submittedRevisions[form];

@@ -2,11 +2,12 @@
 
 ## EN-WP-08 eight-tense extension
 
-The feature candidate adds past simple, past continuous, past perfect and past
+The curriculum includes past simple, past continuous, past perfect and past
 perfect continuous alongside all four present tenses. Existing 17 prompts and
 their alternatives remain; 16 new prompts bring the total to 33, with independent
 difficulty axes and affirmative/negative/question coverage for each new tense.
-Each prompt supplies visible past-time context and an open-set meaning rubric.
+Each prompt supplies its past-time reference within the Spanish sentence and an
+open-set meaning rubric; the separate authoring context is not shown or required.
 Regular and irregular constructions include did + base, was/were + -ing,
 had + past participle and had been + -ing; explanation assesses the actual
 accepted response, including contractions and valid alternative wording.
@@ -20,7 +21,9 @@ Changes apply at Next/Skip and preserve current identity, evidence, hints and st
 
 Both verb modes retain ten/nine existing obligations, exact25 and spelling
 variants. They receive 98 additional contextual past-tense teaching examples
-through `tenseExamples`, plus a generic eight-tense reference guide. A progressive
+through `tenseExamples`, plus a generic eight-tense reference guide. Verb reference
+rows describe auxiliary roles without revealing the requested forms of be/do;
+the full sentence guide is available after translation acceptance. A progressive
 derivative belongs to the base family; `had been buying` does not prove the
 lexical participle `bought`. Past-family examples require a finite past form;
 participle examples require a complete construction with the lexical participle.
@@ -28,7 +31,7 @@ Do not force progressive stative readings: be's location examples remain simple/
 perfect, while the provider considers contextually valid dynamic uses separately.
 Examples are model context, not prefilled responses or learner evidence.
 
-The authored oracle set grows from 69 to 98. Integrity/mutation tests check
+The authored oracle set contains 99 cases, including both past residence readings. Integrity/mutation tests check
 coverage, references and required error cases; they are not an NLP grammar
 classifier. Provider instructions, protocol/state regressions and actual Chromium
 with injected verdicts verify integration without paid calls. Real acoustic,
@@ -53,21 +56,36 @@ not restricted to the exact25 irregular-practice inventory.
 
 All base/past/participle alternatives survive adaptation. The shared contract
 has one IPA/Spanish-guide string per family, so alternative-specific guidance
-is labelled and combined. Full reference records retain individual phonetics.
-The shared sentence text includes its Spanish context so assessment cannot rely
-on context hidden from learners. Accepted alternatives retain their actual
+is labelled and combined. Each reference form includes `sound_spelling_es`, an
+authored Spanish-readable approximation (for example, `delt` for `/dɛlt/`).
+The sound-help panel displays IPA and this approximation, without articulatory
+instructions. These spellings are memory aids, not pronunciation assessments;
+IPA and valid accent alternatives remain authoritative. Full reference records
+retain individual phonetics and articulation notes.
+The shared sentence text contains only the Spanish sentence. Reference context
+remains authoring metadata; assessment must accept plausible readings without
+requiring unstated context. Omitted subjects permit any pronoun compatible with
+the Spanish conjugation and English agreement. The past residence question
+accepts both simple and continuous readings, and the trench-duration prompt
+does not assert whether the trench was completed. Accepted alternatives retain their actual
 tense and explanation; the shared explanation rubric asks about that actual
 construction. The independent `primary_tense` never acts as an exclusive answer.
 Grammar and vocabulary levels map independently to the shared 1–3 values.
 
-Each `image.src` is now `/images/verbs/{id}.svg`, pointing to an original local
-scene with no printed English target word/form or tense. Spanish accessible
-alt combines its nonvisual description and context. `VERB_CUE_BRIEFS` exposes
-`context_es` and `ambiguous`; show the context beside images marked ambiguous
-(abstract or directional meanings) and clarify alternate learner readings.
-Keep supplied cue information separate from learner-produced oral evidence.
-All 25 SVGs and their ledger checksums are verified. The [asset strategy](../content/en-wp-03/ASSETS.md)
-records provenance and the remaining independent comprehension review.
+Each `image.src` resolves to a locally served, reviewed real photograph. The
+[photo ledger](../content/en-wp-03/asset-ledger.json) supports one or more assets
+per verb, with independent Spanish descriptions, contextual cues and provenance.
+`VERB_PHOTOS`, `photosForVerb` and `pickVerbPhoto` expose the collections;
+`pickNextVerb` selects one photo when creating the exercise. The shared
+single-image `VerbEntry` contract stays compatible. Rerenders, spelling edits,
+preferences and helper toggles do not choose another photo or replace evidence.
+Ambiguous scenes show their selected photo's Spanish context. Supplied cues
+are never learner-produced oral evidence. An information icon exposes the nonvisual cue on hover, keyboard focus or tap;
+reading it holds automatic advancement. Credits/source/licenses remain in the
+photo ledger rather than the exercise UI. The [image policy](../content/en-wp-03/ASSETS.md)
+requires real photographs for future additions and describes source review.
+The former SVG scenes and their generator have been removed from active content;
+historical validation receipts describe the earlier implementation only.
 
 Runtime hints remain model-generated. `hintSeeds` are only semantic intents.
 Never display/speak private alternatives or examples before the appropriate
@@ -86,7 +104,7 @@ npm run check
 node content/en-wp-03/check_assets_browser.cjs 5193 4193
 ```
 
-The asset amendment fixes extensionful test imports and replaces the example
+The historical SVG asset amendment fixed extensionful test imports and replaces the example
 record cast with explicit typed family fields. Existing bundler resolution and
 JSON import attributes compile without compiler-setting changes. The combined
 checks now pass. No shared settings, manifests, routing, contracts or global

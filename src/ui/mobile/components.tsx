@@ -7,22 +7,22 @@ export function PracticeLayout({ children, controls }: {
 }) {
   return <div className="ll-mobile">
     <div className="ll-exercise">{children}</div>
-    {controls && <div className="ll-dock">{controls}</div>}
+    {controls && <footer className="ll-dock" aria-label="Lesson tools">{controls}</footer>}
   </div>;
 }
 
-export function ExerciseCue({ image, base, spanish, onAlternateCue }: {
+export function ExerciseCue({ image, base, spanish, imageInfo }: {
   image?: { src: string; alt: string; attribution?: string };
-  base?: string; spanish?: string; onAlternateCue?: () => void;
+  base?: string; spanish?: string; imageInfo?: ReactNode;
 }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [image?.src]);
   return <div className="ll-cue">
     {image && <figure>{!failed ? <img src={image.src} alt={image.alt} onError={() => setFailed(true)} />
       : <p role="status">The picture is unavailable. Your progress is safe.</p>}
-      {onAlternateCue && <figcaption><button type="button" className="ll-button" onClick={onAlternateCue}>Use another cue</button></figcaption>}</figure>}
+      {imageInfo && <figcaption>{imageInfo}</figcaption>}</figure>}
     {base !== undefined && <><p className="ll-kicker">Supplied base form</p><p className="ll-base">{base}</p></>}
-    {spanish !== undefined && <><p className="ll-kicker">Translate out loud</p><p className="ll-spanish" lang="es">{spanish}</p></>}
+    {spanish !== undefined && <p className="ll-spanish" lang="es">{spanish}</p>}
   </div>;
 }
 
@@ -68,9 +68,18 @@ export interface LessonDialogProps {
   children: ReactNode;
   onHoldChange: (id: string, held: boolean) => void;
   controls?: ReactNode;
+  triggerIcon?: 'progress' | 'reference';
+  triggerText?: string;
 }
 
-export function LessonDialog({ title, triggerLabel, closeLabel, children, onHoldChange, controls }: LessonDialogProps) {
+function ToolIcon({ kind }: { kind: 'progress' | 'reference' }) {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {kind === 'progress' ? <path d="M4 3v18h17M9 15v-4M14 15V7M19 15V4" />
+      : <><path d="M12 5c-3-2-7-2-10-1v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z" /><path d="M12 5v15" /></>}
+  </svg>;
+}
+
+export function LessonDialog({ title, triggerLabel, closeLabel, children, onHoldChange, controls, triggerIcon, triggerText }: LessonDialogProps) {
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -89,8 +98,12 @@ export function LessonDialog({ title, triggerLabel, closeLabel, children, onHold
     trigger.current?.focus();
   }
   return <div className="ll-reference">
-    <button ref={trigger} type="button" className="ll-button" aria-haspopup="dialog" aria-expanded={open} aria-controls={id}
-      onClick={() => { latestHold.current(id, true); setOpen(true); }}>{triggerLabel}</button>
+    <button ref={trigger} type="button" className={triggerIcon ? 'll-button ll-tool-button' : 'll-button'} aria-label={triggerLabel}
+      aria-haspopup="dialog" aria-expanded={open} aria-controls={id}
+      onClick={() => { latestHold.current(id, true); setOpen(true); }}>
+      {triggerIcon && <span className="ll-tool-icon"><ToolIcon kind={triggerIcon} /></span>}
+      <span>{triggerText ?? triggerLabel}</span>
+    </button>
     <dialog className="ll-sheet" ref={dialog} id={id} aria-labelledby={`${id}-title`} onCancel={event => { event.preventDefault(); close(); }}
       onClose={() => { setOpen(false); trigger.current?.focus(); }}>
       <div className="ll-sheet-heading"><h3 id={`${id}-title`}>{title}</h3><button type="button" className="ll-button" onClick={close}>{closeLabel}</button></div>
@@ -100,17 +113,20 @@ export function LessonDialog({ title, triggerLabel, closeLabel, children, onHold
   </div>;
 }
 
-export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls }: {
+export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls, children }: {
   mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger;
-  onHoldChange: LessonDialogProps['onHoldChange']; controls?: ReactNode;
+  onHoldChange: LessonDialogProps['onHoldChange']; controls?: ReactNode; children?: ReactNode;
 }) {
-  return <LessonDialog title="Lesson progress" triggerLabel="Your progress" closeLabel="Close progress" onHoldChange={onHoldChange} controls={controls}>
+  return <LessonDialog title="Lesson progress" triggerLabel="Your progress" triggerText="Progress" triggerIcon="progress"
+    closeLabel="Close progress" onHoldChange={onHoldChange} controls={controls}>
+    {children}
     <ObligationProgress mode={mode} identity={identity} evidence={evidence} />
   </LessonDialog>;
 }
 
 export function ReferenceTable({ title, caption, columns, rows, onHoldChange, controls }: ReferenceTableProps) {
-  return <LessonDialog title={title} triggerLabel="Reference table" closeLabel="Close table" onHoldChange={onHoldChange} controls={controls}>
+  return <LessonDialog title={title} triggerLabel="Reference table" triggerText="Reference" triggerIcon="reference"
+    closeLabel="Close table" onHoldChange={onHoldChange} controls={controls}>
       <div className="ll-table-scroll" role="region" aria-label={caption} tabIndex={0}>
         <table><caption>{caption}</caption><thead><tr>{columns.map((column, index) => <th scope="col" key={index}>{column}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => <tr key={index}>{row.map((cell, column) => column === 0
@@ -119,11 +135,12 @@ export function ReferenceTable({ title, caption, columns, rows, onHoldChange, co
   </LessonDialog>;
 }
 
-export function SentencePrompt({ stage, onHint, onNext }: { stage: SentenceStage; onHint: () => void; onNext: () => void }) {
+export function SentencePrompt({ stage, onHint, onNext, showHint = true }: { stage: SentenceStage; onHint: () => void; onNext: () => void; showHint?: boolean }) {
+  if (stage === 'translation' && !showHint) return null;
   return <section className="ll-sentence-stage" aria-label="Current sentence stage">
-    <p role="status">{stage === 'translation' ? 'Translate the Spanish sentence out loud. Speak naturally.' : stage === 'explanation'
-      ? 'Translation accepted. Name the tense and explain its structure, meaning, and why it fits.' : 'Translation and explanation accepted.'}</p>
-    {stage === 'complete' ? <button type="button" className="ll-button ll-primary" onClick={onNext}>Next exercise</button>
-      : <button type="button" className="ll-button" onClick={onHint}>Give me a hint</button>}
+    {stage !== 'translation' && <p role="status">{stage === 'explanation'
+      ? 'Translation accepted. Name the tense and explain its structure, meaning, and why it fits.' : 'Translation and explanation accepted.'}</p>}
+    {stage === 'complete' ? <button type="button" className="ll-button ll-primary ll-next" aria-label="Next exercise" title="Next exercise" onClick={onNext}><span aria-hidden="true">→</span></button>
+      : showHint && <button type="button" className="ll-button" onClick={onHint}>Ask voice coach for a hint</button>}
   </section>;
 }

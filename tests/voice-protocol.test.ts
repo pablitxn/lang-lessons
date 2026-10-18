@@ -18,6 +18,25 @@ function setup(clock?: FakeClock) {
 }
 const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'pronunciation:base', attemptId: 'a1', revision: 1 };
 
+test('manual exercise changes discard old audio evidence while tracking the actual end of speech', () => {
+  for (const freshSpeech of [false, true]) {
+    const s = setup(new FakeClock());
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old' });
+    s.protocol.setContext({ ...verbContext(), exerciseId: 'next', generation: 2 });
+    if (freshSpeech) s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'fresh' });
+    s.receive({ type: 'input_audio_buffer.speech_started', item_id: 'old' });
+    s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'old' });
+    s.receive({ type: 'conversation.item.input_audio_transcription.completed', item_id: 'old', transcript: 'Old exercise response' });
+    assert.equal(s.events.some(event => event.type === 'transcript'), false);
+    assert.equal(s.events.filter(event => event.type === 'speech' && event.speaker === 'learner' && !event.active).length, freshSpeech ? 0 : 1);
+    if (freshSpeech) {
+      s.receive({ type: 'input_audio_buffer.speech_stopped', item_id: 'fresh' });
+      assert.equal(s.events.filter(event => event.type === 'speech' && event.speaker === 'learner' && !event.active).length, 1);
+    }
+    s.protocol.dispose();
+  }
+});
+
 for (const tense of PAST_TENSES) test(`${tense} reaches provider task context with safe translation and actual accepted construction`, () => {
   const s = setup(new FakeClock()); const initial = sentenceContext();
   if (initial.mode !== 'sentence') throw Error('Sentence fixture required.');

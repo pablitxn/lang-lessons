@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Una mano traza con lápiz un árbol en una hoja de papel.</title>
-<desc id="cue-desc">El lápiz crea una imagen, no palabras. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="65" y="58" width="190" height="145" rx="3" fill="#fffdf6" transform=""/><path d="M102 171 L126 126 L115 126 L144 85 L174 126 L164 126 L187 171Z" fill="#abcdb6" /><path d="M144 171 L144 189" fill="none" stroke="#98704e" stroke-width="6"/><g transform="translate(240 106) rotate(155)"><rect x="-44" y="-12" width="45" height="27" rx="3" fill="#247f80" transform=""/><path d="M0 -11 L19 -11 Q32 -11 32 -1 L45 0 Q57 1 52 12 L35 29 Q28 35 16 30 L0 15Z" fill="#edbea0" /></g><path d="M204 134 L170 180" fill="none" stroke="#edb952" stroke-width="10"/><path d="M170 180 L162 190 L164 175Z" fill="#173f48" /><path d="M212 198 L233 198" fill="none" stroke="#9cb5b0" stroke-width="3"/></g>
-</svg>

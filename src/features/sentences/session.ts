@@ -98,6 +98,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     if (!pool.length) { notice = 'No authored prompt matches the selected difficulty and tense. Change either in Preferences.'; publish(); return false; }
     const current = controller.getSnapshot().context;
     const sentence = pick(pool, current.mode === 'sentence' ? current.sentence.id : undefined, random);
+    voice.interrupt();
     generation++;
     utterances = new Set(); lastResponse = ''; notice = ''; coachText = ''; hintLevel = 0; hintOrigin = 'none';
     controller.startExercise(context(sentence));
@@ -250,9 +251,8 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       notice = 'Finish all four requirements and close any question or helper before continuing.'; publish(); return false;
     },
     skip() {
-      const snapshot = controller.getSnapshot();
-      if (!disposed && isQuiet(snapshot.interaction)) return startNext();
-      notice = 'Finish the conversation or close the helper before changing prompts.'; publish(); return false;
+      // Explicit navigation works offline or paused and never reports completion.
+      return !disposed && startNext();
     },
     dispose() { if (disposed) return; disposed = true; unsubscribeVoice(); unsubscribeController(); voice.cancelPendingHints?.(); controller.dispose(); listeners.clear(); },
   };

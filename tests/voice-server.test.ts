@@ -29,6 +29,63 @@ test('broker stays disabled by default and status never exposes a secret', async
   assert.equal((await b.post()).status, 503);
   assert.equal(calls, 0);
 });
+test('the broker routes written hints while voice is disabled using the configured text model', async t => {
+  const configuration = readBrokerConfig({ OPENAI_API_KEY: 'injected-test-secret', OPENAI_HINT_MODEL: 'fixture-hint-model' });
+  assert.equal(configuration.enabled, false);
+  let calls = 0;
+  const b = await broker(t, configuration, async (url, init) => {
+    calls++;
+    assert.equal(url, 'https://api.openai.com/v1/responses');
+    assert.equal(new Headers(init?.headers).get('Authorization'), 'Bearer injected-test-secret');
+    const sent = JSON.parse(String(init?.body));
+    assert.equal(sent.model, 'fixture-hint-model');
+    assert.equal(sent.store, false);
+    return Response.json({ status: 'completed', output: [{ type: 'message', role: 'assistant',
+      content: [{ type: 'output_text', text: JSON.stringify({ hint: 'Revisa la concordancia del verbo con quien realiza la acción.' }) }] }] });
+  });
+  assert.equal((await b.post()).status, 503);
+  assert.equal(calls, 0);
+  const response = await fetch(`${b.url}/api/realtime/sentence-hint`, {
+    method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ helpEnabled: true, sentenceId: 'sentence-ps-bread', draft: 'He buy bread every morning.' }),
+  });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const output = await response.text();
+  assert.deepEqual(JSON.parse(output), { hint: 'Revisa la concordancia del verbo con quien realiza la acción.' });
+  assert.doesNotMatch(output, /injected-test-secret|fixture-hint-model|Authorization/);
+  assert.equal(calls, 1);
+});
+test('the broker rejects a hostile Host before dispatching written hints', async t => {
+  let calls = 0;
+  const b = await broker(t, { ...config, enabled: false }, async () => { calls++; throw new Error('injected-test-secret'); });
+  const output = await new Promise<{ status: number | undefined; text: string }>((resolve, reject) => {
+    const req = request(`${b.url}/api/realtime/sentence-hint`, { method: 'POST',
+      headers: { Host: 'foreign.invalid', Origin: origin, 'Content-Type': 'application/json' } }, response => {
+      let text = ''; response.setEncoding('utf8'); response.on('data', chunk => { text += chunk; });
+      response.on('end', () => resolve({ status: response.statusCode, text }));
+    });
+    req.on('error', reject);
+    req.end(JSON.stringify({ helpEnabled: true, sentenceId: 'sentence-ps-bread', draft: 'He buy bread every morning.' }));
+  });
+  assert.equal(output.status, 403); assert.equal(calls, 0);
+  assert.doesNotMatch(output.text, /injected-test-secret|He buy|provider/);
+});
+test('the broker supplies the default text model and redacts hint provider failures', async t => {
+  let calls = 0;
+  const b = await broker(t, { ...config, enabled: false }, async (url, init) => {
+    calls++; assert.equal(url, 'https://api.openai.com/v1/responses');
+    assert.equal(JSON.parse(String(init?.body)).model, 'gpt-6-luna');
+    throw new Error('injected-test-secret private provider details');
+  });
+  const response = await fetch(`${b.url}/api/realtime/sentence-hint`, {
+    method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ helpEnabled: true, sentenceId: 'sentence-ps-bread', draft: 'He buy bread every morning.' }),
+  });
+  assert.equal(response.status, 502);
+  assert.deepEqual(await response.json(), { error: 'Sentence help is unavailable. Please try again.' });
+  assert.equal(calls, 1);
+});
 test('readiness distinguishes local opt-in from missing credentials without contacting the provider', async t => {
   let calls = 0;
   for (const [environment, reason] of [

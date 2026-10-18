@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Una persona expulsa aire por un aro y salen burbujas de jabón.</title>
-<desc id="cue-desc">Describe lo que hace con el aire de la boca. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M55 195 L59 130 Q38 111 50 78 Q62 44 96 50 Q129 52 133 82 L153 99 L137 107 L141 116 L132 121 L130 142 L103 155 L102 195Z" fill="#edbea0" /><path d="M49 79 Q48 41 89 43 Q118 44 132 67 L98 62 L80 84" fill="#173f48" /><circle cx="117" cy="83" r="3" fill="#173f48"/><path d="M140 112 L161 112 M150 104 L168 101 M151 121 L168 125" fill="none" stroke="#709fa1" stroke-width="2"/><circle cx="187" cy="111" r="22" fill="none"/><path d="M181 133 L169 180" fill="none" stroke="#edb952" stroke-width="7"/><circle cx="238" cy="91" r="15" fill="#e1efea"/><circle cx="274" cy="65" r="19" fill="#e1efea"/><circle cx="258" cy="137" r="11" fill="#e1efea"/><path d="M232 83 L236 80 M265 56 L270 52" fill="none" stroke="#fffdf6" stroke-width="4"/></g>
-</svg>
