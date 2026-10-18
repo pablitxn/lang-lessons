@@ -146,3 +146,22 @@ trace payloads); full repository check passes with 237 Node passes, three option
 skips and 26 Python tests, strict TypeScript and build. The build warning remains.
 These are tests on the isolated producer tree, not a claim about a newly combined
 PR19 candidate. The integrator must bind the reader and run aggregate validation.
+
+## Written observation scope correction
+
+Integrator request after local checkpoint
+`e742f26e75e549d6a11dd42aa82f893c2a76494c` (not independently published/read):
+`FeedbackObservation.segmentId` may be null for `written-form`,
+`written-translation` and `tense-identification` only. Root must preserve null
+for stored session-scoped written events; never invent a segment coordinate.
+All observations still match the closed canonical session. Oral meaning/sentence
+observations require a non-null verified qualifying segment. A non-null written
+segment, when actually available, must also belong to the qualified set.
+The session must still have a qualifying call; written-only no-call sessions
+produce no model request. This supersedes the earlier all-observations segment
+requirement, without changing qualification, claim fencing or storage ownership.
+
+Targeted validation: 20 P6 fixture tests pass, including all three null-segment
+written activities through the service/generation adapter, rejection of null
+oral segments and foreign session observations, and no-call/unqualified cases
+with zero model invocations. No shared files or root wiring changed.
