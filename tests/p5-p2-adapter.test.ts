@@ -44,3 +44,24 @@ test('P2 usage factory uses a server-issued stream and rejects an account switch
     usage: { openWrittenStream: async sessionId => { opened = sessionId; current = false; return 'server-stream'; }, written: async () => { throw new Error('must not send'); } } }), /account changed/);
   assert.equal(opened, 'same-session');
 });
+test('usage drain includes later durable input before resolving an earlier held request', async () => {
+  const pending: WrittenObservation[] = []; let sequence = 0;
+  const store: WrittenUsageStore = {
+    append: async (scope, streamId, eventId, kind) => { const row: WrittenObservation = { schemaVersion: 1, sessionId: scope.sessionId, streamId, eventId, sequence: ++sequence, kind }; pending.push(row); return row; },
+    list: async () => [...pending], acknowledge: async (_, row) => { pending.splice(pending.findIndex(item => item.eventId === row.eventId), 1); },
+  };
+  let release!: () => void; let notify!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  const started = new Promise<void>(resolve => { notify = resolve; });
+  const sent: number[] = [];
+  const queue = createWrittenUsageQueue({ scope: { userId: 'user', sessionId: 'session' }, streamId: 'stream', store, isCurrentUser: () => true,
+    written: async row => { sent.push(row.sequence); if (row.sequence === 1) { notify(); await held; }
+      return { eventId: row.eventId, sequence: row.sequence, intervalId: null, observedAt: '2026-10-18T12:00:00Z', status: 'recorded' }; } });
+  const first = queue.record('visible'); await started;
+  let acknowledged = false; const second = queue.record('input').then(() => { acknowledged = true; });
+  for (let i = 0; i < 100 && pending.length < 2; i++) await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(pending.map(row => row.sequence), [1, 2]); assert.equal(acknowledged, false);
+  release(); await first;
+  assert.deepEqual(sent, [1, 2]); assert.equal(pending.length, 0);
+  await second; assert.equal(queue.getSnapshot().phase, 'idle');
+});

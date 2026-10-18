@@ -299,3 +299,36 @@ All 27 P5 tests pass including Chromium. Full check remains 242 passes / 249 tot
 five optional skips, and the same two integration-owned historical Pictures
 assertions. Content/26 Python tests and strict build pass. No shared/root files
 were edited; integrator can apply this additive fix after the reviewed P5 work.
+
+## P7 F5: local durability independent of remote delivery
+
+Reviewed P7's reproduction at `b35b7b542ba3e1fa191f8cde1fc905d4119df191`,
+`tests/integration/p7-durability-browser.test.ts` (review of integrated cfce584).
+The previous queues put persistence inside the network serialization chain. A held
+first request therefore left later results/usage observations only in memory.
+
+Both queue implementations now have separate local-transaction and remote-delivery
+chains. submit/record immediately schedule ordered durable append independently of
+an unresolved request or fence read. Remote sends still serialize and wait for
+local persistence; successful local storage is never returned as a server receipt.
+A local enqueue revision detects newly persisted work even when its staging buffer
+is already empty, preventing an earlier drain/fence read from prematurely declaring
+idle. Flush starts/waits for local appends and then requires remote acknowledgments.
+Existing replay identities, user/session partitions, write-failure retention and
+receipt validation remain unchanged. No IndexedDB schema or shared interface change.
+
+The new owned `tests/p5-durability-browser.test.ts` adapts P7's reproduction into a
+positive regression: with both first requests unresolved, IndexedDB contains e1/e2
+and visible/input with sequences 1/2, while submit/record remain unacknowledged.
+After a real Chromium reload, replay uses the original IDs/sequences, accepts
+injected duplicate/recorded receipts, and removes only acknowledged pending rows.
+Additional unit races hold a canonical fence and a usage response while a later
+append completes, checking the earlier drain includes that later durable work.
+
+Validation: all 30 P5 cases pass with P5_BROWSER=1. Full npm run check reports
+252 cases: 244 pass, six optional browser skips, and the same two integration-owned
+historical Pictures assertions. Content/26 Python tests and strict production build
+pass separately; the existing approximately 536 kB bundle warning remains.
+Real IndexedDB/browser evidence uses injected server transport, not paid/live
+providers or actual accounts. The fix is additive on P5 b9b651e; root/shared/P2/P4
+and P7's own reproduction file remain untouched for integrator application.

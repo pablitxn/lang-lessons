@@ -23,6 +23,8 @@ export function createQueuedProgressSink(options: {
   const listeners = new Set<() => void>();
   let disabled = false;
   let work: Promise<unknown> = Promise.resolve();
+  let localWrites: Promise<void> = Promise.resolve();
+  let enqueueRevision = 0;
   let state: ProgressQueueStatus = { phase: 'loading', pending: 0, unsaved: 0, error: null };
   const unsaved = () => stages.reduce((count, batch) => count + batch.length, 0);
   function publish(patch: Partial<ProgressQueueStatus>) {
@@ -43,18 +45,27 @@ export function createQueuedProgressSink(options: {
     work = result.catch(() => {});
     return result;
   }
-  async function persist() {
-    while (stages.length) {
-      try { await options.store.enqueue(scope, stages[0]!); }
-      catch { fail('local-write'); }
-      stages.shift(); publish({ phase: 'pending' });
-    }
+  // Local transactions must never wait for an unresolved remote request.
+  function persist(): Promise<void> {
+    const saved = localWrites.then(async () => {
+      while (stages.length) {
+        try { await options.store.enqueue(scope, stages[0]!); }
+        catch { fail('local-write'); }
+        stages.shift();
+        let pending: number;
+        try { pending = (await options.store.list(scope)).length; } catch { fail('local-write'); }
+        publish({ pending, phase: disabled || !options.isCurrentUser() ? 'inactive' : 'pending' });
+      }
+    });
+    localWrites = saved.catch(() => {});
+    return saved;
   }
   async function drain(): Promise<ProgressFence> {
     // Persist captured work even when logout happened meanwhile; never send it as another user.
     await persist(); current(); publish({ phase: 'syncing', error: null });
     for (;;) {
       await persist();
+      const observedEnqueueRevision = enqueueRevision;
       let pending: readonly PracticeEvent[];
       try { pending = await options.store.list(scope); } catch { fail('local-write'); }
       publish({ pending: pending.length }); current();
@@ -63,7 +74,7 @@ export function createQueuedProgressSink(options: {
         try { value = await options.readFence(); } catch { fail('transport'); }
         current();
         const finalFence = fence(value);
-        if (stages.length) continue;
+        if (stages.length || enqueueRevision !== observedEnqueueRevision) continue;
         publish({ phase: 'idle', pending: 0, error: null }); return finalFence;
       }
       const batch = pending.slice(0, 100);
@@ -91,21 +102,22 @@ export function createQueuedProgressSink(options: {
   return {
     submit(input) {
       if (disabled || !options.isCurrentUser()) return Promise.reject(new Error('Progress session is inactive.'));
-      const batch = scopedEvents(scope, input); stages.push(batch);
+      const batch = scopedEvents(scope, input); stages.push(batch); enqueueRevision++;
       publish({ phase: 'pending', error: null });
-      return serialize(async () => {
+      const saved = persist();
+      return saved.then(() => serialize(async () => {
         let currentFence = await drain();
         // Another tab may have acknowledged and removed our rows. Replay unchanged IDs
         // once to obtain this caller's receipts; the server returns duplicates.
         if (batch.some(event => !receipts.has(event.eventId))) {
-          stages.push(batch); currentFence = await drain();
+          stages.push(batch); enqueueRevision++; currentFence = await drain();
         }
         const acknowledgments = batch.map(event => receipts.get(event.eventId));
         if (acknowledgments.some(ack => !ack)) fail('invalid-receipt');
         return { status: 'committed' as const, acknowledgments: acknowledgments as PracticeEventAck[], current: currentFence };
-      });
+      }));
     },
-    flush: () => serialize(drain),
+    flush: () => persist().then(() => serialize(drain)),
     getSnapshot: () => state,
     subscribe(listener) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     deactivate() { disabled = true; publish({ phase: 'inactive', error: 'identity-changed' }); },
