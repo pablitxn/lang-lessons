@@ -157,3 +157,12 @@ test('a failed root resume handoff remains visible and does not hide recovery co
   assert.equal(f.recovery.getSnapshot().phase, 'available');
   assert.match(f.recovery.getSnapshot().error, /could not be resumed/); f.recovery.dispose();
 });
+
+test('a cancelled destination does not replace the destination of a later manual finalization retry', async () => {
+  const f = fixture(true); await f.recovery.load();
+  const first = f.recovery.finalize('cancelled-target'); await tick();
+  const lifecycle = f.recovery.getSnapshot().lifecycle!; lifecycle.decide('cancel'); await first;
+  f.failFlush(true); const second = f.recovery.finalize('chosen-target'); await tick(); lifecycle.decide('confirm'); await second;
+  f.failFlush(false); const retry = f.recovery.retryFinalize(); await tick(); lifecycle.decide('confirm'); await retry;
+  assert.ok(f.calls.includes('navigate:chosen-target')); assert.ok(!f.calls.includes('navigate:cancelled-target')); f.recovery.dispose();
+});

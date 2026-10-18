@@ -70,7 +70,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
   });
   async function requestExit(target: string) {
     if (!current() || snapshot.uncertainClose || snapshot.error) return;
-    exitTarget ??= target;
+    if (!snapshot.busy && !snapshot.frozen) exitTarget = target;
     update({ busy: true });
     try { return await coordinator.request(target); }
     catch { if (current()) update({ canRetryExit: true, error: snapshot.frozen
