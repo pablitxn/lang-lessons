@@ -28,7 +28,12 @@ test('real IndexedDB survives reload, isolates users/sessions and rolls back a f
       await store.enqueue({ userId: 'b', sessionId: 'session' }, [row]);
       await store.enqueue({ userId: 'a', sessionId: 'another' }, [{ ...row, ref: { ...row.ref, sessionId: 'another' } }]);
       const result = await store.list({ userId: 'a', sessionId: 'session' });
-      await store.close(); return result;
+      const usagePath = '/src/features/progress/written-usage-store.ts';
+      const { createIndexedDbWrittenUsageStore } = await import(usagePath);
+      const usage = createIndexedDbWrittenUsageStore(indexedDB, `${name}-usage`);
+      await usage.append({ userId: 'a', sessionId: 'session' }, 'server-stream', 'visible-event', 'visible');
+      await usage.append({ userId: 'a', sessionId: 'session' }, 'server-stream', 'input-event', 'input');
+      await usage.close(); await store.close(); return result;
     }, databaseName);
     assert.equal(first.length, 1);
     await page.reload();
@@ -44,8 +49,22 @@ test('real IndexedDB survives reload, isolates users/sessions and rolls back a f
       await store.acknowledge(scope, rows);
       const result = { sessions: await store.pendingSessions('a'), rows, failed, afterFailure, remaining: await store.list(scope), otherUser: await store.list({ userId: 'b', sessionId: 'session' }),
         otherSession: await store.list({ userId: 'a', sessionId: 'another' }) };
-      await store.close(); indexedDB.deleteDatabase(name); return result;
+      const usagePath = '/src/features/progress/written-usage-store.ts';
+      const { createIndexedDbWrittenUsageStore } = await import(usagePath);
+      const usage = createIndexedDbWrittenUsageStore(indexedDB, `${name}-usage`);
+      const usageRows = await usage.list(scope);
+      const duplicate = await usage.append(scope, 'server-stream', 'input-event', 'input');
+      for (const row of usageRows) await usage.acknowledge(scope, row);
+      const hidden = await usage.append(scope, 'server-stream', 'hidden-event', 'hidden');
+      const otherUsage = await usage.list({ userId: 'b', sessionId: 'session' });
+      const usageSessions = await usage.pendingSessions('a');
+      await usage.close(); indexedDB.deleteDatabase(`${name}-usage`);
+      await store.close(); indexedDB.deleteDatabase(name); return { ...result, usageRows, duplicate, hidden, otherUsage, usageSessions };
     }, databaseName);
+    assert.deepEqual(recovered.usageRows.map((row: { sequence: number }) => row.sequence), [1, 2]);
+    assert.equal(recovered.duplicate.sequence, 2); assert.equal(recovered.hidden.sequence, 3);
+    assert.equal(recovered.otherUsage.length, 0);
+    assert.deepEqual(recovered.usageSessions, [{ sessionId: 'session', pending: 1 }]);
     assert.deepEqual(recovered.sessions, [{ sessionId: 'another', pending: 1 }]);
     assert.deepEqual(recovered.rows, first); assert.equal(recovered.failed, true);
     assert.deepEqual(recovered.afterFailure, first); assert.equal(recovered.remaining.length, 0);

@@ -1,11 +1,14 @@
 import { createRoot } from 'react-dom/client';
 import { useWrittenActivity, type WrittenActivityBinding } from '../use-written-activity';
-import type { WrittenActivityInterval } from '../written-activity';
+import { browserActivityClock, createWrittenActivity, type WrittenActivityInterval } from '../written-activity';
 
 declare global { interface Window { p5Activity: { intervals: WrittenActivityInterval[]; finish: () => void; writable: boolean } } }
 window.p5Activity = { intervals: [], finish: () => {}, writable: true };
+// Local server-clock stand-in only; the real consumer sends kinds to P2.
+const tracker = createWrittenActivity({ sessionId: 'fixture-session', windowId: 'fixture-window', clock: browserActivityClock,
+  onInterval: row => window.p5Activity.intervals.push(row) });
 const binding: WrittenActivityBinding = {
-  onInterval: row => window.p5Activity.intervals.push(row),
+  onObservation: kind => { if (kind === 'visible') tracker.setVisible(true); else if (kind === 'hidden') tracker.setVisible(false); else tracker.interact(); },
   canWrite: () => window.p5Activity.writable,
   registerPreparation: finish => { window.p5Activity.finish = finish; return () => { window.p5Activity.finish = () => {}; }; },
 };

@@ -1,17 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { browserActivityClock, createWrittenActivity, type WrittenActivityInterval } from './written-activity';
+import type { WrittenObservation } from './written-usage-store';
 
-/** Temporary feature seam pending the integration-owned interval contract. */
+/** P2 producer-local schema; the integrator owns promotion and authenticated HTTP routing. */
 export interface WrittenActivityBinding {
-  /** Synchronously enqueue the immutable observation; persistence remains root-owned. */
-  onInterval: (interval: WrittenActivityInterval) => void;
-  /** The same root preparation gate used for practice writes. */
+  onObservation: (kind: WrittenObservation['kind']) => void | Promise<void>;
   canWrite: () => boolean;
-  /** Root invokes finish before flushing time observations during explicit exit. */
+  /** Root calls this before flushing usage and progress, then submitting close. */
   registerPreparation: (finish: () => void) => () => void;
 }
 
-/** No tracking/observer/timer starts without an explicitly injected receiver. */
+/** Sends only transitions/interaction kinds. P2 computes intervals from its database clock. */
 export function useWrittenActivity(sessionId: string, binding: WrittenActivityBinding | undefined) {
   const element = useRef<HTMLDivElement>(null);
   const latest = useRef(binding); latest.current = binding;
@@ -20,29 +18,36 @@ export function useWrittenActivity(sessionId: string, binding: WrittenActivityBi
     const node = element.current;
     if (!enabled || !node) return;
     const initialBinding = latest.current!;
-    const tracker = createWrittenActivity({ sessionId, windowId: crypto.randomUUID(), clock: browserActivityClock,
-      onInterval: interval => (latest.current ?? initialBinding).onInterval(interval) });
-    let intersects = false;
-    const visibility = () => tracker.setVisible(intersects && document.visibilityState === 'visible');
+    let intersects = false; let reportedVisible = false; let preparing = false;
+    function emit(kind: WrittenObservation['kind']) {
+      // The queue exposes its own honest error/pending state; avoid an unhandled event-handler rejection.
+      try { void Promise.resolve((latest.current ?? initialBinding).onObservation(kind)).catch(() => {}); } catch { /* Receiver owns error state. */ }
+    }
+    function visibility() {
+      const visible = !preparing && intersects && document.visibilityState === 'visible';
+      if (visible === reportedVisible) return;
+      reportedVisible = visible; emit(visible ? 'visible' : 'hidden');
+    }
     const observer = new IntersectionObserver(entries => {
-      intersects = entries.some(entry => entry.target === node && entry.isIntersecting);
-      visibility();
+      intersects = entries.some(entry => entry.target === node && entry.isIntersecting); visibility();
     });
     observer.observe(node);
-    const interaction = (event: Event) => { if (event.isTrusted && latest.current?.canWrite()) tracker.interact(); };
-    const hide = () => tracker.setVisible(false);
-    node.addEventListener('input', interaction);
-    node.addEventListener('pointerdown', interaction);
+    const interaction = (event: Event) => {
+      if (!event.isTrusted || !latest.current?.canWrite() || !intersects || document.visibilityState !== 'visible') return;
+      if (preparing) { preparing = false; visibility(); }
+      if (reportedVisible) emit(event.type === 'input' ? 'input' : 'tap');
+    };
+    const finish = () => { preparing = true; visibility(); };
+    node.addEventListener('input', interaction); node.addEventListener('pointerdown', interaction);
     document.addEventListener('visibilitychange', visibility);
-    window.addEventListener('pagehide', hide);
-    window.addEventListener('pageshow', visibility);
-    const release = latest.current!.registerPreparation(tracker.finish);
+    window.addEventListener('pagehide', finish); window.addEventListener('pageshow', visibility);
+    const release = initialBinding.registerPreparation(finish);
     return () => {
       release(); observer.disconnect();
       node.removeEventListener('input', interaction); node.removeEventListener('pointerdown', interaction);
       document.removeEventListener('visibilitychange', visibility);
-      window.removeEventListener('pagehide', hide); window.removeEventListener('pageshow', visibility);
-      tracker.dispose();
+      window.removeEventListener('pagehide', finish); window.removeEventListener('pageshow', visibility);
+      finish();
     };
   }, [sessionId, enabled]);
   return element;

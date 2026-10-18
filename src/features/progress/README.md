@@ -205,3 +205,70 @@ five optional browser skips and the same two integration-owned historical Pictur
 assertion failures. Content/26 Python tests and strict production build pass
 separately. Bundle warning remains (approximately 537 kB). Shared contracts, root,
 server, dependency files and content/photo ledgers remain untouched.
+
+## P2 consumer alignment at cc7e6c12c904d06d23cadc3d100945b479df4d7a
+
+Read P2's `server/accounts/POLICY-HANDOFF.md`,
+`server/data/USAGE-RECOVERY-HANDOFF.md`, `usage.ts`, `recovery.ts` and the learning
+repository at that exact published PR17 head. Their newer usage amendment
+supersedes the older time-pending statements in POLICY-HANDOFF. No P2 files or
+shared contracts were imported into this branch or edited.
+
+The earlier local interval proposal is superseded for server transport:
+`useWrittenActivity` now emits only ordered `visible`, `hidden`, `input` and `tap`
+kinds. It sends no client timestamps, durations or totals. The pure local clock
+and union helpers remain deterministic fixtures/utilities, not the production
+source of daily totals. Server P2 owns the approved 120-second interval endpoints
+and cross-source/cross-tab union. P4 owns genuine verified tutor transitions;
+there is deliberately no browser-connected assertion endpoint/adapter here.
+
+- `p2-adapter.ts` maps the frozen ProgressSink to P2's
+  `learning.submit(sessionId, events)` and `recovery.read(sessionId).progress`.
+  It checks returned session identity and never substitutes lifecycle revision
+  for journal revision. Root provides authenticated HTTP ports; no URL is guessed.
+- `createP2WrittenUsageQueue` explicitly calls `openWrittenStream(sessionId)` and
+  verifies the user is still current before consuming its server-issued ID. It
+  does not fabricate stream IDs, retry ambiguous stream creation, or auto-start
+  a call. Root invokes it only for the current mounted exercise session.
+- `written-usage-store.ts` persists exact P2 observation bodies in a separate
+  IndexedDB database, partitioned by user/session/stream. Sequence allocation and
+  enqueue are one transaction. Sequence survives acknowledgment and reload;
+  pending event IDs/bodies survive transport loss. Only acknowledged bodies are
+  removed. Stream sequence metadata remains until a retention policy is approved.
+- `written-usage-queue.ts` serializes persistence and P2 `written` calls, validates
+  event/sequence/receipt identities, retains failed observations, and replays
+  duplicates without allocating a new sequence. It exposes the same pending/error
+  view interface as the practice queue and can use ProgressSyncStatus. Root binds
+  `writtenActivity.onObservation` to `usageQueue.record`, the common write gate,
+  and the preparation registry. Explicit exit emits hidden, flushes BOTH queues,
+  then reads the canonical lifecycle revision and closes with the progress fence.
+- Written observations are necessarily client-reported interactions. P2's receipt
+  clock governs recorded usage. Replaying late/offline input cannot reconstruct
+  past wall-clock activity; this adapter never backdates intervals or claims that
+  offline duration was recovered. Missing abrupt-exit signals remain capped or
+  reconciled under P2/P4 behavior, not a guessed heartbeat timeout.
+
+Remaining integration requests: promote/approve P2's producer-local observation
+and receipt seams; mount authenticated routes; wire both queues and status UI;
+register server-issued exercise instances before progress submission. Current
+feature AttemptRefs use their existing local namespaces, while P2 explicitly
+rejects unregistered instances and documents registerInstance as an internal
+server seam. Do not expose unrestricted browser instance registration to make
+those requests pass. Root/integrator must resolve the instance-issuance seam.
+Recovery UI, listOpen/resume/finalize and manual feedback retry remain P4-owned.
+Timezone, retention, credential delivery and grounded feedback policy stay open.
+
+Additional consumer tests verify correct recovery-fence selection, exact P2 wire
+keys, ordered lost-reply/duplicate replay, account switching during stream creation,
+and real IndexedDB usage-sequence recovery/acknowledgment across reload. Server
+behavior is represented by injected ports here; P2's isolated PostgreSQL evidence
+belongs to PR17, not to this producer's browser tests.
+
+P2-aligned final validation: 26 P5 tests pass with P5_BROWSER=1. The final usage
+pending-session discovery addition also passes the four adapter/real-IndexedDB
+checks separately. Both IndexedDB stores expose current-user pendingSessions;
+root should union these IDs with P4's canonical recovery candidates rather than
+hide usage-only pending work. Full npm run check: 248 tests, 241 pass, five optional
+browser skips, and the same two historical Pictures auto-advance assertions.
+Content/26 Python tests and strict build pass separately; bundle warning remains
+approximately 536 kB. No P2 database/runtime or production HTTP calls were made.
