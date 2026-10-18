@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CurrentUser, FeedbackState, ProfessorComment, PublicUser } from '../../contracts';
+import type { CurrentUser, FeedbackState, ProfessorComment, PublicUser, DailyPageRequest, DailyProgressPage, ResultPage } from '../../contracts';
 import { hasCapability, type Page, type ReadResult } from '../accounts/access';
 import { ReadPanel } from '../accounts/ReadPanel';
+import { ProfessorProgress } from './ProfessorProgress';
+import { SessionComments } from './SessionComments';
 
 /** Server-grouped display DTOs: the browser never selects a timezone or aggregates visits. */
 export interface StudentSessionView {
@@ -32,12 +34,10 @@ export interface StudentProgressView {
 }
 export interface ProfessorApi {
   listAllStudents(cursor: string | null, signal: AbortSignal): Promise<ReadResult<Page<PublicUser>>>;
+  readSessionPage?(studentId: string, cursor: string | null, signal: AbortSignal): Promise<ReadResult<{ studentId: string; sessions: ResultPage<StudentSessionView> }>>;
+  readDaily?(studentId: string, input: DailyPageRequest, signal: AbortSignal): Promise<ReadResult<DailyProgressPage> | { status: 'policy-unresolved' }>;
   readProgress(studentId: string, signal: AbortSignal): Promise<ReadResult<StudentProgressView>>;
 }
-const feedbackLabels: Record<FeedbackState, string> = {
-  'not-requested': 'No comment requested', pending: 'Comment pending', running: 'Comment being prepared',
-  succeeded: 'Comment available', failed: 'Comment unavailable', 'insufficient-evidence': 'Insufficient evidence for a comment',
-};
 export function ProfessorStudents({ user, listCapability = null, progressCapability = null, api = null }: {
   user: CurrentUser | null; listCapability?: string | null; progressCapability?: string | null; api?: ProfessorApi | null;
 }) {
@@ -63,7 +63,7 @@ function StudentDetail({ id, api, onBack }: { id: string; api: ProfessorApi; onB
   useEffect(() => { heading.current?.focus(); }, []);
   const load = useCallback((signal: AbortSignal) => api.readProgress(id, signal), [api, id]);
   return <div><button onClick={onBack}>Back to students</button><h2 ref={heading} tabIndex={-1}>Progress for {id}</h2>
-    <ReadPanel load={load}>{view => view.studentId !== id ? <p role="alert">Student data could not be verified.</p> : <>
+    {api.readSessionPage ? <ProfessorProgress studentId={id} api={api} /> : <ReadPanel load={load}>{view => view.studentId !== id ? <p role="alert">Student data could not be verified.</p> : <>
       {view.daily ? <>
         <p>Daily progress · {view.daily.timeZone}</p>
         <p>Written results accumulate across all visits for the whole day, with or without tutor calls.</p>
@@ -74,13 +74,5 @@ function StudentDetail({ id, api, onBack }: { id: string; api: ProfessorApi; onB
         </section>)}
       </> : <><p>Daily grouping is not available until the day boundary is configured. Metrics are not available yet. Written and oral results remain separate.</p>
         <h3>Session comments</h3><SessionComments sessions={view.sessions} /></>}
-    </>}</ReadPanel></div>;
-}
-function SessionComments({ sessions }: { sessions: readonly StudentSessionView[] }) {
-  return <>{sessions.length === 0 ? <p>No session comments found.</p> : sessions.map(session => <article key={session.sessionId} aria-label={`Session ${session.sessionId}`}>
-    <h5>Session {session.sessionId}</h5>
-    <dl><dt>Started</dt><dd>{session.startedAt ?? 'Unavailable'}</dd><dt>Ended</dt><dd>{session.endedAt ?? 'Unavailable'}</dd></dl>
-    <p>{feedbackLabels[session.feedback]}</p>
-    {session.feedback === 'succeeded' && (session.comment?.sessionId === session.sessionId ? <><p className="p3-comment">{session.comment.text}</p><small>Source version: {session.comment.provenanceVersion}</small></> : <p role="alert">Comment could not be verified.</p>)}
-  </article>)}</>;
+    </>}</ReadPanel>}</div>;
 }
