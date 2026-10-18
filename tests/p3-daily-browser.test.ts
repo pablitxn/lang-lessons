@@ -29,7 +29,7 @@ test('professor daily pages preserve independent cursors, server policy and requ
       await page.setViewportSize({ width, height: 640 }); await open();
       assert.equal(await page.getByLabel('Progress day', { exact: true }).inputValue(), '');
       assert.equal(await page.evaluate(() => (window as any).p3DailyRequests.daily.length), 0);
-      await select(); await daily.getByText('2026-10-18 · America/Argentina/Buenos_Aires', { exact: true }).waitFor();
+      await select(); await daily.getByText('2026-10-18', { exact: true }).waitFor();
       for (const duration of ['10 s', '20 s', '25 s']) assert.equal(await daily.getByText(duration, { exact: true }).count(), 1);
       assert.equal(await daily.getByText('30 s', { exact: true }).count(), 0);
       await daily.getByText('2026-10-18T23:30:00Z', { exact: true }).waitFor();
@@ -46,10 +46,16 @@ test('professor daily pages preserve independent cursors, server policy and requ
     assert.deepEqual(await page.evaluate(() => (window as any).p3DailyRequests.daily.at(-1).input), { day: '2026-10-18', eventCursor: null, sessionCursor: 'daily-two' });
     await page.getByRole('button', { name: 'Next history sessions', exact: true }).click(); await history.getByText('first-student history history-two', { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => (window as any).p3DailyRequests.legacy), 0);
-    await select('2026-10-19'); await daily.getByText('2026-10-19 · America/Argentina/Buenos_Aires', { exact: true }).waitFor();
+    await select('2026-10-19'); await daily.getByText('2026-10-19', { exact: true }).waitFor();
     assert.deepEqual(await page.evaluate(() => (window as any).p3DailyRequests.daily.at(-1).input), { day: '2026-10-19', eventCursor: null, sessionCursor: null });
+    await open('mixed-zones'); await select();
+    await daily.getByText('Historical attribution timezones for this date: America/New_York, Europe/Paris.', { exact: false }).waitFor();
+    await daily.getByText('America/New_York', { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Next written results', exact: true }).click();
+    await daily.getByText('Europe/Paris', { exact: true }).waitFor();
+    assert.equal(await daily.getByText('America/New_York', { exact: true }).count(), 0);
     await open('late-day'); await select('2026-10-17'); await select();
-    await daily.getByText('2026-10-18 · America/Argentina/Buenos_Aires', { exact: true }).waitFor(); await page.waitForTimeout(900);
+    await daily.getByText('2026-10-18', { exact: true }).waitFor(); await page.waitForTimeout(900);
     assert.equal(await daily.getByText('first-student 2026-10-17 daily-first comment', { exact: true }).count(), 0);
     await open('late-student'); await page.getByRole('button', { name: 'Back to students', exact: true }).click();
     await page.getByRole('button', { name: 'View progress for second-student', exact: true }).click();
@@ -61,10 +67,10 @@ test('professor daily pages preserve independent cursors, server policy and requ
       await open(scenario); await select();
       const region = scenario === 'error' ? daily : history;
       await region.getByRole('alert').waitFor(); await region.getByRole('button', { name: 'Try again', exact: true }).click();
-      await region.getByText(scenario === 'error' ? '2026-10-18 · America/Argentina/Buenos_Aires' : 'first-student history first', { exact: true }).waitFor();
+      await region.getByText(scenario === 'error' ? '2026-10-18' : 'first-student history first', { exact: true }).waitFor();
     }
     await open('loading'); await select(); await daily.getByRole('status').filter({ hasText: 'Loading' }).waitFor();
-    await daily.getByText('2026-10-18 · America/Argentina/Buenos_Aires', { exact: true }).waitFor();
+    await daily.getByText('2026-10-18', { exact: true }).waitFor();
     await open('empty'); await select(); await daily.getByText('No written results for this page.').waitFor(); await history.getByText('No session comments found.').waitFor();
     await open('denied'); await select(); await daily.getByRole('alert').waitFor(); await history.getByRole('alert').waitFor();
     for (const scenario of ['mismatch-day', 'mismatch-student']) { await open(scenario); await select(); await daily.getByText('Daily data could not be verified.').waitFor(); assert.equal(await daily.getByRole('article').count(), 0); }

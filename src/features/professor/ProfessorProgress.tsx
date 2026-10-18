@@ -5,6 +5,9 @@ import { SessionComments } from './SessionComments';
 import type { ProfessorApi } from './ProfessorStudents';
 import './professor-progress.css';
 
+/** Additive P2 fields awaiting root-owned shared DTO/validator integration. */
+export interface AttributionFields { readonly attributionTimeZones?: readonly string[] }
+export interface EventAttributionFields { readonly timeZone?: string }
 type CursorStack = readonly (string | null)[];
 function Paging({ name, cursors, next, onChange }: { name: string; cursors: CursorStack; next: string | null; onChange: (value: CursorStack) => void }) {
   const repeated = next !== null && cursors.includes(next);
@@ -29,7 +32,7 @@ export function ProfessorProgress({ studentId, api }: { studentId: string; api: 
   return <>
     <section aria-label="Daily progress">
       <h3>Daily progress</h3>
-      <p>Written results span all visits, with or without tutor calls. Choose a calendar day; the server supplies its timezone.</p>
+      <p>Written results span all visits, with or without tutor calls. Choose a calendar day in the student's configured timezone. Your viewing timezone does not redefine that day.</p>
       {api.readDaily ? <><form className="p3-day-picker" onSubmit={selectDay}>
         <label>Progress day<input name="day" type="date" required /></label><button type="submit">Show day</button>
       </form>
@@ -60,10 +63,11 @@ function DailyPage({ studentId, day, api }: { studentId: string; day: string; ap
     const result = await api.readDaily!(studentId, { day, eventCursor, sessionCursor }, signal);
     return result.status === 'policy-unresolved' ? { status: 'ok' as const, value: null } : result;
   }, [api, studentId, day, eventCursor, sessionCursor]);
-  return <ReadPanel<DailyProgressPage | null> load={load}>{page => page === null ? <p role="status">Daily grouping is unavailable because the day-boundary policy is unresolved. Session history remains available below.</p> :
+  return <ReadPanel<DailyProgressPage | null> load={load}>{page => page === null ? <p role="status">Daily grouping is unavailable because the student's timezone is not configured. Session history remains available below.</p> :
     page.studentId !== studentId || page.day !== day ? <p role="alert">Daily data could not be verified.</p> : <>
       <PageFocus label={`Daily page loaded for ${page.day}`} />
-      <h4>{page.day} · {page.timeZone}</h4>
+      <h4>{page.day}</h4>
+      <AttributionZones page={page} />
       <p>Events are assigned by server receipt time. Exercise totals are not defined; results below are individual records.</p>
       <UsageTime page={page} />
       {page.hasUnattributedLegacyRecords && <p role="status">Some older records cannot be assigned to a day and are excluded from this daily view.</p>}
@@ -88,11 +92,18 @@ function UsageTime({ page }: { page: DailyProgressPage }) {
     <div><dt>Combined duration (overlap counted once)</dt><dd>{durationLabel(page.usageTime.totalMs)}</dd></div>
   </dl><p>Written activity is client-reported interaction. Tutor duration is server-observed connection. Durations are supplied by the server for the whole day, not this page.</p></>;
 }
-function WrittenResult({ result }: { result: DailyResult }) {
+function AttributionZones({ page }: { page: DailyProgressPage & AttributionFields }) {
+  const zones = page.attributionTimeZones;
+  return <><p>Student timezone reported by the server: {page.timeZone}. This label does not override historical record attribution.</p>
+    {zones === undefined ? <p>Historical attribution timezones are unavailable in this response.</p> : zones.length === 0 ? <p>No configured timezone periods contribute to this date.</p> :
+      <p>Historical attribution timezones for this date: {zones.join(', ')}.{zones.length > 1 ? ' This date includes records attributed under different timezone settings.' : ''}</p>}
+  </>;
+}
+function WrittenResult({ result }: { result: DailyResult & EventAttributionFields }) {
   const { event } = result;
   return <li><p><strong>{event.kind === 'attempt-result' ? event.result : 'Result invalidated'}</strong> · {event.ref.obligation}</p>
     <dl><dt>Exercise</dt><dd>{event.ref.exerciseId}</dd><dt>Session</dt><dd>{event.ref.sessionId}</dd>
-      <dt>Received at</dt><dd>{result.receivedAt}</dd><dt>Attempt</dt><dd>{event.ref.attemptId} · revision {event.ref.revision}</dd>
+      <dt>Received at</dt><dd>{result.receivedAt}</dd><dt>Attribution timezone</dt><dd>{result.timeZone ?? 'Unavailable in this response'}</dd><dt>Attempt</dt><dd>{event.ref.attemptId} · revision {event.ref.revision}</dd>
       <dt>Source / trust</dt><dd>{event.source} / {event.trust}</dd></dl>
   </li>;
 }
