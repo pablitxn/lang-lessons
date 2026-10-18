@@ -11,6 +11,9 @@ import { WrittenTense, type WrittenTenseResult } from './WrittenTense';
 
 export interface SentenceLessonProps extends LessonModuleProps {
   /** Root-owned connection state can seed a feature mounted after connection. */
+  progressSink?: import("../../contracts").ProgressSink;
+  onProgressError?: () => void;
+  canWrite?: () => boolean;
   connectionState?: VoiceState;
   microphoneMuted?: boolean;
   sessionControls?: ReactNode;
@@ -21,19 +24,24 @@ const emptySnapshot = () => null;
 
 export function SentenceLesson(props: SentenceLessonProps) {
   const { settings, voice, sessionId } = props;
+  const writeGate = useRef(props.canWrite); writeGate.current = props.canWrite;
   const complete = useRef(props.onComplete); complete.current = props.onComplete;
   const active = useRef<SentenceSession | null>(null);
+  const [progressError, setProgressError] = useState(false);
   const [session, setSession] = useState<SentenceSession | null>(null);
   const [written, setWritten] = useState<{ exerciseId: string; result: WrittenComparisonResult | undefined }>();
   const [writtenTense, setWrittenTense] = useState<{ exerciseId: string; draft: string; result: WrittenTenseResult }>();
   useEffect(() => {
-    active.current = null; setSession(null);
+    active.current = null; setSession(null); setProgressError(false);
     return () => { active.current?.dispose(); active.current = null; };
   }, [voice, sessionId]);
   useEffect(() => {
     if (!active.current && matchingSentences(settings.difficulty, undefined, settings.sentenceTense).length) {
       active.current = createSentenceSession({ voice, sessionId, difficulty: settings.difficulty, tense: settings.sentenceTense,
         onComplete: id => complete.current(id),
+        canWrite: () => writeGate.current?.() !== false,
+        ...(props.progressSink ? { progressSink: props.progressSink } : {}),
+        onProgressError: () => { setProgressError(true); props.onProgressError?.(); },
         ...(props.connectionState ? { connectionState: props.connectionState } : {}),
         ...(props.microphoneMuted !== undefined ? { microphoneMuted: props.microphoneMuted } : {}),
       });
@@ -80,6 +88,7 @@ export function SentenceLesson(props: SentenceLessonProps) {
       <ReferenceTable title="Sentence practice guide" caption={stage === 'translation' ? 'Meaning-focused practice guide' : 'Structures for your explanation'}
         columns={['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
     </div>}>
+      {progressError && <p role="status">Progress could not be saved. Your current practice remains available.</p>}
       <ExerciseCue spanish={sentence.spanish} />
       <div className="sentences-navigation">
         <WrittenTranslation key={snapshot.exerciseId} sentence={sentence} helpEnabled={settings.helpEnabled} hint={writtenHint}
