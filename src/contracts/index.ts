@@ -8,3 +8,4 @@ export * from './progress';
 export * from './session';
 export * from './feedback';
 export * from './dictionary';
+export * from './activity';

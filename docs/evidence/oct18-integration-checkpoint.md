@@ -104,3 +104,47 @@ registration), producer written-event emission, trusted server connected receipt
 Q12 uncertainty/recovery and Q13 evidence/retention/disclosure/qualitative validation.
 Dictionary source/reuse/content approval remains open. No numerical metrics,
 provider calls, deployment, credential/network changes or Mac work occurred.
+
+## Additive confirmed-policy checkpoint
+
+Subsequent exact heads composed with original ancestry preserved:
+P3 3637aeec45fa446bb1ed7f4ae312c76c68c2fd6f,
+P4 9c46a57108ef3d773fa66f53f93a9511a16ec768,
+P6 2664d58eaf678f493516a0aabdd3d1e580c52f1f.
+P3 add/add conflicts came from initial cherry-picked additions; resolution takes
+its latest owned files verbatim. P4 tests take the new producer regressions while
+retaining root's configurable browser-test port. Root offline spelling stays intact.
+
+Q11 timing is now approved and supersedes the earlier unselected-time paragraph:
+written counts while the exercise is visible, pauses after two minutes without
+interaction and resumes on input/tap. Tutor counts genuine connection, including
+listening without UI input, excluding disconnects. Total is interval union.
+Root adds ActivityInterval with explicit source trust, the monotonic-clock written
+tracker, immutable replay/conflict handling and a supplied-window union projector.
+Tests cover idle, visibility, delayed timers, restart/reconnect gaps, overlaps,
+multiple visits and replay. No client tutor totals become trusted. Capture/storage
+adapter binding and trusted tutor receipt remain required; day timezone is unset.
+
+User also authorized IndexedDB pending queue/server replay and interrupted-session
+resume/finalize. P5/P2/P4 own those additive implementations. Root's memory queue
+is a transport/flush seam, not a substitute for pending producer durability/recovery.
+Called finalize requires confirmation; no-call exit remains direct with save/flush.
+No new recovery UI is invented by the root while the producer is active.
+
+Q13 now authorizes transcript/interaction traces in Phoenix for debugging and
+improvement, forbids recorded audio, and keeps app DB structured results/errors/
+short comments. Professor views get summaries/results, not raw traces by default.
+This supersedes historical blanket transcript exclusion. Root's explicit debug
+recorder binds canonical session/segment/epoch, allowlists text records, redacts
+recognized secret forms, rejects audio/data-URI/base64 payload shapes, deduplicates
+IDs and writes through an injected Phoenix tracer. The test uses only an in-memory
+exporter and verifies parent trace correlation. The implementation checkpoint is
+synthetic-only and refuses real-student input; no live content-export switch,
+collector, credential, network/Tailscale or retention duration was introduced.
+Retention/deletion and real-student operation remain unapproved. P6's separately
+routed outcome telemetry was composed without enabling real inference/export.
+
+Latest combined npm run check with disposable DB/P6: 283 Node passes, seven opt-in
+browser skips, 26 Python tests/content integrity and strict production build pass.
+Updated P3 mocked browser/unit suite: 2/2 pass. The root policy utilities are not
+represented as live persistence, connected-call observation or Phoenix acceptance.
