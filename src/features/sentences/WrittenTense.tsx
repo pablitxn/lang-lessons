@@ -7,6 +7,7 @@ import './written-tense.css';
 export interface WrittenTenseResult { selected: Tense; correct: boolean }
 export interface WrittenTenseProps {
   expected: Tense;
+  initialSelected?: Tense;
   onResultChange: (result: WrittenTenseResult) => void;
 }
 interface MenuPosition {
@@ -16,11 +17,11 @@ const presentCount = TENSE_GUIDE.filter(item => item.tense.startsWith('present-'
 const aspect = (label: string) => label.replace(/^(Present|Past) /u, '').replace(/^./u, letter => letter.toUpperCase());
 
 /** Local recognition practice; no oral evidence or connection is required. */
-export function WrittenTense({ expected, onResultChange }: WrittenTenseProps) {
+export function WrittenTense({ expected, onResultChange, initialSelected }: WrittenTenseProps) {
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<Tense | ''>('');
+  const [selected, setSelected] = useState<Tense | ''>(initialSelected ?? '');
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [position, setPosition] = useState<MenuPosition>({ left: 0, top: 0, bottom: undefined, width: 0, maxHeight: 0 });

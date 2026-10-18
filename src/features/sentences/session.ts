@@ -1,3 +1,6 @@
+import { createSentenceWrittenPractice } from './written-practice';
+import { snapshotIdentity, snapshotObject, type WrittenPracticePort, type WrittenPracticeSnapshot } from '../progress/written-snapshot';
+import type { Tense } from '../../contracts';
 import { createAssessmentProgress } from '../progress/assessment-progress';
 import type { ProgressSink } from '../../contracts';
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
@@ -31,6 +34,8 @@ export interface SentenceLessonSnapshot {
   hintLevel: 0 | 1 | 2 | 3;
   hintOrigin: 'none' | 'model' | 'mock' | 'authored-fallback';
   coachText: string;
+  written: ReturnType<ReturnType<typeof createSentenceWrittenPractice>['getSnapshot']>;
+  writtenRestoreVersion: number;
 }
 export interface SentenceSessionOptions {
   voice: VoiceAdapter;
@@ -39,6 +44,8 @@ export interface SentenceSessionOptions {
   tense?: SentenceTenseSelection;
   onComplete: (exerciseId: string) => void;
   progressSink?: ProgressSink;
+  writtenPracticeUserId?: string;
+  onWrittenPracticeChange?: (snapshot: WrittenPracticeSnapshot) => void;
   /** Root supplies a stable gate for its ordered close preparation. */
   canWrite?: () => boolean;
   onProgressError?: () => void;
@@ -48,7 +55,11 @@ export interface SentenceSessionOptions {
   sentences?: readonly SentenceEntry[];
   random?: () => number;
 }
-export interface SentenceSession {
+export interface SentenceSession extends WrittenPracticePort {
+  editWritten(value: string): void;
+  invalidateWritten(): void;
+  finalizeWritten(): void;
+  selectWrittenTense(tense: Tense): void;
   getSnapshot(): SentenceLessonSnapshot;
   subscribe(listener: () => void): () => void;
   setDifficulty(difficulty: Difficulty): void;
@@ -87,18 +98,29 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   const listeners = new Set<() => void>();
   const reportProgress = createAssessmentProgress(options.progressSink, () => { if (!disposed) options.onProgressError?.(); });
   const identityPrefix = `sentence-${globalThis.crypto.randomUUID()}`;
+  let oralEpoch = crypto.randomUUID();
+  let writtenRestoreVersion = 0;
+  let currentExerciseId = `${identityPrefix}-${generation}`;
   const first = pick(matchingSentences(requestedDifficulty, sentences, requestedTense), undefined, random);
   function context(sentence: SentenceEntry): ExerciseContext {
-    return { sessionId: options.sessionId, exerciseId: `${identityPrefix}-${generation}`, generation,
+    return { sessionId: options.sessionId, exerciseId: currentExerciseId, generation,
       mode: 'sentence', stage: 'translation', sentence };
   }
+  function makeWritten(next: ExerciseContext) {
+    if (next.mode !== 'sentence') throw new Error('Expected sentence context.');
+    return createSentenceWrittenPractice({ identity: { sessionId: next.sessionId, exerciseId: next.exerciseId, generation: next.generation }, sentence: next.sentence,
+      ...(options.writtenPracticeUserId ? { userId: options.writtenPracticeUserId } : {}),
+      ...(options.progressSink ? { sink: options.progressSink } : {}), onError: () => { if (!disposed) options.onProgressError?.(); } });
+  }
+  let written = makeWritten(context(first)); let writtenIdentity = currentExerciseId;
   let controller: AssessmentController;
   function publish() {
     if (disposed) return;
     if (options.canWrite?.() !== false) reportProgress(controller.getSnapshot().evidence, controller.getSnapshot().exerciseId);
     view = Object.freeze({ assessment: controller.getSnapshot(), requestedDifficulty: { ...requestedDifficulty },
       requestedTense, nextPoolSize: matchingSentences(requestedDifficulty, sentences, requestedTense).length, lastResponse, notice, muted,
-      hintLevel, hintOrigin, coachText });
+      hintLevel, hintOrigin, coachText, written: written.getSnapshot(), writtenRestoreVersion });
+    const saved = written.snapshotWrittenPractice(); if (saved) options.onWrittenPracticeChange?.(saved);
     for (const listener of listeners) listener();
   }
   function startNext(): boolean {
@@ -108,7 +130,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     const current = controller.getSnapshot().context;
     const sentence = pick(pool, current.mode === 'sentence' ? current.sentence.id : undefined, random);
     voice.interrupt();
-    generation++;
+    generation++; currentExerciseId = `${identityPrefix}-${generation}`;
     utterances = new Set(); lastResponse = ''; notice = ''; coachText = ''; hintLevel = 0; hintOrigin = 'none';
     controller.startExercise(context(sentence));
     return true;
@@ -116,7 +138,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   controller = createAssessmentController({ context: context(first), allowMock: voice.mode === 'mock',
     ...(options.clock ? { clock: options.clock } : {}),
     onCancelHint: () => voice.cancelPendingHints?.(),
-    onContextChange: next => { hintLevel = 0; hintOrigin = 'none'; coachText = ''; voice.setContext(next); },
+    onContextChange: next => { if (next.exerciseId !== writtenIdentity) { written = makeWritten(next); writtenIdentity = next.exerciseId; } hintLevel = 0; hintOrigin = 'none'; coachText = ''; voice.setContext(next); },
     onAdvance: snapshot => { options.onComplete(snapshot.exerciseId); startNext(); },
   });
   const unsubscribeController = controller.subscribe(publish);
@@ -147,7 +169,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     const obligations = controller.getOpenObligations();
     if (!obligations.length || obligations.some(key => controller.getSnapshot().evidence[key]?.status === 'processing')) return false;
     const identity = controller.getSnapshot().context;
-    const attempts = controller.beginAttempt(obligations, `oral-${++sequence}`);
+    const attempts = controller.beginAttempt(obligations, `oral-${oralEpoch}-${++sequence}`);
     if (!attempts.length) return false;
     hintOrigin = 'none'; coachText = '';
     if (uncertain || !text.trim()) {
@@ -218,6 +240,23 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   publish();
 
   const session: SentenceSession = {
+    editWritten(value) { if (!disposed && options.canWrite?.() !== false) { written.edit(value); publish(); } },
+    invalidateWritten() { if (!disposed && options.canWrite?.() !== false) { written.invalidate(); publish(); } },
+    finalizeWritten() { if (!disposed && options.canWrite?.() !== false) { written.finalize(); publish(); } },
+    selectWrittenTense(tense) { if (!disposed && options.canWrite?.() !== false) { written.selectTense(tense); publish(); } },
+    snapshotWrittenPractice: () => written.snapshotWrittenPractice(),
+    restoreWrittenPractice(value) {
+      if (disposed || options.canWrite?.() === false || !snapshotObject(value) || value.kind !== 'sentence'
+        || !snapshotIdentity(value.identity, options.sessionId) || value.identity.exerciseId === controller.getSnapshot().exerciseId) return false;
+      const sentence = sentences.find(item => item.id === value.sentenceId); if (!sentence) return false;
+      const next: ExerciseContext = { ...value.identity, mode: 'sentence', stage: 'translation', sentence };
+      const restored = makeWritten(next); if (!restored.restoreWrittenPractice(value)) return false;
+      voice.interrupt(); written = restored; writtenIdentity = value.identity.exerciseId;
+      generation = value.identity.generation; currentExerciseId = value.identity.exerciseId; writtenRestoreVersion++;
+      oralEpoch = crypto.randomUUID(); utterances = new Set(); lastResponse = ''; notice = ''; coachText = ''; muted = true;
+      controller.startExercise(next); controller.setInteraction({ connection: 'offline', learnerSpeaking: false, assistantSpeaking: false });
+      publish(); return true;
+    },
     getSnapshot: () => view,
     subscribe(listener) { listeners.add(listener); return () => { listeners.delete(listener); }; },
     setDifficulty(difficulty) { requestedDifficulty = { ...difficulty }; publish(); },

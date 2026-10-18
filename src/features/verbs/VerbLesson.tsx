@@ -1,3 +1,5 @@
+import { createWrittenPracticeBinding } from '../progress/written-practice-binding';
+import type { WrittenPracticeBinding } from '../progress/written-snapshot';
 import { useWrittenActivity, type WrittenActivityBinding } from '../progress/use-written-activity';
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { type LearnerSettings, type LessonModuleProps, type VerbForm, type VerbMode } from '../../contracts';
@@ -14,10 +16,10 @@ import './writing-lines.css';
 import { VERB_PHOTOS } from '../../content';
 import { VERB_TENSE_GUIDE } from '../../content/tense-guide';
 
-export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; writtenActivity?: WrittenActivityBinding; progressSink?: ProgressSink; canWrite?: () => boolean; onProgressError?: () => void; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void; rootVoiceError?: string };
+export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; writtenPractice?: WrittenPracticeBinding; writtenActivity?: WrittenActivityBinding; progressSink?: ProgressSink; canWrite?: () => boolean; onProgressError?: () => void; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void; rootVoiceError?: string };
 const LABELS: Readonly<Record<VerbForm, string>> = { base: 'Base form', past: 'Past', participle: 'Past participle' };
 
-export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance, rootVoiceError = '', progressSink, onProgressError, canWrite, writtenActivity }: VerbLessonProps) {
+export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance, rootVoiceError = '', progressSink, onProgressError, canWrite, writtenActivity, writtenPractice }: VerbLessonProps) {
   const writeGate = useRef(canWrite); writeGate.current = canWrite;
   const [progressError, setProgressError] = useState(false);
   const completed = useRef(onComplete);
@@ -27,10 +29,12 @@ export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessi
   const [session, setSession] = useState<VerbSession | null>(null);
   useEffect(() => {
     setProgressError(false);
-    const current = createVerbSession({ mode, voice, sessionId, canWrite: () => writeGate.current?.() !== false, ...(progressSink ? { progressSink } : {}), onProgressError: () => { setProgressError(true); onProgressError?.(); }, onComplete: id => completed.current(id), get claimUtterance() { return claim.current; } });
+    const binding = createWrittenPracticeBinding(writtenPractice);
+    const current = createVerbSession({ mode, voice, sessionId, ...(writtenPractice ? { writtenPracticeUserId: writtenPractice.userId, onWrittenPracticeChange: binding.changed } : {}), canWrite: () => writeGate.current?.() !== false, ...(progressSink ? { progressSink } : {}), onProgressError: () => { setProgressError(true); onProgressError?.(); }, onComplete: id => completed.current(id), get claimUtterance() { return claim.current; } });
+    const release = binding.attach(current);
     setSession(current);
-    return () => current.dispose();
-  }, [mode, voice, sessionId]);
+    return () => { release?.(); current.dispose(); };
+  }, [mode, voice, sessionId, writtenPractice?.userId]);
   if (!session || session.mode !== mode || session.voice !== voice || session.sessionId !== sessionId) return <p role="status">Preparing your verb practice…</p>;
   return <>{progressError && <p role="status">Progress could not be saved. Your current practice remains available.</p>}<VerbPractice session={session} settings={settings} rootVoiceError={rootVoiceError} {...(writtenActivity ? { writtenActivity } : {})} {...(sessionControls !== undefined ? { sessionControls } : {})} /></>;
 }

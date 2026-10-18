@@ -5,6 +5,9 @@ import './written-translation.css';
 
 export interface WrittenTranslationProps {
   sentence: SentenceEntry;
+  initialDraft?: string;
+  initialFinalized?: boolean;
+  onDraftChange?: (draft: string) => void;
   onResultChange: (result: WrittenComparisonResult | undefined) => void;
   helpEnabled: boolean;
   hint: { status: 'loading' | 'ready' | 'unavailable'; text: string } | undefined;
@@ -13,12 +16,12 @@ export interface WrittenTranslationProps {
 /** Written comparison is independent of the lesson's audio evidence. */
 export function WrittenTranslation(props: WrittenTranslationProps) {
   const id = useId();
-  const [draft, setDraft] = useState('');
-  const [result, setResult] = useState<WrittenComparisonResult>();
+  const [draft, setDraft] = useState(props.initialDraft ?? '');
+  const [result, setResult] = useState<WrittenComparisonResult | undefined>(() => props.initialFinalized ? compareWrittenTranslation(props.initialDraft ?? '', props.sentence.alternatives) : undefined);
   const [compositionActive, setCompositionActive] = useState(false);
   const composing = useRef(false);
   const revision = useRef(0);
-  const checkedRevision = useRef(-1);
+  const checkedRevision = useRef(props.initialFinalized ? 0 : -1);
   const currentDraft = useRef(draft);
   const latest = useRef(props);
   latest.current = props;
@@ -62,6 +65,7 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
           currentDraft.current = value;
           revision.current += 1;
           setDraft(value);
+          latest.current.onDraftChange?.(value);
           clearResult();
         }}
         onCompositionStart={() => {
