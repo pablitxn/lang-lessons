@@ -13,7 +13,9 @@ const isolated = { skip: !database };
 async function fixture() {
   assert.ok(database); const url = new URL(database);
   assert.ok(['127.0.0.1', 'localhost'].includes(url.hostname) && url.pathname === '/p2_test');
-  const admin = new Pool({ connectionString: database }); const schema = `p2_management_${randomUUID().replaceAll('-', '')}`;
+  const admin = new Pool({ connectionString: database });
+  // Better Auth introspects every accessible schema; serialize fixture lifetimes, not tested operations.
+  const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_management_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
   for (const name of ['p2-auth', 'p2-learning', 'p2-admin']) {
@@ -22,7 +24,7 @@ async function fixture() {
   await pool.query(`INSERT INTO "user"(id,name,email,"emailVerified") VALUES
     ('admin','admin','admin@example.invalid',false),('prof','prof','prof@example.invalid',false),('student','student','student@example.invalid',false)`);
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('admin','administrator'),('prof','professor'),('student','student')");
-  return { pool, repo: createUserManagementRepository(pool), cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end(); } };
+  return { pool, repo: createUserManagementRepository(pool), cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await guard.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); guard.release(); await admin.end(); } };
 }
 const actor = { userId: 'admin' };
 const createInput = () => ({ operationId: randomUUID(), email: 'new@example.invalid', role: 'student' as const, disabled: false });

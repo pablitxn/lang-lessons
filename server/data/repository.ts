@@ -7,6 +7,7 @@ import type { ProgressBatchResult, PracticeEvent } from '../../src/contracts/pro
 import { applyProgressBatch, parsePracticeEvent, MAX_PRACTICE_BATCH } from '../../src/foundation/progress-batch';
 import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import type { AuthenticatedIdentity, AccessPolicy } from '../accounts/authorization';
+import { finishUsage } from './usage';
 import { transaction, RepositoryError, requireId, requireRevision, exactKeys } from './database';
 
 export interface DataPolicy {
@@ -82,6 +83,7 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
           const row = await lockSession(client, identity, input.sessionId); open(row, input.expectedRevision);
           const stopped = await client.query('UPDATE learning_segments SET ended=true WHERE id=$1 AND session_id=$2 AND epoch=$3 RETURNING id', [input.segment.segmentId, row.id, input.segment.connectionEpoch]);
           if (!stopped.rowCount) throw new RepositoryError('not-found');
+          await finishUsage(client, row.id, input.segment.segmentId);
           await client.query('UPDATE learning_sessions SET revision=revision+1 WHERE id=$1', [row.id]);
           return { ...snapshot(row), revision: row.revision + 1 };
         }));
@@ -104,6 +106,7 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
           const result: CloseResult = { sessionId: row.id, operationId: input.operationId, status: 'closed', revision: row.revision + 1, feedback };
           await client.query("UPDATE learning_sessions SET status='closed', revision=revision+1, closed_at=clock_timestamp() WHERE id=$1", [row.id]);
           await client.query('UPDATE learning_segments SET ended=true WHERE session_id=$1 AND NOT ended', [row.id]);
+          await finishUsage(client, row.id);
           if (feedback !== 'not-requested') await client.query('INSERT INTO learning_feedback_jobs(id,session_id,state) VALUES ($1,$2,$3)', [randomUUID(), row.id, feedback]);
           await client.query('INSERT INTO learning_closes(session_id,result) VALUES ($1,$2)', [row.id, JSON.stringify(result)]);
           return result;

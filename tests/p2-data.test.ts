@@ -17,14 +17,17 @@ async function fixture() {
   const url = new URL(database);
   assert.ok(['127.0.0.1', 'localhost'].includes(url.hostname) && url.pathname === '/p2_test', 'Only the explicitly named disposable loopback database is allowed');
   const admin = new Pool({ connectionString: database });
+  // Better Auth introspects every accessible schema; serialize fixture lifetimes, not tested operations.
+  const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))");
   const schema = `p2_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
   const migration = await readFile(new URL('../server/data/migrations/p2-learning.sql', import.meta.url), 'utf8');
   await transaction(pool, async client => { await client.query(migration); });
   await pool.query(await readFile(new URL('../server/data/migrations/p2-day-projection.sql', import.meta.url), 'utf8'));
+  await pool.query(await readFile(new URL('../server/data/migrations/p2-usage.sql', import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('alice','student'),('bob','student'),('prof','professor'),('admin','administrator')");
-  return { pool, migration, cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end(); } };
+  return { pool, migration, cleanup: async () => { await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await guard.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); guard.release(); await admin.end(); } };
 }
 function event(sessionId: string, revision = 1, eventId = `event-${revision}`, obligation: PracticeEvent['ref']['obligation'] = 'spelling:past'): PracticeEvent {
   return { schemaVersion: 1, eventId, kind: 'attempt-result', ref: { sessionId, exerciseId: 'issued', generation: 0, obligation, attemptId: `attempt-${revision}`, revision }, source: 'typed', trust: 'client-reported', result: 'accepted' };
