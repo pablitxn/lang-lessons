@@ -103,8 +103,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const page = await context.newPage(); const errors = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-        if (enabled) await page.getByText('Ready to talk', { exact: true }).waitFor();
-        else await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+        if (enabled) { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click(); await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open'); }
+        else { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor(); assert.equal(transport.statusRequests, 0); }
         const lesson = page.locator('.ll-sentences[data-exercise-id]');
         const exerciseId = await lesson.getAttribute('data-exercise-id');
         const field = page.getByRole('textbox', { name: 'English translation', exact: true });
@@ -222,7 +222,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(answer);
       const choice = page.getByRole('combobox', { name: 'Verb tense', exact: true });
       const listbox = page.getByRole('listbox');
@@ -277,7 +277,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByText('Ready to talk', { exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
+      await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open');
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       const previous = await lesson.getAttribute('data-exercise-id');
       await page.getByRole('button', { name: 'Preferences', exact: true }).click();
@@ -325,7 +326,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       const field = page.getByRole('textbox', { name: 'English translation', exact: true });
       const written = page.locator('.sentences-written');
@@ -437,7 +438,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
       await setHelp(page, true);
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(typo);
       const request = await hints.waitForCount(1);

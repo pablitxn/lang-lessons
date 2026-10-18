@@ -1,4 +1,5 @@
-import type { ExerciseContext, VoiceAdapter, VoiceEvent, VoiceState } from '../contracts';
+import { assessSpelling } from '../assessment/spelling';
+import { sameExercise, type ExerciseContext, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../contracts';
 
 /** Check configuration before requesting microphone access or starting a call. */
 export async function checkVoiceAvailability(signal: AbortSignal, request: typeof fetch = fetch): Promise<void> {
@@ -113,6 +114,16 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   }
   const voice: VoiceAdapter = { ...base,
     async submit(input) {
+      // Call subscriptions are deliberately detached after stop. Deterministic
+      // offline spelling belongs to the exercise and must not reopen audio listeners.
+      if (base.mode === 'openai-realtime' && !unsubscribe && input.kind === 'typed') {
+        if (!context || !sameExercise(context, input) || !input.attempts.length
+          || input.attempts.some(ref => !sameExercise(context!, ref) || !ref.obligation.startsWith('spelling:'))) return;
+        const eventId = `root-local-${++sequence}`;
+        emit({ sessionId, eventId, type: 'assessment', batch: { ...context, eventId,
+          results: input.attempts.map(ref => assessSpelling(context!, ref, input.text, input.inputId)) } });
+        return;
+      }
       if (input.utteranceId) claimUtterance(input.utteranceId);
       await base.submit(input);
     },

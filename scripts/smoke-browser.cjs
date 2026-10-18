@@ -101,6 +101,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const backBounds = await page.getByRole('link', { name: 'All lessons', exact: true }).boundingBox();
         assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, 'Lesson identity and back navigation share a compact row');
         assert.ok(backBounds.height >= 44, 'Back navigation retains its touch target');
+        await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
         const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });
         await voiceBadge.waitFor();
         assert.equal(await page.locator('.voice-call-bar').count(), 0);
@@ -110,7 +111,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const voiceDetails = page.getByRole('dialog', { name: 'Voice call details', exact: true });
         await voiceDetails.waitFor();
         assert.equal(await voiceDetails.getByRole('button', { name: 'Unmute microphone', exact: true }).isDisabled(), true);
-        await voiceDetails.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        await voiceDetails.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
         assert.match(await voiceDetails.locator('.voice-call-status').innerText(), /Voice/);
         if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-voice-details.png' });
         await page.keyboard.press('Escape');

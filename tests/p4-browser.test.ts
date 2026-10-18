@@ -7,14 +7,15 @@ test('optional tutor entry, stop and restart preserve written drafts in the rend
   const require = createRequire(import.meta.url);
   const { chromium } = require('playwright');
   const { installBrowserTransport, inspectTransport } = require('./helpers/browser-transport.cjs');
+  const origin = `http://127.0.0.1:${process.env.APP_BROWSER_PORT || '5174'}`;
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium', headless: true,
     env: { ...process.env, XDG_CONFIG_HOME: '/tmp/lang-lessons-browser-config', XDG_CACHE_HOME: '/tmp/lang-lessons-browser-cache' } });
   try {
     for (const width of [320, 1024]) {
       const context = await browser.newContext({ viewport: { width, height: 800 } });
-      const transport = await installBrowserTransport(context, 'http://127.0.0.1:5174');
+      const transport = await installBrowserTransport(context, origin);
       const page = await context.newPage();
-      await page.goto('http://127.0.0.1:5174/', { waitUntil: 'networkidle' });
+      await page.goto(`${origin}/`, { waitUntil: 'networkidle' });
       // Select the app-owned route through the catalog.
       if (await page.getByRole('link', { name: 'Start Verb practice', exact: true }).count()) {
         await page.getByRole('link', { name: 'Start Verb practice', exact: true }).click();

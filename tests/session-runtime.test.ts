@@ -241,3 +241,27 @@ test('voice readiness distinguishes disabled calls from missing server credentia
     }))), expected);
   }
 });
+
+test('offline spelling works before optional tutor, after failed start and stop without reopening call subscriptions', async () => {
+  const base = createMockVoiceAdapter(); let subscriptions = 0; let submits = 0;
+  const runtime = createSessionRuntime({ ...base, mode: 'openai-realtime',
+    subscribe(listener) { subscriptions++; return base.subscribe(listener); },
+    async submit() { submits++; throw new Error('Offline spelling must stay local'); },
+  }, 's1', { async prepareConnection() { throw new Error('Fixture unavailable'); } });
+  const context = verbContext(); runtime.voice.setContext(context);
+  const controller = createAssessmentController({ context, allowMock: false });
+  runtime.voice.subscribe(controller.handleVoiceEvent);
+  const check = async (text: string, expected: string) => {
+    const attempts = controller.beginAttempt(['spelling:past']);
+    await runtime.voice.submit({ ...context, inputId: `typed-${text}`, kind: 'typed', text, attempts });
+    assert.equal(controller.getSnapshot().evidence['spelling:past']?.status, expected);
+    assert.equal(controller.getSnapshot().evidence['spelling:past']?.source?.kind, 'typed');
+    assert.equal(controller.getSnapshot().evidence.meaning, undefined);
+  };
+  await check('wrong', 'incorrect'); assert.equal(subscriptions, 0);
+  await assert.rejects(runtime.start(), /Fixture unavailable/);
+  await check('bought', 'accepted'); assert.equal(subscriptions, 1);
+  runtime.stop(); await check('wrong again', 'incorrect');
+  assert.equal(subscriptions, 1); assert.equal(submits, 0);
+  controller.dispose(); runtime.stop();
+});

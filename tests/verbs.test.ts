@@ -197,6 +197,8 @@ test('completed history retains typed work but never restores oral evidence or r
   spelling(session, voice); await oral(session, voice);
   clock.advance(1800);
   assert.deepEqual(completed, [first.exerciseId]);
+  assert.equal(session.getSnapshot().assessment.exerciseId, first.exerciseId);
+  session.nextPicture(first.exerciseId);
   const next = session.getSnapshot().assessment.context;
   session.previous();
   const review = session.getSnapshot();
@@ -329,7 +331,7 @@ test('fresh lesson launches use a fresh injected shuffle and reject invalid rand
   }
 });
 
-test('both verb modes require every oral gate plus only their editable spelling fields, then advance once after quiet', async () => {
+test('both verb modes require every oral gate plus only their editable spelling fields, then Pictures awaits Next while visible verbs advance once after quiet', async () => {
   for (const mode of ['verb-image', 'verb-visible'] as const) {
     const { session, voice, clock, completed } = setup(mode);
     const initial = session.getSnapshot().assessment;
@@ -339,6 +341,12 @@ test('both verb modes require every oral gate plus only their editable spelling 
     await oral(session, voice);
     clock.advance(1799); assert.equal(completed.length, 0);
     clock.advance(1); assert.deepEqual(completed, [initial.exerciseId]);
+    if (mode === 'verb-image') {
+      clock.advance(10000);
+      assert.equal(session.getSnapshot().assessment.exerciseId, initial.exerciseId);
+      session.nextPicture(initial.exerciseId);
+      session.nextPicture(initial.exerciseId); // A stale second click cannot skip generation 2.
+    }
     const next = session.getSnapshot();
     assert.equal(next.assessment.generation, 2);
     assert.notEqual(next.assessment.context.mode === 'sentence' ? '' : next.assessment.context.verb.id, 'be');

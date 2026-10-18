@@ -271,6 +271,13 @@ test('both verb lessons render real images and enforce their shared-controller g
         await page.clock.runFor(1799);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.clock.runFor(1);
+        if (mode === 'image') {
+          const card = page.getByRole('region', { name: 'Completed picture dictionary' });
+          await card.waitFor();
+          await page.clock.runFor(10000);
+          assert.equal(await lesson.getAttribute('data-exercise'), original, 'Completed Pictures wait for explicit Next');
+          await card.getByRole('button', { name: 'Next picture', exact: true }).click();
+        }
         await page.waitForFunction(() => document.querySelector('.verbs-lesson')?.getAttribute('data-generation') === '2');
         assert.equal(await lesson.getAttribute('data-verb'), 'beat');
         assert.equal(await observations.getAttribute('data-completed'), '1');
@@ -339,7 +346,7 @@ test('both verb lessons render real images and enforce their shared-controller g
           await page.screenshot({ path: `/tmp/en-wp-05-${mode}.png`, fullPage: true });
         }
         assert.deepEqual(errors, []); assert.deepEqual(external, []);
-        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'automatic checking without buttons', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/information/question/speech/pause holds', 'quiet auto-next', ...(mode === 'image' ? ['photo overlay navigation', 'back/forward photo and draft restoration', 'completed review'] : ['word cue hover/touch/focus navigation', 'English verb information', 'next-only navigation and reset']), 'reflow', '200% text', 'no external requests'] }));
+        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'automatic checking without buttons', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/information/question/speech/pause holds', 'quiet completion; Pictures explicit Next', ...(mode === 'image' ? ['photo overlay navigation', 'back/forward photo and draft restoration', 'completed review'] : ['word cue hover/touch/focus navigation', 'English verb information', 'next-only navigation and reset']), 'reflow', '200% text', 'no external requests'] }));
         await context.close();
       }
     }
