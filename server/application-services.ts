@@ -7,6 +7,7 @@ import { createDailyProgressRepository, type DailyGroupingPolicy } from './accou
 import { createLearningRepository, type DataPolicy } from './data/repository';
 import { createUsageRepository } from './data/usage';
 import { createRecoveryRepository } from './data/recovery';
+import { createBrokerAuthority } from './broker/authority';
 import { createInstanceIssuer } from './instance-issuance';
 import type { LearningHttpServices } from './learning-http';
 
@@ -21,9 +22,11 @@ export function createApplicationServices(config: {
   ] };
   // Structured incremental written results are approved. No call eligibility is guessed.
   const data: DataPolicy = { allowStructuredStorage: true, access };
+  const auth = createAuthAdapter({ pool: config.pool, origin: config.origin, secret: config.secret, policy: config.login });
   return {
+    brokerAuthority: createBrokerAuthority({ pool: config.pool, auth, access, origin: config.origin, allowRequest: config.allowRequest }),
     origin: config.origin, allowRequest: config.allowRequest,
-    auth: createAuthAdapter({ pool: config.pool, origin: config.origin, secret: config.secret, policy: config.login }),
+    auth,
     accounts: createAccountRepository(config.pool, access, { allowStudentFeedback: true }),
     management: createUserManagementRepository(config.pool),
     daily: createDailyProgressRepository(config.pool, config.grouping, { allowStudentFeedback: true }),

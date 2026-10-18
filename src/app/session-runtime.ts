@@ -82,7 +82,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
     pending?.abort(); base.disconnect();
     if (snapshot.state !== 'offline') emit({ ...eventBase(), type: 'state', state: 'offline' });
   }
-  function start(): Promise<void> {
+  function start(segment?: import('../contracts').CallSegmentRef): Promise<void> {
     if (starting) return starting;
     if (snapshot.state === 'ready') return Promise.resolve();
     stop();
@@ -102,7 +102,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
       // the lifecycle wait immediately; the adapter still owns late-track cleanup.
       let onAbort!: () => void;
       try {
-        await Promise.race([voice.connect({ sessionId, signal: attempt.signal }), new Promise<never>((_, reject) => {
+        await Promise.race([voice.connect({ sessionId, signal: attempt.signal, ...(segment ? { segment } : {}) }), new Promise<never>((_, reject) => {
           onAbort = () => reject(attempt.signal.reason);
           attempt.signal.addEventListener('abort', onAbort, { once: true });
           if (attempt.signal.aborted) onAbort();

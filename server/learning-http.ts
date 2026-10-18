@@ -9,6 +9,7 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  brokerAuthority?: import('./broker/authority').BrokerAuthority;
   management?: ReturnType<typeof import('./accounts/management').createUserManagementRepository>;
   daily?: ReturnType<typeof import('./accounts/daily-progress').createDailyProgressRepository>;
   usage?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./data/usage').createUsageRepository>;
@@ -31,7 +32,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
     const url = new URL(request.url);
     // An account-enabled application must not inherit the old unauthenticated broker.
     // Keep provider routes unavailable until canonical segment/auth binding is supplied.
-    if (services && url.pathname.startsWith('/api/realtime/')) return reply(503, { error: 'provider-binding-unresolved' });
+    if (services && url.pathname.startsWith('/api/realtime/')) return services.brokerAuthority ? null : reply(503, { error: 'provider-binding-unresolved' });
     if (!owns(url.pathname)) return null;
     if (url.pathname === '/api/learning/config' && request.method === 'GET') return reply(200, { accountsEnabled: Boolean(services) });
     if (!services) return reply(503, { error: 'policy-unresolved' });

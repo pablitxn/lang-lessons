@@ -101,7 +101,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         segment = result.segment;
         if (!current()) return;
         if (token !== epoch) { await endSegment(); return; }
-        try { await runtime.start(); }
+        try { await runtime.start(segment); }
         catch {
           // Media failure/cancellation is recoverable after an authoritative stop
           // receipt. The runtime retains its transport error for explicit retry.

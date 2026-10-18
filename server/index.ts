@@ -16,7 +16,7 @@ const services = application && pool ? createApplicationServices({ pool, origin:
   login: application.login, ...(application.grouping ? { grouping: application.grouping } : {}),
   allowRequest: createApplicationLimiter(application.requestLimit) }) : null;
 const learning = learningNodeBridge(services, `http://127.0.0.1:${port}`);
-const server = createRealtimeServer(config, fetch, telemetry, learning);
+const server = createRealtimeServer(config, fetch, telemetry, learning, services?.brokerAuthority);
 let stopping = false;
 async function stop() {
   if (stopping) return; stopping = true;
