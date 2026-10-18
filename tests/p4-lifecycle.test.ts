@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import type { CloseResult, SessionCommands, VoiceEvent } from '../src/contracts';
+import type { CloseResult, ProgressFence, SessionCommands, VoiceEvent } from '../src/contracts';
 import { createSessionRuntime } from '../src/app/session-runtime';
 import { createSessionLifecycle } from '../src/app/session-lifecycle';
 import { createMockVoiceAdapter } from '../src/voice/mock';
@@ -13,6 +13,7 @@ function fixture() {
   base.connect = async options => { connects++; return connect(options); };
   const runtime = createSessionRuntime(base, 's1'); runtime.voice.setContext(verbContext());
   const calls: string[] = []; let revision = 0; let sequence = 0; let current = true; let rejectFlush = false;
+  let flush: (() => Promise<ProgressFence>) | null = null;
   let close: ((request: Parameters<SessionCommands['confirmClose']>[0]) => Promise<CloseResult>) | null = null;
   const session = () => ({ sessionId: 's1', mode: 'verb-image' as const, status: 'open' as const, revision });
   const sessions: SessionCommands = {
@@ -24,11 +25,12 @@ function fixture() {
     async readClose() { return null; },
   };
   const lifecycle = createSessionLifecycle(runtime, {
-    sessions, progress: { async flush() { calls.push('flush'); if (rejectFlush) throw new Error('Rejected final event'); return { sessionId: 's1', journalRevision: 7 }; } },
+    sessions, progress: { async flush() { calls.push('flush'); if (flush) return flush(); if (rejectFlush) throw new Error('Rejected final event'); return { sessionId: 's1', journalRevision: 7 }; } },
     freezeWrites() { calls.push('freeze'); }, releasePreparation() { calls.push('release'); },
     operationId: () => `operation-${++sequence}`, isCurrent: () => current, navigate: target => calls.push(`navigate:${target}`),
   });
   return { runtime, lifecycle, calls, sessions, connects: () => connects, rejectFlush: () => { rejectFlush = true; }, stale: () => { current = false; },
+    setFlush: (fn: () => Promise<ProgressFence>) => { flush = fn; },
     setClose: (fn: NonNullable<typeof close>) => { close = fn; } };
 }
 
@@ -106,4 +108,61 @@ test('a failed connection invalidates retained provider callbacks', async () => 
   retained({ sessionId: 's1', eventId: 'late-ready', type: 'state', state: 'ready' });
   assert.equal(runtime.getSnapshot().state, 'error'); assert.equal(runtime.getSnapshot().hadConnectedCall, false);
   runtime.stop();
+});
+
+
+test('written-only exit never opens confirmation and waits for the final queued progress receipt', async () => {
+  const f = fixture();
+  const acknowledged = ['earlier-written-result'];
+  const queued = ['latest-written-result'];
+  let acknowledge!: () => void;
+  const confirmationStates: boolean[] = [];
+  const unsubscribe = f.lifecycle.subscribe(() => confirmationStates.push(f.lifecycle.getSnapshot().confirming));
+  f.setFlush(() => new Promise(resolve => { acknowledge = () => {
+    acknowledged.push(...queued.splice(0));
+    resolve({ sessionId: 's1', journalRevision: 8 });
+  }; }));
+  f.setClose(async request => {
+    assert.deepEqual(request.finalProgress, { sessionId: 's1', journalRevision: 8 });
+    return { ...request, status: 'closed', revision: 1, feedback: 'not-requested' };
+  });
+  const exit = f.lifecycle.requestExit('home'); await tick();
+  assert.deepEqual(f.calls, ['freeze', 'flush']);
+  assert.deepEqual(acknowledged, ['earlier-written-result']);
+  assert.deepEqual(queued, ['latest-written-result']);
+  assert.equal(f.lifecycle.getSnapshot().confirming, false);
+  acknowledge(); assert.equal(await exit, 'closed');
+  assert.deepEqual(acknowledged, ['earlier-written-result', 'latest-written-result']);
+  assert.equal(confirmationStates.includes(true), false);
+  assert.deepEqual(f.calls, ['freeze', 'flush', 'read', 'close', 'navigate:home']);
+  unsubscribe(); f.lifecycle.dispose();
+});
+
+test('a previously connected but stopped tutor still requires confirmation on exit', async () => {
+  const f = fixture(); await f.lifecycle.start(); await f.lifecycle.stop(); f.calls.length = 0;
+  assert.equal(f.runtime.getSnapshot().state, 'offline');
+  const cancelled = f.lifecycle.requestExit('home'); await tick();
+  assert.equal(f.lifecycle.getSnapshot().confirming, true);
+  assert.deepEqual(f.calls, []);
+  f.lifecycle.decide('cancel'); assert.equal(await cancelled, 'cancelled');
+  assert.equal(f.runtime.getSnapshot().state, 'offline');
+  const confirmed = f.lifecycle.requestExit('home'); await tick();
+  assert.equal(f.lifecycle.getSnapshot().confirming, true);
+  f.lifecycle.decide('confirm'); assert.equal(await confirmed, 'closed');
+  assert.deepEqual(f.calls, ['freeze', 'flush', 'read', 'close', 'navigate:home']);
+  f.lifecycle.dispose();
+});
+
+test('written-only persistence failure keeps queued data and reports failure without an exit popup', async () => {
+  const f = fixture(); const acknowledged = ['saved']; const queued = ['unsaved'];
+  const confirmationStates: boolean[] = [];
+  const unsubscribe = f.lifecycle.subscribe(() => confirmationStates.push(f.lifecycle.getSnapshot().confirming));
+  f.setFlush(async () => { throw new Error('Persistence unavailable'); });
+  await f.lifecycle.requestExit('home');
+  assert.deepEqual(acknowledged, ['saved']); assert.deepEqual(queued, ['unsaved']);
+  assert.equal(confirmationStates.includes(true), false);
+  assert.equal(f.lifecycle.getSnapshot().frozen, false);
+  assert.match(f.lifecycle.getSnapshot().error, /Progress could not be saved/);
+  assert.deepEqual(f.calls, ['freeze', 'flush', 'release']);
+  unsubscribe(); f.lifecycle.dispose();
 });
