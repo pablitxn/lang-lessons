@@ -28,7 +28,7 @@ Students configure their own explicit IANA timezone through authenticated revisi
 - Disposable PostgreSQL timezone/daily/feedback and root client suites: 10/10 passed; canonical feedback now stores exactly one generated result.
 - Browser smoke: development and production preview, four viewports each, 8/8 passed.
 - Practice smoke: three modes across four viewports, 12/12 passed, plus lifecycle/resource assertions.
-- Tense smoke: eight tenses across three viewports, 24/24 passed.
+- Tense smoke: twelve tenses across three viewports, 36/36 passed.
 - Written sentence smoke: eight viewport/call combinations plus keyboard, hint cancellation/staleness and touch checks passed.
 - Earlier F6/P4/P6 targeted suites passed 26/26; broker/history/feedback passed 8/8; metadata/HTTP passed 18/18.
 
