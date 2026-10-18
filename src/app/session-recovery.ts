@@ -1,4 +1,4 @@
-import type { FeedbackState, SessionSnapshot } from '../contracts';
+import type { CallSegmentRef, FeedbackState, ProgressFence, SessionSnapshot } from '../contracts';
 import type { SessionLifecycle } from './session-lifecycle';
 
 /** P4 integration ports; P2 owns authenticated reads and retry idempotency. */
@@ -7,6 +7,9 @@ export interface RecoveryRecord extends RecoveryIdentity {
   readonly session: SessionSnapshot;
   readonly hadConnectedCall: boolean;
   readonly feedback: FeedbackState;
+  readonly progress?: ProgressFence;
+  readonly activeSegments?: readonly CallSegmentRef[];
+  readonly feedbackJob?: { readonly jobId: string; readonly state: FeedbackState; readonly retryRevision: number } | null;
 }
 export interface RecoveryPractice {
   readonly lifecycle: SessionLifecycle;
