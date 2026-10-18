@@ -5,7 +5,7 @@ import type { SessionLifecycle } from './session-lifecycle';
 export interface RecoveryIdentity { readonly accountId: string; readonly sessionId: string }
 export interface RecoveryRecord extends RecoveryIdentity {
   readonly session: SessionSnapshot;
-  readonly hadConnectedCall: boolean;
+  readonly hadConnectedCall: boolean | null;
   readonly feedback: FeedbackState;
   readonly progress?: ProgressFence;
   readonly activeSegments?: readonly CallSegmentRef[];
@@ -55,7 +55,7 @@ export function createSessionRecovery(ports: SessionRecoveryPorts) {
   function validate(record: RecoveryRecord): RecoveryRecord {
     if (record.accountId !== identity.accountId || record.sessionId !== identity.sessionId
       || record.session.sessionId !== identity.sessionId || !feedbackStates.has(record.feedback)
-      || typeof record.hadConnectedCall !== 'boolean'
+      || (record.hadConnectedCall !== null && typeof record.hadConnectedCall !== 'boolean')
       || !['open', 'closed'].includes(record.session.status)) throw new Error('Recovery identity mismatch');
     return { ...record, session: { ...record.session } };
   }

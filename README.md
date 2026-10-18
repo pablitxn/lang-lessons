@@ -2,8 +2,8 @@
 
 A voice-first English-learning app with three lesson types: picture-based
 irregular verbs, visible-base irregular verbs, and Spanish-to-English sentences.
-The home screen presents lesson cards. Selecting a lesson automatically connects
-the voice coach when the local voice service is enabled. The lesson keeps compact
+Authenticated students see lesson cards. Selecting a lesson opens written practice
+without starting audio. The tutor starts only after an explicit Start action. The lesson keeps compact
 mute and pause/resume controls; failures collapse into a red header badge that
 opens the message and controls. A temporary PC avatar opens Preferences.
 Progress and Reference open modal dialogs from the fixed icon footer; next
@@ -24,7 +24,7 @@ node scripts/dev-local.mjs
 ```
 
 Open `http://127.0.0.1:5174/`. Choose Picture, Verb or Sentence to open a
-lesson and start its voice call. A disabled service displays a connection message
+lesson. Use Start tutor only when desired; a disabled service displays a connection message
 and a retry button. Written verb spelling is checked locally even while voice is
 disabled or paused; oral requirements still need a voice call. Sentence translation
 also has an always-available writing field beside the next arrow. Write during
@@ -78,7 +78,7 @@ used with Responses API model `gpt-6-luna` (override with `OPENAI_HINT_MODEL`).
 Text hints can incur usage even when voice is disabled; browsing and local
 comparison with help off make no model requests. The broker limits hint requests
 to two concurrent and twenty per minute, with a 15-second timeout and no automatic
-retries. Drafts and hints are not persisted; up to twenty successful hints are
+retries. Written drafts persist locally in account/session-scoped IndexedDB; hints are not persisted; up to twenty successful hints are
 cached only in the mounted lesson's memory. Provider failure leaves the writing
 field usable and never counts as a learner error.
 
@@ -92,7 +92,7 @@ or deployment is installed by this foundation.
 
 ## Credentials and live voice
 
-Browsing lessons needs no account or credentials. For voice, use a dedicated
+Practice requires a configured account service and login. For optional voice, use a dedicated
 OpenAI project and server API key. Store the key as `OPENAI_API_KEY` in the ignored
 `.env.local` file, using [.env.example](.env.example) for the variable names. If
 the file already exists, preserve it; do not overwrite an existing credential.
@@ -105,9 +105,8 @@ Stop the default local launcher before enabling live voice:
 node scripts/dev-local.mjs --voice
 ```
 
-Select a lesson and allow the browser microphone prompt. Selecting a lesson (or
-opening its direct URL) initiates the call automatically; there is no session-mode
-selector or second Start action. Starting the processes or browsing the home
+Select a lesson, then explicitly start the tutor and allow the browser microphone prompt.
+Opening a lesson or restoring a written draft never starts a call automatically. Starting the processes or browsing the home
 screen alone makes no paid provider request. Check the
 project's model access, credit balance and enforced monthly spend limit first.
 An alert alone does not cap spending, and even enforced limits can allow a small
@@ -116,7 +115,8 @@ overrun while enforcement propagates. See the [official spend-limit guide](https
 is `gpt-realtime-2.1`. Key creation and a green local check do not prove that the
 account can use that model or that real speech assessment works.
 
-No database, Docker, login fixture, OAuth redirect or public tunnel is required.
+Authenticated practice requires PostgreSQL and an administrator-provisioned account.
+Docker is optional; no OAuth redirect or public tunnel is provisioned by the app.
 Use the loopback URL for microphone testing on this computer. Physical phone
 testing needs a separately prepared secure origin; emulated viewport checks do
 not verify a phone microphone. See [voice integration](docs/voice-integration.md)
@@ -151,7 +151,7 @@ The helpers check 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
 home cards, direct lesson URLs, back navigation, preference dialogs, theme and
 independent difficulty persistence, owned-key reset, progress dialogs, reflow and
 absence of external requests. Browser transport fixtures intercept the local
-broker and inject media/peer objects to check automatic startup, cancellation,
+broker and inject media/peer objects to check explicit startup, cancellation,
 mute, pause/resume and connection failures without a provider call. These are
 actual Chromium renders with simulated transport, not real audio evidence.
 `SCREENSHOT_PATH=/tmp/lang-lessons-home.png` optionally captures the home screen.
@@ -168,10 +168,12 @@ Owned UI and feature fixtures run independently with
 - [Typed contracts](src/contracts/index.ts): shared implementation authority.
 - [Atlas intake](docs/atlas-intake-en-wp-01.md): coordinator-owned knowledge update.
 
-Only theme, help, untimed-help, difficulty, sentence-tense and preferred-mode settings persist under
-`lang-lessons.settings.v1`. No transcript, audio, score, token, provider mode,
-analytics identifier or learning history is stored. Clearing preferences removes
-only that key. Blocked/malformed storage falls back to in-memory defaults.
+Preferences persist under `lang-lessons.settings.v1`. IndexedDB separately stores
+account/session-scoped pending structured progress, written activity and written
+drafts for reload recovery. The database stores accounts, canonical sessions,
+structured outcomes, usage observations and tutor-comment status. Clearing
+preferences does not delete learning records. Audio is never recorded; raw
+transcripts do not enter application progress/comment tables.
 
 Continuous voice uses one provider-neutral session and a same-origin SDP broker
 with permanent credentials only on the server. Run the disabled-by-default local
@@ -183,8 +185,10 @@ latency, retention or cost validation has occurred in this task.
 ## Model-call observability
 
 Optional server-side [Phoenix tracing](docs/observability.md) records model-call
-latency, outcomes and available token usage without capturing prompts, responses
-or audio. Trace export does not need an OpenAI key or make paid model calls.
+latency, outcomes and available token usage. Separately approved transcript and
+interaction capture requires the explicit server flag `PHOENIX_CAPTURE_TRANSCRIPTS=true`
+and a configured Phoenix collector. Capture excludes audio and professor-facing
+raw traces; see [capture limits](docs/oct18-transcript-capture.md). Trace export does not need an OpenAI key or make paid model calls.
 
 ## Published reconciliation
 
@@ -213,3 +217,48 @@ per irregular verb. See the [image policy and free-bank comparison](content/en-w
 and [photo replacement receipt](docs/evidence/real-photos-2026-10-18/README.md).
 Future imagery must follow the same real-photo, source/license and visual-review
 rules. Generated exercise images are prohibited.
+
+## Account service and deployment prerequisites
+
+Serve the frontend and authenticated API at the same configured origin. The broker
+still binds loopback; the deployment operator owns hosting/reverse-proxy/TLS setup.
+This change does not deploy or change network settings.
+
+Configure server-only `LEARNING_DATABASE_URL`, `LEARNING_AUTH_SECRET` (at least 32
+characters), and `LEARNING_APPLICATION_CONFIG` pointing to a JSON file. Never put
+these values in Vite variables. The JSON contains `origin`, `login` and
+`requestLimit`; an example without secrets is below:
+
+```json
+{
+  "origin": "http://127.0.0.1:5174",
+  "login": {
+    "sessionExpiresIn": 86400, "sessionUpdateAge": 3600, "sessionFreshAge": 3600,
+    "minPasswordLength": 12, "maxPasswordLength": 128,
+    "allowRememberMe": false, "refreshSessions": false,
+    "rateLimitWindow": 60, "rateLimitMax": 10
+  },
+  "requestLimit": { "windowMs": 60000, "maximum": 120 }
+}
+```
+
+Run `npm ci`, `npm run db:migrate` with that configuration, then `npm run build`.
+Migration is explicit and checksum-checked; startup does not migrate automatically.
+A privileged initial administrator must exist before account management can be used.
+Students explicitly select their own IANA timezone before daily grouping is available.
+Do not substitute the professor's or server's timezone.
+
+Tutor time is an orientative browser measurement, not server-verified connection
+time. Missing observations display unavailable. Combined time counts interval
+overlap once. Confirmed close cleans up known provider calls; unknown historical
+interaction may yield explicit insufficient-evidence feedback instead of a fabricated
+comment. An unresolved in-flight provider creation/failed cleanup remains blocked
+until reconciliation; the server never assumes an unknown call has ended.
+
+Written-only use needs no provider key. Optional tutor calls require the existing
+explicit voice opt-in; optional text hints may incur usage independently. Phoenix
+content capture stays disabled unless explicitly configured. Real voice, physical
+device and live Phoenix acceptance were not performed by synthetic tests. Set and
+verify operational retention/deletion/access policies before real learner use.
+Historical GitGuardian findings on fabricated test credentials remain disclosed;
+a NEUTRAL scanner check is not a clean result.

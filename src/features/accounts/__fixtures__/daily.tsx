@@ -30,7 +30,7 @@ const api: ProfessorApi = {
     const page: DailyProgressPage & AttributionFields = { attributionTimeZones: scenario === 'mixed-zones' ? ['America/New_York', 'Europe/Paris'] : ['America/Argentina/Buenos_Aires'], studentId: scenario === 'mismatch-student' ? 'wrong-student' : studentId, day: scenario === 'mismatch-day' ? '2026-10-01' : input.day, timeZone: 'America/Argentina/Buenos_Aires', eventAttribution: 'server-received', totals: null,
       writtenEvents: { items: scenario === 'empty' ? [] : [result], nextCursor: scenario === 'empty' ? null : scenario === 'cycle' ? 'event-two' : input.eventCursor ? null : 'event-two' },
       sessions: { items: scenario === 'empty' ? [] : [{ sessionId, mode: 'sentence', startedAt: `${input.day}T12:00:00Z`, closedAt: `${input.day}T12:00:20Z`, feedback: 'succeeded', comment: { sessionId, text: `${studentId} ${input.day} ${sessionId} comment`, provenanceVersion: 'mock-v1' } }], nextCursor: input.sessionCursor || scenario === 'empty' ? null : 'daily-two' },
-      usageTime: { writtenMs: 10000, tutorConnectedMs: 20000, totalMs: 25000, writtenTrust: 'client-reported-interaction', tutorTrust: 'server-observed-connection' }, hasUnattributedLegacyRecords: true };
+      usageTime: { ...(scenario === 'orientative-missing' ? { orientativeTutorMs: null, orientativeTotalMs: null } : scenario === 'orientative' ? { orientativeTutorMs: 20000, orientativeTotalMs: 25000 } : {}), writtenMs: 10000, tutorConnectedMs: 20000, totalMs: 25000, writtenTrust: 'client-reported-interaction', tutorTrust: 'server-observed-connection' }, hasUnattributedLegacyRecords: true };
     return { status: 'ok', value: page };
   },
 };

@@ -4,14 +4,14 @@ import type { AuthenticatedIdentity, AccessPolicy } from '../accounts/authorizat
 import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import { exactKeys, requireId, requireRevision, RepositoryError, transaction } from './database';
 
-export interface CallHistory { readonly sessionId: string; readonly hadConnectedCall: boolean }
+export interface CallHistory { readonly sessionId: string; readonly hadConnectedCall: boolean | null }
 export interface CloseContext { readonly sessionId: string; readonly segments: readonly CallSegmentRef[] }
 export type CloseEligibility = 'not-requested' | 'pending' | 'insufficient-evidence';
 export type EvaluateClose = (client: PoolClient, context: CloseContext) => Promise<CloseEligibility>;
 export interface CallObservation { readonly eventId: string; readonly segment: CallSegmentRef; readonly kind: 'connected' | 'never-connected' }
 
 /** Caller holds the session lock. No negative inference from stopped status, SDP, missing receipts or elapsed time. */
-export async function readCallHistoryInTransaction(client: PoolClient, sessionId: string): Promise<CallHistory> {
+export async function readCallHistoryInTransaction(client: PoolClient, sessionId: string, allowUnknown = false): Promise<CallHistory> {
   const { rows } = await client.query<{ connected: boolean; never_connected: boolean }>(`SELECT
     EXISTS (SELECT 1 FROM learning_call_observations o WHERE o.session_id=s.session_id AND o.segment_id=s.id AND o.epoch=s.epoch AND o.kind='connected')
     OR EXISTS (SELECT 1 FROM learning_time_streams t JOIN learning_time_intervals i ON i.stream_id=t.id
@@ -19,18 +19,23 @@ export async function readCallHistoryInTransaction(client: PoolClient, sessionId
     EXISTS (SELECT 1 FROM learning_call_observations o WHERE o.session_id=s.session_id AND o.segment_id=s.id AND o.epoch=s.epoch AND o.kind='never-connected') AS never_connected
     FROM learning_segments s WHERE s.session_id=$1 ORDER BY s.epoch`, [sessionId]);
   if (rows.some(row => row.connected)) return { sessionId, hadConnectedCall: true };
-  if (rows.some(row => !row.never_connected)) throw new RepositoryError('policy-unresolved');
+  if (rows.some(row => !row.never_connected)) {
+    if (allowUnknown) return { sessionId, hadConnectedCall: null };
+    throw new RepositoryError('policy-unresolved');
+  }
   return { sessionId, hadConnectedCall: false };
 }
 
 /** Root supplies its transaction-local broker guard; P6 supplies the evidence/sufficiency decision. */
 export function createCloseEvaluator(ports: {
+  allowUnknown?: boolean;
   guardBroker: (client: PoolClient, context: CloseContext) => Promise<void>;
   connectedFeedback: (client: PoolClient, context: CloseContext) => Promise<'pending' | 'insufficient-evidence'>;
 }): EvaluateClose {
   return async (client, context) => {
     await ports.guardBroker(client, context);
-    const history = await readCallHistoryInTransaction(client, context.sessionId);
+    const history = await readCallHistoryInTransaction(client, context.sessionId, ports.allowUnknown);
+    if (history.hadConnectedCall === null) return 'insufficient-evidence';
     if (!history.hadConnectedCall) return 'not-requested';
     const result = await ports.connectedFeedback(client, context);
     if (result !== 'pending' && result !== 'insufficient-evidence') throw new RepositoryError('policy-unresolved');

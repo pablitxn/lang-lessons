@@ -13,6 +13,8 @@ export interface SessionProgressBinding {
 export interface PersistedSessionServices {
   readonly actorId: string;
   readonly commands: SessionCommands;
+  reconcileClose?(sessionId: string): Promise<void>;
+  reportCall?(segment: import('../contracts').CallSegmentRef, intervals: readonly { start: string; end: string }[]): Promise<void>;
   progress(sessionId: string, mode?: LessonMode): SessionProgressBinding | Promise<SessionProgressBinding>;
 }
 /** Root creates canonical sessions before mounting any producer. Stable operation ID survives explicit retry. */
@@ -44,16 +46,16 @@ export function PersistedLesson({ mode, services, resumedSession, ...props }: {
   }, [services, mode, operationId, attempt, resumedSession]);
   if (!prepared) return failed ? <div role="alert"><p>The lesson could not be opened. Your previous work has not been discarded.</p>
     <button onClick={() => setAttempt(value => value + 1)}>Try opening lesson again</button></div> : <p role="status">Opening lesson…</p>;
-  return <BoundLesson key={prepared.session.sessionId} mode={mode} sessionId={prepared.session.sessionId} services={services} progress={prepared.progress} hadConnectedCall={resumedSession?.hadConnectedCall ?? false} {...props} />;
+  return <BoundLesson key={prepared.session.sessionId} mode={mode} sessionId={prepared.session.sessionId} services={services} progress={prepared.progress} hadConnectedCall={resumedSession ? resumedSession.hadConnectedCall : false} {...props} />;
 }
 function BoundLesson({ sessionId, services, progress, hadConnectedCall, renderLesson, ...props }: {
-  sessionId: string; hadConnectedCall: boolean; services: PersistedSessionServices; progress: SessionProgressBinding; mode: LessonMode; settings: LearnerSettings; preferencesOpen: boolean;
+  sessionId: string; hadConnectedCall: boolean | null; services: PersistedSessionServices; progress: SessionProgressBinding; mode: LessonMode; settings: LearnerSettings; preferencesOpen: boolean;
   voiceStatusTarget: HTMLElement | null; renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
 }) {
   const register = useRootExitRegistration();
   const alive = useRef(true); const approved = useRef<string | null>(null); const cleanup = useRef<(() => void) | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
-  const lifecyclePorts = useMemo(() => ({ hadConnectedCall, sessions: services.commands, progress: progress.sink,
+  const lifecyclePorts = useMemo(() => ({ ...(services.reportCall ? { reportCall: services.reportCall } : {}), ...(services.reconcileClose ? { reconcileClose: () => services.reconcileClose!(sessionId) } : {}), hadConnectedCall, sessions: services.commands, progress: progress.sink,
     freezeWrites: progress.freezeWrites, releasePreparation: progress.releasePreparation,
     operationId: () => crypto.randomUUID(), isCurrent: () => alive.current,
     navigate: (target: string) => { approved.current = target; },

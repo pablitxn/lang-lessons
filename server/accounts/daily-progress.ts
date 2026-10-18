@@ -1,3 +1,4 @@
+import { clientCallTimeForWindows } from '../data/client-call-time';
 import type { Pool } from 'pg';
 import type { PracticeEvent } from '../../src/contracts/progress';
 import type { FeedbackState, ProfessorComment } from '../../src/contracts/feedback';
@@ -13,7 +14,7 @@ import type { UsageSummary } from '../data/usage';
 import { RepositoryError, requireId, transaction } from '../data/database';
 
 /** Student timezone is read from its versioned configuration, never this legacy runtime field. */
-export interface DailyGroupingPolicy { readonly timeZone?: string; readonly eventAttribution: 'server-received' }
+export interface DailyGroupingPolicy { readonly timeZone?: string; readonly eventAttribution: 'server-received'; readonly clientCallTime?: boolean }
 export interface DailyResult { readonly event: PracticeEvent; readonly receivedAt: string; readonly committedRevision: number; readonly timeZone: string }
 export interface DailySession {
   readonly sessionId: string; readonly mode: LessonMode; readonly startedAt: string | null; readonly closedAt: string | null;
@@ -94,7 +95,7 @@ export function createDailyProgressRepository(pool: Pool, grouping?: DailyGroupi
         ) AS missing`, [studentId, attribution.firstConfiguredAt]);
         return { studentId, day: input.day, timeZone: zone, attributionTimeZones: zones, eventAttribution: 'server-received',
           writtenEvents: page(written, limit, result => JSON.stringify([result.event.ref.sessionId, result.event.eventId])),
-          sessions: page(sessionViews, limit, session => session.sessionId), totals: null, usageTime: await readUsageForWindows(client, studentId, attribution.windows),
+          sessions: page(sessionViews, limit, session => session.sessionId), totals: null, usageTime: { ...await readUsageForWindows(client, studentId, attribution.windows), ...(grouping.clientCallTime ? await clientCallTimeForWindows(client, studentId, attribution.windows) : {}) },
           hasUnattributedLegacyRecords: legacy.rows[0]!.missing };
       });
     },

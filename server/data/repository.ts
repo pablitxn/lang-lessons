@@ -17,6 +17,7 @@ export interface DataPolicy {
   access: AccessPolicy;
   /** Awaited under the session lock before any close/job writes; root guards broker state on this client. */
   evaluateClose?: EvaluateClose;
+  allowUnknownCallHistory?: boolean;
 }
 export const unresolvedDataPolicy: DataPolicy = { allowStructuredStorage: false, access: denyUnresolvedGrants };
 interface SessionRow { id: string; user_id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number; journal_revision: number; next_epoch: number }

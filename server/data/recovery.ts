@@ -28,7 +28,7 @@ export function createRecoveryRepository(pool: Pool, identity: AuthenticatedIden
       return run(async client => {
         const session = await client.query('SELECT id FROM learning_sessions WHERE id=$1 AND user_id=$2 FOR UPDATE', [sessionId, identity.userId]);
         if (!session.rowCount) throw new RepositoryError('not-found');
-        return readCallHistoryInTransaction(client, sessionId);
+        return readCallHistoryInTransaction(client, sessionId, policy.allowUnknownCallHistory);
       });
     },
     /** Separate cursor from listOpen; only closed failed jobs without a stored final comment are discoverable. */

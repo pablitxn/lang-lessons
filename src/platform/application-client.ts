@@ -111,6 +111,7 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
           || !page(value.writtenEvents) || !page(value.sessions) || value.totals !== null || typeof value.hasUnattributedLegacyRecords !== 'boolean'
           || !object(value.usageTime) || value.usageTime.writtenTrust !== 'client-reported-interaction' || value.usageTime.tutorTrust !== 'server-observed-connection'
           || ['writtenMs','tutorConnectedMs','totalMs'].some(key => !Number.isFinite(value.usageTime[key]) || value.usageTime[key] < 0)) throw new Error('Invalid daily progress');
+        for (const key of ['orientativeTutorMs','orientativeTotalMs']) if (value.usageTime[key] !== undefined && value.usageTime[key] !== null && (!Number.isFinite(value.usageTime[key]) || value.usageTime[key] < 0)) throw new Error('Invalid orientative duration');
         new Intl.DateTimeFormat('en', { timeZone: value.timeZone });
         for (const row of value.writtenEvents.items) {
           const event = object(row) ? parsePracticeEvent(row.event) : null;
@@ -165,9 +166,9 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
         || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(value.feedback.state))) throw new Error('Invalid recovery feedback');
       return { session, progress: { sessionId, journalRevision: value.progress.journalRevision }, activeSegments: value.activeSegments.map((segment: import('../contracts').CallSegmentRef) => ({ ...segment })), feedback: value.feedback };
     },
-    async readCallHistory(sessionId: string, signal: AbortSignal): Promise<boolean> {
+    async readCallHistory(sessionId: string, signal: AbortSignal): Promise<boolean | null> {
       const value = await json(`/api/learning/session/history?sessionId=${encodeURIComponent(sessionId)}`, undefined, signal);
-      if (!object(value) || value.sessionId !== sessionId || typeof value.hadConnectedCall !== 'boolean') throw new Error('Invalid call history');
+      if (!object(value) || value.sessionId !== sessionId || (value.hadConnectedCall !== null && typeof value.hadConnectedCall !== 'boolean')) throw new Error('Invalid call history');
       return value.hadConnectedCall;
     },
     async reconcile(sessionId: string, intent: 'resume' | 'finalize', signal: AbortSignal): Promise<void> {

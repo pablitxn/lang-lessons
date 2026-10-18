@@ -86,11 +86,14 @@ export function durationLabel(milliseconds: number): string {
   return `${milliseconds / 1000} s`;
 }
 function UsageTime({ page }: { page: DailyProgressPage }) {
+  const usage = page.usageTime;
+  const orientative = usage.orientativeTutorMs !== undefined;
+  const label = (value: number | null | undefined) => value == null ? 'Unavailable' : durationLabel(value);
   return <><dl className="p3-daily-totals">
-    <div><dt>Written activity duration</dt><dd>{durationLabel(page.usageTime.writtenMs)}</dd></div>
-    <div><dt>Tutor connected duration</dt><dd>{durationLabel(page.usageTime.tutorConnectedMs)}</dd></div>
-    <div><dt>Combined duration (overlap counted once)</dt><dd>{durationLabel(page.usageTime.totalMs)}</dd></div>
-  </dl><p>Written activity is client-reported interaction. Tutor duration is server-observed connection. Durations are supplied by the server for the whole day, not this page.</p></>;
+    <div><dt>Written activity duration</dt><dd>{durationLabel(usage.writtenMs)}</dd></div>
+    <div><dt>{orientative ? 'Tutor duration (orientative)' : 'Tutor connected duration'}</dt><dd>{label(orientative ? usage.orientativeTutorMs : usage.tutorConnectedMs)}</dd></div>
+    <div><dt>Combined duration (overlap counted once)</dt><dd>{label(orientative ? usage.orientativeTotalMs : usage.totalMs)}</dd></div>
+  </dl><p>{orientative ? 'Tutor and combined duration are orientative client measurements, not server-verified. Missing observations are unavailable.' : 'Tutor duration is server-observed connection.'} Written activity is client-reported interaction. Durations cover the whole day, not this page.</p></>;
 }
 function AttributionZones({ page }: { page: DailyProgressPage & AttributionFields }) {
   const zones = page.attributionTimeZones;

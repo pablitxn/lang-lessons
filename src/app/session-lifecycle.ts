@@ -4,8 +4,10 @@ import type { createSessionRuntime } from './session-runtime';
 
 export interface SessionLifecyclePorts {
   /** Authoritative recovery history, never inferred from current transport state. */
-  hadConnectedCall?: boolean;
+  hadConnectedCall?: boolean | null;
   sessions: SessionCommands;
+  reconcileClose?(): Promise<void>;
+  reportCall?(segment: CallSegmentRef, intervals: readonly { start: string; end: string }[]): Promise<void>;
   progress: Pick<ProgressSink, 'flush'>;
   freezeWrites(): void;
   releasePreparation(): void;
@@ -21,6 +23,14 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
   const update = (patch: Partial<typeof snapshot>) => { snapshot = { ...snapshot, ...patch }; listeners.forEach(listener => listener()); };
   let decision: ((choice: 'cancel' | 'confirm') => void) | null = null;
   let segment: CallSegmentRef | null = null;
+  let intervals: { start: string; end: string }[] = [];
+  let connectedAt: number | null = null;
+  const observe = () => {
+    const ready = runtime.getSnapshot().state === 'ready';
+    if (segment && ready && connectedAt === null) connectedAt = Date.now();
+    if (!ready && connectedAt !== null) { intervals.push({ start: new Date(connectedAt).toISOString(), end: new Date(Math.max(connectedAt, Date.now())).toISOString() }); connectedAt = null; }
+  };
+  const unsubscribe = runtime.subscribe(observe);
   let callOperation: Promise<void> | null = null;
   let epoch = 0;
   let disposed = false;
@@ -33,7 +43,9 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
   }
   async function endSegment() {
     if (!segment) return;
+    observe();
     const ending = segment;
+    if (ports.reportCall) { try { await ports.reportCall(ending, intervals); } catch { /* Missing metrics stay unavailable; never prevent safe cleanup. */ } }
     const result = await ports.sessions.stopCall({ ...await mutation(), segment: ending });
     if (result.sessionId !== runtime.sessionId || result.status !== 'open') throw new Error('Call stop response mismatch.');
     if (segment === ending) segment = null;
@@ -48,7 +60,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         if (callOperation) await callOperation;
         if (!current()) return 'cancel';
         if (snapshot.error) throw new Error('Call lifecycle needs reconciliation.');
-        if (!ports.hadConnectedCall && !runtime.getSnapshot().hadConnectedCall) return 'confirm';
+        if (ports.hadConnectedCall !== null && !ports.hadConnectedCall && !runtime.getSnapshot().hadConnectedCall) return 'confirm';
         runtime.hold('session-exit', true);
         update({ confirming: true });
         return new Promise<'cancel' | 'confirm'>(resolve => { decision = resolve; });
@@ -60,6 +72,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
       // Stop media only after confirmation. Finish lifecycle writes before reading the close revision.
       runtime.pause();
       await endSegment();
+      await ports.reconcileClose?.();
       return ports.progress.flush();
     } },
     sessions: {
@@ -98,7 +111,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         const result = await ports.sessions.startCall(await mutation());
         if (result.session.sessionId !== runtime.sessionId || result.segment.sessionId !== runtime.sessionId
           || result.session.status !== 'open') throw new Error('Call start response mismatch.');
-        segment = result.segment;
+        segment = result.segment; intervals = []; connectedAt = null;
         if (!current()) return;
         if (token !== epoch) { await endSegment(); return; }
         try { await runtime.start(segment); }
@@ -133,7 +146,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
       return requestExit(exitTarget);
     },
     activate() { disposed = false; },
-    dispose() { disposed = true; epoch++; decision?.('cancel'); decision = null; runtime.stop(); listeners.clear(); },
+    dispose() { disposed = true; unsubscribe(); epoch++; decision?.('cancel'); decision = null; runtime.stop(); listeners.clear(); },
   };
 }
 export type SessionLifecycle = ReturnType<typeof createSessionLifecycle>;

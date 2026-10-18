@@ -69,6 +69,10 @@ test('professor daily pages preserve independent cursors, server policy and requ
       await region.getByRole('alert').waitFor(); await region.getByRole('button', { name: 'Try again', exact: true }).click();
       await region.getByText(scenario === 'error' ? '2026-10-18' : 'first-student history first', { exact: true }).waitFor();
     }
+    await open('orientative-missing'); await select(); await daily.getByText('Tutor duration (orientative)', { exact: true }).waitFor();
+    assert.equal(await daily.getByText('Unavailable', { exact: true }).count(), 2);
+    await daily.getByText('Tutor and combined duration are orientative client measurements, not server-verified.', { exact: false }).waitFor();
+    await open('orientative'); await select(); await daily.getByText('20 s', { exact: true }).waitFor();
     await open('loading'); await select(); await daily.getByRole('status').filter({ hasText: 'Loading' }).waitFor();
     await daily.getByText('2026-10-18', { exact: true }).waitFor();
     await open('empty'); await select(); await daily.getByText('No written results for this page.').waitFor(); await history.getByText('No session comments found.').waitFor();

@@ -21,6 +21,7 @@ export function SessionRecovery({ recovery, exitTarget }: { recovery: RecoveryCo
     {state.error && <p role="alert">{state.error}</p>}
     {!state.record && <p role="status">{state.busy ? 'Checking your saved session…' : 'Check for your saved session.'}</p>}
     {state.record?.session.status === 'open' && <>
+      {state.record.hadConnectedCall === null && <p>Previous call observations are unavailable. Finalizing will clean up the call and may have insufficient evidence for a tutor comment.</p>}
       <p>Your previous session is still open. Resume it, or finalize it after saving pending progress.</p>
       <button type="button" disabled={state.busy} onClick={() => { void recovery.resume(); }}>Resume session</button>
       <button ref={finalizeButton} type="button" disabled={state.busy} onClick={() => { void recovery.finalize(exitTarget); }}>Finalize session</button>

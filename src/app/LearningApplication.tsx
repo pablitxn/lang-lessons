@@ -32,6 +32,8 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
   const currentActor = useRef<string | null>(null); currentActor.current = user?.id ?? null;
   const services = useMemo<PersistedSessionServices | undefined>(() => user ? {
     actorId: user.id, commands: client.commands,
+    reconcileClose: sessionId => client.recovery.reconcile(sessionId, 'finalize', new AbortController().signal).then(() => {}),
+    reportCall: async (segment, intervals) => { await client.json('/api/learning/usage/client-call', { segment, intervals }, AbortSignal.timeout(5000)); },
     progress: (sessionId, mode) => {
       const send = createIssuedProgressSender({ issue: client.issue, send: client.send });
       return progressFactory ? progressFactory(user.id, sessionId, send) : createBrowserProgressBinding({

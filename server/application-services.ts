@@ -1,3 +1,4 @@
+import { createClientCallTime } from './data/client-call-time';
 import type { Pool } from 'pg';
 import { createAuthAdapter, type LoginPolicy } from './auth/better-auth';
 import { approvedAccountAccess } from './accounts/approved-policy';
@@ -28,7 +29,8 @@ export function createApplicationServices(config: {
     ...(role === 'professor' ? ['students:feedback:read'] : []),
   ] };
   // Structured incremental written results are approved. No call eligibility is guessed.
-  const data: DataPolicy = { allowStructuredStorage: true, access, evaluateClose: createCloseEvaluator({
+  const data: DataPolicy = { allowStructuredStorage: true, access, allowUnknownCallHistory: true, evaluateClose: createCloseEvaluator({
+    allowUnknown: true,
     async guardBroker(client, { sessionId }) {
       const unresolved = await client.query("SELECT 1 FROM learning_broker_receipts WHERE session_id=$1 AND state IN ('reserved','created') LIMIT 1", [sessionId]);
       if (unresolved.rowCount) throw new RepositoryError('conflict');
@@ -38,6 +40,7 @@ export function createApplicationServices(config: {
   }) };
   const auth = createAuthAdapter({ pool: config.pool, origin: config.origin, secret: config.secret, policy: config.login });
   return {
+    clientCallTime: createClientCallTime(config.pool, access),
     feedback: createCanonicalFeedbackService(config.pool, config.feedbackTelemetry ? { telemetry: config.feedbackTelemetry } : {}),
     reconcile: createBrokerRecovery({ pool: config.pool, access, ...(config.terminateProviderCall ? { terminate: config.terminateProviderCall } : {}) }),
     brokerAuthority: createBrokerAuthority({ pool: config.pool, auth, access, origin: config.origin, allowRequest: config.allowRequest }),
@@ -46,7 +49,7 @@ export function createApplicationServices(config: {
     timeZone: identity => createStudentTimeZoneRepository(config.pool, identity),
     accounts: createAccountRepository(config.pool, access, { allowStudentFeedback: true }),
     management: createUserManagementRepository(config.pool),
-    daily: createDailyProgressRepository(config.pool, { eventAttribution: 'server-received' }, { allowStudentFeedback: true }),
+    daily: createDailyProgressRepository(config.pool, { eventAttribution: 'server-received', clientCallTime: true }, { allowStudentFeedback: true }),
     learning: identity => createLearningRepository(config.pool, identity, data),
     usage: identity => createUsageRepository(config.pool, identity, data),
     recovery: identity => createRecoveryRepository(config.pool, identity, data),

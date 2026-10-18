@@ -13,7 +13,7 @@ export interface TutorObservation { schemaVersion: 1; segment: CallSegmentRef; e
 export interface UsageReceipt { eventId: string; sequence: number; intervalId: string | null; observedAt: string; status: 'recorded' | 'duplicate' }
 export interface UsageSummary {
   writtenMs: number; tutorConnectedMs: number; totalMs: number;
-  writtenTrust: 'client-reported-interaction'; tutorTrust: 'server-observed-connection';
+  orientativeTutorMs?: number | null; orientativeTotalMs?: number | null; writtenTrust: 'client-reported-interaction'; tutorTrust: 'server-observed-connection';
 }
 export interface UsagePorts {
   /** Test-only clock injection; production uses the database clock after acquiring the session lock. */

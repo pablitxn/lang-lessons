@@ -249,3 +249,17 @@ test('exit does not wait for a browser permission prompt that ignores abort', as
   release(); await tick(); assert.equal(f.runtime.getSnapshot().hadConnectedCall, false);
   f.lifecycle.dispose();
 });
+
+test('direct WebRTC reports orientative intervals and awaits cleanup before close; unknown history still asks confirmation', async () => {
+  const f = fixture(); const order: string[] = []; const reports: any[] = [];
+  const lifecycle = createSessionLifecycle(f.runtime, {
+    sessions: { ...f.sessions, async confirmClose(input) { order.push('close'); return f.sessions.confirmClose(input); } }, hadConnectedCall: null,
+    progress: { async flush() { order.push('flush'); return { sessionId: 's1', journalRevision: 0 }; } },
+    async reportCall(segment, intervals) { reports.push({ segment, intervals }); order.push('reported'); },
+    async reconcileClose() { order.push('cleanup'); }, freezeWrites() {}, releasePreparation() {}, operationId: () => crypto.randomUUID(), isCurrent: () => true, navigate() {},
+  });
+  await lifecycle.start(); await lifecycle.stop();
+  assert.equal(reports.length, 1); assert.equal(reports[0].intervals.length, 1); assert.equal(reports[0].segment.sessionId, 's1');
+  const exit = lifecycle.requestExit('home'); await tick(); assert.equal(lifecycle.getSnapshot().confirming, true);
+  lifecycle.decide('confirm'); await exit; assert.deepEqual(order, ['reported','cleanup','flush','close']); lifecycle.dispose(); f.lifecycle.dispose();
+});

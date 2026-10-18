@@ -43,3 +43,11 @@ test('student timezone client preserves explicit missing state and idempotent up
   const stale = createApplicationClient(async () => Response.json({ error: 'conflict' }, { status: 409 }));
   assert.deepEqual(await stale.timeZone.set(input, signal), { status: 'conflict' });
 });
+
+test('daily client preserves unavailable orientative time and rejects negative estimates', async () => {
+  const value = { ...day, usageTime: { ...day.usageTime, orientativeTutorMs: null, orientativeTotalMs: null } };
+  const client = createApplicationClient(async () => Response.json(value));
+  assert.deepEqual(await client.professor.readDaily('student', { day: day.day }, signal), { status: 'ok', value });
+  const invalid = createApplicationClient(async () => Response.json({ ...value, usageTime: { ...value.usageTime, orientativeTutorMs: -1 } }));
+  await assert.rejects(invalid.professor.readDaily('student', { day: day.day }, signal));
+});

@@ -9,6 +9,7 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  clientCallTime?: ReturnType<typeof import('./data/client-call-time').createClientCallTime>;
   timeZone?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./accounts/student-timezone').createStudentTimeZoneRepository>;
   feedback?: Pick<ReturnType<typeof import('./feedback/service').createFeedbackService>, 'afterConfirmedClose' | 'afterManualRetry'>;
   reconcile?: (identity: AuthenticatedIdentity, input: unknown) => Promise<{ sessionId: string; status: 'reconciled' }>;
@@ -75,6 +76,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.
       const body = await readBoundedJson(request);
+      if (url.pathname === '/api/learning/usage/client-call' && services.clientCallTime) return reply(200, await services.clientCallTime(identity, body));
       if (url.pathname === '/api/learning/time-zone' && services.timeZone) return reply(200, await services.timeZone(identity).set(body as never));
       if (url.pathname === '/api/learning/session/reconcile' && services.reconcile) return reply(200, await services.reconcile(identity, body));
       if (url.pathname === '/api/learning/users/create' && services.management) return reply(200, await services.management.create(identity, body as never));

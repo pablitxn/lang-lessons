@@ -23,7 +23,7 @@ export function createP2RecoveryAdapter(ports: {
   isCurrent(): boolean;
   client: P2RecoveryClient;
   /** Required: P2's activeSegments alone cannot prove that an earlier call never connected. */
-  readCallHistory(sessionId: string, signal: AbortSignal): Promise<boolean>;
+  readCallHistory(sessionId: string, signal: AbortSignal): Promise<boolean | null>;
 }) {
   const identity = { ...ports.identity };
   let saved: RecoveryRecord | null = null;
@@ -40,10 +40,10 @@ export function createP2RecoveryAdapter(ports: {
     if (disposed || request.accountId !== identity.accountId || request.sessionId !== identity.sessionId) throw new Error('Recovery account/session is no longer current.');
     if (!signals.has(signal)) { signals.add(signal); signal.addEventListener('abort', dispose, { once: true }); }
   }
-  function decode(snapshot: P2RecoverySnapshot, hadConnectedCall: boolean): RecoveryRecord {
+  function decode(snapshot: P2RecoverySnapshot, hadConnectedCall: boolean | null): RecoveryRecord {
     if (snapshot.session.sessionId !== identity.sessionId || snapshot.progress.sessionId !== identity.sessionId
       || snapshot.activeSegments.some(segment => segment.sessionId !== identity.sessionId)
-      || typeof hadConnectedCall !== 'boolean') throw new Error('Recovery response scope mismatch.');
+      || (hadConnectedCall !== null && typeof hadConnectedCall !== 'boolean')) throw new Error('Recovery response scope mismatch.');
     return { ...identity, session: { ...snapshot.session }, hadConnectedCall,
       progress: { ...snapshot.progress }, activeSegments: snapshot.activeSegments.map(segment => ({ ...segment })),
       feedback: snapshot.feedback?.state ?? 'not-requested', feedbackJob: snapshot.feedback ? { ...snapshot.feedback } : null };

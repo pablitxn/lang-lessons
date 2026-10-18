@@ -57,6 +57,7 @@ test('production entry binds authenticated account, canonical identities and Ind
         case '/api/me': response = { id: 'canonical-student', role: 'student', capabilities: { granted: ['practice:own'] } }; break;
         case '/api/learning/session/create': creates++; response = session; break;
         case '/api/learning/session': response = session; break;
+        case '/api/learning/session/reconcile': response = { sessionId: session.sessionId, status: 'reconciled' }; break;
         case '/api/learning/usage/open': response = { streamId: 'canonical-http-stream' }; break;
         case '/api/learning/usage/written': observations.push(body.kind); response = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
         case '/api/learning/instance/issue': response = { sessionId: session.sessionId, exerciseId: 'canonical-http-exercise', generation: 0 }; break;
@@ -126,6 +127,8 @@ test('shipped root requires account service and confirmed connected exit waits f
     progress(); await closing; assert.equal(await field.inputValue(), 'be');
     close(); await page.getByRole('heading', { name: 'Choose a lesson' }).waitFor();
     assert.equal(transport.learningCalls.filter((path: string) => path === '/api/learning/session/confirm-close').length, 1);
+    assert.ok(transport.learningCalls.includes('/api/learning/usage/client-call'));
+    assert.ok(transport.learningCalls.indexOf('/api/learning/session/reconcile') < transport.learningCalls.indexOf('/api/learning/session/confirm-close'));
     assert.equal(transport.sessionRequests, 1); assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
     await context.close();
   } finally { await browser?.close(); if (server.exitCode === null) await new Promise<void>(resolve => { server.once('exit', () => resolve()); server.kill('SIGTERM'); }); }

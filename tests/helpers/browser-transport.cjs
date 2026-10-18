@@ -47,6 +47,7 @@ async function installBrowserTransport(context, origin, options = {}) {
           assert.equal(body.expectedRevision, row.revision); assert.equal(body.finalProgress.journalRevision, row.journal);
           row.status = 'closed'; row.revision++; result = row.close = { sessionId, operationId: body.operationId, status: 'closed', revision: row.revision, feedback: row.epoch ? 'insufficient-evidence' : 'not-requested' }; break;
         case '/api/learning/session/close': result = row.close; break;
+        case '/api/learning/usage/client-call': assert.ok(body.segment); assert.ok(Array.isArray(body.intervals)); result = { status: 'recorded' }; break;
         case '/api/learning/usage/open': assert.ok(row); result = { streamId: `fixture-stream-${++sequence}` }; break;
         case '/api/learning/usage/written': result = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
         case '/api/learning/failed-feedback': result = { items: [], nextCursor: null }; break;
