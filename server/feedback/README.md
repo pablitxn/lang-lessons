@@ -96,3 +96,53 @@ metadata-only payload, exporter failure isolation and sanitized failure events.
 Earlier exact-head evidence remains in PR13 history at
 `16147d1226254c5a3ea5188bacf7ad2a70dd2245`; this amendment supersedes only its
 blanket transcript restriction and adds the telemetry linkage seam.
+
+## PR19 completion handoff
+
+Inspected checkpoint `1f1583bd6fafe381e70d723a25c0dd35e31feb29`, its
+`docs/oct18-completion-checkpoint.md`, latest P1 ADR, unchanged feedback contract
+and P2 feedback/recovery repository. This additive continuation changes P6 files
+only; it does not merge the aggregate checkpoint into the producer branch.
+The earlier missing policy/insufficient-adapter notes above describe prior pins.
+P2 now supplies `recordInsufficient`; P6 supplies the concrete policy and service.
+
+- `createFeedbackPolicy(reader, { maxCommentCharacters? })` uses provenance
+  `structured-session-feedback-v1` and a reversible 240-character output bound.
+  The ephemeral `ClosedFeedbackEvidence` DTO contains the current job claim,
+  canonical closed session, `closedRevision`, qualified segment refs and
+  allowlisted structured observations. `closedRevision` binds the projection
+  to the lifecycle close revision; it is NOT a progress journal revision.
+- The injected reader must atomically verify current running claim/token,
+  session/ownership, close revision and authoritative qualified connection
+  evidence. A browser-ready event or SDP creation is not qualification. Return
+  null for missing/stale/unavailable evidence. Do not copy raw Phoenix traces,
+  transcripts, audio, credentials or arbitrary provider bodies into this DTO.
+- Observations identify session, qualifying segment and processed activity/outcome.
+  Written forms/translations/tense stay distinct from oral meaning/sentences.
+  No pronunciation verdict is supported. This projection describes recorded
+  outcomes, not a newly authoritative assessment. Unknown/extra fields,
+  cross-session/segment rows, stale claims, open sessions and empty evidence
+  produce insufficient-evidence with zero generation calls.
+- The policy derives short candidate comments from the observed activity/outcome
+  combinations across the supplied segments. `createFeedbackGenerationClient`
+  passes the immutable snapshot and a constrained selection instruction to an
+  injected generator. `accepts` admits only grounded candidate wording; it does
+  not claim regex-based semantic validation of arbitrary model prose. Uncertain
+  observations remain uncertain, with no fabricated grade or acoustic claim.
+- Root constructs `createFeedbackService({ repository, reader, client, telemetry })`
+  with P2's fenced repository. After an authorized durable close/job insertion,
+  call `afterConfirmedClose(jobId)`. After an authorized explicit retry commits
+  through P2's recovery transaction, call `afterManualRetry(jobId)`. The service
+  does not requeue, schedule, poll or own HTTP routes. Root passes canonical job
+  IDs only; neither method is a public browser authorization boundary. There is
+  no stop/cancel entry. Claiming a non-pending/absent job makes no model request.
+- Existing scoped Phoenix outcome telemetry is reused with injected fixtures.
+  Retention/deletion and actual Phoenix transport remain separately owned; there
+  is no live generation/export or new durable evidence table in this producer.
+
+Completion verification: 18 targeted P6 tests pass (including multi-segment,
+missing/stale evidence, grades/pronunciation rejection, manual retry, fencing and
+trace payloads); full repository check passes with 237 Node passes, three optional
+skips and 26 Python tests, strict TypeScript and build. The build warning remains.
+These are tests on the isolated producer tree, not a claim about a newly combined
+PR19 candidate. The integrator must bind the reader and run aggregate validation.
