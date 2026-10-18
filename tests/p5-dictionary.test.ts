@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import { createVerbSession } from '../src/features/verbs/session';
 import { VerbFixtureAdapter } from '../src/features/verbs/__fixtures__/adapter';
 import { FakeClock } from './helpers/assessment-fixtures';
+import { createRealtimeVoiceAdapter } from '../src/voice';
 import { createPicturePreload } from '../src/features/verbs/picture-preload';
 
 const flush = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
-test('Pictures completion waits for all gates then retains card until identity-guarded Next', async () => {
+test('Pictures card depends on written gates while oral completion remains independent', async () => {
   const voice = new VerbFixtureAdapter('s', true);
   const clock = new FakeClock(); const completed: string[] = [];
   let draws = 0;
@@ -30,7 +31,8 @@ test('Pictures completion waits for all gates then retains card until identity-g
   assert.equal(context.mode !== 'sentence' && context.verb.image.src, nextPhoto?.src);
   assert.equal(session.getSnapshot().pictureComplete, false);
   session.previous(); assert.equal(session.getSnapshot().assessment.evidence.meaning, undefined);
-  assert.equal(session.getSnapshot().pictureComplete, false);
+  assert.equal(session.getSnapshot().pictureComplete, true);
+  assert.equal(session.getSnapshot().assessment.completed, false);
   session.dispose();
 });
 test('preload bounds Image allocations, replaces queued work, ignores stale success and tolerates failure/disposal', async () => {
@@ -49,4 +51,40 @@ test('preload bounds Image allocations, replaces queued work, ignores stale succ
   preload.setNext({ key: 'e', src: '/images/verbs/go-2.jpg' });
   preload.dispose(); jobs[2]!.resolve(); await flush();
   assert.equal(allocated.length, 3); assert.deepEqual(ready, []);
+});
+
+test('offline Pictures reveals the card after three written forms without audio and invalidates it on edit', () => {
+  const clock = new FakeClock(); const completed: string[] = [];
+  const session = createVerbSession({ voice: createRealtimeVoiceAdapter(), clock, mode: 'verb-image', sessionId: 'offline-picture',
+    random: () => 0, onComplete: id => completed.push(id) });
+  const original = session.getSnapshot().assessment;
+  assert.equal(original.interaction.connection, 'offline');
+  for (const [form, value] of [['base', 'be'], ['past', 'was']] as const) {
+    session.edit(form, value); session.finalize(form, value);
+    assert.equal(session.getSnapshot().pictureComplete, false);
+    assert.equal(session.nextPicture(original.exerciseId), false);
+  }
+  session.edit('participle', 'ben'); session.finalize('participle', 'ben');
+  assert.equal(session.getSnapshot().pictureComplete, false);
+  session.edit('participle', 'been'); session.finalize('participle', 'been');
+  assert.equal(session.getSnapshot().pictureComplete, true);
+  assert.equal(session.getSnapshot().assessment.completed, false);
+  assert.equal(session.getSnapshot().assessment.evidence.meaning, undefined);
+  assert.ok(Object.keys(session.getSnapshot().assessment.evidence).every(key => key.startsWith('spelling:')));
+  clock.advance(20000);
+  assert.deepEqual(completed, []); assert.equal(session.getSnapshot().assessment.exerciseId, original.exerciseId);
+  session.edit('past', 'wer');
+  assert.equal(session.getSnapshot().pictureComplete, false);
+  assert.equal(session.nextPicture(original.exerciseId), false);
+  session.finalize('past', 'wer'); assert.equal(session.getSnapshot().pictureComplete, false);
+  session.edit('past', 'were'); session.finalize('past', 'were');
+  assert.equal(session.getSnapshot().pictureComplete, true);
+  assert.equal(session.nextPicture(original.exerciseId), true);
+  assert.equal(session.nextPicture(original.exerciseId), false);
+  assert.deepEqual(completed, []);
+  assert.equal(session.getSnapshot().pictureComplete, false);
+  session.previous(); assert.equal(session.getSnapshot().pictureComplete, true);
+  assert.equal(session.getSnapshot().assessment.completed, false);
+  assert.equal(session.getSnapshot().assessment.evidence.meaning, undefined);
+  session.dispose();
 });

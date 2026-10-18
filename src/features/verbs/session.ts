@@ -2,7 +2,7 @@ import { createAssessmentProgress } from '../progress/assessment-progress';
 import type { ProgressSink } from '../../contracts';
 import { assessSpelling, createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot } from '../../assessment';
 import { VERB_PHOTOS, VERBS } from '../../content';
-import { isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
+import { hasValidEvidenceSource, isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
 
 export interface VerbSessionSnapshot {
   assessment: AssessmentSnapshot;
@@ -158,11 +158,23 @@ export function createVerbSession(options: VerbSessionOptions) {
     if (disposed || historyIndex === 0) return false;
     return visit(historyIndex - 1);
   }
+  // Dictionary presentation is written-only; it must not alter the oral completion ledger.
+  function pictureWrittenComplete() {
+    if (mode !== 'verb-image') return false;
+    const snapshot = controller.getSnapshot();
+    return fields.every(form => {
+      const obligation = `spelling:${form}` as const;
+      const record = snapshot.evidence[obligation];
+      return record?.status === 'accepted' && record.ref.obligation === obligation
+        && sameExercise(snapshot, record.ref) && record.source !== undefined
+        && hasValidEvidenceSource({ ref: record.ref, source: record.source }, voice.mode === 'mock');
+    });
+  }
   function publish() {
     if (disposed || !initialized) return;
     if (options.canWrite?.() !== false) reportProgress(controller.getSnapshot().evidence, controller.getSnapshot().exerciseId);
     view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted, canGoBack: historyIndex > 0,
-      pictureComplete: mode === 'verb-image' && controller.getSnapshot().completed,
+      pictureComplete: pictureWrittenComplete(),
       nextPicture: mode === 'verb-image' && history[historyIndex + 1] ? { key: `${namespace}:${generation}:${historyIndex + 1}`, src: history[historyIndex + 1]!.verb.image.src } : null };
     for (const listener of listeners) listener();
   }
@@ -314,7 +326,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     finalize,
     nextPicture(expectedExerciseId: string) {
       if (disposed || mode !== 'verb-image' || controller.getSnapshot().exerciseId !== expectedExerciseId
-        || !controller.getSnapshot().completed) return false;
+        || !pictureWrittenComplete()) return false;
       return startNext();
     },
     // Explicit history navigation never reports completion.
