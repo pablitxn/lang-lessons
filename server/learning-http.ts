@@ -101,6 +101,9 @@ export function learningNodeBridge(services: LearningHttpServices | null, fallba
   return async (request: IncomingMessage, response: ServerResponse): Promise<boolean> => {
     const url = new URL(request.url ?? '/', services?.origin ?? fallbackOrigin);
     if (!owns(url.pathname) && !(services && url.pathname.startsWith('/api/realtime/'))) return false;
+    // Hand the original stream to the authenticated broker. Wrapping it in a
+    // Web Request here would consume bytes before the broker reads its JSON.
+    if (services?.brokerAuthority && url.pathname.startsWith('/api/realtime/')) return false;
     try {
       const headers = new Headers();
       for (const [key, value] of Object.entries(request.headers)) if (value) headers.set(key, Array.isArray(value) ? value.join(', ') : value);

@@ -30,10 +30,15 @@ export function StudentApplication({ services, client, renderLesson }: {
       } finally { await Promise.all([progress.close(), usage.close()]); }
     },
     controller(sessionId) {
+      const resumeAbort = new AbortController();
       const identity = { accountId: services.actorId, sessionId };
       const adapter = createP2RecoveryAdapter({ identity, isCurrent: () => current.current, client: client.recovery, readCallHistory: client.recovery.readCallHistory });
       return createSessionRecovery({ identity, isCurrent: () => current.current,
-        subscribeInvalidation(listener) { invalidations.current.add(listener); return () => { invalidations.current.delete(listener); adapter.dispose(); }; },
+        subscribeInvalidation(listener) {
+          const invalidate = () => { resumeAbort.abort(); listener(); };
+          invalidations.current.add(invalidate);
+          return () => { resumeAbort.abort(); invalidations.current.delete(invalidate); adapter.dispose(); };
+        },
         read: adapter.read, retryFeedback: adapter.retryFeedback, operationId: () => crypto.randomUUID(),
         async preparePractice(record, signal) {
           const progress = await services.progress(sessionId);
@@ -48,8 +53,8 @@ export function StudentApplication({ services, client, renderLesson }: {
             isCurrent: () => current.current && !signal.aborted, operationId: () => crypto.randomUUID(), navigate: () => {} });
           return { lifecycle, release() { progress.dispose?.(); runtime.stop(); } };
         },
-        async resume(record) { await client.recovery.reconcile(sessionId, 'resume', new AbortController().signal);
-          if (!current.current) throw new Error('Recovery account changed');
+        async resume(record) { await client.recovery.reconcile(sessionId, 'resume', resumeAbort.signal);
+          if (!current.current || resumeAbort.signal.aborted) throw new Error('Recovery account changed');
           setResumed(record); window.location.hash = modeHref(record.session.mode); },
       });
     },

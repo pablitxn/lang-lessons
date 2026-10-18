@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { migrateLearningDatabase } from '../server/data/migrations';
+import { learningNodeBridge, type LearningHttpServices } from '../server/learning-http';
 import { createBrokerRecovery } from '../server/broker/recovery';
 import { createBrokerAuthority } from '../server/broker/authority';
 import { createRealtimeServer } from '../server/realtime';
@@ -37,7 +38,7 @@ test('authenticated broker binds canonical segments and durable release receipts
         : new Response('v=0\r\ns=synthetic-answer\r\n', { status: 201, headers: { location: '/v1/realtime/calls/fixture-call-id' } });
     };
     async function launch() {
-      const server = createRealtimeServer({ enabled: true, apiKey: 'synthetic-no-network', model: 'fixture', allowedOrigins: [origin], maxDurationSeconds: 600 }, provider, undefined, undefined, authority);
+      const server = createRealtimeServer({ enabled: true, apiKey: 'synthetic-no-network', model: 'fixture', allowedOrigins: [origin], maxDurationSeconds: 600 }, provider, undefined, learningNodeBridge({ origin, brokerAuthority: authority } as LearningHttpServices, origin), authority);
       servers.push(server); server.listen(0, '127.0.0.1'); await once(server, 'listening');
       const address = server.address(); assert.ok(address && typeof address !== 'string'); return `http://127.0.0.1:${address.port}`;
     }

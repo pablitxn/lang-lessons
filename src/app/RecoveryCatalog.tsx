@@ -19,12 +19,15 @@ export function RecoveryCatalog({ ports }: { ports: RecoveryCatalogPorts }) {
   const [busy, setBusy] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    const abort = new AbortController(); setBusy(true); setFailed(false);
-    void Promise.all([ports.list(null, abort.signal), ports.pending(abort.signal)]).then(([page, local]) => {
+    const abort = new AbortController(); pagination.current?.abort(); setBusy(true); setFailed(false); setLoaded(false); setSessions([]); setCursor(null);
+    void Promise.allSettled([ports.list(null, abort.signal), ports.pending(abort.signal)]).then(([server, device]) => {
       if (abort.signal.aborted) return;
-      setSessions([...new Set([...page.items.map(item => item.sessionId), ...local])]);
-      setCursor(page.nextCursor); setLoaded(true);
-    }).catch(() => { if (!abort.signal.aborted) setFailed(true); })
+      const page = server.status === 'fulfilled' ? server.value : null;
+      const local = device.status === 'fulfilled' ? device.value : [];
+      setSessions([...new Set([...(page?.items.map(item => item.sessionId) ?? []), ...local])]);
+      setCursor(page?.nextCursor ?? null); setLoaded(true);
+      setFailed(server.status === 'rejected' || device.status === 'rejected');
+    })
       .finally(() => { if (!abort.signal.aborted) setBusy(false); });
     return () => abort.abort();
   }, [ports, attempt]);
@@ -42,7 +45,7 @@ export function RecoveryCatalog({ ports }: { ports: RecoveryCatalogPorts }) {
   return <section aria-label="Saved practice"><h2>Saved practice</h2>
     {busy && <p role="status">Checking saved practice…</p>}
     {failed && <p role="alert">Saved practice could not be loaded. Pending work on this device has not been discarded.</p>}
-    {loaded && sessions.length === 0 && <p>No unfinished sessions or pending device results found.</p>}
+    {loaded && !failed && sessions.length === 0 && <p>No unfinished sessions or pending device results found.</p>}
     {sessions.map(sessionId => <RecoveryEntry key={sessionId} sessionId={sessionId} ports={ports} />)}
     {cursor && <button disabled={busy} onClick={() => { void more(); }}>More saved sessions</button>}
     <button disabled={busy} onClick={() => setAttempt(value => value + 1)}>Refresh saved practice</button>

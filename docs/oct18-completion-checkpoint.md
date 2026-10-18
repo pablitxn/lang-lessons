@@ -33,3 +33,9 @@ These are technical implementation dependencies, not requests for new broad prod
 - Logs, including the earlier corrected TypeScript failure, are preserved in `/workspace/integration-oct18-completion/`.
 
 Requested routing was gpt-6-astra / medium. The executing environment does not expose verifiable model/effort metadata, so actual routing is unverified.
+
+## Root follow-up after publishing PR19
+
+Independent testing of the composed Node bridge exposed request-body consumption before broker dispatch. The authenticated realtime path now hands the original stream directly to the broker, preserving its authorization and JSON validation. The PostgreSQL broker test now includes the actual Node bridge; broker/HTTP suites pass 20/20. The original failing log is retained.
+
+Recovery discovery now retains candidates from whichever of server discovery or local journals succeeds, deduplicates overlaps, and cancels pagination on unmount. Resume reconciliation is aborted on account/controller disposal. A Chromium regression for partial discovery and pagination cleanup passes; TypeScript and build pass. Published review head remains `1f1583bd6fafe381e70d723a25c0dd35e31feb29` until the next aggregate candidate is explicitly published.
