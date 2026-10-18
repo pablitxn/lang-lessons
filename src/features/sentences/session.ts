@@ -1,3 +1,5 @@
+import { createAssessmentProgress } from '../progress/assessment-progress';
+import type { ProgressSink } from '../../contracts';
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
 import { SENTENCES } from '../../content';
 import { guardTranslationHint, guardTranslationFeedback } from '../../assessment/coaching-policy';
@@ -36,6 +38,10 @@ export interface SentenceSessionOptions {
   difficulty: Difficulty;
   tense?: SentenceTenseSelection;
   onComplete: (exerciseId: string) => void;
+  progressSink?: ProgressSink;
+  /** Root supplies a stable gate for its ordered close preparation. */
+  canWrite?: () => boolean;
+  onProgressError?: () => void;
   clock?: AssessmentClock;
   connectionState?: VoiceState;
   microphoneMuted?: boolean;
@@ -79,6 +85,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   let utterances = new Set<string>();
   let view: SentenceLessonSnapshot;
   const listeners = new Set<() => void>();
+  const reportProgress = createAssessmentProgress(options.progressSink, () => { if (!disposed) options.onProgressError?.(); });
   const identityPrefix = `sentence-${globalThis.crypto.randomUUID()}`;
   const first = pick(matchingSentences(requestedDifficulty, sentences, requestedTense), undefined, random);
   function context(sentence: SentenceEntry): ExerciseContext {
@@ -88,12 +95,14 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   let controller: AssessmentController;
   function publish() {
     if (disposed) return;
+    if (options.canWrite?.() !== false) reportProgress(controller.getSnapshot().evidence, controller.getSnapshot().exerciseId);
     view = Object.freeze({ assessment: controller.getSnapshot(), requestedDifficulty: { ...requestedDifficulty },
       requestedTense, nextPoolSize: matchingSentences(requestedDifficulty, sentences, requestedTense).length, lastResponse, notice, muted,
       hintLevel, hintOrigin, coachText });
     for (const listener of listeners) listener();
   }
   function startNext(): boolean {
+    if (disposed || options.canWrite?.() === false) return false;
     const pool = matchingSentences(requestedDifficulty, sentences, requestedTense);
     if (!pool.length) { notice = 'No authored prompt matches the selected difficulty and tense. Change either in Preferences.'; publish(); return false; }
     const current = controller.getSnapshot().context;
@@ -154,6 +163,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   }
   function receive(event: VoiceEvent) {
     if (disposed || event.sessionId !== options.sessionId) return;
+    if (options.canWrite?.() === false && (event.type === 'assessment' || event.type === 'transcript')) return;
     const before = controller.getSnapshot();
     if (event.type === 'transcript') {
       if (!current(event.identity)) return;
@@ -242,7 +252,15 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       try { void voice.requestHint(request).catch(() => reportFailure(identity)); } catch { reportFailure(identity); }
       return true;
     },
-    reviseTranslation() { if (!disposed) { notice = 'Say your revised translation. Its explanation will be assessed again.'; lastResponse = ''; controller.invalidate('translation'); } },
+    reviseTranslation() {
+      if (disposed || options.canWrite?.() === false) return;
+      notice = 'Say your revised translation. Its explanation will be assessed again.'; lastResponse = '';
+      // Allocate real controller refs before translation reset removes dependent evidence.
+      for (const obligation of ['tense', 'structure', 'meaning-fit'] as const) {
+        if (controller.getSnapshot().evidence[obligation]) controller.invalidate(obligation);
+      }
+      controller.invalidate('translation');
+    },
     next() {
       if (disposed) return false;
       const snapshot = controller.getSnapshot();
