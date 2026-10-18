@@ -15,7 +15,8 @@ export interface PersistedSessionServices {
   progress(sessionId: string): SessionProgressBinding | Promise<SessionProgressBinding>;
 }
 /** Root creates canonical sessions before mounting any producer. Stable operation ID survives explicit retry. */
-export function PersistedLesson({ mode, services, ...props }: {
+export function PersistedLesson({ mode, services, resumedSession, ...props }: {
+  resumedSession?: import('./session-recovery').RecoveryRecord;
   mode: LessonMode; services: PersistedSessionServices; settings: LearnerSettings; preferencesOpen: boolean;
   voiceStatusTarget: HTMLElement | null; renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
 }) {
@@ -27,7 +28,10 @@ export function PersistedLesson({ mode, services, ...props }: {
   const lifetime = useRef(0);
   useEffect(() => {
     let current = true; const generation = ++lifetime.current; setFailed(false);
-    pending.current ??= services.commands.create({ mode, operationId }).then(async session => ({ session, progress: await services.progress(session.sessionId) }));
+    pending.current ??= (resumedSession ? services.commands.read(resumedSession.sessionId) : services.commands.create({ mode, operationId })).then(async session => {
+      if (session.mode !== mode || session.status !== 'open' || !session.sessionId) throw new Error('Canonical session mismatch');
+      return { session, progress: await services.progress(session.sessionId) };
+    });
     const work = pending.current;
     void work.then(({ session: value, progress }) => {
       if (value.mode !== mode || value.status !== 'open' || !value.sessionId) throw new Error('Canonical session mismatch');
@@ -36,23 +40,23 @@ export function PersistedLesson({ mode, services, ...props }: {
     return () => { current = false; queueMicrotask(() => {
       if (generation === lifetime.current) void work.then(value => value.progress.dispose?.()).catch(() => {});
     }); };
-  }, [services, mode, operationId, attempt]);
+  }, [services, mode, operationId, attempt, resumedSession]);
   if (!prepared) return failed ? <div role="alert"><p>The lesson could not be opened. Your previous work has not been discarded.</p>
     <button onClick={() => setAttempt(value => value + 1)}>Try opening lesson again</button></div> : <p role="status">Opening lesson…</p>;
-  return <BoundLesson key={prepared.session.sessionId} mode={mode} sessionId={prepared.session.sessionId} services={services} progress={prepared.progress} {...props} />;
+  return <BoundLesson key={prepared.session.sessionId} mode={mode} sessionId={prepared.session.sessionId} services={services} progress={prepared.progress} hadConnectedCall={resumedSession?.hadConnectedCall ?? false} {...props} />;
 }
-function BoundLesson({ sessionId, services, progress, renderLesson, ...props }: {
-  sessionId: string; services: PersistedSessionServices; progress: SessionProgressBinding; mode: LessonMode; settings: LearnerSettings; preferencesOpen: boolean;
+function BoundLesson({ sessionId, services, progress, hadConnectedCall, renderLesson, ...props }: {
+  sessionId: string; hadConnectedCall: boolean; services: PersistedSessionServices; progress: SessionProgressBinding; mode: LessonMode; settings: LearnerSettings; preferencesOpen: boolean;
   voiceStatusTarget: HTMLElement | null; renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
 }) {
   const register = useRootExitRegistration();
   const alive = useRef(true); const approved = useRef<string | null>(null); const cleanup = useRef<(() => void) | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
-  const lifecyclePorts = useMemo(() => ({ sessions: services.commands, progress: progress.sink,
+  const lifecyclePorts = useMemo(() => ({ hadConnectedCall, sessions: services.commands, progress: progress.sink,
     freezeWrites: progress.freezeWrites, releasePreparation: progress.releasePreparation,
     operationId: () => crypto.randomUUID(), isCurrent: () => alive.current,
     navigate: (target: string) => { approved.current = target; },
-  }), [services, progress]);
+  }), [services, progress, hadConnectedCall]);
   const registerLifecycle = useCallback((lifecycle: SessionLifecycle | null) => {
     cleanup.current?.(); cleanup.current = null;
     if (!lifecycle) return;

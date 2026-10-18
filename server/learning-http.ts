@@ -9,6 +9,7 @@ import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  reconcile?: (identity: AuthenticatedIdentity, input: unknown) => Promise<{ sessionId: string; status: 'reconciled' }>;
   brokerAuthority?: import('./broker/authority').BrokerAuthority;
   management?: ReturnType<typeof import('./accounts/management').createUserManagementRepository>;
   daily?: ReturnType<typeof import('./accounts/daily-progress').createDailyProgressRepository>;
@@ -69,6 +70,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.
       const body = await readBoundedJson(request);
+      if (url.pathname === '/api/learning/session/reconcile' && services.reconcile) return reply(200, await services.reconcile(identity, body));
       if (url.pathname === '/api/learning/users/create' && services.management) return reply(200, await services.management.create(identity, body as never));
       if (url.pathname === '/api/learning/users/update' && services.management) return reply(200, await services.management.update(identity, body as never));
       if (url.pathname === '/api/learning/usage/open' && services.usage) {

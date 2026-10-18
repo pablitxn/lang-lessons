@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
 import { once } from 'node:events';
 import { migrateLearningDatabase } from '../server/data/migrations';
+import { createBrokerRecovery } from '../server/broker/recovery';
 import { createBrokerAuthority } from '../server/broker/authority';
 import { createRealtimeServer } from '../server/realtime';
 import { createLearningRepository } from '../server/data/repository';
@@ -62,6 +63,28 @@ test('authenticated broker binds canonical segments and durable release receipts
     assert.equal(upstream.length, 2); assert.ok(upstream[1]!.endsWith('/fixture-call-id/hangup'));
     assert.equal((await post('student', '/api/realtime/session/end', { releaseToken: receipt.releaseToken })).status, 200);
     assert.equal(upstream.length, 2, 'durable ended receipt makes replay free of another provider call');
+    let terminateCalls = 0; let terminationSucceeds = false;
+    const reconcile = createBrokerRecovery({ pool, access: policy.access, terminate: async id => {
+      assert.equal(id, 'second-fixture-call'); terminateCalls++; return terminationSucceeds;
+    } });
+    await assert.rejects(reconcile({ userId: 'other' }, { sessionId: session.sessionId, intent: 'resume' }), { code: 'not-found' });
+    await reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'resume' });
+    const afterRecovery = await repo.commands.read(session.sessionId);
+    const second = await repo.commands.startCall({ sessionId: session.sessionId, operationId: 'second-start', expectedRevision: afterRecovery.revision });
+    const binding = await authority.reserve({ userId: 'student' }, second.segment, 'another-fixture-token');
+    await assert.rejects(reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'finalize' }), { code: 'conflict' });
+    assert.equal(terminateCalls, 0, 'unknown provider outcome is not treated as ended');
+    await authority.created(binding, 'second-fixture-call');
+    await assert.rejects(reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'resume' }), { code: 'conflict' });
+    assert.equal(terminateCalls, 0, 'resume does not terminate a possibly live call');
+    await assert.rejects(reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'finalize' }), { code: 'conflict' });
+    assert.equal(await authority.isEnded(binding), false, 'failed hangup cannot produce an ended receipt');
+    terminationSucceeds = true;
+    await reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'finalize' });
+    assert.equal(await authority.isEnded(binding), true);
+    await reconcile({ userId: 'student' }, { sessionId: session.sessionId, intent: 'finalize' });
+    assert.equal(terminateCalls, 2, 'explicit retry succeeds; later replay does not hang up again');
+
   } finally {
     for (const server of servers) { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); }
     await pool.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await lock.query("SELECT pg_advisory_unlock(hashtextextended('p2-disposable-fixture',0))"); lock.release(); await admin.end();

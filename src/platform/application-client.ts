@@ -1,3 +1,4 @@
+import { parsePracticeEvent } from '../foundation/progress-batch';
 import type { CurrentUser, ExerciseIdentity, ProgressBatchResult, SessionCommands, SessionSnapshot, CloseResult, CallSegmentRef } from '../contracts';
 import type { LoginApi } from '../features/accounts';
 import type { AdminUsersApi } from '../features/administration';
@@ -78,7 +79,48 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       throw error;
     }
   } };
-  const professor: ProfessorApi = {
+  const professor: ProfessorApi & {
+    readSessionPage(studentId: string, cursor: string | null, signal: AbortSignal): Promise<import('../features/accounts/access').ReadResult<{ studentId: string; sessions: import('../contracts').ResultPage<StudentSessionView> }>>;
+    readDaily(studentId: string, input: import('../contracts').DailyPageRequest, signal: AbortSignal): Promise<import('../features/accounts/access').ReadResult<import('../contracts').DailyProgressPage> | { status: 'policy-unresolved' }>;
+  } = {
+    async readSessionPage(studentId, cursor, signal) {
+      try {
+        const value = await json(`/api/learning/student-progress?studentId=${encodeURIComponent(studentId)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, undefined, signal);
+        if (!object(value) || value.studentId !== studentId || !object(value.sessions) || !Array.isArray(value.sessions.items) || value.sessions.items.length > 100
+          || !(value.sessions.nextCursor === null || id(value.sessions.nextCursor))) throw new Error('Invalid progress page');
+        for (const session of value.sessions.items) {
+          if (!object(session) || !id(session.sessionId) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)
+            || session.comment !== null && (!object(session.comment) || session.comment.sessionId !== session.sessionId || typeof session.comment.text !== 'string' || !id(session.comment.provenanceVersion))) throw new Error('Invalid session feedback');
+        }
+        return { status: 'ok', value: { studentId, sessions: { items: value.sessions.items, nextCursor: value.sessions.nextCursor } } };
+      } catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' }; throw error; }
+    },
+    async readDaily(studentId, input, signal) {
+      try {
+        const params = new URLSearchParams({ studentId, day: input.day });
+        if (input.eventCursor) params.set('eventCursor', input.eventCursor);
+        if (input.sessionCursor) params.set('sessionCursor', input.sessionCursor);
+        const value = await json(`/api/learning/daily-progress?${params}`, undefined, signal);
+        const page = (page: unknown) => object(page) && Array.isArray(page.items) && page.items.length <= 100 && (page.nextCursor === null || id(page.nextCursor));
+        if (!object(value) || value.studentId !== studentId || value.day !== input.day || typeof value.timeZone !== 'string' || value.eventAttribution !== 'server-received'
+          || !page(value.writtenEvents) || !page(value.sessions) || value.totals !== null || typeof value.hasUnattributedLegacyRecords !== 'boolean'
+          || !object(value.usageTime) || value.usageTime.writtenTrust !== 'client-reported-interaction' || value.usageTime.tutorTrust !== 'server-observed-connection'
+          || ['writtenMs','tutorConnectedMs','totalMs'].some(key => !Number.isFinite(value.usageTime[key]) || value.usageTime[key] < 0)) throw new Error('Invalid daily progress');
+        new Intl.DateTimeFormat('en', { timeZone: value.timeZone });
+        for (const row of value.writtenEvents.items) {
+          const event = object(row) ? parsePracticeEvent(row.event) : null;
+          if (!event || event.source !== 'typed' || !revision(row.committedRevision) || row.committedRevision < 1 || typeof row.receivedAt !== 'string' || !Number.isFinite(Date.parse(row.receivedAt))) throw new Error('Invalid daily event');
+        }
+        for (const row of value.sessions.items) {
+          if (!object(row) || !id(row.sessionId) || !['sentence','verb-image','verb-visible'].includes(row.mode)
+            || ![row.startedAt,row.closedAt].every(value => value === null || typeof value === 'string' && Number.isFinite(Date.parse(value)))
+            || ![null,'not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(row.feedback)
+            || row.comment !== null && (!object(row.comment) || row.comment.sessionId !== row.sessionId || typeof row.comment.text !== 'string' || !id(row.comment.provenanceVersion))) throw new Error('Invalid daily session');
+        }
+        return { status: 'ok', value: value as unknown as import('../contracts').DailyProgressPage };
+      } catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' };
+        if (error instanceof ApplicationRequestError && error.status === 503) return { status: 'policy-unresolved' }; throw error; }
+    },
     listAllStudents: (cursor, signal) => readPage('/api/learning/students', cursor, signal),
     async readProgress(studentId, signal) {
       // Preserve all pages for the current P3 array adapter. Reject oversized/cyclic data, never truncate silently.
@@ -101,7 +143,37 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       } catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' }; throw error; }
     },
   };
-  return { json, me, login, administration, management, professor, commands,
+  const recovery = {
+    async list(cursor: string | null, signal: AbortSignal) {
+      const value = await json(`/api/learning/open-sessions${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, undefined, signal);
+      if (!object(value) || !Array.isArray(value.items) || value.items.length > 100 || !(value.nextCursor === null || id(value.nextCursor))) throw new Error('Invalid recovery page');
+      return { items: value.items.map(snapshot), nextCursor: value.nextCursor as string | null };
+    },
+    async read(sessionId: string, signal: AbortSignal): Promise<import('../app/p2-recovery-adapter').P2RecoverySnapshot> {
+      const value = await json(`/api/learning/recovery?sessionId=${encodeURIComponent(sessionId)}`, undefined, signal);
+      if (!object(value) || !object(value.progress) || value.progress.sessionId !== sessionId || !revision(value.progress.journalRevision)
+        || !Array.isArray(value.activeSegments) || value.activeSegments.some((segment: unknown) => !object(segment) || segment.sessionId !== sessionId || !id(segment.segmentId) || !revision(segment.connectionEpoch) || segment.connectionEpoch < 1)) throw new Error('Invalid recovery snapshot');
+      const session = snapshot(value.session); if (session.sessionId !== sessionId) throw new Error('Recovery session mismatch');
+      if (value.feedback !== null && (!object(value.feedback) || !id(value.feedback.jobId) || !revision(value.feedback.retryRevision)
+        || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(value.feedback.state))) throw new Error('Invalid recovery feedback');
+      return { session, progress: { sessionId, journalRevision: value.progress.journalRevision }, activeSegments: value.activeSegments.map((segment: import('../contracts').CallSegmentRef) => ({ ...segment })), feedback: value.feedback };
+    },
+    async readCallHistory(sessionId: string, signal: AbortSignal): Promise<boolean> {
+      const value = await json(`/api/learning/session/history?sessionId=${encodeURIComponent(sessionId)}`, undefined, signal);
+      if (!object(value) || value.sessionId !== sessionId || typeof value.hadConnectedCall !== 'boolean') throw new Error('Invalid call history');
+      return value.hadConnectedCall;
+    },
+    async reconcile(sessionId: string, intent: 'resume' | 'finalize', signal: AbortSignal): Promise<void> {
+      const value = await json('/api/learning/session/reconcile', { sessionId, intent }, signal);
+      if (!object(value) || value.sessionId !== sessionId || value.status !== 'reconciled') throw new Error('Session transport remains active');
+    },
+    async retryFailedFeedback(input: import('../app/p2-recovery-adapter').P2RetryFeedbackRequest, signal: AbortSignal): Promise<import('../app/p2-recovery-adapter').P2RetryFeedbackResult> {
+      const value = await json('/api/learning/feedback/retry', input, signal);
+      if (!object(value) || value.sessionId !== input.sessionId || value.jobId !== input.jobId || value.state !== 'pending' || value.retryRevision !== input.expectedRetryRevision + 1) throw new Error('Invalid feedback retry receipt');
+      return { sessionId: value.sessionId, jobId: value.jobId, state: 'pending', retryRevision: value.retryRevision };
+    },
+  };
+  return { json, me, login, administration, management, professor, commands, recovery,
     async readFence(sessionId: string): Promise<import('../contracts').ProgressFence> {
       const value = await json(`/api/learning/recovery?sessionId=${encodeURIComponent(sessionId)}`);
       if (!object(value) || !object(value.progress) || value.progress.sessionId !== sessionId || !revision(value.progress.journalRevision)) throw new Error('Invalid progress fence');

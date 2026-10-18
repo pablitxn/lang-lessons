@@ -13,6 +13,12 @@ const application = await readApplicationConfiguration(process.env);
 if (application && !config.allowedOrigins.includes(application.origin)) throw new Error('Learning origin must match an explicitly allowed frontend origin.');
 const pool = application ? new Pool({ connectionString: application.databaseUrl }) : null;
 const services = application && pool ? createApplicationServices({ pool, origin: application.origin, secret: application.secret,
+  terminateProviderCall: async callId => {
+    if (!config.enabled || !config.apiKey || !/^[A-Za-z0-9_-]{1,200}$/.test(callId)) return false;
+    try { return (await fetch(`https://api.openai.com/v1/realtime/calls/${callId}/hangup`, {
+      method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, signal: AbortSignal.timeout(10000),
+    })).ok; } catch { return false; }
+  },
   login: application.login, ...(application.grouping ? { grouping: application.grouping } : {}),
   allowRequest: createApplicationLimiter(application.requestLimit) }) : null;
 const learning = learningNodeBridge(services, `http://127.0.0.1:${port}`);

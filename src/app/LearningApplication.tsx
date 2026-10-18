@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { App } from './App';
+import { StudentApplication } from './StudentApplication';
 import { createBrowserProgressBinding } from './browser-progress';
 import type { LessonRenderer } from './LessonSession';
 import type { PersistedSessionServices, SessionProgressBinding } from './PersistedLesson';
@@ -42,7 +42,7 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
   } : undefined, [user, client, progressFactory]);
   if (enabled === false) return <p role="alert">The account service is unavailable. Practice cannot open until it is configured.</p>;
   if (enabled === null) return <p role="status">Opening English practice…</p>;
-  if (user?.role === 'student' && services) return <App key={JSON.stringify(user)} renderLesson={renderLesson} sessionServices={services} />;
+  if (user?.role === 'student' && services) return <StudentApplication key={JSON.stringify(user)} renderLesson={renderLesson} services={services} client={client} />;
   return <AccountShell state={state} loginApi={client.login} onAuthenticated={next => setState({ status: 'authenticated', user: next })}>
     {user?.role === 'administrator' ? <AdminUsers key={JSON.stringify(user)} user={user} capability="users:list" api={client.administration}
       managementApi={client.management} managementCapabilities={{ create: 'users:manage', changeRole: 'users:manage', deactivate: 'users:manage', reactivate: 'users:manage' }} onAccountChanged={() => { void refresh(); }} />

@@ -44,7 +44,7 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
-/** Loopback development broker only. No auth/database/public deployment is installed. */
+/** Loopback broker; account-enabled composition supplies canonical authorization and durable receipts. */
 export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>, authority?: BrokerAuthority) {
   const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
     model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
@@ -65,6 +65,9 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     if (!current.callId) return Promise.resolve(false);
     current.closing = (async () => {
       try {
+        if (current.binding && await authority!.isEnded(current.binding)) {
+          current.ended = true; if (lease === current) lease = null; return true;
+        }
         const ended = await fetcher(`https://api.openai.com/v1/realtime/calls/${current.callId}/hangup`, {
           method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, signal: AbortSignal.timeout(10000),
         });
@@ -141,6 +144,8 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     // A new explicit start may wait for an already requested hangup, but it may
     // never bypass a current lease or automatically retry paid session creation.
     if (lease?.closing) await lease.closing;
+    try { if (lease?.binding && authority && await authority.isEnded(lease.binding)) lease = null; }
+    catch { reply(response, 503, { error: 'Previous call status could not be confirmed.' }); return; }
     if (pending || (lease && Date.now() < lease.until)) { reply(response, 429, { error: 'A local voice session is already active. Close it before opening another.' }); return; }
     pending = true;
     let disconnected = false;
@@ -182,6 +187,8 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
       created.callId = callId(upstream.headers.get('location'));
+      // Persist the provider receipt before reading a body that may fail or stall.
+      if (created.binding && created.callId) await authority!.created(created.binding, created.callId);
       const sdp = await upstream.text();
       if (disconnected) { await endSession(created); return; }
       if (sdp.length > 60000 || !sdp.startsWith('v=0') || !created.callId) {
@@ -189,7 +196,6 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
         sessionTrace?.setup('failed'); sessionTrace?.end('failed'); setupComplete = true;
         reply(response, 502, { error: 'The voice provider returned an invalid session.' }); return;
       }
-      if (created.binding) await authority!.created(created.binding, created.callId);
       sessionTrace?.setup('completed', upstream.status); setupComplete = true;
       reply(response, 200, { sdp, maxDurationSeconds: config.maxDurationSeconds,
         releaseToken: created.token, ...(sessionTrace ? { telemetryReceipt: sessionTrace.receipt } : {}) });

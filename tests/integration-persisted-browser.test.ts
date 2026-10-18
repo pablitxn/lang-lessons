@@ -61,6 +61,7 @@ test('production entry binds authenticated account, canonical identities and Ind
         case '/api/learning/usage/written': observations.push(body.kind); response = { eventId: body.eventId, sequence: body.sequence, intervalId: null, observedAt: new Date().toISOString(), status: 'recorded' }; break;
         case '/api/learning/instance/issue': response = { sessionId: session.sessionId, exerciseId: 'canonical-http-exercise', generation: 0 }; break;
         case '/api/learning/progress': events.push(...body); response = { status: 'committed', acknowledgments: body.map((event: any) => ({ eventId: event.eventId, status: 'accepted', committedRevision: ++revision })), current: { sessionId: session.sessionId, journalRevision: revision } }; break;
+        case '/api/learning/open-sessions': response = { items: [], nextCursor: null }; break;
         case '/api/learning/recovery': response = { session, progress: { sessionId: session.sessionId, journalRevision: revision }, activeSegments: [], feedback: null }; break;
         case '/api/learning/session/confirm-close': assert.equal(body.finalProgress.journalRevision, revision); assert.equal(observations.at(-1), 'hidden'); closed = true; response = { sessionId: session.sessionId, operationId: body.operationId, revision: 1, status: 'closed', feedback: 'not-requested' }; break;
         default: throw new Error(`Unexpected application request: ${url.pathname}`);

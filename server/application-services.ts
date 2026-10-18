@@ -7,6 +7,7 @@ import { createDailyProgressRepository, type DailyGroupingPolicy } from './accou
 import { createLearningRepository, type DataPolicy } from './data/repository';
 import { createUsageRepository } from './data/usage';
 import { createRecoveryRepository } from './data/recovery';
+import { createBrokerRecovery } from './broker/recovery';
 import { createBrokerAuthority } from './broker/authority';
 import { createInstanceIssuer } from './instance-issuance';
 import type { LearningHttpServices } from './learning-http';
@@ -14,6 +15,7 @@ import type { LearningHttpServices } from './learning-http';
 /** Actual composition, not fixture policies. Auth numeric values/day boundary remain explicit inputs. */
 export function createApplicationServices(config: {
   pool: Pool; origin: string; secret: string; login: LoginPolicy;
+  terminateProviderCall?: (providerCallId: string) => Promise<boolean>;
   grouping?: DailyGroupingPolicy; allowRequest(address: string): Promise<boolean>;
 }): LearningHttpServices {
   const access = { grants: (role: Parameters<typeof approvedAccountAccess.grants>[0]) => [
@@ -24,6 +26,7 @@ export function createApplicationServices(config: {
   const data: DataPolicy = { allowStructuredStorage: true, access };
   const auth = createAuthAdapter({ pool: config.pool, origin: config.origin, secret: config.secret, policy: config.login });
   return {
+    reconcile: createBrokerRecovery({ pool: config.pool, access, ...(config.terminateProviderCall ? { terminate: config.terminateProviderCall } : {}) }),
     brokerAuthority: createBrokerAuthority({ pool: config.pool, auth, access, origin: config.origin, allowRequest: config.allowRequest }),
     origin: config.origin, allowRequest: config.allowRequest,
     auth,

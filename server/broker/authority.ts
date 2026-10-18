@@ -10,6 +10,7 @@ export interface BrokerBinding { readonly identity: AuthenticatedIdentity; reado
 export interface BrokerAuthority {
   authenticate(request: IncomingMessage): Promise<AuthenticatedIdentity>;
   reserve(identity: AuthenticatedIdentity, segment: unknown, token: string): Promise<BrokerBinding>;
+  isEnded(binding: BrokerBinding): Promise<boolean>;
   created(binding: BrokerBinding, providerCallId: string): Promise<void>;
   ended(binding: BrokerBinding): Promise<void>;
   rejected(binding: BrokerBinding): Promise<void>;
@@ -59,6 +60,10 @@ export function createBrokerAuthority(options: {
         await client.query("INSERT INTO learning_broker_receipts(segment_id,session_id,user_id,epoch,token_digest,state) VALUES ($1,$2,$3,$4,$5,'reserved')", [segment.segmentId, segment.sessionId, identity.userId, segment.connectionEpoch, tokenDigest]);
         return { identity: { userId: identity.userId }, segment, tokenDigest };
       });
+    },
+    async isEnded(binding) {
+      const result = await pool.query("SELECT state FROM learning_broker_receipts WHERE token_digest=$1 AND session_id=$2 AND segment_id=$3 AND user_id=$4", [binding.tokenDigest, binding.segment.sessionId, binding.segment.segmentId, binding.identity.userId]);
+      return ['ended', 'rejected'].includes(result.rows[0]?.state);
     },
     created: (binding, callId) => change(binding, 'created', callId),
     ended: binding => change(binding, 'ended'),

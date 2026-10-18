@@ -20,9 +20,12 @@ export interface AppProps {
   /** Supplied only after the owning feature/server authorizes its data. No access grant here. */
   homeProgress?: ReactNode;
   sessionServices?: PersistedSessionServices;
+  homeContent?: ReactNode;
+  resumedSession?: import('./session-recovery').RecoveryRecord | null;
+  onHome?: () => void;
 }
 
-export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices }: AppProps) {
+export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices, homeContent, resumedSession, onHome }: AppProps) {
   const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -34,6 +37,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
   const guard = useRef<null | ((hash: string) => Promise<string | null>)>(null);
   const navigator = useRef<ReturnType<typeof createRootNavigator> | null>(null);
   const [navigationError, setNavigationError] = useState('');
+  const homeCallback = useRef(onHome); homeCallback.current = onHome;
   const registerExit = useCallback<RegisterRootExit>(handler => {
     let alive = true;
     const registered = async (hash: string) => {
@@ -47,6 +51,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
   useEffect(() => {
     const routing = createRootNavigator(window, hash => {
       setNavigationError(''); setMode(resolveLessonRoute(hash));
+      if (!resolveLessonRoute(hash)) homeCallback.current?.();
       requestAnimationFrame(() => document.getElementById('lesson')?.focus());
     }, async hash => {
       setNavigationError('');
@@ -110,7 +115,8 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
           <h1 aria-label={current.title}>{current.short}</h1>
         </div>
         <LessonToolsVisible.Provider value={false}>{sessionServices ?
-          <PersistedLesson key={`${sessionServices.actorId}:${mode}`} mode={mode} services={sessionServices} settings={settings}
+          <PersistedLesson key={`${sessionServices.actorId}:${mode}:${resumedSession?.sessionId ?? "new"}`} mode={mode} services={sessionServices}
+            {...(resumedSession?.session.mode === mode ? { resumedSession } : {})} settings={settings}
             preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget} renderLesson={renderLesson}
             fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /> :
           <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
@@ -129,6 +135,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
               <span className="lesson-card-start">Start lesson <span aria-hidden="true">↗</span></span></div>
           </a>)}
         </nav>
+        {homeContent}
         <nav className="home-tools ll-mobile" aria-label="Learning tools">
           <LessonDialog title="Progress" triggerLabel="Your progress" triggerText="Progress" triggerIcon="progress"
             closeLabel="Close progress" onHoldChange={noHold}>
