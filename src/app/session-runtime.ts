@@ -38,7 +38,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   let context: ExerciseContext | null = null;
   let abort: AbortController | null = null;
   let starting: Promise<void> | null = null;
-  let snapshot = { state: 'offline' as VoiceState, muted: true, learnerSpeaking: false, assistantSpeaking: false, error: '', contextReady: false, paused: false };
+  let snapshot = { state: 'offline' as VoiceState, muted: true, learnerSpeaking: false, assistantSpeaking: false, error: '', contextReady: false, paused: false, hadConnectedCall: false };
   const eventBase = () => ({ sessionId, eventId: `root-${++sequence}` });
   function claimUtterance(utteranceId: string) {
     submittedUtterances.add(utteranceId);
@@ -46,6 +46,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
   }
   function emit(event: VoiceEvent) {
     if (event.sessionId !== sessionId) return;
+    if (event.type === 'state' && event.state === 'ready') snapshot = { ...snapshot, hadConnectedCall: true };
     if (event.type === 'state') snapshot = { ...snapshot, state: event.state, error: event.state === 'ready' || event.state === 'connecting' ? '' : snapshot.error,
       ...(event.state === 'offline' || event.state === 'error' ? { muted: true, learnerSpeaking: false, assistantSpeaking: false } : {}) };
     if (event.type === 'microphone') snapshot = { ...snapshot, muted: event.muted };
@@ -64,6 +65,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
           || context.exerciseId !== event.identity.exerciseId || context.generation !== event.identity.generation) return;
         void voice.submit({ ...event.identity, inputId: `conversation-${event.utteranceId}`, kind: 'utterance',
           utteranceId: event.utteranceId, text: event.text, attempts: [] }).catch(() => {
+          if (epoch !== connectionEpoch) return;
           emit({ ...eventBase(), type: 'error', code: 'provider', retryable: true, message: 'The spoken conversation could not be processed. Please retry.' });
         });
       });
@@ -71,9 +73,10 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
     for (const observer of observers) observer();
     if (event.type === 'intent' && (event.intent === 'pause' || event.intent === 'stop' || event.intent === 'change-mode')) stop();
   }
-  base.subscribe(emit);
+  let unsubscribe: (() => void) | null = null;
   function stop() {
     connectionEpoch++;
+    unsubscribe?.(); unsubscribe = null;
     const pending = abort; abort = null; starting = null;
     pending?.abort(); base.disconnect();
     if (snapshot.state !== 'offline') emit({ ...eventBase(), type: 'state', state: 'offline' });
@@ -84,6 +87,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
     stop();
     const attempt = new AbortController(); abort = attempt;
     const epoch = connectionEpoch;
+    unsubscribe = base.subscribe(event => { if (epoch === connectionEpoch) emit(event); });
     emit({ ...eventBase(), type: 'intent', intent: 'practice' });
     emit({ ...eventBase(), type: 'intent', intent: 'question-resolved' });
     emit({ ...eventBase(), type: 'state', state: 'connecting' });
@@ -97,7 +101,7 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
       attempt.signal.throwIfAborted();
     })().catch(error => {
       if (epoch === connectionEpoch && !attempt.signal.aborted) {
-        base.disconnect();
+        stop();
         if (!snapshot.error) emit({ ...eventBase(), type: 'error', code: 'connection', retryable: true,
           message: error instanceof Error ? error.message : 'Voice could not start. Please try again.' });
         emit({ ...eventBase(), type: 'state', state: 'error' });
