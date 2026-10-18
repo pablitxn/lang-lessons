@@ -43,7 +43,7 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
 /** Loopback development broker only. No auth/database/public deployment is installed. */
-export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry) {
+export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>) {
   const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
     model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
   let pending = false;
@@ -78,6 +78,7 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     const localHosts = new Set([`127.0.0.1:${request.socket.localPort}`, `localhost:${request.socket.localPort}`,
       ...config.allowedOrigins.map(origin => new URL(origin).host)]);
     if (!request.headers.host || !localHosts.has(request.headers.host)) { reply(response, 403, { error: 'Origin not allowed.' }); return; }
+    if (application && await application(request, response)) return;
     if (request.url === '/api/realtime/sentence-hint') { await sentenceHint(request, response); return; }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {
       const reason = !config.enabled ? 'disabled' : !config.apiKey ? 'missing-credentials' : 'ready';

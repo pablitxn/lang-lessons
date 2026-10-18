@@ -18,7 +18,7 @@ async function broker(t: TestContext, configuration = config, fetcher: typeof fe
   const end = (releaseToken: string, headers: Record<string, string> = {}) => fetch(`${url}/api/realtime/session/end`, {
     method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify({ releaseToken }),
   });
-  return { url, post, end };
+  return { url, post, end, server };
 }
 test('broker stays disabled by default and status never exposes a secret', async t => {
   let calls = 0;
@@ -186,8 +186,16 @@ test('concurrent release is idempotent and session creation waits for confirmed 
   });
   const first = await (await b.post()).json();
   const closing = b.end(first.releaseToken); await beginning;
-  const duplicate = b.end(first.releaseToken); const next = b.post();
-  assert.equal(creations, 1);
+  // fetch() schedules transport; it does not prove that the broker received the
+  // duplicate before the next lease replaced the old token. Hold hangup until
+  // both requests have actually entered their waiting paths.
+  const duplicateArrived = new Promise<void>(resolve => b.server.once('request', request => {
+    request.once('end', () => setImmediate(resolve));
+  }));
+  const duplicate = b.end(first.releaseToken); await duplicateArrived;
+  const nextArrived = new Promise<void>(resolve => b.server.once('request', () => setImmediate(resolve)));
+  const next = b.post(); await nextArrived;
+  assert.equal(creations, 1); assert.equal(hangups, 1);
   finishHangup();
   assert.equal((await closing).status, 200); assert.equal((await duplicate).status, 200);
   assert.equal((await next).status, 200); assert.equal(creations, 2); assert.equal(hangups, 1);

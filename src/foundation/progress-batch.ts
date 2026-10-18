@@ -3,7 +3,7 @@ import type { PracticeEvent, PracticeEventAck, ProgressBatchResult } from '../co
 export const MAX_PRACTICE_BATCH = 100;
 const obligations = new Set(['spelling:base', 'spelling:past', 'spelling:participle', 'meaning',
   'pronunciation:base', 'pronunciation:past', 'pronunciation:participle', 'sentence:base', 'sentence:past',
-  'sentence:participle', 'translation', 'tense', 'structure', 'meaning-fit']);
+  'sentence:participle', 'translation', 'tense', 'structure', 'meaning-fit', 'written:translation', 'written:tense']);
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 256 && !/[\u0000-\u001f]/u.test(value);
 const integer = (value: unknown, min: number) => Number.isSafeInteger(value) && (value as number) >= min;
@@ -15,6 +15,7 @@ export function parsePracticeEvent(value: unknown): PracticeEvent | null {
   if (!keys(ref, ['sessionId', 'exerciseId', 'generation', 'obligation', 'attemptId', 'revision'])
     || !id(ref.sessionId) || !id(ref.exerciseId) || !id(ref.attemptId) || !integer(ref.generation, 0)
     || !integer(ref.revision, 1) || typeof ref.obligation !== 'string' || !obligations.has(ref.obligation)) return null;
+  if (ref.obligation.startsWith('written:') && value.source !== 'typed') return null;
   const expected = ['schemaVersion', 'eventId', 'ref', 'source', 'trust', 'kind'];
   if (value.kind === 'attempt-result') {
     expected.push('result');

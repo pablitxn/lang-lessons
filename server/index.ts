@@ -1,3 +1,4 @@
+import { learningNodeBridge } from './learning-http';
 import { configurePhoenix } from './telemetry';
 import { createRealtimeServer, readBrokerConfig } from './realtime';
 
@@ -5,7 +6,9 @@ const config = readBrokerConfig(process.env);
 const port = Number(process.env.VOICE_BROKER_PORT ?? 8787);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('VOICE_BROKER_PORT must be between 1024 and 65535.');
 const telemetry = configurePhoenix(process.env);
-const server = createRealtimeServer(config, fetch, telemetry);
+// Account/storage policies and credentials are not implicitly selected from environment values.
+const learning = learningNodeBridge(null, `http://127.0.0.1:${port}`);
+const server = createRealtimeServer(config, fetch, telemetry, learning);
 let stopping = false;
 async function stop() {
   if (stopping) return; stopping = true;
