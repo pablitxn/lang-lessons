@@ -62,10 +62,10 @@ function BoundLesson({ sessionId, services, progress, renderLesson, ...props }: 
     }) ?? null;
   }, [register]);
   useEffect(() => { alive.current = true; return () => { alive.current = false; cleanup.current?.(); }; }, []);
-  return <>{progress.status}{saveFailed && <p role="alert">Some practice results have not been saved. Keep this lesson open while the pending queue is recovered.</p>}
+  return <>{saveFailed && <p role="alert">Some practice results have not been saved. Keep this lesson open while the pending queue is recovered.</p>}
     <LessonSession {...props} sessionId={sessionId} lifecyclePorts={lifecyclePorts} registerLifecycle={registerLifecycle}
       renderLesson={(mode, lesson) => {
         const bound = { ...lesson, ...(progress.writtenActivity ? { writtenActivity: progress.writtenActivity } : {}), progressSink: progress.sink, canWrite: progress.canWrite, onProgressError: () => setSaveFailed(true) };
         return renderLesson?.(mode, bound);
-      }} /></>;
+      }} />{progress.status}</>;
 }

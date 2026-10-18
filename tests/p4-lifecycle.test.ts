@@ -239,3 +239,13 @@ test('exit cancels pending connection preparation before flushing and closing th
   assert.ok(f.calls.indexOf('stop') < f.calls.indexOf('flush'));
   assert.ok(f.calls.indexOf('flush') < f.calls.indexOf('close')); f.lifecycle.dispose();
 });
+
+test('exit does not wait for a browser permission prompt that ignores abort', async () => {
+  const f = fixture(); let release!: () => void;
+  f.runtime.voice.connect = () => new Promise<void>(resolve => { release = resolve; });
+  const start = f.lifecycle.start(); await tick();
+  assert.equal(await f.lifecycle.requestExit('home'), 'closed'); await start;
+  assert.equal(f.runtime.getSnapshot().state, 'offline');
+  release(); await tick(); assert.equal(f.runtime.getSnapshot().hadConnectedCall, false);
+  f.lifecycle.dispose();
+});

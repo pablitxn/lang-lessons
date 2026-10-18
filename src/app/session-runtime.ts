@@ -98,7 +98,16 @@ export function createSessionRuntime(base: VoiceAdapter, sessionId: string, opti
       attempt.signal.throwIfAborted();
       await options.prepareConnection?.(attempt.signal);
       attempt.signal.throwIfAborted();
-      await voice.connect({ sessionId, signal: attempt.signal });
+      // Browser permission prompts may remain pending after cancellation. Detach
+      // the lifecycle wait immediately; the adapter still owns late-track cleanup.
+      let onAbort!: () => void;
+      try {
+        await Promise.race([voice.connect({ sessionId, signal: attempt.signal }), new Promise<never>((_, reject) => {
+          onAbort = () => reject(attempt.signal.reason);
+          attempt.signal.addEventListener('abort', onAbort, { once: true });
+          if (attempt.signal.aborted) onAbort();
+        })]);
+      } finally { attempt.signal.removeEventListener('abort', onAbort); }
       attempt.signal.throwIfAborted();
     })().catch(error => {
       if (epoch === connectionEpoch && !attempt.signal.aborted) {

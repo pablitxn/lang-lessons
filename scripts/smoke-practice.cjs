@@ -42,7 +42,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   }
   try {
     for (const port of ports) {
-      for (const viewport of [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
+      for (const viewport of process.env.LIFECYCLE_ONLY === '1' ? [] : [{ width: 320, height: 640 }, { width: 390, height: 844 }, { width: 844, height: 390 }, { width: 1024, height: 768 }]) {
         for (const [name, mode] of [['Picture', 'verb-image'], ['Verb', 'verb-visible'], ['Sentence', 'sentence']]) {
           const { context, page, transport, errors } = await setup(port, viewport);
           await page.getByRole('link', { name: `Start ${name} practice`, exact: true }).click(); await startTutor(page); await ready(page);
