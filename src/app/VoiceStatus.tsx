@@ -2,9 +2,9 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import type { createSessionRuntime } from './session-runtime';
 
-export function VoiceStatus({ runtime, status, ready, failed, controls, target }: {
+export function VoiceStatus({ runtime, status, ready, failed, controls, toggle, target }: {
   runtime: ReturnType<typeof createSessionRuntime>;
-  status: string; ready: boolean; failed: boolean; controls: ReactNode;
+  status: string; ready: boolean; failed: boolean; controls: ReactNode; toggle?: ReactNode;
   target: HTMLElement | null;
 }) {
   const id = useId();
@@ -24,13 +24,14 @@ export function VoiceStatus({ runtime, status, ready, failed, controls, target }
       else document.getElementById('profile-preferences')?.focus();
     };
   }, [open, runtime]);
-  const compact = failed && target;
+  const compact = Boolean(target);
   return <>
     {!compact && <section className="voice-call-bar" aria-label="Voice call">
       <p className="voice-call-status" role="status"><span aria-hidden="true" className={ready ? 'call-indicator active' : 'call-indicator'} />{status}</p>
       {controls}
     </section>}
-    {target && (failed || open) && createPortal(<>
+    {target && createPortal(<>
+      {toggle}
       <button ref={trigger} type="button" className={`voice-status-badge${failed ? ' voice-status-error' : ''}`}
         aria-label={failed ? 'Voice unavailable' : 'Voice call details'} title={failed ? 'Voice unavailable' : 'Voice call details'}
         aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => setOpen(true)}>
