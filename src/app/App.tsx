@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS, type LearnerSettings, type LessonMode } from '../cont
 import { browserStorage, loadSettings, resetSettings, saveSettings } from '../platform/settings-store';
 import { MODES, modeHref, resolveLessonRoute } from './routes';
 import { LessonSession, type LessonRenderer } from './LessonSession';
+import { PersistedLesson, type PersistedSessionServices } from './PersistedLesson';
 import { Preferences } from './Preferences';
 import { LessonDialog, ReferenceTable } from '../ui/mobile';
 import { LessonToolsVisible } from '../ui/mobile/lesson-tools-context';
@@ -18,9 +19,10 @@ export interface AppProps {
   requireExitRegistration?: boolean;
   /** Supplied only after the owning feature/server authorizes its data. No access grant here. */
   homeProgress?: ReactNode;
+  sessionServices?: PersistedSessionServices;
 }
 
-export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress }: AppProps) {
+export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices }: AppProps) {
   const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -28,7 +30,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
   const [notice, setNotice] = useState('');
   const current = MODES.find(item => item.id === mode);
   const modeRef = useRef(mode); modeRef.current = mode;
-  const requireGuard = useRef(requireExitRegistration); requireGuard.current = requireExitRegistration;
+  const requireGuard = useRef(requireExitRegistration); requireGuard.current = requireExitRegistration || Boolean(sessionServices);
   const guard = useRef<null | ((hash: string) => Promise<string | null>)>(null);
   const navigator = useRef<ReturnType<typeof createRootNavigator> | null>(null);
   const [navigationError, setNavigationError] = useState('');
@@ -107,8 +109,12 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
           <span className="lesson-heading-divider" aria-hidden="true">/</span>
           <h1 aria-label={current.title}>{current.short}</h1>
         </div>
-        <LessonToolsVisible.Provider value={false}><LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
-          renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /></LessonToolsVisible.Provider>
+        <LessonToolsVisible.Provider value={false}>{sessionServices ?
+          <PersistedLesson key={`${sessionServices.actorId}:${mode}`} mode={mode} services={sessionServices} settings={settings}
+            preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget} renderLesson={renderLesson}
+            fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /> :
+          <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
+            renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />}</LessonToolsVisible.Provider>
       </> : <section className="lesson-catalog" aria-labelledby="catalog-title">
         <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Practice with your voice, or write a translation.</p></div>
         <nav className="lesson-cards" aria-label="Lessons">

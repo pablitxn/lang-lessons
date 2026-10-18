@@ -15,7 +15,8 @@
     "test:content": "python3 content/en-wp-03/check_content.py && python3 -m unittest discover -s content/en-wp-03/tests",
     "check": "npm test && npm run test:content && npm run build",
     "test:browser": "node scripts/smoke-browser.cjs",
-    "telemetry:smoke": "node --import tsx scripts/smoke-telemetry.ts"
+    "telemetry:smoke": "node --import tsx scripts/smoke-telemetry.ts",
+    "db:migrate": "node --import tsx server/migrate.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "1.9.1",

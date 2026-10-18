@@ -4,11 +4,16 @@ import type { createAuthAdapter } from './auth/better-auth';
 import type { createAccountRepository } from './accounts/repository';
 import type { AuthenticatedIdentity } from './accounts/authorization';
 import type { createLearningRepository } from './data/repository';
-import { RepositoryError } from './data/database';
+import { RepositoryError, exactKeys, requireId } from './data/database';
 import { readBoundedJson } from './data/request-body';
 
 export interface LearningHttpServices {
   origin: string;
+  management?: ReturnType<typeof import('./accounts/management').createUserManagementRepository>;
+  daily?: ReturnType<typeof import('./accounts/daily-progress').createDailyProgressRepository>;
+  usage?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./data/usage').createUsageRepository>;
+  recovery?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./data/recovery').createRecoveryRepository>;
+  issueInstance?: (identity: AuthenticatedIdentity, input: unknown) => Promise<import('../src/contracts').ExerciseIdentity>;
   auth: ReturnType<typeof createAuthAdapter>;
   accounts: ReturnType<typeof createAccountRepository>;
   learning(identity: AuthenticatedIdentity): ReturnType<typeof createLearningRepository>;
@@ -28,6 +33,7 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
     // Keep provider routes unavailable until canonical segment/auth binding is supplied.
     if (services && url.pathname.startsWith('/api/realtime/')) return reply(503, { error: 'provider-binding-unresolved' });
     if (!owns(url.pathname)) return null;
+    if (url.pathname === '/api/learning/config' && request.method === 'GET') return reply(200, { accountsEnabled: Boolean(services) });
     if (!services) return reply(503, { error: 'policy-unresolved' });
     try {
       if (url.origin !== services.origin || request.headers.get('sec-fetch-site') === 'cross-site') return reply(403, { error: 'forbidden' });
@@ -45,8 +51,13 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
       if (request.method === 'GET') {
+        if (url.pathname === '/api/learning/open-sessions' && services.recovery) return reply(200, await services.recovery(identity).listOpen(cursor));
+        if (url.pathname === '/api/learning/recovery' && id && services.recovery) return reply(200, await services.recovery(identity).read(id));
+        if (url.pathname === '/api/learning/daily-progress' && services.daily) return reply(200, await services.daily.read(identity, url.searchParams.get('studentId') ?? '', {
+          day: url.searchParams.get('day') ?? '', eventCursor: url.searchParams.get('eventCursor'), sessionCursor: url.searchParams.get('sessionCursor'),
+        }));
         if (url.pathname === '/api/me') return reply(200, await services.accounts.me(identity));
-        if (url.pathname === '/api/learning/users') return reply(200, await services.accounts.listUsers(identity, cursor));
+        if (url.pathname === '/api/learning/users') return reply(200, services.management ? await services.management.list(identity, cursor) : await services.accounts.listUsers(identity, cursor));
         if (url.pathname === '/api/learning/students') return reply(200, await services.accounts.listAllStudents(identity, cursor));
         if (url.pathname === '/api/learning/student-progress') return reply(200, await services.accounts.readProgressPage(identity, url.searchParams.get('studentId') ?? '', cursor));
         if (url.pathname === '/api/learning/session' && id) return reply(200, await services.learning(identity).commands.read(id));
@@ -57,6 +68,15 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.
       const body = await readBoundedJson(request);
+      if (url.pathname === '/api/learning/users/create' && services.management) return reply(200, await services.management.create(identity, body as never));
+      if (url.pathname === '/api/learning/users/update' && services.management) return reply(200, await services.management.update(identity, body as never));
+      if (url.pathname === '/api/learning/usage/open' && services.usage) {
+        exactKeys(body, ['sessionId']); requireId(body.sessionId);
+        return reply(200, { streamId: await services.usage(identity).openWrittenStream(body.sessionId) });
+      }
+      if (url.pathname === '/api/learning/usage/written' && services.usage) return reply(200, await services.usage(identity).written(body as never));
+      if (url.pathname === '/api/learning/feedback/retry' && services.recovery) return reply(200, await services.recovery(identity).retryFailedFeedback(body as never));
+      if (url.pathname === '/api/learning/instance/issue') return services.issueInstance ? reply(200, await services.issueInstance(identity, body)) : reply(503, { error: 'policy-unresolved' });
       if (url.pathname === '/api/learning/progress' && id) return reply(200, await repository.submit(id, body));
       const operations = {
         '/api/learning/session/create': commands.create,

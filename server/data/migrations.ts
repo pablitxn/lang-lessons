@@ -7,6 +7,10 @@ import { transaction } from './database';
 export const MIGRATIONS = [
   { version: '2026-10-18-auth', source: new URL('./migrations/p2-auth.sql', import.meta.url) },
   { version: '2026-10-18-learning', source: new URL('./migrations/p2-learning.sql', import.meta.url) },
+  { version: '2026-10-18-admin', source: new URL('./migrations/p2-admin.sql', import.meta.url) },
+  { version: '2026-10-18-day-projection', source: new URL('./migrations/p2-day-projection.sql', import.meta.url) },
+  { version: '2026-10-18-usage', source: new URL('./migrations/p2-usage.sql', import.meta.url) },
+  { version: '2026-10-18-recovery', source: new URL('./migrations/p2-recovery.sql', import.meta.url) },
 ] as const;
 export async function migrateLearningDatabase(pool: Pool) {
   const migrations = await Promise.all(MIGRATIONS.map(async migration => {

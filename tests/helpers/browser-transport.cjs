@@ -12,6 +12,9 @@ async function installBrowserTransport(context, origin, options = {}) {
     if (url.origin !== origin) {
       fixture.externalRequests.push(request.url()); await route.abort(); return;
     }
+    if (url.pathname === '/api/learning/config') {
+      await route.fulfill({ status: 200, json: { accountsEnabled: false } }); return;
+    }
     if (url.pathname === '/api/realtime/status') {
       fixture.statusRequests += 1;
       if (fixture.statusBarrier) await fixture.statusBarrier;
