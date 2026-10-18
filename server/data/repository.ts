@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { LessonMode, ExerciseIdentity } from '../../src/contracts/curriculum';
-import type { SessionCommands, SessionSnapshot, SessionMutation, CallSegmentRef, ConfirmCloseRequest, CloseResult } from '../../src/contracts/session';
+import type { SessionCommands, SessionSnapshot, SessionMutation, ConfirmCloseRequest, CloseResult } from '../../src/contracts/session';
 import type { FeedbackState } from '../../src/contracts/feedback';
 import type { ProgressBatchResult, PracticeEvent } from '../../src/contracts/progress';
 import { applyProgressBatch, parsePracticeEvent, MAX_PRACTICE_BATCH } from '../../src/foundation/progress-batch';
 import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import type { AuthenticatedIdentity, AccessPolicy } from '../accounts/authorization';
+import type { EvaluateClose } from './call-history';
 import { finishUsage } from './usage';
 import { transaction, RepositoryError, requireId, requireRevision, exactKeys } from './database';
 
@@ -14,8 +15,8 @@ export interface DataPolicy {
   /** An affirmative, externally approved storage policy is required. No retention duration is selected here. */
   allowStructuredStorage: boolean;
   access: AccessPolicy;
-  /** Server facts only; no client qualifying-call boolean. Undefined blocks close after any call start. */
-  feedbackOnClose?: (segments: readonly CallSegmentRef[]) => 'not-requested' | 'pending' | 'insufficient-evidence';
+  /** Awaited under the session lock before any close/job writes; root guards broker state on this client. */
+  evaluateClose?: EvaluateClose;
 }
 export const unresolvedDataPolicy: DataPolicy = { allowStructuredStorage: false, access: denyUnresolvedGrants };
 interface SessionRow { id: string; user_id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number; journal_revision: number; next_epoch: number }
@@ -98,11 +99,11 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
           if (row.journal_revision !== input.finalProgress.journalRevision) throw new RepositoryError('conflict');
           const { rows } = await client.query<{ id: string; epoch: number }>('SELECT id,epoch FROM learning_segments WHERE session_id=$1 ORDER BY epoch', [row.id]);
           let feedback: FeedbackState = 'not-requested';
-          if (rows.length) {
-            if (!policy.feedbackOnClose) throw new RepositoryError('policy-unresolved');
-            feedback = policy.feedbackOnClose(rows.map(segment => ({ sessionId: row.id, segmentId: segment.id, connectionEpoch: segment.epoch })));
+          if (policy.evaluateClose) {
+            feedback = await policy.evaluateClose(client, { sessionId: row.id, segments: rows.map(segment => ({ sessionId: row.id, segmentId: segment.id, connectionEpoch: segment.epoch })) });
             if (!['not-requested', 'pending', 'insufficient-evidence'].includes(feedback)) throw new RepositoryError('policy-unresolved');
           }
+          if (rows.length && !policy.evaluateClose || !rows.length && feedback !== 'not-requested') throw new RepositoryError('policy-unresolved');
           const result: CloseResult = { sessionId: row.id, operationId: input.operationId, status: 'closed', revision: row.revision + 1, feedback };
           await client.query("UPDATE learning_sessions SET status='closed', revision=revision+1, closed_at=clock_timestamp() WHERE id=$1", [row.id]);
           await client.query('UPDATE learning_segments SET ended=true WHERE session_id=$1 AND NOT ended', [row.id]);

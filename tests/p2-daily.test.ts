@@ -18,7 +18,7 @@ async function fixture() {
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
   for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('student','student'),('other','student'),('prof','professor'),('admin','administrator')");
-  const repo = createLearningRepository(pool, { userId: 'student' }, { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, feedbackOnClose: () => 'not-requested' });
+  const repo = createLearningRepository(pool, { userId: 'student' }, { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, evaluateClose: async () => 'not-requested' });
   async function visit(called: boolean) {
     const session = await repo.commands.create({ mode: 'verb-image', operationId: randomUUID() }); const id = session.sessionId;
     await repo.registerInstance({ sessionId: id, exerciseId: 'exercise', generation: 0 });

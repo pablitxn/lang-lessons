@@ -11,7 +11,7 @@ import { transaction } from '../server/data/database';
 
 const database = process.env.P2_DISPOSABLE_DATABASE_URL;
 const isolated = { skip: !database };
-const policy = { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, feedbackOnClose: () => 'pending' as const };
+const policy = { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, evaluateClose: async () => 'pending' as const };
 async function fixture() {
   assert.ok(database); const url = new URL(database); assert.ok(['127.0.0.1','localhost'].includes(url.hostname) && url.pathname === '/p2_test');
   const admin = new Pool({ connectionString: database });
