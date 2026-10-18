@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { BasicTracerProvider, SimpleSpanProcessor, InMemorySpanExporter } from '@opentelemetry/sdk-trace-base';
 import { ROOT_CONTEXT, trace } from '@opentelemetry/api';
@@ -43,4 +44,26 @@ test('Phoenix debug sink keeps canonical correlation and parent trace using only
   assert.equal(child.attributes['app.call_segment.id'], segment.segmentId);
   assert.equal(child.attributes['app.telemetry.audio_capture'], false);
   await provider.shutdown();
+});
+
+test('synthetic quoted secret fields and full Authorization values are redacted before Phoenix export', async () => {
+  const exporter = new InMemorySpanExporter(); const provider = new BasicTracerProvider({ spanProcessors: [new SimpleSpanProcessor(exporter)] });
+  const recorder = createDebugEvidenceRecorder(policy, createPhoenixDebugSink(provider.getTracer('redaction-regression')));
+  // Ephemeral synthetic values exercise real Basic syntax without committed credential literals.
+  const basic = Buffer.from(`${randomUUID()}:${randomUUID()}`).toString('base64');
+  const standaloneBasic = Buffer.from(randomUUID()).toString('base64');
+  const samples = [
+    JSON.stringify({ password: 'fixture-json-secret', authorization: `Basic ${basic}` }),
+    "{'secret': 'fixture spaced secret', 'api_key': 'fixture-key-value'}",
+    `Authorization: Basic ${basic}\nOrdinary lesson text.`,
+    'Authorization: Digest username="fixture-user", response="fixture-response"\nLesson.',
+    '{"password":"fixture \\"escaped\\" secret", "cookie":"fixture=session; value=private"}',
+    `password=fixture-plain-secret Bearer fixture.token Basic ${standaloneBasic}`,
+  ];
+  for (const [i, text] of samples.entries()) await recorder.record(segment, { ...event, eventId: `redact-${i}`, text }, true);
+  await provider.forceFlush(); const spans = exporter.getFinishedSpans(); assert.equal(spans.length, samples.length);
+  const output = JSON.stringify(spans.map(span => span.attributes));
+  assert.doesNotMatch(output, /fixture-json-secret|fixture spaced secret|fixture-key-value|fixture-user|fixture-response|escaped|fixture=session|private|fixture-plain-secret|fixture\.token/);
+  for (const value of [basic, standaloneBasic]) assert.equal(output.includes(value), false, 'generated Basic value must be redacted');
+  assert.match(output, /Ordinary lesson text/); await provider.shutdown();
 });

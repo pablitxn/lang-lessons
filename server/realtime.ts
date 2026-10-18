@@ -1,3 +1,4 @@
+import type { ProviderCapture } from './provider-capture';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
 import type { PhoenixTelemetry, SessionTrace } from './telemetry';
@@ -45,11 +46,11 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown;
 }
 /** Loopback broker; account-enabled composition supplies canonical authorization and durable receipts. */
-export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>, authority?: BrokerAuthority) {
+export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>, authority?: BrokerAuthority, capture?: ProviderCapture) {
   const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
     model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
   let pending = false;
-  interface Lease { binding?: BrokerBinding; token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean }
+  interface Lease { binding?: BrokerBinding; token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean; capture?: { stop(): Promise<void> } }
   let lease: Lease | null = null;
   function callId(location: string | null): string | null {
     if (!location) return null;
@@ -66,14 +67,14 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
     current.closing = (async () => {
       try {
         if (current.binding && await authority!.isEnded(current.binding)) {
-          current.ended = true; if (lease === current) lease = null; return true;
+          await current.capture?.stop(); current.ended = true; if (lease === current) lease = null; return true;
         }
         const ended = await fetcher(`https://api.openai.com/v1/realtime/calls/${current.callId}/hangup`, {
           method: 'POST', headers: { Authorization: `Bearer ${config.apiKey}` }, signal: AbortSignal.timeout(10000),
         });
         if (!ended.ok) return false;
         if (current.binding) await authority!.ended(current.binding);
-        current.ended = true;
+        await current.capture?.stop(); current.ended = true;
         if (lease === current) lease = null;
         return true;
       } catch { return false; }
@@ -195,6 +196,10 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       created.callId = callId(upstream.headers.get('location'));
       // Persist the provider receipt before reading a body that may fail or stall.
       if (created.binding && created.callId) await authority!.created(created.binding, created.callId);
+      if (capture && created.binding && created.callId) {
+        try { created.capture = capture.start(created.binding, created.callId); }
+        catch { telemetry?.captureGap(created.binding.segment); /* Never lose the call receipt on observer failure. */ }
+      }
       const sdp = await upstream.text();
       if (disconnected) { await endSession(created); return; }
       if (sdp.length > 60000 || !sdp.startsWith('v=0') || !created.callId) {
