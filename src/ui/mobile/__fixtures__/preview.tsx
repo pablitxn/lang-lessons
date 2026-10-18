@@ -57,7 +57,7 @@ function Fixture() {
       {sentence ? <><ExerciseCue spanish="Vivimos aquí desde 2020." /><SentencePrompt stage={stage} onHint={() => {}} onNext={() => setGeneration(previous => previous + 1)} /></>
         : <><ExerciseCue base="bend" /><SpellingField label="Past" value={value} attempt={attempt}
           {...(result ? { result } : {})} processing={processing} helpEnabled={helpEnabled} untimedHelp={untimed}
-          guidance={{ ipa: '/bent/', spanishSoundGuide: 'Suena aproximadamente como «bent», con una t final breve.' }}
+          guidance={{ ipa: '/bent/', spanishSoundGuide: 'bent' }}
           onChange={value => { setValue(value); setRevision(previous => previous + 1); setProcessing(false); }}
           onFinalize={() => { setFinalizations(previous => previous + 1); setProcessing(true); }} onActivity={setActivity} onHoldChange={hold} />
           </>}

@@ -25,6 +25,35 @@ function explained(fixture: ReturnType<typeof setup>) {
   fixture.voice.assess(); assert.equal(fixture.snapshot().sentenceStage, 'complete');
 }
 
+test('manual sentence navigation discards pending work offline while preserving pause without completion', () => {
+  const f = setup();
+  f.session.requestHint(); const hint = f.voice.hints.at(-1)!;
+  f.voice.transcript('We have lived here since 2020.');
+  const pending = f.voice.inputs.at(-1)!;
+  const old = f.snapshot();
+  f.session.setInteraction({ connection: 'offline', intent: 'pause', questionPending: true });
+  assert.equal(f.session.skip(), true);
+  assert.notEqual(f.snapshot().exerciseId, old.exerciseId);
+  assert.equal(f.snapshot().generation, old.generation + 1);
+  assert.equal(f.snapshot().interaction.connection, 'offline');
+  assert.equal(f.snapshot().interaction.intent, 'pause');
+  assert.equal(f.snapshot().interaction.questionPending, false);
+  f.voice.assess('accepted', pending); f.voice.hint('Stale hint', hint);
+  assert.deepEqual(f.snapshot().evidence, {});
+  assert.equal(f.snapshot().sentenceStage, 'translation');
+  assert.equal(f.snapshot().hint, null);
+  assert.equal(f.session.getSnapshot().lastResponse, '');
+  assert.deepEqual(f.completed, []);
+  assert.equal(f.voice.interrupts, 1);
+  assert.equal(f.voice.connects, 0);
+  f.session.setDifficulty({ grammar: 3, vocabulary: 3 });
+  const current = f.snapshot().exerciseId;
+  assert.equal(f.session.skip(), false);
+  assert.equal(f.snapshot().exerciseId, current);
+  assert.equal(f.voice.interrupts, 1);
+  f.session.dispose(); assert.equal(f.session.skip(), false);
+});
+
 test('sentence selection keeps grammar and vocabulary independent without a silent fallback', () => {
   assert.ok(matchingSentences({ grammar: 1, vocabulary: 1 }).length >= 4);
   const demandingVocabulary = matchingSentences({ grammar: 1, vocabulary: 3 });

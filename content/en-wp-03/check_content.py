@@ -3,7 +3,7 @@
 import json
 import hashlib
 import re
-import xml.etree.ElementTree as ET
+from urllib.parse import urlparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -27,9 +27,9 @@ def validate(bundle):
             errors.append(message)
 
     for name in FILES:
-        expected_version = "en-wp-03/assets/1" if name == "asset-ledger.json" else VERSION
+        expected_version = "en-wp-03/assets/2" if name == "asset-ledger.json" else VERSION
         require(bundle[name].get("schema_version") == expected_version, f"{name}: unsupported schema version")
-        require(bundle[name].get("authorship", "").startswith("authored-"), f"{name}: missing authored provenance")
+        require(bundle[name].get("authorship") == "curated-real-photographs" if name == "asset-ledger.json" else bundle[name].get("authorship", "").startswith("authored-"), f"{name}: missing authored provenance")
     verbs = bundle["verbs.json"]["verbs"]
     sentences = bundle["sentences.json"]["sentences"]
     cases = bundle["evaluation-fixtures.json"]["cases"]
@@ -55,6 +55,7 @@ def validate(bundle):
             for form in variants:
                 require(bool(re.fullmatch(r"[a-z]+", form["text"])), f"{vid}: form must be one spelling")
                 require(bool(re.fullmatch(r"/[^/]+/", form["ipa"])), f"{vid}: invalid reference IPA container")
+                require(isinstance(form.get("sound_spelling_es"), str) and bool(form["sound_spelling_es"].strip()), f"{vid}: missing Spanish sound spelling")
                 require(bool(form["sound_guide_refs"]) and set(form["sound_guide_refs"]) <= set(guides), f"{vid}: missing/dangling Spanish sound guide")
                 require(bool(form["sound_note_es"]), f"{vid}: missing Spanish sound note")
         examples = v["sentence_examples"]
@@ -73,17 +74,22 @@ def validate(bundle):
             if ex["family"] == "participle":
                 require(bool(re.search(r"\b(?:has|have)\b", ex["text"])), f"{vid}: authored perfect example lacks finite auxiliary")
         cue = v["image_cue"]
-        require(cue["asset_status"] == "original-local-svg", f"{vid}: unreviewed asset status")
-        require(cue["file"] == f"public/images/verbs/{v['lemma']}.svg" and cue["src"] == f"/images/verbs/{v['lemma']}.svg", f"{vid}: missing or invalid local asset reference")
+        require(cue["asset_status"] == "reviewed-real-photograph", f"{vid}: unreviewed asset status")
+        require(bool(re.fullmatch(r"public/images/verbs/" + re.escape(v["lemma"]) + r"-[0-9]+\.jpg", cue["file"])) and cue["src"] == "/" + cue["file"].removeprefix("public/"), f"{vid}: missing or invalid local asset reference")
         require(bool(cue["nonvisual_cue_es"]) and bool(cue["context_es"]) and type(cue["ambiguous"]) is bool, f"{vid}: missing nonvisual/context/ambiguity cue")
         require(bool(cue["brief"]) and bool(cue["alt"]) and bool(cue["avoid"]), f"{vid}: incomplete cue brief")
     assets = bundle["asset-ledger.json"]["assets"]
-    require([a["content_id"] for a in assets] == ["verb-" + lemma for lemma in EXACT25], "asset ledger must cover exactly25 in order")
-    require(len({a["sha256"] for a in assets}) == 25, "each image must have distinct original scene bytes")
+    require({a["content_id"] for a in assets} == {"verb-" + lemma for lemma in EXACT25}, "asset ledger must cover exactly25 verbs with one or more photos each")
+    require(len({a["asset_id"] for a in assets}) == len(assets), "duplicate photo ID")
+    require(len({a["sha256"] for a in assets}) == len(assets), "each photo must have distinct bytes")
     asset_dir = ROOT.parents[1] / "public/images/verbs"
-    require(sorted(p.name for p in asset_dir.glob("*.svg")) == sorted(lemma + ".svg" for lemma in EXACT25), "asset files must match exactly25")
+    require(sorted(p.name for p in asset_dir.iterdir() if p.is_file()) == sorted(Path(a["file"]).name for a in assets), "asset files must match the photo ledger; generated assets forbidden")
     for asset in assets:
         validate_asset(asset, ROOT.parents[1], require)
+    for verb in verbs:
+        primary = next((a for a in assets if a["content_id"] == verb["id"]), None)
+        cue = verb["image_cue"]
+        require(primary is not None and all(cue.get(k) == primary.get(k) for k in ["src", "file", "creator", "attribution", "nonvisual_cue_es", "context_es", "ambiguous"]), f"{verb['id']}: primary photo metadata diverged")
     for lemma, required in {"burn": {"burned", "burnt"}, "dream": {"dreamed", "dreamt"}}.items():
         v = next((v for v in verbs if v["lemma"] == lemma), None)
         for role in ("past", "participle"):
@@ -95,7 +101,7 @@ def validate(bundle):
     for s in sentences:
         sid = s["id"]
         require(s["acceptance_policy"] == "semantic-open-set", f"{sid}: exact-answer-only policy forbidden")
-        require(bool(s["prompt_es"]) and bool(s["context_es"]), f"{sid}: missing visible context")
+        require(bool(s["prompt_es"]) and bool(s["context_es"]), f"{sid}: missing sentence or authoring context")
         require(set(s["difficulty"]) == {"grammar", "vocabulary"}, f"{sid}: difficulty dimensions must be separate")
         require(all(type(x) is int and 1 <= x <= 3 for x in s["difficulty"].values()), f"{sid}: difficulty must use local levels 1..3")
         require(len(s["post_acceptance"]) == 3 and bool(s["meaning_requirements"]), f"{sid}: missing explanation obligations")
@@ -156,42 +162,27 @@ def validate(bundle):
 
 
 def validate_asset(asset, repo_root, require):
-    """Validate the actual local XML, safe references, provenance and artifact hash."""
+    """Check photo declarations, local JPEG bytes and provenance; not an AI detector."""
     label = asset["content_id"]
     relative = asset["file"]
-    if not re.fullmatch(r"public/images/verbs/[a-z]+\.svg", relative):
-        require(False, f"{label}: unsafe SVG file path")
+    if not re.fullmatch(r"public/images/verbs/[a-z]+-[0-9]+\.jpg", relative):
+        require(False, f"{label}: unsafe photograph file path")
         return
     path = repo_root / relative
     if not path.is_file():
-        require(False, f"{label}: SVG file missing")
+        require(False, f"{label}: photograph file missing")
         return
     raw = path.read_bytes()
-    require(hashlib.sha256(raw).hexdigest() == asset["sha256"], f"{label}: SVG checksum mismatch")
-    require(bool(asset.get("rights_basis")) and bool(asset.get("origin")) and bool(asset.get("creator")), f"{label}: missing original-asset provenance")
-    require(b"<!DOCTYPE" not in raw.upper() and b"<!ENTITY" not in raw.upper(), f"{label}: XML entities/doctype forbidden")
-    try:
-        svg = ET.fromstring(raw)
-    except ET.ParseError:
-        require(False, f"{label}: invalid SVG XML")
-        return
-    require(svg.tag == "{http://www.w3.org/2000/svg}svg" and svg.get("viewBox") == "0 0 320 240", f"{label}: invalid SVG root or viewBox")
-    elements = list(svg.iter())
-    ids = {e.get("id") for e in elements if e.get("id")}
-    title = svg.find("{http://www.w3.org/2000/svg}title")
-    desc = svg.find("{http://www.w3.org/2000/svg}desc")
-    require(title is not None and bool(title.text), f"{label}: missing SVG accessible title")
-    require(desc is not None and bool(desc.text), f"{label}: missing SVG accessible description")
-    require(set(svg.get("aria-labelledby", "").split()) <= ids, f"{label}: dangling accessible name reference")
-    for element in elements:
-        tag = element.tag.rsplit("}", 1)[-1]
-        require(tag not in {"script", "foreignObject", "image", "text", "textPath", "style", "a", "animate", "set"}, f"{label}: active/external/answer-text SVG element forbidden")
-        for key, value in element.attrib.items():
-            require(not key.lower().startswith("on"), f"{label}: SVG event attribute forbidden")
-            if key.endswith("href"):
-                require(value.startswith("#") and value[1:] in ids, f"{label}: external/dangling SVG resource forbidden")
-            for reference in re.findall(r"url\(([^)]+)\)", value):
-                require(reference.startswith("#") and reference[1:] in ids, f"{label}: external/dangling SVG paint reference forbidden")
+    require(hashlib.sha256(raw).hexdigest() == asset["sha256"], f"{label}: photograph checksum mismatch")
+    require(raw.startswith(b"\xff\xd8\xff") and raw.endswith(b"\xff\xd9"), f"{label}: invalid JPEG signature")
+    require(0 < len(raw) <= 500_000, f"{label}: photo exceeds the 500 KB budget")
+    require(asset.get("media_type") == "photograph" and asset.get("review_status") == "source-and-visual-reviewed", f"{label}: only reviewed real photographs are allowed")
+    for key in ["creator", "provider", "license", "rights_basis", "attribution", "reviewed_on", "transformations", "nonvisual_cue_es", "context_es"]:
+        require(bool(asset.get(key)), f"{label}: missing photograph provenance {key}")
+    for key in ["source_url", "download_url", "license_url"]:
+        url = urlparse(asset.get(key, ""))
+        require(url.scheme == "https" and bool(url.netloc), f"{label}: missing HTTPS provenance {key}")
+    require(asset.get("src") == "/" + relative.removeprefix("public/"), f"{label}: photograph source mismatch")
 
 
 if __name__ == "__main__":

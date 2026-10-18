@@ -4,7 +4,7 @@
 
 Current feature totals: 25 original verbs/SVGs; the original 75 form-family
 examples plus 98 contextual past-tense verb examples; 33 sentence prompts and
-98 authored oracle cases. Each past tense includes affirmative, negative and
+99 authored oracle cases. Each past tense includes affirmative, negative and
 question contexts, regular/irregular forms and independently varied difficulty.
 The checker now covers all eight tenses and mutation tests enforce missing-tense,
 question/negative coverage, correct form-family attribution and auxiliary-error

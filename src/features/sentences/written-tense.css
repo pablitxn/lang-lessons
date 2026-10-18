@@ -1,0 +1,18 @@
+.sentences-tense { width: fit-content; max-width: 100%; margin-top: 14px; }
+.sentences-tense-trigger { display: flex; align-items: center; gap: 9px; min-width: 0; max-width: 100%; min-height: 44px; padding: 8px 2px; border: 0; border-bottom: 1px solid var(--line, #d9dfd5); border-radius: 0; background: transparent; color: var(--ink, #203b32); font: inherit; font-size: .9375rem; line-height: 1.45; text-align: left; cursor: pointer; scroll-margin-bottom: calc(7rem + env(safe-area-inset-bottom)); }
+.sentences-tense-value { min-width: 0; overflow-wrap: anywhere; }
+.sentences-tense[data-status="empty"] .sentences-tense-value { color: var(--muted, #5c6d65); }
+.sentences-tense-trigger:hover, .sentences-tense-trigger[aria-expanded="true"] { border-color: var(--primary, #08675f); }
+.sentences-tense-trigger:focus-visible { outline: 3px solid var(--primary, #08675f); outline-offset: 4px; border-radius: 3px; }
+.sentences-tense-chevron, .sentences-tense-outcome { flex: 0 0 17px; width: 17px; height: 17px; pointer-events: none; }
+.sentences-tense-chevron { color: var(--muted, #5c6d65); }
+.sentences-tense-trigger[aria-expanded="true"] .sentences-tense-chevron { transform: rotate(180deg); }
+.sentences-tense[data-status="correct"] .sentences-tense-outcome { color: var(--success, #17643c); }
+.sentences-tense[data-status="incorrect"] .sentences-tense-outcome { color: var(--error, #b42318); }
+.sentences-tense-menu { position: fixed; z-index: 60; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; box-sizing: border-box; padding: 12px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line, #d9dfd5); border-radius: 14px; background: var(--paper, #fffefa); color: var(--ink, #203b32); box-shadow: 0 10px 32px rgb(0 0 0 / .13); font: 1rem/1.4 system-ui, sans-serif; }
+.sentences-tense-group { min-width: 0; }
+.sentences-tense-heading { padding: 4px 9px 8px; color: var(--muted, #5c6d65); font-size: .6875rem; font-weight: 650; letter-spacing: .075em; text-transform: uppercase; }
+.sentences-tense-option { display: block; width: 100%; min-width: 0; min-height: 44px; padding: 9px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ink, #203b32); font: inherit; font-size: .875rem; line-height: 1.4; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.sentences-tense-option[data-active="true"] { background: var(--surface, #eef1e8); border-color: color-mix(in srgb, var(--primary, #08675f) 35%, transparent); }
+.sentences-tense-option[aria-selected="true"] { color: var(--primary, #08675f); font-weight: 650; }
+.sentences-tense-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

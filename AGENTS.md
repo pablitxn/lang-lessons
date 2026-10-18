@@ -34,3 +34,15 @@ Use `npm ci`, `npm run check`, and the supplied browser helper documented in
 the README. New tests should target behavior and race conditions. Separate unit
 fixtures, mocked provider transport, actual browser rendering, physical device
 testing and real provider evidence. A green build is not real voice validation.
+
+## Exercise image policy
+
+Use real photographs for all exercise imagery. Lesson-card covers may use the
+existing typographic, shape and icon style instead of photographs. Do not generate
+illustrations, AI images, synthetic composites or generative edits as replacements.
+Prefer reviewed free photographs from Pexels; other banks or contributed photos
+are welcome after the same source, license and visual review. Keep one or more
+photos per verb in `content/en-wp-03/asset-ledger.json`, with matching Spanish
+nonvisual/context cues, credited creator, item URL, license URL, review date and
+local SHA-256. Serve local files and select a photo once per new exercise.
+See `content/en-wp-03/ASSETS.md` for sourcing, ambiguity and extension rules.

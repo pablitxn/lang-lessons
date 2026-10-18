@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" role="img" aria-labelledby="cue-title cue-desc">
-<title id="cue-title">Una persona sale de una línea de carrera cuando se levanta una bandera.</title>
-<desc id="cue-desc">Piensa en el momento de iniciar la actividad. No se indica un tiempo verbal.</desc>
-<defs><marker id="direction" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0 0L6 3L0 6Z" fill="#d36a50"/></marker></defs>
-<rect x="1" y="1" width="318" height="238" rx="24" fill="#f8f3e7"/>
-<g stroke="#173f48" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M40 191 L275 191 M40 205 L275 205 M87 166 L87 218" fill="none" stroke="#9eb8b0"/><g transform="translate(160 77) scale(1)"><circle cx="0" cy="0" r="15" fill="#edbea0"/><path d="M-13 -5 Q-10 -24 7 -14 L14 -4" fill="#173f48" /><path d="M-18 27 Q0 15 18 27 L16 67 L-16 67 Z" fill="#247f80" /><path d="M-13 34 L-36 50 L-47 39 M15 32 L34 17 L42 26 M-8 68 L-28 92 L-49 85 M9 68 L33 83 L26 107" fill="none" stroke-width="9"/></g><path d="M61 45 L61 139" fill="none" stroke-width="6"/><path d="M63 48 L109 60 L64 79Z" fill="#d36a50" /><path d="M220 164 L271 164" fill="none" stroke="#d36a50" stroke-width="5" marker-end="url(#direction)"/></g>
-</svg>

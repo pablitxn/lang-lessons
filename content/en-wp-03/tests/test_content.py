@@ -106,8 +106,8 @@ class ContentIntegrityTests(unittest.TestCase):
 
     def test_asset_ledger_hash_and_exact_inventory_are_enforced(self):
         self.data["asset-ledger.json"]["assets"][0]["sha256"] = "0" * 64
-        self.assertViolation("SVG checksum mismatch")
-        self.data["asset-ledger.json"]["assets"].pop()
+        self.assertViolation("photograph checksum mismatch")
+        self.data["asset-ledger.json"]["assets"] = [a for a in self.data["asset-ledger.json"]["assets"] if a["content_id"] != "verb-be"]
         self.assertViolation("asset ledger must cover exactly25")
 
     def test_context_and_local_image_reference_cannot_disappear(self):
@@ -117,30 +117,28 @@ class ContentIntegrityTests(unittest.TestCase):
         self.assertViolation("missing or invalid local asset reference")
         self.assertViolation("missing nonvisual/context/ambiguity cue")
 
-    def test_svg_validation_rejects_external_content_and_printed_answer_text(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            file = root / 'public/images/verbs/be.svg'
-            file.parent.mkdir(parents=True)
-            svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240"><image href="https://example.com/a.png"/><text>be</text></svg>'
-            file.write_text(svg)
-            asset = {**self.data['asset-ledger.json']['assets'][0], 'sha256': hashlib.sha256(svg.encode()).hexdigest()}
-            failures = []
-            CONTENT.validate_asset(asset, root, lambda condition, message: failures.append(message) if not condition else None)
-            self.assertTrue(any('SVG element forbidden' in message for message in failures))
-            self.assertTrue(any('SVG resource forbidden' in message for message in failures))
-            self.assertTrue(any('missing SVG accessible title' in message for message in failures))
+    def test_photograph_validation_rejects_generated_assets_and_missing_rights(self):
+        asset = self.data['asset-ledger.json']['assets'][0]
+        asset['media_type'] = 'ai-generated'
+        asset['license_url'] = ''
+        self.assertViolation('only reviewed real photographs')
+        self.assertViolation('missing HTTPS provenance license_url')
 
-    def test_svg_validation_rejects_malformed_xml(self):
+    def test_photograph_validation_rejects_html_disguised_as_jpeg(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            file = root / 'public/images/verbs/be.svg'
+            asset = self.data['asset-ledger.json']['assets'][0].copy()
+            file = root / asset['file']
             file.parent.mkdir(parents=True)
-            file.write_text('<svg><path></svg>')
-            asset = {**self.data['asset-ledger.json']['assets'][0], 'sha256': hashlib.sha256(file.read_bytes()).hexdigest()}
+            file.write_bytes(b'<html>Download unavailable</html>')
+            asset['sha256'] = hashlib.sha256(file.read_bytes()).hexdigest()
             failures = []
             CONTENT.validate_asset(asset, root, lambda condition, message: failures.append(message) if not condition else None)
-            self.assertTrue(any('invalid SVG XML' in message for message in failures))
+            self.assertTrue(any('invalid JPEG signature' in message for message in failures))
+
+    def test_additional_photo_requires_unique_identity_and_complete_provenance(self):
+        self.data['asset-ledger.json']['assets'].append(copy.deepcopy(self.data['asset-ledger.json']['assets'][0]))
+        self.assertViolation('duplicate photo ID')
 
 
 class PastTenseIntegrityTests(unittest.TestCase):

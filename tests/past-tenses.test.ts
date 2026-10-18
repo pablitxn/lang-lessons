@@ -84,6 +84,27 @@ test('changing tense mid-explanation preserves accepted work, then invalidates o
   } finally { session.dispose(); }
 });
 
+test('manual skip applies the pending tense offline without completing or retaining stale evidence', () => {
+  const voice = new SentenceFixtureVoice(); const completed: string[] = [];
+  const session = createSentenceSession({ voice, sessionId: 'offline-selection', difficulty: { grammar: 1, vocabulary: 1 },
+    tense: 'present-simple', random: () => 0, connectionState: 'ready', onComplete: id => completed.push(id) });
+  try {
+    voice.transcript('He buys bread every morning.'); const oldInput = voice.inputs.at(-1)!; voice.assess();
+    const before = session.getSnapshot().assessment;
+    session.setInteraction({ connection: 'offline' });
+    session.setTense('past-perfect-continuous');
+    assert.equal(session.getSnapshot().assessment.exerciseId, before.exerciseId);
+    assert.equal(session.skip(), true);
+    const after = session.getSnapshot().assessment;
+    assert.notEqual(after.exerciseId, before.exerciseId);
+    assert.ok(after.context.mode === 'sentence' && after.context.sentence.alternatives.some(a => a.tense === 'past-perfect-continuous'));
+    assert.equal(after.sentenceStage, 'translation');
+    voice.assess('accepted', oldInput);
+    assert.equal(session.getSnapshot().assessment.evidence.translation, undefined);
+    assert.deepEqual(completed, []);
+  } finally { session.dispose(); }
+});
+
 test('both verb modes receive past constructions without changing spelling families or inventing progressive stative examples', () => {
   for (const verb of VERBS) {
     assert.ok(verb.tenseExamples?.length);

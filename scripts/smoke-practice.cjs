@@ -22,6 +22,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   async function ready(page) {
     await page.getByRole('region', { name: 'Voice call', exact: true }).getByRole('button', { name: 'Mute microphone', exact: true }).waitFor();
     await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent === 'Mute microphone' && !button.disabled));
+    const details = page.getByRole('dialog', { name: 'Voice call details', exact: true });
+    if (await details.isVisible()) await details.getByRole('button', { name: 'Close voice details', exact: true }).click();
+  }
+  async function openVoiceError(page) {
+    const details = page.getByRole('dialog', { name: 'Voice call details', exact: true });
+    if (!await details.isVisible()) await page.getByRole('button', { name: 'Voice unavailable', exact: true }).click();
+    await details.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
   }
   async function assertReleased(page) {
     const state = await inspectTransport(page);
@@ -79,6 +86,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+          await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+          assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true);
           await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
           if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-voice-ui-final-${mode}-${viewport.width}.png`, fullPage: true });
           const routeRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
@@ -120,7 +129,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const { context, page, transport, errors } = await setup(port, viewport);
         transport.sessionStatus = 503;
         await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
-        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor(); await assertReleased(page);
+        await openVoiceError(page); await assertReleased(page);
         assert.equal(transport.sessionRequests, 1);
         transport.sessionStatus = 200;
         await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);
@@ -131,7 +140,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const { context, page, transport, errors } = await setup(port, viewport);
         await page.evaluate(() => { window.__voiceTransportFixture.mediaError = 'NotAllowedError'; });
         await page.getByRole('link', { name: 'Start Verb practice', exact: true }).click();
-        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        await openVoiceError(page);
         assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).mediaCalls, 1);
         await page.evaluate(() => { window.__voiceTransportFixture.mediaError = null; });
         await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);
@@ -172,7 +181,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const failedRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
         await page.getByRole('button', { name: 'Pause call', exact: true }).click(); await failedRelease;
         await page.getByRole('button', { name: 'Resume call', exact: true }).click();
-        await page.getByRole('button', { name: 'Retry call', exact: true }).waitFor();
+        await openVoiceError(page);
         assert.equal((await inspectTransport(page)).mediaCalls, 1); assert.equal(transport.sessionRequests, 1);
         transport.releaseStatus = 200;
         await page.getByRole('button', { name: 'Retry call', exact: true }).click(); await ready(page);

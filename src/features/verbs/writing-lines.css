@@ -1,0 +1,59 @@
+.verbs-lesson .ll-field {
+  margin-bottom: 16px;
+}
+
+.verbs-lesson .ll-field > label {
+  margin-bottom: 2px;
+  color: var(--muted, #5c6d65);
+  font-size: .8125rem;
+  font-weight: 500;
+  letter-spacing: .015em;
+}
+
+.verbs-lesson .ll-field-controls {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.verbs-lesson .ll-field-controls input {
+  --writing-focus: var(--primary, #08675f);
+  flex: 1 1 10rem;
+  width: 0;
+  min-width: min(100%, 8rem);
+  min-height: 48px;
+  padding: 4px 2px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--muted, #5c6d65) 65%, var(--line, #d9dfd5));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink, #203b32);
+  caret-color: var(--writing-focus);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.verbs-lesson .ll-field-controls input:focus {
+  border-bottom-color: var(--writing-focus);
+  box-shadow: 0 2px 0 var(--writing-focus);
+}
+
+/* A thicker rule replaces the box outline while retaining a visible focus cue. */
+.verbs-lesson .ll-field-controls input:focus-visible {
+  outline: none;
+  background: linear-gradient(transparent 55%, color-mix(in srgb, var(--writing-focus) 6%, transparent));
+}
+
+.verbs-lesson .ll-field-controls input[aria-invalid="true"] {
+  --writing-focus: var(--error, #b42318);
+  border-bottom-color: var(--writing-focus);
+}
+
+@media (forced-colors: active) {
+  .verbs-lesson .ll-field-controls input:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+}

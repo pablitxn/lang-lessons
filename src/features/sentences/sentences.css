@@ -1,2 +1,6 @@
 .ll-sentences { min-width: 0; }
+.ll-sentences .ll-cue { padding-bottom: 32px; }
+.sentences-navigation { display: flex; align-items: flex-start; gap: 12px; margin: -12px 0 24px; }
+.sentences-navigation > .ll-next { flex: 0 0 48px; }
+.sentences-navigation .ll-button { gap: 8px; }
 .ll-sentences .ll-sentence-actions { border: 0; padding: 0; margin: 0; min-width: 0; }

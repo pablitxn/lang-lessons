@@ -97,7 +97,14 @@ and accepted. Transport failures are connection errors, never incorrect answers.
 Malformed or uncorrelated provider events cannot create accepted evidence.
 
 Spelling must originate from typed input. Meaning, pronunciation, own sentences
-and sentence-mode work require audio, except explicitly labelled mock fixtures.
+and sentence-mode completion require audio, except explicitly labelled mock fixtures.
+The sentence writing field runs alongside a call or independently while offline.
+Its debounced local comparison is separate practice feedback, never oral evidence
+or a semantic rejection of wording outside the authored alternatives.
+After a written translation matches an authored alternative, the learner can
+identify its tense with a local selector. The expected tense comes from that
+matched construction, not the sentence filter or another accepted alternative.
+Edits reset the selection; neither written step creates oral evidence.
 Eligibility helpers reject mock evidence by default; mock sessions must pass an
 explicit `allowMock: true` argument and remain visibly labelled as mock evidence.
 Transcripts can support semantic assessment but never certify pronunciation.
@@ -140,6 +147,18 @@ Provider instructions and output validation must enforce stage restrictions;
 keyword filtering alone cannot prove semantic no-spoiler behavior. If a hint
 fails validation, suppress it and retain progress. Do not speak unvalidated hint
 content; use validated text before asking the voice provider to speak it.
+
+Written sentence hints use a separate same-origin broker request after the local
+700 ms typing debounce, only while global help is enabled and the draft differs
+from the authored examples. The server resolves curriculum by sentence ID and
+asks the model for a brief Spanish hint about this attempt, allowing valid
+paraphrases and ignoring capitalization. Hints appear on hover, focus or tap of
+the highlighted differences rather than in a persistent panel. It requests
+neither pronunciation nor an answer reveal. Editing,
+exercise replacement and disabling help invalidate the current response and
+abort its request. Text feedback cannot advance or overwrite the audio ledger.
+Credentials remain server-only; bounded request rate, concurrency and timeout
+apply independently of voice availability. Requests are never retried automatically.
 
 Typing finalizes after 700 ms idle, Enter/Check or changed nonempty blur, after
 IME composition ends. Deduplicate dispatch for the same draft revision. Feedback

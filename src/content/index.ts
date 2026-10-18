@@ -1,23 +1,45 @@
 /** EN-WP-03: thin adapter over the independently reviewable authored JSON. */
 import type { FormGuidance, Tense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
+import photoLedger from '../../content/en-wp-03/asset-ledger.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
 
-const soundGuides: Readonly<Record<string, string>> = verbReference.sound_guides_es;
 type ReferenceForm = (typeof verbReference.verbs)[number]['forms']['base'][number];
 
 function guidance(variants: readonly ReferenceForm[]): FormGuidance {
   return {
     accepted: variants.map(form => form.text),
     ipa: variants.map(form => variants.length > 1 ? `${form.text}: ${form.ipa}` : form.ipa).join('; '),
-    spanishSoundGuide: variants.map(form => {
-      const articulation = form.sound_guide_refs.map(ref => soundGuides[ref]).join(' ');
-      return `${variants.length > 1 ? `${form.text}: ` : ''}${articulation} ${form.sound_note_es}`;
-    }).join(' '),
+    spanishSoundGuide: variants.map(form =>
+      `${variants.length > 1 ? `${form.text}: ` : ''}${form.sound_spelling_es}`
+    ).join('; '),
   };
 }
 
-/** Original local illustrations; ambiguous meanings retain their Spanish context. */
+/** Curated photo collections stay in content; the shared single-image contract is unchanged. */
+export const VERB_PHOTOS = photoLedger.assets.map(asset => ({
+  ...asset,
+  verbId: asset.content_id.slice(5) as VerbId,
+  alt: `${asset.nonvisual_cue_es} ${asset.context_es}`,
+}));
+
+export function photosForVerb(id: VerbId) {
+  return VERB_PHOTOS.filter(photo => photo.verbId === id);
+}
+
+/** Select once when creating an exercise, never during render or a helper toggle. */
+export function pickVerbPhoto(id: VerbId, random: () => number = Math.random) {
+  const photos = photosForVerb(id);
+  const sample = random();
+  if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
+    throw new RangeError('Random sample must be finite and within [0, 1).');
+  }
+  const photo = photos[Math.floor(sample * photos.length)];
+  if (!photo) throw new Error(`No reviewed photograph for ${id}.`);
+  return photo;
+}
+
+/** Real local photographs; ambiguous meanings retain their Spanish context. */
 export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
   // Exact membership is pinned by the independent content check and contract tests.
   id: verb.lemma as VerbId,
@@ -68,8 +90,7 @@ function difficulty(value: number): 1 | 2 | 3 {
 /** Alternatives are rubric examples; unlisted grammatical equivalents remain valid. */
 export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.map(sentence => ({
   id: sentence.id,
-  // The visible context constrains the intended reading without revealing a tense.
-  spanish: `${sentence.prompt_es}\n\nContexto: ${sentence.context_es}`,
+  spanish: sentence.prompt_es,
   difficulty: {
     grammar: difficulty(sentence.difficulty.grammar),
     vocabulary: difficulty(sentence.difficulty.vocabulary),
@@ -83,7 +104,7 @@ export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.m
   explanationRubric: {
     structure: 'Explain the finite verb/auxiliary construction actually used in the accepted response. A correct tense name alone is insufficient.',
     meaning: sentence.meaning_requirements.join(' '),
-    usage: 'Explain why the actual construction fits the visible context. Accept valid alternatives, including either perfect aspect for the since-2020 residence prompt.',
+    usage: 'Explain why the actual construction fits the Spanish sentence. Accept plausible readings without requiring unstated context, including either perfect aspect for the since-2020 residence prompt. When Spanish omits the subject, accept any subject compatible with the conjugation and English agreement; example pronouns are not exclusive.',
   },
 }));
 
@@ -94,11 +115,13 @@ export const VERB_CUE_BRIEFS = verbReference.verbs.map(verb => ({
 }));
 
 /** Injectable uniform selection, confined to exact25, without an immediate repeat. */
-export function pickNextVerb(previous?: VerbId, random: () => number = Math.random): VerbEntry {
+export function pickNextVerb(previous?: VerbId, random: () => number = Math.random, photoRandom: () => number = Math.random): VerbEntry {
   const candidates = VERBS.filter(verb => verb.id !== previous);
   const sample = random();
   if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
     throw new RangeError('Random sample must be finite and within [0, 1).');
   }
-  return candidates[Math.floor(sample * candidates.length)]!;
+  const verb = candidates[Math.floor(sample * candidates.length)]!;
+  const photo = pickVerbPhoto(verb.id, photoRandom);
+  return { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } };
 }

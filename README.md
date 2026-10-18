@@ -4,7 +4,10 @@ A voice-first English-learning app with three lesson types: picture-based
 irregular verbs, visible-base irregular verbs, and Spanish-to-English sentences.
 The home screen presents lesson cards. Selecting a lesson automatically connects
 the voice coach when the local voice service is enabled. The lesson keeps compact
-mute and pause/resume controls; progress and preferences open in modal dialogs.
+mute and pause/resume controls; failures collapse into a red header badge that
+opens the message and controls. A temporary PC avatar opens Preferences.
+Progress and Reference open modal dialogs from the fixed icon footer; next
+controls show an arrow with a descriptive accessible label.
 Preferences use a section sidebar for Appearance, Voice, Learning and Storage,
 with compact section navigation on small screens. They include system/light/dark
 appearance, microphone permission and independent learning settings. Test adapters and simulated evidence are confined
@@ -23,7 +26,15 @@ node scripts/dev-local.mjs
 Open `http://127.0.0.1:5174/`. Choose Picture, Verb or Sentence to open a
 lesson and start its voice call. A disabled service displays a connection message
 and a retry button. Written verb spelling is checked locally even while voice is
-disabled or paused; oral requirements still need a voice call. For verbs, write the requested forms and speak the meaning,
+disabled or paused; oral requirements still need a voice call. Sentence translation
+also has an always-available writing field beside the next arrow. Write during
+the same call or without a call. Local comparison runs after a 700 ms typing
+pause, Enter, blur or Check, highlighting differences from the closest authored
+example without rejecting other valid wording. A matched translation opens a
+compact verb-tense selector, checked locally against the construction actually
+written. Changing the draft resets that selection. Both steps remain available
+during the same voice call. Written checks do not complete
+the separate oral requirements. For verbs, write the requested forms and speak the meaning,
 pronunciations and original sentences. Progress opens the current lesson's
 requirements; Preferences and reference dialogs preserve the current exercise.
 Sentence practice accepts translation before explanation and waits for **Next
@@ -54,7 +65,22 @@ npm run preview
 For a separate built-app preview terminal, run `npm run preview` from this
 repository's root after a successful build, then open `http://127.0.0.1:4174/`.
 Dev and preview keep running until stopped with Ctrl-C. The voice broker is
-required only for voice conversations.
+required for voice conversations and optional model-generated written hints.
+
+With **Offer help after written corrections** enabled in Learning preferences,
+a differing written translation requests one short Spanish hint based on the
+current attempt, ignoring capitalization. Hover or focus the red differences to
+read the hint, or tap them on mobile; Escape and an outside tap dismiss it.
+The separate voice-coach hint button is available only during an active call.
+Editing, changing the sentence or disabling help cancels the
+request and hides stale feedback. The existing server-only `OPENAI_API_KEY` is
+used with Responses API model `gpt-6-luna` (override with `OPENAI_HINT_MODEL`).
+Text hints can incur usage even when voice is disabled; browsing and local
+comparison with help off make no model requests. The broker limits hint requests
+to two concurrent and twenty per minute, with a 15-second timeout and no automatic
+retries. Drafts and hints are not persisted; up to twenty successful hints are
+cached only in the mounted lesson's memory. Provider failure leaves the writing
+field usable and never counts as a learner error.
 
 `check` runs Node/TypeScript behavior tests, curriculum integrity and Python
 mutation tests, strict type checking and the production build. The curriculum
@@ -117,6 +143,8 @@ Then run the existing helpers (omit port 4174 if preview is not running):
 ```sh
 npm run test:browser -- 5174 4174
 node scripts/smoke-practice.cjs 5174 4174
+node scripts/smoke-past-tenses.cjs 5174
+node scripts/smoke-written-sentences.cjs 5174
 ```
 
 The helpers check 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
@@ -140,7 +168,7 @@ Owned UI and feature fixtures run independently with
 - [Typed contracts](src/contracts/index.ts): shared implementation authority.
 - [Atlas intake](docs/atlas-intake-en-wp-01.md): coordinator-owned knowledge update.
 
-Only theme, help, untimed-help, difficulty and preferred-mode settings persist under
+Only theme, help, untimed-help, difficulty, sentence-tense and preferred-mode settings persist under
 `lang-lessons.settings.v1`. No transcript, audio, score, token, provider mode,
 analytics identifier or learning history is stored. Clearing preferences removes
 only that key. Blocked/malformed storage falls back to in-memory defaults.
@@ -175,5 +203,13 @@ adopt all eight tenses. Both verb modes retain their three spelling/form familie
 and use the expanded context and reference guide for original oral sentences.
 
 See [curriculum](docs/curriculum.md) for tense/family distinctions and evidence
-limits. The EN-WP-08 implementation is a separate feature candidate; the dated
-reconciliation above remains its historical prerequisite receipt.
+limits. The integrated EN-WP-08 curriculum uses the same compact lesson controls;
+the dated reconciliation above remains its historical prerequisite receipt.
+
+## Exercise photographs
+
+Picture practice uses locally served real photographs, with one or more photos
+per irregular verb. See the [image policy and free-bank comparison](content/en-wp-03/ASSETS.md)
+and [photo replacement receipt](docs/evidence/real-photos-2026-10-18/README.md).
+Future imagery must follow the same real-photo, source/license and visual-review
+rules. Generated exercise images are prohibited.

@@ -1,2 +1,57 @@
 .verbs-lesson { min-width: 0; }
-.verbs-system-error, .verbs-alternate-cue { background: var(--surface, #eef0e7); border: 1px solid var(--line, #d9dfd5); border-radius: 12px; padding: 14px; overflow-wrap: anywhere; }
+.verbs-workspace, .verbs-prompt, .verbs-answers { min-width: 0; }
+.verbs-prompt { margin-bottom: 20px; }
+.verbs-navigation { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.verbs-picture-frame > .verbs-navigation { position: absolute; inset: 50% 8px auto; margin: 0; transform: translateY(-50%); pointer-events: none; }
+.verbs-picture-frame > .verbs-navigation button { pointer-events: auto; }
+.verbs-system-error { background: var(--surface, #eef0e7); border: 1px solid var(--line, #d9dfd5); border-radius: 12px; padding: 14px; overflow-wrap: anywhere; }
+
+.verbs-word-cue { position: relative; box-sizing: border-box; min-height: 132px; padding-right: 72px; margin-bottom: 0; }
+.verbs-word-cue > .verbs-navigation { position: absolute; top: 8px; right: 8px; margin: 0; }
+.verbs-word-cue .verbs-navigation button { opacity: 0; pointer-events: none; transition: opacity .16s ease; border-color: transparent; background: transparent; color: var(--ink, #203b32); backdrop-filter: none; }
+.verbs-word-cue .verbs-navigation button:hover { background: color-mix(in srgb, var(--ink, #203b32) 8%, transparent); }
+.verbs-word-cue .verbs-navigation button:focus-visible { outline-color: var(--primary, #08675f); }
+.verbs-word-cue[data-revealed="true"] .verbs-navigation button,
+.verbs-word-cue:focus-within .verbs-navigation button { opacity: 1; pointer-events: auto; }
+.verbs-word-information { position: absolute; inset: auto 8px 8px; pointer-events: none; }
+.verbs-word-information :is(button, [role="tooltip"]) { pointer-events: auto; }
+.verbs-word-cue .verbs-info-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 11px; border: 0; border-radius: 50%; background: transparent; color: var(--muted, #5c6d65); }
+.verbs-word-cue .verbs-info-button:hover { background: color-mix(in srgb, var(--ink, #203b32) 8%, transparent); color: var(--ink, #203b32); }
+@media (hover: hover) and (pointer: fine) {
+  .verbs-word-cue:hover .verbs-navigation button { opacity: 1; pointer-events: auto; }
+}
+
+.verbs-lesson .verbs-picture-cue { display: flex; justify-content: center; padding: 0; margin: 0; background: transparent; border-radius: 0; }
+.verbs-picture-cue .verbs-picture-frame { position: relative; width: fit-content; max-width: 100%; min-width: 0; }
+.verbs-picture-cue img.verbs-picture { width: auto; height: auto; max-width: 100%; max-height: clamp(280px, 50svh, 440px); aspect-ratio: auto; border-radius: 12px; }
+.verbs-picture-cue figcaption { position: absolute; inset: auto 8px 8px; pointer-events: none; }
+.verbs-picture-cue figcaption :is(button, [role="tooltip"]) { pointer-events: auto; }
+.verbs-picture-unavailable { padding: 20px 20px 60px; background: var(--surface, #eef0e7); border-radius: 12px; }
+
+.verbs-photo-button { display: grid; place-items: center; width: 44px; height: 44px; min-width: 44px; min-height: 44px; border: 1px solid #ffffff24; border-radius: 50%; padding: 11px; background: #15221b70; color: #fff; backdrop-filter: blur(8px); cursor: pointer; }
+.verbs-photo-button svg { width: 20px; height: 20px; }
+.verbs-photo-button:hover:not(:disabled) { background: #15221ba6; }
+.verbs-photo-button:disabled { opacity: .3; cursor: default; }
+.verbs-photo-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.verbs-expand { position: absolute; top: 8px; right: 8px; }
+.verbs-picture-frame :is(.verbs-expand, .verbs-navigation button) { opacity: 0; transition: opacity .16s ease; }
+.verbs-picture-frame :is(.verbs-expand, .verbs-navigation button):focus-visible,
+.verbs-picture-frame[data-revealed="true"] :is(.verbs-expand, .verbs-navigation button) { opacity: 1; }
+.verbs-picture-frame .verbs-navigation button:disabled { opacity: 0; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) {
+  .verbs-picture-frame :is(.verbs-expand, .verbs-navigation button):hover { opacity: 1; }
+}
+
+.verbs-picture-dialog { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: max(64px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); box-sizing: border-box; border: 0; border-radius: 0; background: #101a15f5; overflow: hidden; overscroll-behavior: contain; }
+.verbs-picture-dialog[open] { display: grid; place-items: center; }
+.verbs-picture-dialog::backdrop { background: #101a15; }
+.verbs-picture-dialog > img { display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain; }
+.verbs-picture-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); }
+
+.verbs-picture-info { position: relative; display: flex; justify-content: flex-end; width: 100%; }
+.verbs-picture-cue .verbs-info-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 11px; border-radius: 50%; border-color: #ffffff24; background: #15221b70; color: #fff; backdrop-filter: blur(8px); }
+.verbs-picture-cue .verbs-info-button:hover { background: #15221ba6; }
+.verbs-info-button svg { display: block; width: 20px; height: 20px; }
+.verbs-info-tooltip { position: absolute; z-index: 5; bottom: 100%; right: 0; box-sizing: border-box; width: max-content; max-width: min(26rem, 100%); padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--line, #d9dfd5) 55%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--paper, #fffefa) 82%, transparent); backdrop-filter: blur(8px); color: var(--ink, #203b32); box-shadow: 0 3px 12px #00000010; font-size: .8125rem; line-height: 1.4; overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) { .verbs-picture-frame :is(.verbs-expand, .verbs-navigation button), .verbs-word-cue .verbs-navigation button { transition: none; } }
