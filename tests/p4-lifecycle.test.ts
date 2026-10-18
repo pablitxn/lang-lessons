@@ -7,11 +7,11 @@ import { createMockVoiceAdapter } from '../src/voice/mock';
 import { verbContext } from './helpers/assessment-fixtures';
 
 const tick = () => new Promise<void>(resolve => setImmediate(resolve));
-function fixture() {
+function fixture(options: Parameters<typeof createSessionRuntime>[2] = {}) {
   const base = createMockVoiceAdapter();
   let connects = 0; const connect = base.connect;
   base.connect = async options => { connects++; return connect(options); };
-  const runtime = createSessionRuntime(base, 's1'); runtime.voice.setContext(verbContext());
+  const runtime = createSessionRuntime(base, 's1', options); runtime.voice.setContext(verbContext());
   const calls: string[] = []; let revision = 0; let sequence = 0; let current = true; let rejectFlush = false;
   let flush: (() => Promise<ProgressFence>) | null = null;
   let close: ((request: Parameters<SessionCommands['confirmClose']>[0]) => Promise<CloseResult>) | null = null;
@@ -29,7 +29,7 @@ function fixture() {
     freezeWrites() { calls.push('freeze'); }, releasePreparation() { calls.push('release'); },
     operationId: () => `operation-${++sequence}`, isCurrent: () => current, navigate: target => calls.push(`navigate:${target}`),
   });
-  return { runtime, lifecycle, calls, sessions, connects: () => connects, rejectFlush: () => { rejectFlush = true; }, stale: () => { current = false; },
+  return { base, runtime, lifecycle, calls, sessions, connects: () => connects, rejectFlush: () => { rejectFlush = true; }, stale: () => { current = false; },
     setFlush: (fn: () => Promise<ProgressFence>) => { flush = fn; },
     setClose: (fn: NonNullable<typeof close>) => { close = fn; } };
 }
@@ -165,4 +165,53 @@ test('written-only persistence failure keeps queued data and reports failure wit
   assert.match(f.lifecycle.getSnapshot().error, /Progress could not be saved/);
   assert.deepEqual(f.calls, ['freeze', 'flush', 'release']);
   unsubscribe(); f.lifecycle.dispose();
+});
+
+
+test('Stop during runtime preparation ends the segment once without blocking restart or no-call exit', async () => {
+  for (const next of ['restart', 'exit'] as const) {
+    let release!: () => void; let prepares = 0;
+    const f = fixture({ prepareConnection: async () => { if (++prepares === 1) await new Promise<void>(resolve => { release = resolve; }); } });
+    const starting = f.lifecycle.start(); await tick();
+    assert.equal(f.calls.filter(call => call === 'start').length, 1);
+    const stopping = f.lifecycle.stop(); release(); await Promise.all([starting, stopping]);
+    assert.equal(f.connects(), 0); assert.equal(f.calls.filter(call => call === 'stop').length, 1);
+    assert.equal(f.lifecycle.getSnapshot().error, '');
+    if (next === 'restart') { await f.lifecycle.start(); assert.equal(f.connects(), 1); assert.equal(f.runtime.getSnapshot().state, 'ready'); }
+    else { assert.equal(await f.lifecycle.requestExit('home'), 'closed'); assert.equal(f.lifecycle.getSnapshot().confirming, false); }
+    f.lifecycle.dispose();
+  }
+});
+test('explicit Start after a same-session disconnect reconciles the old segment before connecting again', async () => {
+  const f = fixture(); const context = f.runtime.getContext(); await f.lifecycle.start();
+  f.base.disconnect(); assert.equal(f.runtime.getSnapshot().state, 'offline'); f.calls.length = 0;
+  await f.lifecycle.start();
+  assert.deepEqual(f.calls, ['read', 'stop', 'read', 'start']);
+  assert.equal(f.connects(), 2); assert.equal(f.runtime.getSnapshot().state, 'ready');
+  assert.equal(f.runtime.getContext(), context); assert.equal(f.runtime.sessionId, 's1');
+  assert.equal(f.runtime.getSnapshot().hadConnectedCall, true); f.lifecycle.dispose();
+});
+test('a rejected disconnected-segment stop receipt blocks replacement and does not fabricate reconciliation', async () => {
+  const f = fixture(); await f.lifecycle.start(); f.base.disconnect();
+  f.sessions.stopCall = async () => { throw new Error('Stop not acknowledged'); };
+  await f.lifecycle.start(); assert.equal(f.connects(), 1);
+  assert.equal(f.calls.filter(call => call === 'start').length, 1);
+  assert.match(f.lifecycle.getSnapshot().error, /needs checking/); f.lifecycle.dispose();
+});
+
+test('Stop while disconnected-segment reconciliation is pending prevents a replacement call', async () => {
+  const f = fixture(); await f.lifecycle.start(); f.base.disconnect();
+  const stopCall = f.sessions.stopCall; let release!: () => void;
+  f.sessions.stopCall = async request => { await new Promise<void>(resolve => { release = resolve; }); return stopCall(request); };
+  const restart = f.lifecycle.start(); await tick(); const stop = f.lifecycle.stop(); release(); await Promise.all([restart, stop]);
+  assert.equal(f.connects(), 1); assert.equal(f.calls.filter(call => call === 'stop').length, 1);
+  assert.equal(f.lifecycle.getSnapshot().error, ''); assert.equal(f.runtime.getSnapshot().state, 'offline'); f.lifecycle.dispose();
+});
+test('intentional startup cancellation still reports an unacknowledged segment stop', async () => {
+  let release!: () => void;
+  const f = fixture({ prepareConnection: () => new Promise<void>(resolve => { release = resolve; }) });
+  f.sessions.stopCall = async () => { throw new Error('Stop receipt unavailable'); };
+  const start = f.lifecycle.start(); await tick(); const stop = f.lifecycle.stop(); release(); await Promise.all([start, stop]);
+  assert.equal(f.connects(), 0); assert.match(f.lifecycle.getSnapshot().error, /needs checking/);
+  assert.equal(await f.lifecycle.requestExit('home'), undefined); f.lifecycle.dispose();
 });
