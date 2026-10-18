@@ -1,3 +1,4 @@
+import { createPhoenixDebugSink, type DebugEvidenceSink } from './debug-evidence';
 import type { FeedbackTelemetry } from './feedback/telemetry';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { ROOT_CONTEXT, SpanKind, SpanStatusCode, trace, type Span } from '@opentelemetry/api';
@@ -63,6 +64,19 @@ export class PhoenixTelemetry {
       'service.name': 'lang-lessons-voice', 'openinference.project.name': config.project,
     }), spanProcessors: [new BatchSpanProcessor(safeExporter, { maxQueueSize: 128, maxExportBatchSize: 32,
       scheduledDelayMillis: 1000, exportTimeoutMillis: 2500 })] });
+  }
+  captureGap(segment: import('../src/contracts/session').CallSegmentRef): void {
+    if (!this.provider) return;
+    const span = this.provider.getTracer('lang-lessons.debug', '1.0.0').startSpan('learning.debug.capture-gap', { attributes: {
+      'app.exercise_session.id': segment.sessionId, 'app.call_segment.id': segment.segmentId,
+      'app.connection.epoch': segment.connectionEpoch, 'app.telemetry.content_capture': false,
+      'app.telemetry.audio_capture': false,
+    } });
+    span.end();
+  }
+  /** Content capture requires an additional explicit server opt-in at composition. */
+  debugSink(): DebugEvidenceSink | undefined {
+    return this.provider ? createPhoenixDebugSink(this.provider.getTracer('lang-lessons.debug', '1.0.0')) : undefined;
   }
   /** Reuse the configured collector for canonical, metadata-only feedback outcomes. */
   feedback(synthetic = false): FeedbackTelemetry | undefined {
