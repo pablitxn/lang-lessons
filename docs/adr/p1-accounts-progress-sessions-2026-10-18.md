@@ -4,7 +4,8 @@ Status: inspection and architecture proposal ONLY; NOT frozen or implemented.
 Date: 2026-10-18. Owner: delegated P1 / EN-WP-01.
 Coordinator: `01a118ed-6bf7-7481-93e6-336de48270f7`.
 Sole P0/integration writer: `01a14e4c-74cd-7047-9c85-194a390d3001`.
-Accepted P0 base: pending parent receipt. No producer dispatch authorized here.
+Accepted P0 base: `c0b4e470aef77050792122a42f67e6633653a5c6` (parent receipt,
+independently fetched). No producer dispatch authorized here.
 
 ## Authority and evidence
 
@@ -16,8 +17,11 @@ Only this new app-owned document is edited. Atlas/Notion intake stays with paren
 
 Fetched application main: `9dd7f28d823751d7e56d81756d15ff3660bf1d19`.
 Fetched PR11: `8a567553731ced5e7cde3f34a00e6ecd7481bb40`.
-No edits to that candidate. Draft branch starts from the observed main, not an
-assumed accepted PR11 base. Parent must reconcile this draft against accepted P0.
+Initial draft started from the observed main without editing PR11. Parent has
+now admitted PR11. An additive merge reconciles this branch with accepted P0
+`c0b4e470aef77050792122a42f67e6633653a5c6`; tree
+`11786917fb2ab978d2a0a5f1ec3dae09bbc6168a` matches reviewed PR11 exactly.
+No code delta is introduced by P1. See the technical freeze proposal below.
 Hosted PR metadata query failed with GraphQL Forbidden; Git fetch succeeded.
 P0 owns candidate admission, checks, flake/provenance review and merge disposition.
 
@@ -263,5 +267,123 @@ application checks remain P0's scope and were not rerun for this prose-only draf
 
 Requested model/effort: gpt-6-astra / medium. Runtime metadata does not expose an
 independently verifiable accepted model/effort receipt; no switch or speed claim.
-Remaining gates: accepted P0 SHA, coordinator ADR/interface review, answers only
+Remaining gates: coordinator ADR/interface review, answers only
 for dependent policy slices, explicit shared ownership handoff, then parent dispatch.
+
+
+## Post-P0 technical freeze proposal (amendment, 2026-10-18)
+
+P0 dependency is satisfied. This section is ready for parent technical review;
+writing it does not freeze shared code. Q10-Q13 have been sent to the user and
+remain unanswered. Earlier follow-ups marked UNKNOWN are not admitted. Only the
+new P5 improvement explicitly relayed by parent is incorporated below.
+
+### Proposed interface allocation
+
+Integrator alone materializes these proposed shared files and barrel exports.
+Consumers import contracts, never one another's implementation. Existing
+`ExerciseIdentity`, `AttemptRef`, evidence-source and obligation types are reused,
+not replaced by a second identity scheme. `sessionId` denotes the exercise session;
+`segmentId` and `connectionEpoch` separately identify optional tutor connections.
+
+| Proposed shared file | Exports / invariant | Consumer owners |
+| --- | --- | --- |
+| `src/contracts/accounts.ts` | `Role`, minimal `CurrentUser`, explicit `Capabilities`, public user DTO; role assignment absent from client writable DTO | P2/P3 |
+| `src/contracts/progress.ts` | `PracticeEvent`, `PracticeEventAck`, `ProgressSink`; event ID + existing exercise/attempt ref + typed result/source; no submitted text or derived totals | P2/P4/P5 |
+| `src/contracts/session.ts` | `SessionSnapshot`, `CallSegmentRef`, `SessionCommands`, `CloseResult`; revision-bound mutations and stable operation IDs | P2/P4/P6 |
+| `src/contracts/feedback.ts` | `FeedbackState`, `FeedbackJobRef`, `ProfessorComment`; session-bound qualitative result without score; evidence DTO remains deferred to Q13 | P2/P3/P6 |
+| `src/contracts/dictionary.ts` | `DictionaryEntry`, `DictionarySource`, `DictionarySense`; immutable source provenance per displayed field | P5 |
+
+Proposed `ProgressSink.submit(events)` returns acknowledgments keyed by event ID
+with accepted/duplicate/rejected and server revision, not inferred success from
+HTTP alone. Batch transaction is all-or-nothing on invalid ownership/schema;
+valid replay returns prior acknowledgment. Same ID with changed payload is a
+conflict. Distinct events may legitimately share an attempt ref only if their
+explicit event kind/revision allows it; accepted outcome must not be overwritten
+by an older processing event. The integrator should freeze exact discriminants
+with P2/P5 before coding, without selecting Q11 aggregate semantics.
+
+Proposed `SessionCommands` has create/read/startCall/stopCall/confirmClose/readClose.
+All mutations return the canonical session revision; confirmClose retries reuse
+one operation ID. P4 owns local `requestExit`/`cancelExit` state: neither creates a
+server feedback command. No client `generateComment` endpoint is exposed.
+P2 supplies `FeedbackRepository.claim/complete/fail` transaction methods to P6;
+claim fencing and unique session constraints enforce one stored final comment.
+Public polling/retry cadence and evidence selection remain Q12/Q13-dependent.
+
+Do not add a direct client "verified audio" boolean. Map existing evidence
+sources through boundary validation and preserve client-reported trust. Q13 must
+resolve whether available structured interaction is sufficient to ground a
+comment; a database record alone does not authenticate browser-supplied content.
+
+### Newly approved P5 dictionary and image behavior
+
+Parent relays approval for a post-completion Pictures dictionary card containing
+sourced English definitions, relevant senses, parts of speech, phonetics and
+examples, with a Next button. Progress/Reference navigation appears only on home.
+Upcoming-image preload/decode must be bounded. These requirements do not approve
+a dictionary source or agent-authored dictionary wording.
+
+Proposed flow: preserve the accepted Pictures completion predicate, then enter a
+`dictionary` presentation state bound to the completed exercise ID/generation.
+Hold automatic advance while that card is visible. Next explicitly advances once
+and invalidates the old card/preload generation. Dictionary viewing/Next neither
+starts/stops a tutor call nor ends the exercise session or creates a professor
+comment. Do not extend this behavior to other modes without a requirement.
+Completion metrics still await Q11; showing the card is not a new solved rule.
+
+Proposed source model: entry lemma, ordered reviewed sense IDs, exact sourced
+English definition/example strings, POS and pronunciation/dialect labels. Each
+field links to source URL, immutable revision/snapshot ID, retrieval date and
+license/attribution metadata; source content hash detects silent replacements.
+Selection/formatting may be editorial, but supplied wording is not paraphrased,
+invented or model-generated. Missing fields remain unavailable pending source
+review, not synthesized. Relevant senses must be reviewed against the exercise;
+no automatic all-senses dump or guessed phonetics. Any content adaptation must
+be explicitly identified in provenance rather than presented as an exact quote.
+
+A reviewed Wiktionary snapshot is only the parent's research recommendation.
+Parent reports CC BY-SA 4.0 attribution obligations; source/version selection,
+field provenance and actual applicable reuse terms still require source review.
+No Wiktionary data was fetched, licensed or independently certified by this P1
+amendment. Do not start corpus import or publish dictionary text before source
+choice and license handling are accepted. This gate does not block card fixtures
+with clearly labeled structural placeholders, Next behavior or image preparation.
+
+Proposed technical preload bound: one already-selected next local image, at most
+one pending decode, scoped to current session/exercise generation. No whole-corpus
+preload, extra random selection, external image URL, change to the 75-photo ledger
+or duplication of images. Decode rejection must not block Next or replace the
+current cue; normal image loading remains fallback. Drop references on session
+exit, mode change or new generation; late decode completion cannot update a new
+exercise. This is a proposed reversible performance limit, not a storage quota.
+
+### Precise ownership additions for parent approval
+
+- P5 owns `src/features/verbs/PictureDictionaryCard.tsx`,
+  `src/features/verbs/picture-preload.ts`, its scoped CSS, existing Pictures
+  composition/session changes and `tests/p5-dictionary*.test.ts`. P5 also owns new
+  `src/content/dictionary/**` and `content/dictionary/**` only after source approval;
+  these are additive, separate from the existing curriculum and photo ledger.
+- Integrator owns `src/contracts/dictionary.ts`, root route/navigation changes in
+  `src/app/App.tsx` and any Progress/Reference registration, plus changes to content
+  exports/build scripts if needed. Home-only navigation does not grant an extra
+  account/progress permission. P3/P5 request root links rather than editing App.
+- P4 retains root session/exit ownership; P5 requests a presentation hold through
+  the existing runtime interface. P5 does not edit `LessonSession.tsx`,
+  `session-runtime.ts` or `VoiceStatus.tsx`. P4 does not edit verb feature files.
+- Shared current tests remain integrator-owned unless individually reassigned.
+  New task-prefixed tests belong to their producer. Server wiring, dependency
+  manifests, migration registry and shared barrels remain with the sole integrator.
+
+Parent may freeze identity/envelope/idempotency/ownership and the new Pictures
+presentation/preload seams independently of Q10-Q13 policy. Exact database engine,
+Better Auth version compatibility and response discriminants still need technical
+acceptance; no unreviewed library API or deployment feasibility is claimed.
+
+Additional eventual validation: completion opens exactly one card; Next advances
+once despite double click; no old timer skips it; no-call and called sessions retain
+identity; navigation links occur only on home; source text/provenance integrity;
+missing content never becomes fabricated wording; one preload/decode limit;
+failed/late decode, rapid Next and mode exit preserve current cue. Use fixture
+source text only until a reliable source and its reuse conditions are accepted.
