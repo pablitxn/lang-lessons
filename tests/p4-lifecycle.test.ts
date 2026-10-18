@@ -66,7 +66,7 @@ test('rejected final progress releases preparation and never closes or navigates
   assert.deepEqual(f.calls, ['freeze', 'flush', 'release']); assert.equal(f.lifecycle.getSnapshot().frozen, false);
   assert.match(f.lifecycle.getSnapshot().error, /Progress could not be saved/); f.lifecycle.dispose();
 });
-test('ambiguous close stays frozen without an automatic or UI retry policy', async () => {
+test('ambiguous close stays frozen without automatically retrying', async () => {
   const f = fixture(); f.setClose(async () => { throw new Error('Lost reply'); });
   await f.lifecycle.requestExit('home'); await f.lifecycle.requestExit('other');
   assert.equal(f.calls.filter(x => x === 'close').length, 1); assert.equal(f.lifecycle.getSnapshot().frozen, true);

@@ -3,6 +3,8 @@ import { createExitCoordinator } from '../foundation/exit-coordinator';
 import type { createSessionRuntime } from './session-runtime';
 
 export interface SessionLifecyclePorts {
+  /** Authoritative recovery history, never inferred from current transport state. */
+  hadConnectedCall?: boolean;
   sessions: SessionCommands;
   progress: Pick<ProgressSink, 'flush'>;
   freezeWrites(): void;
@@ -14,7 +16,7 @@ export interface SessionLifecyclePorts {
 
 /** Memory-only UI coordination. Server commands remain the authority for lifecycle revisions. */
 export function createSessionLifecycle(runtime: ReturnType<typeof createSessionRuntime>, ports: SessionLifecyclePorts) {
-  let snapshot = { confirming: false, callStarting: false, busy: false, frozen: false, error: '', uncertainClose: false };
+  let snapshot = { confirming: false, callStarting: false, busy: false, frozen: false, error: '', uncertainClose: false, canRetryExit: false };
   const listeners = new Set<() => void>();
   const update = (patch: Partial<typeof snapshot>) => { snapshot = { ...snapshot, ...patch }; listeners.forEach(listener => listener()); };
   let decision: ((choice: 'cancel' | 'confirm') => void) | null = null;
@@ -22,6 +24,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
   let callOperation: Promise<void> | null = null;
   let epoch = 0;
   let disposed = false;
+  let exitTarget: string | null = null;
   const current = () => !disposed && ports.isCurrent();
   async function mutation() {
     const session = await ports.sessions.read(runtime.sessionId);
@@ -42,7 +45,7 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
         if (callOperation) await callOperation;
         if (!current()) return 'cancel';
         if (snapshot.error) throw new Error('Call lifecycle needs reconciliation.');
-        if (!runtime.getSnapshot().hadConnectedCall) return 'confirm';
+        if (!ports.hadConnectedCall && !runtime.getSnapshot().hadConnectedCall) return 'confirm';
         runtime.hold('session-exit', true);
         update({ confirming: true });
         return new Promise<'cancel' | 'confirm'>(resolve => { decision = resolve; });
@@ -65,6 +68,16 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
     },
     operationId: ports.operationId, isCurrent: current, navigate: ports.navigate,
   });
+  async function requestExit(target: string) {
+    if (!current() || snapshot.uncertainClose || snapshot.error) return;
+    if (!snapshot.busy && !snapshot.frozen) exitTarget = target;
+    update({ busy: true });
+    try { return await coordinator.request(target); }
+    catch { if (current()) update({ canRetryExit: true, error: snapshot.frozen
+      ? 'Session close could not be confirmed. Your session is held for reconciliation.'
+      : 'Progress could not be saved. Your session remains open.' }); }
+    finally { if (current()) update({ busy: false }); }
+  }
   return {
     getSnapshot: () => snapshot,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
@@ -100,15 +113,11 @@ export function createSessionLifecycle(runtime: ReturnType<typeof createSessionR
       if (choice === 'cancel') runtime.hold('session-exit', false);
       resolve?.(choice);
     },
-    async requestExit(target: string) {
-      // A failed dispatched close stays frozen until a Q12 reconciliation policy is supplied.
-      if (snapshot.uncertainClose || snapshot.error) return;
-      update({ busy: true });
-      try { return await coordinator.request(target); }
-      catch { if (current()) update({ error: snapshot.frozen
-        ? 'Session close could not be confirmed. Your session is held for reconciliation.'
-        : 'Progress could not be saved. Your session remains open.' }); }
-      finally { if (current()) update({ busy: false }); }
+    requestExit(target: string) { return requestExit(target); },
+    retryExit() {
+      if (!snapshot.canRetryExit || snapshot.busy || exitTarget === null || !current()) return Promise.resolve();
+      update({ error: '', uncertainClose: false, canRetryExit: false });
+      return requestExit(exitTarget);
     },
     activate() { disposed = false; },
     dispose() { disposed = true; epoch++; decision?.('cancel'); decision = null; runtime.stop(); listeners.clear(); },
