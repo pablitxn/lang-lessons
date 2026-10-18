@@ -25,7 +25,7 @@ export interface SessionRecoveryPorts {
   /** P5 restores the IndexedDB queue; root creates lifecycle with record.hadConnectedCall. No audio start. */
   preparePractice(record: RecoveryRecord, signal: AbortSignal): Promise<RecoveryPractice>;
   /** Mount the same canonical session and restored exercise/drafts; no automatic tutor start. */
-  resume(record: RecoveryRecord): void;
+  resume(record: RecoveryRecord): void | Promise<void>;
   retryFeedback(input: RecoveryIdentity & { operationId: string }, signal: AbortSignal): Promise<RecoveryRecord>;
   operationId(): string;
 }
@@ -108,7 +108,7 @@ export function createSessionRecovery(ports: SessionRecoveryPorts) {
       if (!prepared || !current()) return;
       // A close already dispatched cannot be resumed until its authoritative state is reconciled.
       if (prepared.lifecycle.getSnapshot().frozen) throw new Error('Close is unresolved');
-      ports.resume(record);
+      await ports.resume(record);
       if (current()) update({ phase: 'resumed' });
     }, 'This session could not be resumed. Your saved progress has not been removed.'); },
     finalize(target: string) { return run(async () => {

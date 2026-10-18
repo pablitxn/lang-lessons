@@ -166,3 +166,50 @@ test('a cancelled destination does not replace the destination of a later manual
   f.failFlush(false); const retry = f.recovery.retryFinalize(); await tick(); lifecycle.decide('confirm'); await retry;
   assert.ok(f.calls.includes('navigate:chosen-target')); assert.ok(!f.calls.includes('navigate:cancelled-target')); f.recovery.dispose();
 });
+
+test('async resume waits for root reconciliation and shares duplicate clicks without terminating practice', async () => {
+  const f = fixture(); let finish!: () => void; let handoffs = 0;
+  f.ports.resume = () => { handoffs++; return new Promise<void>(resolve => { finish = resolve; }); };
+  await f.recovery.load(); const first = f.recovery.resume(); const duplicate = f.recovery.resume();
+  assert.equal(first, duplicate); await tick();
+  assert.equal(handoffs, 1); assert.equal(f.recovery.getSnapshot().phase, 'available');
+  assert.equal(f.recovery.getSnapshot().busy, true);
+  assert.deepEqual(f.calls, ['read', 'restore-queue']);
+  finish(); await Promise.all([first, duplicate]);
+  assert.equal(f.recovery.getSnapshot().phase, 'resumed'); assert.equal(f.recovery.getSnapshot().busy, false);
+  assert.deepEqual(f.calls, ['read', 'restore-queue']); f.recovery.dispose();
+});
+test('async resume rejection keeps the card and restored queue available for explicit retry', async () => {
+  const f = fixture(); let attempts = 0;
+  f.ports.resume = async () => { await tick(); if (++attempts === 1) throw new Error('Transport reconciliation failed'); };
+  await f.recovery.load(); await f.recovery.resume();
+  const state = f.recovery.getSnapshot();
+  assert.equal(state.phase, 'available'); assert.equal(state.busy, false); assert.equal(state.record?.sessionId, 's');
+  assert.match(state.error, /could not be resumed/);
+  await f.recovery.resume(); assert.equal(attempts, 2);
+  assert.equal(f.recovery.getSnapshot().phase, 'resumed'); assert.equal(f.recovery.getSnapshot().error, '');
+  assert.deepEqual(f.calls, ['read', 'restore-queue']); f.recovery.dispose();
+});
+test('account invalidation or disposal during async resume cannot mark the old session resumed', async () => {
+  for (const invalidate of ['account', 'dispose', 'session-guard'] as const) {
+    const f = fixture(); let finish!: () => void;
+    f.ports.resume = () => new Promise<void>(resolve => { finish = resolve; });
+    await f.recovery.load(); const resume = f.recovery.resume(); await tick();
+    if (invalidate === 'account') f.invalidate();
+    else if (invalidate === 'dispose') f.recovery.dispose();
+    else f.ports.isCurrent = () => false;
+    finish(); await resume;
+    assert.equal(f.recovery.getSnapshot().phase, 'invalidated'); assert.equal(f.recovery.getSnapshot().record, null);
+    assert.equal(f.recovery.getSnapshot().lifecycle, null); assert.equal(f.recovery.getSnapshot().error, ''); f.recovery.dispose();
+  }
+});
+test('cancelled finalization does not close or stop a recovered session before asynchronous resume', async () => {
+  const f = fixture(true); let finish!: () => void;
+  f.ports.resume = () => new Promise<void>(resolve => { finish = resolve; });
+  await f.recovery.load(); const finalize = f.recovery.finalize('home'); await tick();
+  f.recovery.getSnapshot().lifecycle!.decide('cancel'); await finalize;
+  const resume = f.recovery.resume(); await tick();
+  assert.equal(f.recovery.getSnapshot().phase, 'available'); assert.equal(f.closeRequests.length, 0);
+  assert.deepEqual(f.calls, ['read', 'restore-queue']);
+  finish(); await resume; assert.equal(f.recovery.getSnapshot().phase, 'resumed'); f.recovery.dispose();
+});
