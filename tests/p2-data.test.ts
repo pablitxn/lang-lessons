@@ -6,6 +6,7 @@ import { Pool } from 'pg';
 import { createLearningRepository } from '../server/data/repository';
 import type { DataPolicy } from '../server/data/repository';
 import { createFeedbackRepository } from '../server/data/feedback-repository';
+import type { SessionFeedbackView } from '../server/accounts/repository';
 import { createAccountRepository } from '../server/accounts/repository';
 import { transaction } from '../server/data/database';
 import type { PracticeEvent } from '../src/contracts/progress';
@@ -264,5 +265,38 @@ test('P2 actual P6 coordinator records insufficient evidence through the Postgre
     assert.deepEqual(await coordinator.run(jobId), { status: 'insufficient-evidence', sessionId: id });
     assert.deepEqual(await coordinator.run(jobId), { status: 'not-claimed' }); assert.equal(calls, 0);
     assert.equal((await f.pool.query('SELECT state FROM learning_feedback_jobs')).rows[0].state, 'insufficient-evidence');
+  } finally { await f.cleanup(); }
+});
+
+test('P2 authorized history returns actual start/end timestamps with independent pagination and explicit legacy nulls', isolated, async () => {
+  const f = await fixture();
+  try {
+    const first = await opened(f.pool); const second = await opened(f.pool); const legacy = await opened(f.pool);
+    await first.repo.commands.confirmClose({ sessionId: first.session.sessionId, operationId: 'close-with-history', expectedRevision: 0,
+      finalProgress: { sessionId: first.session.sessionId, journalRevision: 0 } });
+    await f.pool.query('UPDATE learning_sessions SET started_at=NULL,closed_at=NULL WHERE id=$1', [legacy.session.sessionId]);
+    const stored = await f.pool.query<{ id: string; started_at: Date | null; closed_at: Date | null }>(
+      "SELECT id,started_at,closed_at FROM learning_sessions WHERE user_id='alice'");
+    const access = { grants: (role: string) => role === 'professor' ? ['students:feedback:read'] : [] };
+    const accounts = createAccountRepository(f.pool, access, { allowStudentFeedback: true });
+    const seen: SessionFeedbackView[] = [];
+    let cursor: string | null = null;
+    do {
+      const result = await accounts.readProgressPage({ userId: 'prof' }, 'alice', cursor, 1);
+      assert.equal(result.studentId, 'alice'); assert.equal(result.sessions.items.length, 1);
+      seen.push(...result.sessions.items); cursor = result.sessions.nextCursor;
+    } while (cursor);
+    assert.equal(seen.length, 3);
+    for (const row of stored.rows) {
+      const item = seen.find(value => value.sessionId === row.id)!;
+      assert.equal(item.startedAt, row.started_at?.toISOString() ?? null);
+      assert.equal(item.endedAt, row.closed_at?.toISOString() ?? null);
+    }
+    assert.ok(seen.find(item => item.sessionId === first.session.sessionId)?.endedAt);
+    assert.equal(seen.find(item => item.sessionId === second.session.sessionId)?.endedAt, null);
+    assert.equal(seen.find(item => item.sessionId === legacy.session.sessionId)?.startedAt, null);
+    assert.equal((await accounts.readProgressPage({ userId: 'prof' }, 'bob')).sessions.items.length, 0);
+    await assert.rejects(accounts.readProgressPage({ userId: 'alice' }, 'alice'), /forbidden/);
+    await assert.rejects(createAccountRepository(f.pool, access).readProgressPage({ userId: 'prof' }, 'alice'), /policy-unresolved/);
   } finally { await f.cleanup(); }
 });

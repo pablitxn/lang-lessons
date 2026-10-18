@@ -32,7 +32,7 @@ const createInput = () => ({ operationId: randomUUID(), email: 'new@example.inva
 test('P2 approved management policy grants only bounded admin operations and professor all-student lists', () => {
   assert.deepEqual(approvedAccountAccess.grants('administrator'), ['users:list', 'users:manage']);
   assert.deepEqual(approvedAccountAccess.grants('professor'), ['students:list', 'students:daily-progress:read']);
-  assert.deepEqual(approvedAccountAccess.grants('student'), []);
+  assert.deepEqual(approvedAccountAccess.grants('student'), ['timezone:own']);
 });
 
 test('P2 admin creates matching auth/application records once without credentials or verified email', isolated, async () => {

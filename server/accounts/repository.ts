@@ -6,7 +6,7 @@ import type { AccessPolicy, AuthenticatedIdentity } from './authorization';
 import { transaction, RepositoryError, requireId } from '../data/database';
 
 export interface Page<T> { readonly items: readonly T[]; readonly nextCursor: string | null }
-export interface SessionFeedbackView { sessionId: string; feedback: FeedbackState; comment: ProfessorComment | null }
+export interface SessionFeedbackView { sessionId: string; startedAt: string | null; endedAt: string | null; feedback: FeedbackState; comment: ProfessorComment | null }
 export interface DisclosurePolicy { allowStudentFeedback: boolean }
 function cursorValue(cursor: string | null) {
   if (cursor === null) return '';
@@ -40,9 +40,9 @@ export function createAccountRepository(pool: Pool, policy: AccessPolicy = denyU
       requireId(studentId); pageLimit(limit); const after = cursorValue(cursor);
       const student = await client.query("SELECT id FROM learning_users WHERE id=$1 AND role='student'", [studentId]);
       if (!student.rowCount) throw new RepositoryError('not-found');
-      const { rows } = await client.query<{ id: string; state: FeedbackState | null; text: string | null; provenance_version: string | null }>(
-        'SELECT s.id,j.state,c.text,c.provenance_version FROM learning_sessions s LEFT JOIN learning_feedback_jobs j ON j.session_id=s.id LEFT JOIN learning_comments c ON c.session_id=s.id WHERE s.user_id=$1 AND s.id > $2 ORDER BY s.id LIMIT $3', [studentId, after, limit + 1]);
-      return { studentId, sessions: page(rows.map(row => ({ sessionId: row.id, feedback: row.state ?? 'not-requested',
+      const { rows } = await client.query<{ id: string; started_at: Date | null; closed_at: Date | null; state: FeedbackState | null; text: string | null; provenance_version: string | null }>(
+        'SELECT s.id,s.started_at,s.closed_at,j.state,c.text,c.provenance_version FROM learning_sessions s LEFT JOIN learning_feedback_jobs j ON j.session_id=s.id LEFT JOIN learning_comments c ON c.session_id=s.id WHERE s.user_id=$1 AND s.id > $2 ORDER BY s.id LIMIT $3', [studentId, after, limit + 1]);
+      return { studentId, sessions: page(rows.map(row => ({ sessionId: row.id, startedAt: row.started_at?.toISOString() ?? null, endedAt: row.closed_at?.toISOString() ?? null, feedback: row.state ?? 'not-requested',
         comment: row.state === 'succeeded' && row.text !== null && row.provenance_version !== null ? { sessionId: row.id, text: row.text, provenanceVersion: row.provenance_version } : null })), limit, item => item.sessionId) };
     }),
     me: (identity: AuthenticatedIdentity) => transaction(pool, client => authorize(client, identity, policy)),

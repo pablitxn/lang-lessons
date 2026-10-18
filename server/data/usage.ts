@@ -30,16 +30,19 @@ export async function finishUsage(client: PoolClient, sessionId: string, segment
   await client.query('UPDATE learning_time_streams SET active_interval_id=NULL,visible=false WHERE session_id=$1 AND ($2::text IS NULL OR segment_id=$2)', [sessionId, segmentId ?? null]);
 }
 export async function readUsageForWindow(client: PoolClient, userId: string, start: Date, end: Date, now?: Date): Promise<UsageSummary> {
-  // PostgreSQL multiranges union overlap both within each source and across all tabs/sessions/sources.
-  const { rows } = await client.query<{ source: string; milliseconds: number }>(`WITH clipped AS (
-    SELECT i.source,GREATEST(i.started_at,$2) AS lo,
-      LEAST(COALESCE(i.ended_at,$4::timestamptz,clock_timestamp()),$3,COALESCE($4::timestamptz,clock_timestamp()),COALESCE(s.closed_at,$3)) AS hi
-    FROM learning_time_intervals i JOIN learning_sessions s ON s.id=i.session_id WHERE s.user_id=$1
+  return readUsageForWindows(client,userId,[{start,end}],now);
+}
+export async function readUsageForWindows(client: PoolClient, userId: string, windows: readonly {start:Date|string;end:Date|string}[], now?: Date): Promise<UsageSummary> {
+  // Union across disjoint historical timezone windows as well as sources/tabs/visits.
+  const { rows } = await client.query<{ source: string; milliseconds: number }>(`WITH windows AS (SELECT * FROM jsonb_to_recordset($2::jsonb) AS w(start timestamptz,"end" timestamptz)), clipped AS (
+    SELECT i.source,GREATEST(i.started_at,w.start) AS lo,
+      LEAST(COALESCE(i.ended_at,$3::timestamptz,clock_timestamp()),w."end",COALESCE($3::timestamptz,clock_timestamp()),COALESCE(s.closed_at,w."end")) AS hi
+    FROM learning_time_intervals i JOIN learning_sessions s ON s.id=i.session_id CROSS JOIN windows w WHERE s.user_id=$1
   ), unions AS (
     SELECT source,range_agg(tstzrange(lo,hi,'[)')) AS spans FROM clipped WHERE hi>lo GROUP BY source
     UNION ALL SELECT 'total',range_agg(tstzrange(lo,hi,'[)')) FROM clipped WHERE hi>lo
   ) SELECT source,COALESCE(sum(extract(epoch FROM (upper(span)-lower(span)))*1000),0)::float8 AS milliseconds
-    FROM unions LEFT JOIN LATERAL unnest(spans) AS span ON true GROUP BY source`, [userId, start, end, now ?? null]);
+    FROM unions LEFT JOIN LATERAL unnest(spans) AS span ON true GROUP BY source`, [userId, JSON.stringify(windows), now ?? null]);
   const values = new Map(rows.map(row => [row.source, row.milliseconds]));
   return { writtenMs: values.get('written') ?? 0, tutorConnectedMs: values.get('tutor') ?? 0, totalMs: values.get('total') ?? 0,
     writtenTrust: 'client-reported-interaction', tutorTrust: 'server-observed-connection' };
