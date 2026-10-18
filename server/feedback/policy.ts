@@ -8,7 +8,8 @@ export type FeedbackOutcome = 'accepted' | 'incorrect' | 'uncertain';
 export interface FeedbackObservation {
   readonly observationId: string;
   readonly sessionId: string;
-  readonly segmentId: string;
+  /** Null only for session-scoped written activity; never infer call attribution. */
+  readonly segmentId: string | null;
   readonly activity: FeedbackActivity;
   readonly outcome: FeedbackOutcome;
 }
@@ -67,9 +68,12 @@ function project(raw: unknown, claim: FeedbackJobRef): ClosedFeedbackEvidence | 
   for (const observation of raw.observations) {
     if (!object(observation) || !keys(observation, ['observationId', 'sessionId', 'segmentId', 'activity', 'outcome']) ||
         !id(observation.observationId) || observationIds.has(observation.observationId) || observation.sessionId !== claim.sessionId ||
-        !id(observation.segmentId) || !segmentIds.has(observation.segmentId) ||
         typeof observation.activity !== 'string' || !Object.hasOwn(labels, observation.activity) ||
         typeof observation.outcome !== 'string' || !outcomes.has(observation.outcome as FeedbackOutcome)) return null;
+    const written = observation.activity === 'written-form' || observation.activity === 'written-translation' || observation.activity === 'tense-identification';
+    if (observation.segmentId === null) {
+      if (!written) return null;
+    } else if (!id(observation.segmentId) || !segmentIds.has(observation.segmentId)) return null;
     observationIds.add(observation.observationId);
     observations.push({ observationId: observation.observationId, sessionId: claim.sessionId,
       segmentId: observation.segmentId, activity: observation.activity as FeedbackActivity, outcome: observation.outcome as FeedbackOutcome });

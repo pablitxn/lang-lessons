@@ -10,7 +10,7 @@ function evidence(): ClosedFeedbackEvidence {
     segments: [{ sessionId: 'session', segmentId: 'first', connectionEpoch: 1, qualified: true },
       { sessionId: 'session', segmentId: 'restarted', connectionEpoch: 2, qualified: true }],
     observations: [
-      { observationId: 'written', sessionId: 'session', segmentId: 'first', activity: 'written-form', outcome: 'incorrect' },
+      { observationId: 'written', sessionId: 'session', segmentId: null, activity: 'written-form', outcome: 'incorrect' },
       { observationId: 'oral', sessionId: 'session', segmentId: 'restarted', activity: 'oral-meaning', outcome: 'accepted' },
     ] };
 }
@@ -41,6 +41,7 @@ function fixture() {
     client: createFeedbackGenerationClient(async ({ snapshot, instruction }) => {
       calls++; assert.match(instruction, /one exact allowedComments entry/);
       assert.equal(snapshot.segments.length, 2); assert.equal(snapshot.value.observations.length, 2);
+      assert.equal(snapshot.value.observations[0]?.segmentId, null);
       if (reject) throw new Error('secret provider exception');
       return { text: snapshot.value.allowedComments[0] };
     }), telemetry: { route: 'local-fixture', async publish(route, event) { events.push({ route, event }); } },
@@ -139,4 +140,30 @@ test('policy validates grounded language, preserves uncertainty and excludes gra
   if (pending.status === 'sufficient') assert.match(pending.snapshot.value.allowedComments[0]!, /remain uncertain/);
   const tooShort = createFeedbackPolicy({ async read() { return e; } }, { maxCommentCharacters: 1 });
   assert.equal((await tooShort.evidence(claim)).status, 'insufficient-evidence');
+});
+
+
+test('session-scoped written activities ground comments without fabricated call attribution', async () => {
+  for (const activity of ['written-form', 'written-translation', 'tense-identification'] as const) {
+    const f = fixture(); const e = evidence();
+    f.setEvidence({ ...e, observations: [{ ...e.observations[0], activity, segmentId: null }, e.observations[1]] });
+    assert.equal((await f.service.afterConfirmedClose('job')).status, 'stored');
+    assert.equal(f.calls(), 1);
+    assert.doesNotMatch(f.stored()!.text, /spoken|pronunciation/);
+  }
+});
+
+test('null segment cannot authorize oral, cross-session or no-call evidence', async () => {
+  const e = evidence();
+  for (const invalid of [
+    ...['oral-meaning', 'oral-sentence'].map(activity => ({ ...e,
+      observations: [{ ...e.observations[0], activity, segmentId: null }] })),
+    { ...e, observations: [{ ...e.observations[0], sessionId: 'other', segmentId: null }] },
+    { ...e, segments: [], observations: [{ ...e.observations[0], segmentId: null }] },
+    { ...e, segments: [{ ...e.segments[0], qualified: false }], observations: [{ ...e.observations[0], segmentId: null }] },
+  ]) {
+    const f = fixture(); f.setEvidence(invalid);
+    assert.equal((await f.service.afterConfirmedClose('job')).status, 'insufficient-evidence');
+    assert.equal(f.calls(), 0); assert.equal(f.stored(), undefined);
+  }
 });
