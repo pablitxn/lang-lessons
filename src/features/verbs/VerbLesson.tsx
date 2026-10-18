@@ -1,3 +1,4 @@
+import { useWrittenActivity, type WrittenActivityBinding } from '../progress/use-written-activity';
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { type LearnerSettings, type LessonModuleProps, type VerbForm, type VerbMode } from '../../contracts';
 import { PracticeLayout, ProgressDialog, ReferenceTable, SpellingField } from '../../ui/mobile';
@@ -13,10 +14,10 @@ import './writing-lines.css';
 import { VERB_PHOTOS } from '../../content';
 import { VERB_TENSE_GUIDE } from '../../content/tense-guide';
 
-export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; progressSink?: ProgressSink; canWrite?: () => boolean; onProgressError?: () => void; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void; rootVoiceError?: string };
+export type VerbLessonProps = LessonModuleProps & { mode: VerbMode; writtenActivity?: WrittenActivityBinding; progressSink?: ProgressSink; canWrite?: () => boolean; onProgressError?: () => void; sessionControls?: ReactNode; claimUtterance?: (utteranceId: string) => void; rootVoiceError?: string };
 const LABELS: Readonly<Record<VerbForm, string>> = { base: 'Base form', past: 'Past', participle: 'Past participle' };
 
-export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance, rootVoiceError = '', progressSink, onProgressError, canWrite }: VerbLessonProps) {
+export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessionControls, claimUtterance, rootVoiceError = '', progressSink, onProgressError, canWrite, writtenActivity }: VerbLessonProps) {
   const writeGate = useRef(canWrite); writeGate.current = canWrite;
   const [progressError, setProgressError] = useState(false);
   const completed = useRef(onComplete);
@@ -31,10 +32,11 @@ export function VerbLesson({ mode, settings, voice, sessionId, onComplete, sessi
     return () => current.dispose();
   }, [mode, voice, sessionId]);
   if (!session || session.mode !== mode || session.voice !== voice || session.sessionId !== sessionId) return <p role="status">Preparing your verb practice…</p>;
-  return <>{progressError && <p role="status">Progress could not be saved. Your current practice remains available.</p>}<VerbPractice session={session} settings={settings} rootVoiceError={rootVoiceError} {...(sessionControls !== undefined ? { sessionControls } : {})} /></>;
+  return <>{progressError && <p role="status">Progress could not be saved. Your current practice remains available.</p>}<VerbPractice session={session} settings={settings} rootVoiceError={rootVoiceError} {...(writtenActivity ? { writtenActivity } : {})} {...(sessionControls !== undefined ? { sessionControls } : {})} /></>;
 }
 
-function VerbPractice({ session, settings, sessionControls, rootVoiceError }: { session: VerbSession; settings: LearnerSettings; sessionControls?: ReactNode; rootVoiceError: string }) {
+function VerbPractice({ session, settings, sessionControls, rootVoiceError, writtenActivity }: { session: VerbSession; writtenActivity?: WrittenActivityBinding; settings: LearnerSettings; sessionControls?: ReactNode; rootVoiceError: string }) {
+  const activityElement = useWrittenActivity(session.sessionId, writtenActivity);
   const state = useSyncExternalStore(session.subscribe, session.getSnapshot, session.getSnapshot);
   const { assessment: snapshot } = state;
   const preload = useRef<ReturnType<typeof createPicturePreload> | null>(null);
@@ -70,7 +72,7 @@ function VerbPractice({ session, settings, sessionControls, rootVoiceError }: { 
     </button>
   </nav>;
   const errorInHeader = rootVoiceError && (snapshot.systemError === rootVoiceError || snapshot.systemError === 'Voice is unavailable. Please retry when connected.');
-  return <div className="verbs-lesson" data-exercise={snapshot.exerciseId} data-verb={context.verb.id} data-generation={snapshot.generation}>
+  return <div ref={activityElement} className="verbs-lesson" data-exercise={snapshot.exerciseId} data-verb={context.verb.id} data-generation={snapshot.generation}>
     <PracticeLayout controls={<div className="ll-actions">
       <ProgressDialog mode={context.mode} identity={context} evidence={snapshot.evidence}
         onHoldChange={session.controller.setPresentationHold} controls={sessionControls} />

@@ -1,3 +1,4 @@
+import { useWrittenActivity, type WrittenActivityBinding } from '../progress/use-written-activity';
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { isQuiet, type LessonModuleProps, type VoiceState } from '../../contracts';
 import { PracticeLayout, ExerciseCue, ProgressDialog, ReferenceTable, SentencePrompt } from '../../ui/mobile';
@@ -11,6 +12,7 @@ import { WrittenTense, type WrittenTenseResult } from './WrittenTense';
 
 export interface SentenceLessonProps extends LessonModuleProps {
   /** Root-owned connection state can seed a feature mounted after connection. */
+  writtenActivity?: WrittenActivityBinding;
   progressSink?: import("../../contracts").ProgressSink;
   onProgressError?: () => void;
   canWrite?: () => boolean;
@@ -78,7 +80,7 @@ export function SentenceLesson(props: SentenceLessonProps) {
     ? [['Message', 'Read the Spanish sentence.'], ['Your response', 'Write or speak a complete English sentence using your own words.'], ['If audio is unclear', 'Repeat or clarify; uncertainty is not a mistake.']]
     : TENSE_GUIDE.map(item => [item.label, item.guidance]);
 
-  return <div className="ll-sentences" data-exercise-id={snapshot.exerciseId} data-stage={stage}>
+  return <SentenceActivity sessionId={sessionId} binding={props.writtenActivity}><div className="ll-sentences" data-exercise-id={snapshot.exerciseId} data-stage={stage}>
     <PracticeLayout controls={<div className="ll-actions">
       <ProgressDialog mode="sentence" identity={snapshot} evidence={snapshot.evidence}
         onHoldChange={session.setPresentationHold} controls={props.sessionControls}>
@@ -113,5 +115,10 @@ export function SentenceLesson(props: SentenceLessonProps) {
       {view.notice && view.hintOrigin !== 'authored-fallback' && <p role="status" className="ll-muted">{view.notice}</p>}
       {snapshot.systemError && !errorInHeader && <p role="alert">{snapshot.systemError}</p>}
     </PracticeLayout>
-  </div>;
+  </div></SentenceActivity>;
+}
+
+function SentenceActivity({ sessionId, binding, children }: { sessionId: string; binding: WrittenActivityBinding | undefined; children: ReactNode }) {
+  const element = useWrittenActivity(sessionId, binding);
+  return <div ref={element}>{children}</div>;
 }
