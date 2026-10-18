@@ -56,10 +56,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
             await page.getByRole('textbox', { name: label, exact: true }).fill('zzzz');
             await page.locator('.ll-incorrect').first().waitFor();
           }
-          await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-          const progress = page.getByRole('dialog', { name: 'Lesson progress', exact: true }); await progress.waitFor();
-          assert.equal(await progress.locator('progress').getAttribute('value'), '0');
-          await page.keyboard.press('Escape'); await progress.waitFor({ state: 'hidden' });
+          assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
           assert.equal(await exercise.getAttribute(attribute), firstId);
           await page.getByRole('button', { name: 'Preferences', exact: true }).click();
           await page.getByLabel('Theme', { exact: true }).selectOption('dark');
@@ -79,15 +76,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           await call.getByRole('button', { name: 'Resume call', exact: true }).click(); await ready(page);
           assert.equal(transport.sessionRequests, 2); assert.equal((await inspectTransport(page)).mediaCalls, 2);
           assert.equal(await exercise.getAttribute(attribute), firstId);
-          await page.getByRole('button', { name: 'Reference table', exact: true }).click();
-          const reference = page.getByRole('dialog', { name: mode === 'sentence' ? 'Sentence practice guide' : 'Verb practice reference', exact: true });
-          await reference.waitFor(); await page.keyboard.press('Escape'); await reference.waitFor({ state: 'hidden' });
+          assert.equal(await page.getByRole('button', { name: 'Reference table', exact: true }).count(), 0);
           assert.equal(await exercise.getAttribute(attribute), firstId);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-          assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true);
+          assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true);
           await page.evaluate(() => { document.documentElement.style.fontSize = ''; });
           if (port === ports[0] && [390, 1024].includes(viewport.width)) await page.screenshot({ path: `/tmp/lang-lessons-voice-ui-final-${mode}-${viewport.width}.png`, fullPage: true });
           const routeRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
@@ -97,7 +92,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
           assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'sentenceTense', 'theme', 'untimedHelp']);
           assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
-          console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual app rendering; mocked browser transport; no real microphone/provider', checks: ['one automatic connection', 'progress modal', 'settings preserve exercise/session', 'microphone mute', 'pause release/resume', 'reference modal', 'route cleanup', '200% text/reflow', 'preferences-only storage', 'no external requests'] }));
+          console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual app rendering; mocked browser transport; no real microphone/provider', checks: ['one automatic connection', 'progress home-only', 'settings preserve exercise/session', 'microphone mute', 'pause release/resume', 'reference home-only', 'route cleanup', '200% text/reflow', 'preferences-only storage', 'no external requests'] }));
           await context.close();
         }
       }

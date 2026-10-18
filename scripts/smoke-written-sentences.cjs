@@ -85,12 +85,12 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   async function assertLayout(page) {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'The translation field must not create horizontal overflow');
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true,
-      'The fixed footer must leave the exercise reachable');
+    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true,
+      'The exercise remains reachable at the bottom of the page');
     await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Written practice must reflow at 200% text size');
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= document.querySelector('.ll-dock').getBoundingClientRect().top), true);
+    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true);
     await page.evaluate(() => { document.documentElement.style.fontSize = ''; window.scrollTo(0, 0); });
   }
 
@@ -155,11 +155,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await tenseChoice.getAttribute('aria-invalid'), null);
         assert.equal(await lesson.getAttribute('data-stage'), 'translation', 'Written comparison must not manufacture oral evidence');
         assert.equal(await responseCount(page), before, 'Typing and local checks do not request a voice response');
-        await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-        const progress = page.getByRole('dialog', { name: 'Lesson progress', exact: true });
-        assert.equal(await progress.locator('progress').getAttribute('value'), '0');
-        assert.equal(await progress.getByText('Written tense: Checked', { exact: true }).count(), 1);
-        await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
         assert.equal(await field.inputValue(), answer);
 
         // IME confirmation is not an explicit Enter submission.
@@ -174,9 +170,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await field.dispatchEvent('compositionend', { data: answer });
         await written.locator('.ll-correct').first().waitFor();
         assert.equal(await tenseChoice.getAttribute('data-value'), '', 'A new matched attempt starts with no tense selected');
-        await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-        assert.equal(await progress.getByText('Written tense: Not checked', { exact: true }).count(), 1, 'Retyping the same translation must not restore its previous tense progress');
-        await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
         await chooseTense(page, 'Present simple');
         assert.equal(await responseCount(page), before);
         if (viewport.width === 390) await page.screenshot({ path: join(output, `sentence-written-${enabled ? 'call' : 'offline'}-tense.png`), fullPage: true });
@@ -314,9 +308,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await chooseTense(page, 'Present perfect');
       assert.equal(await tense.getAttribute('data-status'), 'correct');
       assert.equal(await lesson.getAttribute('data-stage'), 'translation');
-      await page.getByRole('button', { name: 'Your progress', exact: true }).click();
-      assert.equal(await page.getByRole('dialog', { name: 'Lesson progress', exact: true }).locator('progress').getAttribute('value'), '0');
-      await page.getByRole('button', { name: 'Close progress', exact: true }).click();
+      assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
       assert.equal(await responseCount(page), before); assert.equal(hints.requests.length, 0);
       assert.equal(transport.sessionRequests, 1); assert.equal((await inspectTransport(page)).peers.length, 1);
       assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);

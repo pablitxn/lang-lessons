@@ -22,6 +22,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       assert.equal(await page.getByRole('button', { name: 'Preferences', exact: true }).innerText(), 'PC');
       assert.equal(await page.locator('.ll-dock').count(), 0);
       for (const name of ['Picture', 'Verb', 'Sentence']) assert.equal(await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).count(), 1);
+      await page.getByRole('button', { name: 'Your progress', exact: true }).click();
+      await page.getByRole('dialog', { name: 'Progress', exact: true }).waitFor();
+      await page.keyboard.press('Escape');
+      await page.getByRole('button', { name: 'Reference table', exact: true }).click();
+      await page.getByRole('dialog', { name: 'Reference', exact: true }).waitFor();
+      assert.equal(await page.getByRole('dialog', { name: 'Reference', exact: true }).locator('tbody tr').count(), 8);
+      await page.keyboard.press('Escape');
       assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
       assert.equal((await inspectTransport(page)).mediaCalls, 0);
       assert.doesNotMatch(await page.locator('body').innerText(), /mock|session mode|local development|make english feel natural/i);
@@ -113,12 +120,9 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const next = page.getByRole('button', { name: name === 'Sentence' ? 'Next sentence' : name === 'Picture' ? 'Next image' : 'Next word', exact: true });
         if (name === 'Sentence') assert.equal((await next.innerText()).trim(), '→');
         else assert.equal(await next.locator('svg[aria-hidden="true"]').count(), 1);
-        const dock = page.locator('.ll-dock');
-        assert.equal(await dock.evaluate(element => getComputedStyle(element).position), 'fixed');
-        assert.equal(await dock.locator('svg').count(), 2);
-        await dock.getByRole('button', { name: 'Your progress', exact: true }).click();
-        await page.getByRole('dialog', { name: 'Lesson progress', exact: true }).waitFor();
-        await page.keyboard.press('Escape');
+        assert.equal(await page.locator('.ll-dock').count(), 0);
+        assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
+        assert.equal(await page.getByRole('button', { name: 'Reference table', exact: true }).count(), 0);
         if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-compact-sentence-390.png', fullPage: true });
         if (name !== 'Sentence') {
           const exercise = page.locator('.verbs-lesson');
