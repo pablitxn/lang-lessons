@@ -387,3 +387,136 @@ identity; navigation links occur only on home; source text/provenance integrity;
 missing content never becomes fabricated wording; one preload/decode limit;
 failed/late decode, rapid Next and mode exit preserve current cue. Use fixture
 source text only until a reliable source and its reuse conditions are accepted.
+
+## Integration-owned partial implementation freeze (2026-10-18)
+
+The parent accepted the partial technical freeze and handed this ADR continuation
+and shared code to the sole integration writer. This section supersedes draft
+technical details above where they conflict. It does not answer Q10-Q13 or select
+dictionary content. The dedicated branch starts at PR12 `a369792` on accepted
+P0 `c0b4e47`; no producer feature modules are implemented here.
+
+### Frozen structural interfaces and transaction semantics
+
+Shared files are `src/contracts/accounts.ts`, `progress.ts`, `session.ts`,
+`feedback.ts`, `dictionary.ts` and the existing barrel. Existing ExerciseIdentity
+and AttemptRef remain authoritative. Capabilities contain server-supplied grants
+without a default role mapping; ordinary user DTOs have no role-write operation.
+Feedback evidence remains deliberately undefined pending Q13. No metrics, time
+thresholds, password/session duration, retry schedule or retention defaults exist.
+
+Progress events have schemaVersion 1, eventId, existing AttemptRef, a source enum
+and fixed `client-reported` trust. Only `attempt-result` (accepted/incorrect/
+uncertain) and `attempt-invalidated` are currently frozen. They are processed
+outcomes, not processing notifications, keystrokes or authoritative oral verdicts.
+Written sentence comparison must not be translated into an oral gate by P5/P2.
+No raw feedback string, answer, transcript, provider payload or aggregate appears
+in the envelope. The pure parser rejects unknown keys and non-string enum values.
+Transport byte limits and authenticated object authorization remain P2 duties.
+
+`src/foundation/progress-batch.ts` is the pure transaction specification and
+fixture, NOT an in-memory replacement for the future database. A batch contains
+1-100 events. It is atomic: invalid schema/ownership scope, conflicting replay
+or stale attempt rejects the entire batch, returns the unchanged journal and
+**no acknowledgments**. P2 must enforce actor/session/instance ownership and
+open-session status within its actual database transaction before committing.
+The helper's supplied session scope is not authentication.
+
+Identical event-ID replay returns a duplicate receipt with its original
+`committedRevision`; a changed payload under that ID conflicts. Results expose a
+separate `current.journalRevision`; it must not be confused with the receipt's
+commit revision or the session's lifecycle revision. One new event per increasing
+attempt revision per exercise/generation/obligation is permitted; invalidation
+and the next processed result use distinct revisions. Different obligations may
+arrive independently/out of order. No older event overwrites newer state. Within
+one transaction, repeated identical event IDs are acknowledged at the same commit
+revision without an additional write. These rules do not define mistake counts.
+
+### Ordered exit seam, not a second session lifecycle
+
+`src/foundation/exit-coordinator.ts` is root-owned pure coordination. P4 supplies
+requestExit, freezeWrites and releasePreparation; root supplies navigation and
+an isCurrent token tied to the mounted session. The sequence is:
+
+1. Await P4's policy/UI decision. Cancel dispatches nothing and preserves the call.
+2. Freeze new practice writes; flush the complete final queue. ProgressSink.flush
+   resolves only after every queued event has a committed/duplicate receipt and
+   returns the final journal fence; rejected events must reject flush.
+3. Read the current canonical lifecycle revision, then submit confirmClose with
+   one operation ID, that revision and the final progress fence. P2 atomically
+   checks open state, expected lifecycle revision and exact journal fence before
+   close/job insertion; a concurrent event invalidates that fence with conflict.
+4. Navigate only after the matching closed response and a fresh current-session
+   check. Duplicate clicks share one in-flight operation and first destination.
+
+Preparation failure releases the write freeze and does not dispatch close.
+An ambiguous close response failure retains the exact request/key/freeze for an
+explicit retry: no second confirmation, different body or automated provider retry
+is synthesized. P4 must surface/reconcile this state according to Q12; no final UI
+retry policy is selected by the helper. A superseded session cannot navigate.
+P2's idempotency receipt survives lost replies; duplicate close must not insert
+another feedback job. Session revision, journal revision and receipt revision are
+three distinct concepts. Auth session ID remains distinct from exercise session ID.
+
+Actual hash/browser-back interception remains integrator-owned App/routes work,
+not implemented here. Hashchange cannot be canceled; P4's exit decision must be
+obtained while retaining the active feature, with history restoration and focus
+handled at wiring time. Unload/refresh/expiry still require Q12.
+
+### Bounded decode and Pictures seam
+
+`src/foundation/picture-decode.ts` is the shared injected scheduler. P5 owns
+`src/features/verbs/picture-preload.ts`, which will adapt it to Image.decode and
+its already-selected deck entry. At most one decode is running and one latest
+queued descriptor is retained. New generations replace queued work and invalidate
+old completion tokens; they do not cancel an existing decode promise. Queued work
+starts only when the running promise settles. Rejection is swallowed as optional
+preload failure; Next and normal image loading do not await it. Disposal drops
+queued work and suppresses late callbacks. Only existing local verb JPEG paths
+are accepted; no corpus preload or extra random draw occurs.
+
+P5's completed Pictures card/explicit Next must replace that mode's automatic
+startNext callback at the accepted completion boundary, not race a late UI hold
+against it. Other modes are unchanged. Dictionary fields carry source metadata;
+missing content is unavailable, never invented. Real corpus/source licensing is
+still pending. Home-only Progress/Reference registration remains root-owned;
+P5/P3 supply feature UI without acquiring root navigation ownership.
+
+### Ownership handoff
+
+Integrator owns all shared contracts/barrels, `src/foundation/**`,
+`tests/foundation.test.ts`, App/routes/main/global CSS, manifests/lockfile,
+server entrypoint/router, migration registry and this technical ADR amendment.
+P1 is idle and no longer edits this continuation concurrently. P2 consumes the
+transaction specification and owns auth/accounts/data modules and migration
+bodies. P3 owns account/admin/professor UI. P4 owns LessonSession/session-runtime/
+VoiceStatus and exit UI. P5 owns verb/sentence/progress UI, dictionary source
+modules after approval, and the image adapter. P6 owns feedback service, using
+P2's fenced claim/complete/fail repository. Existing tests/voice modules require
+explicit reassignment; task-prefixed new tests belong to each producer.
+
+The returned immutable implementation commit is the producer interface base,
+subject to parent sequencing. No producer is launched here. No live provisioning,
+network/credential configuration, paid inference or deployment occurs.
+
+### Dependency choice and compatibility evidence
+
+The integrator selects PostgreSQL as the one P2 implementation dialect and pins
+`better-auth` 1.7.10, `pg` 8.23.1 and development types `@types/pg` 8.23.1.
+This keeps the proposed app-owned password/database-session architecture and
+avoids a framework migration or extra ORM. It is a routine technical choice,
+not permission to provision a database, configure secrets or choose account policy.
+P2 must provide isolated database tests; no production PostgreSQL version or
+hosting configuration is selected here.
+
+Reviewed official [installation](https://better-auth.com/docs/installation) and
+[PostgreSQL integration](https://better-auth.com/docs/adapters/postgresql) docs
+and npm package metadata on October 18. The documented integration accepts a pg
+Pool. Better Auth's declared pg ^8 and React/ReactDOM ^18/^19 peers match these
+pins and existing React 19.3.0. pg requires Node >=16; resolved Kysely 0.29.7
+requires >=22, compatible with the app's declared >=22.12.0. Clean npm ci and
+strict application build pass on Node 24.19.0. Better Auth core, Node handler and
+pg ESM exports were imported successfully without constructing auth/pools or
+opening connections. This proves package-resolution/import compatibility, not
+schema, login or session correctness; those belong to P2. No auth CLI or migration
+was executed. Browser production bundle remains byte-identical to P0.
