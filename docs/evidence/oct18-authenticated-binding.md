@@ -42,8 +42,8 @@ optional `grouping: {timeZone, eventAttribution: "server-received"}`. The server
 also requires `LEARNING_DATABASE_URL` and `LEARNING_AUTH_SECRET`. The origin must
 already appear in the broker's allowed frontend origins. No values, accounts,
 credentials, public endpoint, deployment or live database were provisioned.
-Without configuration the preserved local lesson application remains available.
-Explicit configuration activates the composed account path; it is no longer an
+Without configuration the production entry reports that the account service is
+unavailable and cannot open an anonymous lesson. Explicit configuration activates the composed account path; it is no longer an
 unconditionally null service scaffold. The unset timezone remains unset.
 
 ## Validation and retained failures
@@ -95,3 +95,42 @@ inferred. Real voice, physical-device and Phoenix acceptance remain deferred.
 Requested model/effort: gpt-6-astra/medium. The actual runtime model/effort routing
 is not exposed for independent verification. No additional agents or tasks were
 launched; no paid calls, Mac work, credential/network changes or deployment ran.
+
+
+## P7 changes-requested follow-up
+
+P7 reported four reproduced blockers on `3b54330`. This candidate is offered for
+independent re-review, not declared accepted by its own integrator.
+
+| Finding | Integrated correction and evidence |
+| --- | --- |
+| Shipped root bypassed confirmation/flush/close | `LearningApplication` now requires the real account binding; no missing-config fallback can mount unbound practice. `PersistedLesson` mounts P4 with canonical commands and P5 durable queues. The production-entry browser regression opens `/`, connects simulated WebRTC, cancels once, then holds progress and close HTTP responses independently and proves navigation waits. It does not inject a coordinator or lifecycle. |
+| Pictures required oral completion | P5 `b9b651e457ece1f67696b15714aec3e5a486ca47` gates reveal/Next on three accepted written forms; edits revoke eligibility. Oral completion remains independent. Producer unit and actual Chromium written-only tests pass. |
+| Stop during preparation latched an error | P4 `d00f7ebbf979ca44912ac5c6bb57df5c562f83bc` reconciles the returned segment after cancellation. Its failure regression still blocks an unacknowledged stop. Root also permits explicit retry after a failed media start whose segment stop was acknowledged. |
+| Disconnected segment blocked Start | The same P4 correction ends the old segment before an explicitly requested replacement call. Tests cover offline/error and Stop racing reconciliation. It does not turn a browser transport event into trusted duration evidence. |
+
+Actual authenticated-root smoke coverage exposed two further integration faults:
+transient queue status above the lesson moved controls between pointerdown and
+click, and a pending browser permission prompt could hold the exit wait even
+after cancellation. Status now renders below the lesson, and runtime cancellation
+releases the lifecycle wait while the voice adapter retains late-track cleanup.
+The root regression covers a permission promise that ignores AbortSignal. The
+existing smoke script's connected exits now explicitly click Leave session;
+no-call and not-yet-connected exits remain confirmation-free. `LIFECYCLE_ONLY=1`
+selects its resource/cancellation cases without repeating viewport checks.
+
+The shared browser helper now mocks authenticated account/session/usage/progress
+HTTP, while using the actual production entry, IndexedDB queues and lifecycle.
+It no longer bypasses these through an anonymous config response. A separate test
+proves an unconfigured account service cannot open practice. Historical test-only
+feature fixtures still exercise producer modules directly and are labeled as such.
+
+Failures from these new production-root runs remain recorded separately: a P3
+account shell ancestor changed student layout, stale lifecycle errors blocked
+written-only exit, status reflow swallowed tense/Next clicks, and permission waits
+blocked cancellation. The student layout is outside the P3 form shell, preserving
+its own styles. Successful reruns and exact final pin are supplied in PR18.
+
+Remaining whole-batch integration and policy gaps in the prior section are still
+open. No main merge, production configuration, paid/provider call, real device or
+live Phoenix acceptance is included in this correction receipt.
