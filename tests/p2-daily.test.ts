@@ -16,8 +16,9 @@ async function fixture() {
   const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_daily_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
-  for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
+  for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage', 'p2-student-timezone']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('student','student'),('other','student'),('prof','professor'),('admin','administrator')");
+  await pool.query("INSERT INTO learning_student_timezones VALUES ('student',1,'UTC','2000-01-01T00:00:00Z'),('other',1,'UTC','2000-01-01T00:00:00Z')");
   const repo = createLearningRepository(pool, { userId: 'student' }, { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, evaluateClose: async () => 'not-requested' });
   async function visit(called: boolean) {
     const session = await repo.commands.create({ mode: 'verb-image', operationId: randomUUID() }); const id = session.sessionId;
@@ -62,6 +63,7 @@ test('P2 daily timezone remains unselected and explicit DST grouping uses a loca
     await f.pool.query("UPDATE learning_events SET received_at='2026-03-09T03:30:00Z' WHERE session_id=$1", [first.id]);
     await f.pool.query("UPDATE learning_events SET received_at='2026-03-09T04:00:00Z' WHERE session_id=$1", [second.id]);
     await assert.rejects(createDailyProgressRepository(f.pool).read({ userId: 'prof' }, 'student', { day: '2026-03-08' }), /policy-unresolved/);
+    await f.pool.query("UPDATE learning_student_timezones SET time_zone='America/New_York' WHERE user_id='student'");
     const daily = createDailyProgressRepository(f.pool, { timeZone: 'America/New_York', eventAttribution: 'server-received' });
     const result = await daily.read({ userId: 'prof' }, 'student', { day: '2026-03-08' });
     assert.equal(result.writtenEvents.items.length, 1); assert.equal(result.writtenEvents.items[0]!.event.ref.sessionId, first.id);
@@ -87,5 +89,69 @@ test('P2 daily projection preserves invalidations, excludes oral results and fla
     assert.equal(legacy.sessions.items[0]?.startedAt, null);
     assert.equal(legacy.hasUnattributedLegacyRecords, true); assert.equal(legacy.writtenEvents.items.length, 1);
     assert.equal((await f.pool.query('SELECT * FROM learning_events')).rowCount, 3);
+  } finally { await f.cleanup(); }
+});
+
+test('P2 student timezone configuration is explicit, own-only, validated and replay-safe', isolated, async () => {
+  const f = await fixture();
+  try {
+    const { createStudentTimeZoneRepository, canonicalTimeZone } = await import('../server/accounts/student-timezone');
+    await f.pool.query("DELETE FROM learning_student_timezones WHERE user_id='student'");
+    const settings = createStudentTimeZoneRepository(f.pool, { userId: 'student' });
+    assert.equal(await settings.read(), null);
+    await assert.rejects(createDailyProgressRepository(f.pool, { timeZone: 'UTC', eventAttribution: 'server-received' }).read({ userId: 'prof' }, 'student', { day: '2026-01-01' }), /policy-unresolved/);
+    for (const invalid of ['', 'Not/AZone', 'EST', '+01:00', ' UTC ']) assert.throws(() => canonicalTimeZone(invalid), /invalid-input/);
+    const input = { operationId: 'setting', expectedRevision: 0, timeZone: 'America/New_York' };
+    const results = await Promise.all([settings.set(input), settings.set(input)]);
+    assert.deepEqual(results[0], results[1]); assert.equal(results[0]!.revision, 1); assert.equal(results[0]!.timeZone, 'America/New_York');
+    assert.deepEqual(await settings.read(), results[0]);
+    await assert.rejects(settings.set({ ...input, timeZone: 'Europe/Madrid' }), /conflict/);
+    await assert.rejects(settings.set({ ...input, operationId: 'stale' }), /conflict/);
+    await assert.rejects(createStudentTimeZoneRepository(f.pool, { userId: 'prof' }).set(input), /forbidden/);
+    await assert.rejects(createStudentTimeZoneRepository(f.pool, { userId: 'admin' }).read(), /forbidden/);
+    assert.throws(() => settings.set({ ...input, userId: 'other' } as typeof input), /invalid-input/);
+    assert.equal((await f.pool.query("SELECT * FROM learning_student_timezones WHERE user_id='student'")).rowCount, 1);
+  } finally { await f.cleanup(); }
+});
+
+test('P2 configured student DST days are 23/25 hours and cannot be overridden by a viewer/runtime timezone', isolated, async () => {
+  const f = await fixture();
+  try {
+    const { studentDayWindows } = await import('../server/accounts/student-timezone');
+    const { transaction } = await import('../server/data/database');
+    await f.pool.query("UPDATE learning_student_timezones SET time_zone='America/New_York' WHERE user_id='student'");
+    for (const [day, hours] of [['2026-03-08', 23], ['2026-11-01', 25]] as const) {
+      const result = await transaction(f.pool, client => studentDayWindows(client, 'student', day));
+      assert.equal(result.windows.length, 1); assert.equal((Date.parse(result.windows[0]!.end) - Date.parse(result.windows[0]!.start)) / 3_600_000, hours);
+    }
+    const visit = await f.visit(false);
+    await f.pool.query("UPDATE learning_events SET received_at='2026-03-09T03:30:00Z' WHERE session_id=$1", [visit.id]);
+    const result = await createDailyProgressRepository(f.pool, { timeZone: 'Asia/Tokyo', eventAttribution: 'server-received' }).read({ userId: 'prof' }, 'student', { day: '2026-03-08' });
+    assert.equal(result.timeZone, 'America/New_York'); assert.equal(result.writtenEvents.items.length, 1);
+    assert.equal(result.writtenEvents.items[0]!.timeZone, 'America/New_York');
+  } finally { await f.cleanup(); }
+});
+
+test('P2 timezone changes preserve past day attribution and union overlap across setting boundaries', isolated, async () => {
+  const f = await fixture();
+  try {
+    const a = await f.visit(false); const b = await f.visit(true); const c = await f.visit(false);
+    await f.pool.query("INSERT INTO learning_student_timezones VALUES ('student',2,'America/New_York','2026-01-02T00:00:00Z')");
+    await f.pool.query("UPDATE learning_sessions SET started_at='2026-01-01T00:00:00Z'");
+    for (const [id, instant] of [[a.id, '2026-01-01T02:00:00Z'], [b.id, '2026-01-02T00:30:00Z'], [c.id, '2026-01-02T05:00:00Z']]) {
+      await f.pool.query('UPDATE learning_events SET received_at=$2 WHERE session_id=$1', [id, instant]);
+    }
+    await f.pool.query("INSERT INTO learning_time_streams(id,session_id,source) VALUES ('written',$1,'written')", [a.id]);
+    const segment = (await f.pool.query<{ id: string }>('SELECT id FROM learning_segments WHERE session_id=$1', [b.id])).rows[0]!.id;
+    await f.pool.query("INSERT INTO learning_time_streams(id,session_id,source,segment_id) VALUES ('tutor',$1,'tutor',$2)", [b.id, segment]);
+    await f.pool.query("INSERT INTO learning_time_intervals VALUES ('written-interval','written',$1,'written','2026-01-01T23:00:00Z','2026-01-02T01:00:00Z'),('tutor-interval','tutor',$2,'tutor','2026-01-02T00:00:00Z','2026-01-02T02:00:00Z')", [a.id, b.id]);
+    const daily = createDailyProgressRepository(f.pool, { eventAttribution: 'server-received' });
+    const day = await daily.read({ userId: 'prof' }, 'student', { day: '2026-01-01' });
+    assert.deepEqual(day.attributionTimeZones, ['UTC', 'America/New_York']);
+    assert.deepEqual(day.writtenEvents.items.map(item => item.event.ref.sessionId).sort(), [a.id, b.id].sort());
+    assert.equal(day.writtenEvents.items.find(item => item.event.ref.sessionId === a.id)!.timeZone, 'UTC');
+    assert.equal(day.usageTime.writtenMs, 7_200_000); assert.equal(day.usageTime.tutorConnectedMs, 7_200_000); assert.equal(day.usageTime.totalMs, 10_800_000);
+    const next = await daily.read({ userId: 'prof' }, 'student', { day: '2026-01-02' });
+    assert.deepEqual(next.writtenEvents.items.map(item => item.event.ref.sessionId), [c.id]); assert.equal(next.usageTime.totalMs, 0);
   } finally { await f.cleanup(); }
 });
