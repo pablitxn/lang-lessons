@@ -35,14 +35,15 @@ export function authOptions(config: AuthConfiguration): BetterAuthOptions {
     emailAndPassword: { enabled: true, disableSignUp: true, minPasswordLength: policy.minPasswordLength, maxPasswordLength: policy.maxPasswordLength },
     session: { expiresIn: policy.sessionExpiresIn, updateAge: policy.sessionUpdateAge, freshAge: policy.sessionFreshAge,
       disableSessionRefresh: !policy.refreshSessions, cookieCache: { enabled: false } },
-    rateLimit: { enabled: true, storage: 'database', window: policy.rateLimitWindow, max: policy.rateLimitMax },
+    rateLimit: { enabled: true, storage: 'database', window: policy.rateLimitWindow, max: policy.rateLimitMax,
+      customRules: { '/sign-in/email': { window: policy.rateLimitWindow, max: policy.rateLimitMax } } },
     advanced: { ipAddress: { ipAddressHeaders: ['x-p2-client-ip'] }, useSecureCookies: url.protocol === 'https:', defaultCookieAttributes: { httpOnly: true, sameSite: 'lax', secure: url.protocol === 'https:' } },
     databaseHooks: { session: { create: { before: async session => {
-      const { rows } = await pool.query<{ disabled: boolean }>('SELECT disabled FROM learning_users WHERE id=$1', [session.userId]);
+      const { rows } = await pool.query<{ disabled: boolean; issued_at: Date }>('SELECT disabled,clock_timestamp() AS issued_at FROM learning_users WHERE id=$1', [session.userId]);
       if (!rows[0] || rows[0].disabled) return false;
       // Better Auth otherwise applies an implicit one-day lifetime for rememberMe=false.
       // Apply the explicitly supplied lifetime to both cookie modes.
-      return { data: { ...session, expiresAt: new Date(Date.now() + policy.sessionExpiresIn * 1000) } };
+      return { data: { ...session, createdAt: rows[0].issued_at, expiresAt: new Date(Date.now() + policy.sessionExpiresIn * 1000) } };
     } } } },
     logger: { disabled: true },
   };
@@ -53,8 +54,9 @@ export function createAuthAdapter(config: AuthConfiguration) {
     async identity(headers: Headers): Promise<AuthenticatedIdentity> {
       const session = await auth.api.getSession({ headers, query: { disableCookieCache: true, disableRefresh: true } });
       if (!session) throw new RepositoryError('unauthenticated');
-      const { rows } = await config.pool.query<{ disabled: boolean }>('SELECT disabled FROM learning_users WHERE id=$1', [session.user.id]);
+      const { rows } = await config.pool.query<{ disabled: boolean; auth_valid_after: Date | null }>('SELECT disabled,auth_valid_after FROM learning_users WHERE id=$1', [session.user.id]);
       if (!rows[0] || rows[0].disabled) throw new RepositoryError('forbidden');
+      if (rows[0].auth_valid_after && session.session.createdAt.getTime() <= rows[0].auth_valid_after.getTime()) throw new RepositoryError('unauthenticated');
       return { userId: session.user.id };
     },
     /** Root must expose only this wrapper, never auth.handler or library signup/settings/recovery routes. */
