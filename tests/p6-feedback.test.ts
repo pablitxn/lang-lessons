@@ -139,3 +139,38 @@ test('ambiguous storage reply propagates without overwriting success or retrying
   assert.equal(f.state(), 'succeeded'); assert.ok(f.stored());
   assert.equal((await worker.run('j1')).status, 'not-claimed'); assert.equal(f.calls(), 1);
 });
+
+test('explicit Phoenix route receives only feedback linkage, never evidence or claim secrets', async () => {
+  const f = fixture();
+  const events: unknown[] = [];
+  const worker = createFeedbackCoordinator({ ...f.dependencies, telemetry: {
+    route: 'fixture-phoenix', async publish(route, event) { events.push({ route, event }); },
+  } });
+  assert.equal((await worker.run('j1')).status, 'stored');
+  assert.deepEqual(events, [{ route: 'fixture-phoenix', event: {
+    operation: 'session-feedback', jobId: 'j1', sessionId: 's1', outcome: 'stored',
+  } }]);
+  assert.deepEqual(f.stored(), { sessionId: 's1', text, provenanceVersion: 'fixture-only-v1' });
+});
+
+test('missing telemetry route and failing exporter cannot change the feedback result', async () => {
+  for (const route of ['', 'fixture-phoenix']) {
+    const f = fixture(); let exports = 0;
+    const worker = createFeedbackCoordinator({ ...f.dependencies, telemetry: {
+      route, async publish() { exports++; throw new Error('secret exporter configuration'); },
+    } });
+    assert.equal((await worker.run('j1')).status, 'stored');
+    assert.equal(f.state(), 'succeeded'); assert.equal(f.calls(), 1);
+    assert.equal(exports, route ? 1 : 0);
+  }
+});
+
+test('ambiguous repository failure emits no raw exception or false successful trace', async () => {
+  const f = fixture(); const events: unknown[] = [];
+  f.dependencies.repository.complete = async () => { throw new Error('private storage payload'); };
+  const worker = createFeedbackCoordinator({ ...f.dependencies, telemetry: {
+    route: 'fixture-phoenix', async publish(_route, event) { events.push(event); },
+  } });
+  await assert.rejects(worker.run('j1'), /private storage payload/);
+  assert.deepEqual(events, [{ operation: 'session-feedback', jobId: 'j1', outcome: 'repository-error' }]);
+});

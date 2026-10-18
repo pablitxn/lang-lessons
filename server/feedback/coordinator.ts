@@ -1,7 +1,8 @@
 import type { FeedbackJobRef, FeedbackRepository, ProfessorComment } from '../../src/contracts/feedback';
 import type { CallSegmentRef } from '../../src/contracts/session';
+import { traceFeedback, type FeedbackTelemetry } from './telemetry';
 
-/** Ephemeral envelope only; Evidence is deliberately undefined until Q13 is accepted. */
+/** Ephemeral envelope only; Evidence DTO remains undefined; approved Phoenix transcripts are not app rows. */
 export interface SessionEvidence<Evidence> {
   readonly sessionId: string;
   readonly segments: readonly CallSegmentRef[];
@@ -23,6 +24,7 @@ export interface FeedbackPolicy<Evidence> {
 
 export interface FeedbackDependencies<Evidence> {
   readonly repository: FeedbackRepository;
+  readonly telemetry?: FeedbackTelemetry;
   readonly policy: FeedbackPolicy<Evidence> | null;
   /** P2 adapter request: same atomic claim fence as complete/fail, distinct terminal state.
    * Null keeps the worker blocked until the adapter is provided. */
@@ -49,51 +51,65 @@ function commentText(value: unknown, maximum: number): string | null {
  * No timer, requeue, lease expiry, or automatic retry policy is selected here. */
 export function createFeedbackCoordinator<Evidence>(dependencies: FeedbackDependencies<Evidence>) {
   const { repository, policy, recordInsufficient, client } = dependencies;
+  const run = async (jobId: string): Promise<FeedbackRunResult> => {
+    if (!policy) return { status: 'blocked', reason: 'policy-unselected' };
+    if (!recordInsufficient) return { status: 'blocked', reason: 'insufficient-state-adapter-missing' };
+    if (!Number.isSafeInteger(policy.maxCommentCharacters) || policy.maxCommentCharacters < 1 || !policy.provenanceVersion.trim()) {
+      throw new Error('Invalid feedback policy configuration');
+    }
+    const claimed = await repository.claim(jobId);
+    if (!claimed) return { status: 'not-claimed' };
+    // Copy the fence so an adapter cannot mutate it during asynchronous work.
+    const claim = Object.freeze({ ...claimed });
+    if (claim.jobId !== jobId || !claim.sessionId || !claim.claimToken) {
+      throw new Error('Invalid feedback repository claim');
+    }
+    let outcome: { status: 'failed' | 'insufficient-evidence' } | { status: 'comment'; comment: ProfessorComment };
+    try {
+      const evidence = await policy.evidence(claim);
+      if (evidence.status === 'insufficient-evidence') {
+        outcome = { status: 'insufficient-evidence' };
+      } else {
+        const snapshot = evidence.snapshot;
+        if (snapshot.sessionId !== claim.sessionId || snapshot.segments.length === 0 ||
+            snapshot.segments.some(segment => segment.sessionId !== claim.sessionId) ||
+            new Set(snapshot.segments.map(segment => segment.segmentId)).size !== snapshot.segments.length) {
+          throw new Error('Invalid feedback evidence scope');
+        }
+        const text = commentText(await client.generate(snapshot), policy.maxCommentCharacters);
+        if (text === null || !policy.accepts(text, snapshot)) throw new Error('Invalid qualitative comment');
+        outcome = { status: 'comment', comment: {
+          sessionId: claim.sessionId, text, provenanceVersion: policy.provenanceVersion,
+        } };
+      }
+    } catch {
+      // Never log or persist evidence, provider payloads or exception messages.
+      outcome = { status: 'failed' };
+    }
+    // Keep persistence errors outside the inference catch: a lost commit reply
+    // must not cause a second mutation, a failure overwrite, or another model call.
+    if (outcome.status === 'comment') {
+      const status = await repository.complete(claim, outcome.comment);
+      return { status, sessionId: claim.sessionId };
+    }
+    const result = outcome.status === 'insufficient-evidence'
+      ? await recordInsufficient(claim) : await repository.fail(claim);
+    return { status: result === 'stale' ? 'stale' : outcome.status, sessionId: claim.sessionId };
+  };
   return {
     async run(jobId: string): Promise<FeedbackRunResult> {
-      if (!policy) return { status: 'blocked', reason: 'policy-unselected' };
-      if (!recordInsufficient) return { status: 'blocked', reason: 'insufficient-state-adapter-missing' };
-      if (!Number.isSafeInteger(policy.maxCommentCharacters) || policy.maxCommentCharacters < 1 || !policy.provenanceVersion.trim()) {
-        throw new Error('Invalid feedback policy configuration');
-      }
-      const claimed = await repository.claim(jobId);
-      if (!claimed) return { status: 'not-claimed' };
-      // Copy the fence so an adapter cannot mutate it during asynchronous work.
-      const claim = Object.freeze({ ...claimed });
-      if (claim.jobId !== jobId || !claim.sessionId || !claim.claimToken) {
-        throw new Error('Invalid feedback repository claim');
-      }
-      let outcome: { status: 'failed' | 'insufficient-evidence' } | { status: 'comment'; comment: ProfessorComment };
+      let result: FeedbackRunResult;
       try {
-        const evidence = await policy.evidence(claim);
-        if (evidence.status === 'insufficient-evidence') {
-          outcome = { status: 'insufficient-evidence' };
-        } else {
-          const snapshot = evidence.snapshot;
-          if (snapshot.sessionId !== claim.sessionId || snapshot.segments.length === 0 ||
-              snapshot.segments.some(segment => segment.sessionId !== claim.sessionId) ||
-              new Set(snapshot.segments.map(segment => segment.segmentId)).size !== snapshot.segments.length) {
-            throw new Error('Invalid feedback evidence scope');
-          }
-          const text = commentText(await client.generate(snapshot), policy.maxCommentCharacters);
-          if (text === null || !policy.accepts(text, snapshot)) throw new Error('Invalid qualitative comment');
-          outcome = { status: 'comment', comment: {
-            sessionId: claim.sessionId, text, provenanceVersion: policy.provenanceVersion,
-          } };
-        }
-      } catch {
-        // Never log or persist evidence, provider payloads or exception messages.
-        outcome = { status: 'failed' };
+        result = await run(jobId);
+      } catch (error) {
+        await traceFeedback(dependencies.telemetry, { operation: 'session-feedback', jobId, outcome: 'repository-error' });
+        throw error;
       }
-      // Keep persistence errors outside the inference catch: a lost commit reply
-      // must not cause a second mutation, a failure overwrite, or another model call.
-      if (outcome.status === 'comment') {
-        const status = await repository.complete(claim, outcome.comment);
-        return { status, sessionId: claim.sessionId };
-      }
-      const result = outcome.status === 'insufficient-evidence'
-        ? await recordInsufficient(claim) : await repository.fail(claim);
-      return { status: result === 'stale' ? 'stale' : outcome.status, sessionId: claim.sessionId };
+      await traceFeedback(dependencies.telemetry, {
+        operation: 'session-feedback', jobId, outcome: result.status,
+        ...('sessionId' in result ? { sessionId: result.sessionId } : {}),
+      });
+      return result;
     },
   };
 }
