@@ -29,10 +29,10 @@ navigation, and assessment/transcript consumption during root preparation withou
 remounting. Local sentence comparison is intentionally separate from this sink.
 
 Pictures removes automatic startNext at the accepted completion callback. The
-card is revealed only after all existing accepted gates and quiet checks, reports
-completion once, and stays until explicit Next. Next checks the completed exercise
+card is revealed after all three current written forms are accepted and stays until
+explicit Next. Oral gates and their completion callback remain independent. Next checks the completed exercise
 identity, so a second callback for the old card cannot skip another exercise.
-Completed fields cannot mutate the displayed drafts behind the frozen ledger.
+Oral-completed fields cannot mutate the displayed drafts behind the frozen ledger.
 History retains typed work and does not restore old oral evidence. Visible-word
 mode retains its existing automatic advancement.
 
@@ -272,3 +272,30 @@ hide usage-only pending work. Full npm run check: 248 tests, 241 pass, five opti
 browser skips, and the same two historical Pictures auto-advance assertions.
 Content/26 Python tests and strict build pass separately; bundle warning remains
 approximately 536 kB. No P2 database/runtime or production HTTP calls were made.
+
+
+## P7 written-only Pictures correction
+
+The parent relayed P7's reproduction at integrated review `3b54330`: three accepted
+offline spelling records did not reveal the card because P5 incorrectly depended
+on controller.completed (the combined oral/written completion state). EN-D24
+requires only the written forms for this presentation. This correction supersedes
+all earlier handoff wording that implied oral/quiet completion was required.
+
+Both pictureComplete and nextPicture now share a feature-owned predicate requiring
+accepted base/past/participle records for the current exercise/generation with valid
+typed evidence (explicit mock evidence only in mock fixtures). The controller's
+oral ledger, completion callback and visible-word behavior are unchanged. The card
+heading says Written forms complete. Editing invalidates/hides the card immediately;
+rechecking restores it. History can restore the written card without restoring oral
+evidence. Next retains its exercise-identity guard against a stale/double callback.
+
+New regression uses the real adapter's offline local spelling path with no connect,
+no audio and no oral verdicts. It covers incomplete/incorrect forms, acceptance,
+edit invalidation, correction, explicit Next, stale Next and history restore, while
+asserting zero completion callbacks and no oral evidence. The browser case now
+supplies written forms only and asserts the oral completion counter remains zero.
+All 27 P5 tests pass including Chromium. Full check remains 242 passes / 249 total,
+five optional skips, and the same two integration-owned historical Pictures
+assertions. Content/26 Python tests and strict build pass. No shared/root files
+were edited; integrator can apply this additive fix after the reviewed P5 work.

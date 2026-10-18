@@ -15,7 +15,7 @@ function SourcedText({ value }: { value: SourcedDictionaryText }) {
 export function PictureDictionaryCard({ completion, onNext }: { completion: PictureCompletion; onNext: () => void }) {
   const entry = completion.dictionary;
   return <section className="picture-dictionary" aria-label="Completed picture dictionary">
-    <h2>Picture complete</h2>
+    <h2>Written forms complete</h2>
     {entry ? <><h3>{entry.lemma}</h3>
       {entry.pronunciations.map((item, index) => <div key={index}><span>{item.dialect}</span><SourcedText value={item.notation} /></div>)}
       {entry.senses.map(sense => <section key={sense.id}><SourcedText value={sense.partOfSpeech} />

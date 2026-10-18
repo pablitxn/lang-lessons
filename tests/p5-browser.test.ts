@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 
-test('Pictures card renders only after completion and explicit Next works at mobile width', { skip: process.env.P5_BROWSER !== '1', timeout: 60000 }, async () => {
+test('Pictures card renders after written-only completion and explicit Next works at mobile width', { skip: process.env.P5_BROWSER !== '1', timeout: 60000 }, async () => {
   const { chromium } = createRequire(import.meta.url)('playwright');
   const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5198', '--strictPort']);
   let output = ''; server.stdout.on('data', data => { output += String(data); });
@@ -29,7 +29,6 @@ test('Pictures card renders only after completion and explicit Next works at mob
     await page.getByRole('textbox', { name: 'Base form', exact: true }).press('Enter');
     await page.getByRole('textbox', { name: 'Past', exact: true }).fill('was');
     await page.getByRole('textbox', { name: 'Past', exact: true }).press('Enter');
-    await page.getByRole('button', { name: 'Send oral fixture', exact: true }).click();
     assert.equal(await card.count(), 0);
     await page.getByRole('textbox', { name: 'Past participle', exact: true }).fill('been');
     await page.getByRole('textbox', { name: 'Past participle', exact: true }).press('Enter');
@@ -42,7 +41,7 @@ test('Pictures card renders only after completion and explicit Next works at mob
     await card.getByRole('button', { name: 'Next picture', exact: true }).click();
     await card.waitFor({ state: 'detached' });
     assert.notEqual(await lesson.getAttribute('data-exercise'), initial);
-    assert.equal(await page.getByTestId('observations').getAttribute('data-completed'), '1');
+    assert.equal(await page.getByTestId('observations').getAttribute('data-completed'), '0');
     assert.deepEqual(external, []); assert.deepEqual(errors, []);
   } finally { await browser?.close(); server.kill(); }
 });
