@@ -5,11 +5,12 @@ irregular verbs, visible-base irregular verbs, and Spanish-to-English sentences.
 Authenticated students see lesson cards. Selecting a lesson opens written practice
 without starting audio. The tutor starts only after an explicit Start action. The lesson keeps compact
 mute and pause/resume controls; failures collapse into a red header badge that
-opens the message and controls. A temporary PC avatar opens Preferences.
+opens the message and controls. Your avatar opens Preferences.
 Progress and Reference open modal dialogs from the fixed icon footer; next
 controls show an arrow with a descriptive accessible label.
-Preferences use a section sidebar for Appearance, Voice, Learning and Storage,
-with compact section navigation on small screens. They include system/light/dark
+Preferences use a fixed-size dialog with a sidebar for Profile, Appearance, Voice
+and Learning, with compact icon navigation on small screens and sign-out at the
+bottom. Only the content panel scrolls. They include system/light/dark
 appearance, microphone permission and independent learning settings. Test adapters and simulated evidence are confined
 to internal fixtures, never offered as an application mode.
 
@@ -23,9 +24,12 @@ npm ci --cache /tmp/lang-lessons-npm-cache
 node scripts/dev-local.mjs
 ```
 
-Open `http://127.0.0.1:5174/`. Choose Picture, Verb or Sentence to open a
-lesson. Use Start tutor only when desired; a disabled service displays a connection message
-and a retry button. Written verb spelling is checked locally even while voice is
+Open `http://127.0.0.1:5174/`. Opening `http://localhost:5174/` in a browser
+automatically redirects to that same local origin so sign-in and session cookies
+work consistently. Choose Picture, Verb or Sentence to open a
+lesson. The phone icon starts the tutor, changes to hang up during a call,
+and stays disabled while voice is unavailable. Checking availability does not
+start media or create a call. Written verb spelling is checked locally even while voice is
 disabled or paused; oral requirements still need a voice call. Sentence translation
 also has an always-available writing field beside the next arrow. Write during
 the same call or without a call. Local comparison runs after a 700 ms typing
@@ -38,8 +42,26 @@ the separate oral requirements. For verbs, write the requested forms and speak t
 pronunciations and original sentences. Progress opens the current lesson's
 requirements; Preferences and reference dialogs preserve the current exercise.
 Sentence practice accepts translation before explanation and waits for **Next
-exercise**. **Pause call** releases the microphone and connection; **Resume call**
-keeps the same exercise. **All lessons** ends the call and returns home.
+exercise**. The hang-up button releases the microphone and connection; starting
+another call keeps the same exercise. **All lessons** ends the call and returns home.
+
+Open the avatar to edit your profile name and photo or sign out. Profile edits
+are saved to your account without replacing an active exercise. The backend
+validates browser timezone context for daily grouping, retaining historical
+timezone boundaries. Picture, Verb and Sentence open directly in their saved
+written exercise, including drafts and the selected photo. Reloading or returning
+to a lesson reuses its saved practice automatically. The account has one current
+practice; switching lessons preserves the other lesson's written work without
+displaying a session list. Text-only navigation saves without a close dialog.
+Only a currently connected tutor call requires confirmation before leaving;
+historical calls do not turn written practice into a recovery workflow.
+
+Learning and appearance preferences save automatically to an account-scoped device
+cache and the authenticated account in PostgreSQL. Pending changes survive offline
+reloads and retry when the app becomes visible or goes online. Revision checks
+merge only the fields changed locally when another device has also saved settings.
+The explicit database migration includes account preferences, the single current
+practice pointer and per-mode reentry tracking for legacy saved sessions.
 
 The readiness message distinguishes calls that are turned off from missing server
 credentials. A retry cannot enable a disabled service; restart with the explicit
@@ -145,15 +167,23 @@ npm run test:browser -- 5174 4174
 node scripts/smoke-practice.cjs 5174 4174
 node scripts/smoke-past-tenses.cjs 5174
 node scripts/smoke-written-sentences.cjs 5174
+node scripts/smoke-preferences-layout.cjs 5174
+node scripts/smoke-session-continuity.cjs 5174
 ```
 
 The helpers check 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
 home cards, direct lesson URLs, back navigation, preference dialogs, theme and
-independent difficulty persistence, owned-key reset, progress dialogs, reflow and
+independent difficulty persistence, progress dialogs, reflow and
 absence of external requests. Browser transport fixtures intercept the local
 broker and inject media/peer objects to check explicit startup, cancellation,
 mute, pause/resume and connection failures without a provider call. These are
 actual Chromium renders with simulated transport, not real audio evidence.
+The preferences layout helper also covers 705x924, fixed footer clearance, stable
+dialog bounds, internal scrolling, sidebar sign-out and native select keyboard
+behavior. Screenshots are saved to `/tmp/lang-lessons-preferences-layout`.
+The continuity helper checks direct entry, reload and return for all three
+exercises, including draft/identity/photo preservation and no written-only
+resume/finalize controls or audio requests.
 `SCREENSHOT_PATH=/tmp/lang-lessons-home.png` optionally captures the home screen.
 Owned UI and feature fixtures run independently with
 `UX_BROWSER=1 node --import tsx --test tests/ux-browser.test.ts`,
@@ -250,8 +280,11 @@ Supply a JSON object containing `email` and `password` on standard input from a
 protected input source; do not put secrets in command arguments or shell history.
 The command refuses an existing administrator, hashes the password, and prints no
 credential. This command was tested only with synthetic disposable accounts.
-After login, create accounts in User management and use **Issue setup link**;
-use **Issue reset link** for an existing password. Deliver the displayed link
+After login, administrators see **People & access**, with account email addresses,
+readable account types, active status and password readiness. Technical IDs remain
+inside expandable details. Create accounts with **Create account** (Student is the
+default), then use **Create setup link**; use **Create password reset link** for an
+existing password. Deliver the displayed link
 privately yourself: no email is sent. Links expire after 30 minutes, are single-use,
 and issuing a replacement revokes the previous link. Successful redemption signs
 out existing sessions; users then log in normally. Configure hosting to serve
@@ -262,6 +295,29 @@ unbounded database lock connections. Configure the database connection budget fo
 the number of application processes.
 Students explicitly select their own IANA timezone before daily grouping is available.
 Do not substitute the professor's or server's timezone.
+
+Students sign in with their email and password to open the lesson catalog; there
+is no separate student sign-in URL. The administrator account manages access and
+does not double as a student account. **Sign out** is available for every role.
+Inside a lesson, it follows the existing exit confirmation, progress flush and
+call cleanup before revoking the login session. Canceling keeps the lesson open.
+Pending logout blocks new lesson navigation and account changes; a failed request
+shows an error instead of claiming success.
+
+For local account acceptance, supply an ignored JSON fixture containing
+`administrator` and `student` objects with `email` and `password`, then run the
+existing supplied Chromium tooling with:
+
+```sh
+ACCOUNT_SMOKE_CREDENTIALS=/path/to/private/local-accounts.json node scripts/smoke-accounts.cjs
+```
+
+The smoke is restricted to loopback. It uses the real local account/database API,
+checks entry through `localhost` (including credential-link fragments), both roles
+and logout after written practice, and blocks provider requests. API origin
+validation remains active; only development document navigation redirects.
+Keep its credentials out of Git and shell arguments. Mocked race checks are
+separate from this real local acceptance.
 
 Tutor time is an orientative browser measurement, not server-verified connection
 time. Missing observations display unavailable. Combined time counts interval
@@ -281,5 +337,8 @@ a NEUTRAL scanner check is not a clean result.
 
 The picture dictionary uses a reviewed, locally served Wiktionary snapshot for all
 25 current verbs. Definitions, POS and IPA retain exact revision attribution and
-CC BY-SA 4.0 notices; 24 entries include sourced usage examples. Missing fields
-remain unavailable. See [dictionary source/reuse notice](src/features/verbs/dictionary/NOTICE.md).
+CC BY-SA 4.0 notices; 24 entries include sourced usage examples. Preferences > Credits
+contains the source revision links, reuse notice and downloadable attributed snapshot.
+The exercise separates the lemma, pronunciation, definition and examples without
+repeating source links. Missing fields remain unavailable.
+See [dictionary source/reuse notice](src/features/verbs/dictionary/NOTICE.md).

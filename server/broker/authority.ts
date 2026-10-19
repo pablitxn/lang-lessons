@@ -5,6 +5,8 @@ import type { CallSegmentRef } from '../../src/contracts';
 import type { createAuthAdapter } from '../auth/better-auth';
 import { authorize, type AuthenticatedIdentity, type AccessPolicy } from '../accounts/authorization';
 import { exactKeys, requireId, requireRevision, RepositoryError, transaction } from '../data/database';
+import { requireActivePractice, requireNoOutstandingCall } from '../data/active-practice';
+import { expireOutstandingCalls } from './lifetime';
 
 export interface BrokerBinding { readonly identity: AuthenticatedIdentity; readonly segment: CallSegmentRef; readonly tokenDigest: string }
 export interface BrokerAuthority {
@@ -21,6 +23,8 @@ const digest = (token: string) => createHash('sha256').update(token).digest('hex
 export function createBrokerAuthority(options: {
   pool: Pool; auth: ReturnType<typeof createAuthAdapter>; access: AccessPolicy; origin: string;
   allowRequest(address: string): Promise<boolean>;
+  activePractice?: boolean;
+  providerCallLifetimeMs?: number;
 }): BrokerAuthority {
   const { pool, access } = options;
   async function change(binding: BrokerBinding, state: 'created' | 'ended' | 'rejected', providerCallId?: string) {
@@ -50,9 +54,15 @@ export function createBrokerAuthority(options: {
       const segment = { sessionId: raw.sessionId, segmentId: raw.segmentId, connectionEpoch: raw.connectionEpoch };
       const tokenDigest = digest(token);
       return transaction(pool, async client => {
+        if (options.activePractice) await client.query('SELECT id FROM learning_users WHERE id=$1 FOR UPDATE', [identity.userId]);
         await authorize(client, identity, access, 'practice:own');
+        if (options.activePractice) await expireOutstandingCalls(client, identity.userId, options.providerCallLifetimeMs);
         const session = await client.query("SELECT id FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' FOR UPDATE", [segment.sessionId, identity.userId]);
         if (!session.rowCount) throw new RepositoryError('not-found');
+        if (options.activePractice) {
+          await requireActivePractice(client, identity.userId, segment.sessionId);
+          await requireNoOutstandingCall(client, identity.userId);
+        }
         const active = await client.query('SELECT id FROM learning_segments WHERE id=$1 AND session_id=$2 AND epoch=$3 AND NOT ended', [segment.segmentId, segment.sessionId, segment.connectionEpoch]);
         if (!active.rowCount) throw new RepositoryError('conflict');
         const prior = await client.query('SELECT segment_id FROM learning_broker_receipts WHERE segment_id=$1', [segment.segmentId]);

@@ -226,3 +226,77 @@ test('mobile UI browser fixture preserves native input, stable results, help hol
     server.kill('SIGTERM');
   }
 });
+
+test('answer keyboard navigation skips passive feedback and retains actionable help', { skip: process.env.UX_BROWSER !== '1', timeout: 60000 }, async () => {
+  const require = createRequire(import.meta.url);
+  const { chromium } = require('playwright');
+  const { installBrowserTransport, inspectTransport } = require('./helpers/browser-transport.cjs');
+  const origin = 'http://127.0.0.1:5212';
+  const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5212', '--strictPort']);
+  let log = ''; server.stdout.on('data', data => { log += String(data); });
+  let browser: any;
+  try {
+    for (let i = 0; i < 100 && !log.includes('Local:'); i++) await new Promise(resolve => setTimeout(resolve, 50));
+    assert.match(log, /Local:/);
+    browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium', headless: true });
+    for (const mode of ['verb-image', 'verb-visible', 'sentence']) {
+      const context = await browser.newContext({ viewport: { width: 320, height: 640 } });
+      const transport = await installBrowserTransport(context, origin, { enabled: false });
+      await context.route(`${origin}/api/realtime/sentence-hint`, (route: any) => route.fulfill({ json: { hint: 'Revisa la forma del verbo.' } }));
+      const page = await context.newPage(); const errors: string[] = [];
+      page.on('pageerror', (error: Error) => errors.push(error.message));
+      await page.goto(`${origin}/#/${mode}`, { waitUntil: 'networkidle' });
+      async function focused(target: any) {
+        assert.equal(await target.evaluate((element: HTMLElement) => document.activeElement === element), true);
+      }
+      if (mode !== 'sentence') {
+        const answers = mode === 'verb-image' ? [['Base form', 'be'], ['Past', 'was'], ['Past participle', 'been']] : [['Past', 'was'], ['Past participle', 'been']];
+        const fields = answers.map(([label]) => page.getByRole('textbox', { name: label, exact: true }));
+        for (const [index, [, answer]] of answers.entries()) { await fields[index].fill(answer); await fields[index].press('Enter'); }
+        await page.locator('.ll-spelling.ll-correct').last().waitFor();
+        await fields[0].focus();
+        for (const target of fields.slice(1)) { await page.keyboard.press('Tab'); await focused(target); }
+        for (const target of fields.slice(0, -1).reverse()) { await page.keyboard.press('Shift+Tab'); await focused(target); }
+        // Finalizing on blur inserts correction text without changing the native Tab destination.
+        await fields[0].fill('misspelledword'.repeat(4));
+        await page.keyboard.press('Tab'); await focused(fields[1]);
+        await page.locator('.ll-field').filter({ has: fields[0] }).locator('.ll-incorrect').first().waitFor();
+        await page.keyboard.press('Shift+Tab'); await focused(fields[0]);
+        await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
+        await page.keyboard.press('Tab'); await focused(fields[1]);
+        await page.keyboard.press('Shift+Tab'); await focused(fields[0]);
+        const description = await fields[0].getAttribute('aria-describedby');
+        assert.equal(await page.locator(`[id="${description}"]`).getAttribute('role'), 'status');
+      } else {
+        const translation = page.getByRole('textbox', { name: 'English translation', exact: true });
+        await translation.fill('He buys bread every morning.'); await translation.press('Enter');
+        const tense = page.getByRole('combobox', { name: 'Verb tense', exact: true }); await tense.waitFor();
+        const next = page.getByRole('button', { name: 'Next sentence', exact: true });
+        await translation.focus(); await page.keyboard.press('Tab'); await focused(next);
+        await page.keyboard.press('Tab'); await focused(tense);
+        await page.keyboard.press('Shift+Tab'); await focused(next);
+        await page.keyboard.press('Shift+Tab'); await focused(translation);
+      }
+      await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+      await page.getByRole('navigation', { name: 'Preferences sections', exact: true }).getByRole('button', { name: 'Learning', exact: true }).click();
+      await page.getByLabel('Offer help after written corrections', { exact: true }).check();
+      await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
+      const first = page.getByRole('textbox').first(); await first.fill('wrong');
+      const afterAnswer = mode === 'sentence' ? page.getByRole('button', { name: 'Next sentence', exact: true }) : page.getByRole('textbox').nth(1);
+      await page.keyboard.press('Tab'); await focused(afterAnswer);
+      const help = page.getByRole('button', { name: mode === 'sentence' ? 'Translation hint' : `Sound help for ${mode === 'verb-image' ? 'Base form' : 'Past'}`, exact: true }).first();
+      await help.waitFor();
+      await page.keyboard.press('Shift+Tab'); await focused(first);
+      await page.keyboard.press('Tab'); await focused(afterAnswer);
+      await page.keyboard.press('Shift+Tab'); await focused(first);
+      assert.equal(await first.getAttribute('aria-keyshortcuts'), 'Alt+ArrowDown');
+      await page.keyboard.press('Alt+ArrowDown'); await page.getByRole('tooltip').waitFor(); await focused(first);
+      await page.keyboard.press('Escape'); await page.getByRole('tooltip').waitFor({ state: 'hidden' }); await focused(first);
+      await help.click(); await page.getByRole('tooltip').waitFor();
+      await page.keyboard.press('Escape'); await page.getByRole('tooltip').waitFor({ state: 'hidden' });
+      assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+      assert.deepEqual(transport.externalRequests, []); assert.deepEqual(errors, []);
+      await context.close();
+    }
+  } finally { await browser?.close(); server.kill('SIGTERM'); }
+});

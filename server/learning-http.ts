@@ -13,6 +13,8 @@ export interface LearningHttpServices {
   credentialLinks?: ReturnType<typeof import('./auth/credential-links').createCredentialLinkRepository>;
   clientCallTime?: ReturnType<typeof import('./data/client-call-time').createClientCallTime>;
   timeZone?: (identity: AuthenticatedIdentity) => ReturnType<typeof import('./accounts/student-timezone').createStudentTimeZoneRepository>;
+  preferences?: ReturnType<typeof import('./accounts/preferences').createLearnerPreferencesRepository>;
+  activePractice?: ReturnType<typeof import('./data/active-practice').createActivePracticeRepository>;
   feedback?: Pick<ReturnType<typeof import('./feedback/service').createFeedbackService>, 'afterConfirmedClose' | 'afterManualRetry'>;
   reconcile?: (identity: AuthenticatedIdentity, input: unknown) => Promise<{ sessionId: string; status: 'reconciled' }>;
   brokerAuthority?: import('./broker/authority').BrokerAuthority;
@@ -56,9 +58,8 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       if (request.method !== 'GET' && request.method !== 'POST') return reply(405, { error: 'method-not-allowed' });
       if (request.method === 'POST' && request.headers.get('origin') !== services.origin) return reply(403, { error: 'forbidden' });
       if (request.method === 'POST' && request.headers.get('content-type')?.split(';')[0]?.trim() !== 'application/json') return reply(415, { error: 'invalid-content-type' });
-      if (url.pathname === '/api/auth/sign-out') return reply(503, { error: 'policy-unresolved' });
       if (url.pathname.startsWith('/api/auth/')) {
-        if (url.pathname !== '/api/auth/sign-in/email' || request.method !== 'POST') return reply(404, { error: 'not-found' });
+        if (!['/api/auth/sign-in/email', '/api/auth/sign-out'].includes(url.pathname) || request.method !== 'POST') return reply(404, { error: 'not-found' });
         const response = await credentialAdmission(() => services.auth.handle(request, clientAddress));
         response.headers.set('cache-control', 'private, no-store'); return response;
       }
@@ -68,6 +69,8 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
       const cursor = url.searchParams.get('cursor');
       const id = url.searchParams.get('sessionId');
       if (request.method === 'GET') {
+        if (url.pathname === '/api/learning/session/current' && services.activePractice) return reply(200, await services.activePractice.readCurrent(identity));
+        if (url.pathname === '/api/learning/preferences' && services.preferences) return reply(200, await services.preferences.read(identity));
         if (url.pathname === '/api/learning/time-zone' && services.timeZone) return reply(200, await services.timeZone(identity).read());
         if (url.pathname === '/api/learning/session/history' && id && services.recovery) return reply(200, await services.recovery(identity).readCallHistory(id));
         if (url.pathname === '/api/learning/failed-feedback' && services.recovery) return reply(200, await services.recovery(identity).listFailedFeedback(cursor));
@@ -76,7 +79,13 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
         if (url.pathname === '/api/learning/daily-progress' && services.daily) return reply(200, await services.daily.read(identity, url.searchParams.get('studentId') ?? '', {
           day: url.searchParams.get('day') ?? '', eventCursor: url.searchParams.get('eventCursor'), sessionCursor: url.searchParams.get('sessionCursor'),
         }));
-        if (url.pathname === '/api/me') return reply(200, await services.accounts.me(identity));
+        if (url.pathname === '/api/me') {
+          const current = await services.accounts.me(identity);
+          if (current.role === 'student' && services.timeZone && request.headers.has('x-learning-time-zone')) {
+            await services.timeZone(identity).observe(request.headers.get('x-learning-time-zone'));
+          }
+          return reply(200, current);
+        }
         if (url.pathname === '/api/learning/users') return reply(200, services.management ? await services.management.list(identity, cursor) : await services.accounts.listUsers(identity, cursor));
         if (url.pathname === '/api/learning/students') return reply(200, await services.accounts.listAllStudents(identity, cursor));
         if (url.pathname === '/api/learning/student-progress') return reply(200, await services.accounts.readProgressPage(identity, url.searchParams.get('studentId') ?? '', cursor));
@@ -84,7 +93,16 @@ export function createLearningHttpHandler(services: LearningHttpServices | null)
         if (url.pathname === '/api/learning/session/close' && id) return reply(200, await services.learning(identity).commands.readClose(id));
         return reply(404, { error: 'not-found' });
       }
+      if (url.pathname === '/api/learning/preferences' && services.preferences) return reply(200, await services.preferences.update(identity, await readBoundedJson(request, 4096)));
       if (url.pathname === '/api/learning/credential-links/issue' && services.credentialLinks) return reply(200, await services.credentialLinks.issue(identity, await readBoundedJson(request) as never));
+      if (url.pathname === '/api/learning/profile') return reply(200, await services.accounts.updateProfile(identity, await readBoundedJson(request)));
+      if (['/api/learning/session/create', '/api/learning/session/enter'].includes(url.pathname) && services.timeZone && request.headers.has('x-learning-time-zone')) {
+        await services.timeZone(identity).observe(request.headers.get('x-learning-time-zone'));
+      }
+      if (['/api/learning/session/create', '/api/learning/session/enter'].includes(url.pathname) && services.activePractice) {
+        const entered = await services.activePractice.enter(identity, await readBoundedJson(request));
+        return reply(200, url.pathname.endsWith('/enter') ? entered : entered.session);
+      }
       const repository = services.learning(identity);
       const commands = repository.commands;
       // Repository methods validate exact keys and values before any write. Never accept identity or grants from JSON.

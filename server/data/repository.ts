@@ -9,6 +9,8 @@ import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import type { AuthenticatedIdentity, AccessPolicy } from '../accounts/authorization';
 import type { EvaluateClose } from './call-history';
 import { finishUsage } from './usage';
+import { requireActivePractice, requireNoOutstandingCall } from './active-practice';
+import { expireOutstandingCalls } from '../broker/lifetime';
 import { transaction, RepositoryError, requireId, requireRevision, exactKeys } from './database';
 
 export interface DataPolicy {
@@ -18,6 +20,10 @@ export interface DataPolicy {
   /** Awaited under the session lock before any close/job writes; root guards broker state on this client. */
   evaluateClose?: EvaluateClose;
   allowUnknownCallHistory?: boolean;
+  /** Production entry selects one current written session; legacy isolated fixtures can opt out. */
+  activePractice?: boolean;
+  /** Provider-specific absolute transport lifetime; never a connection-history assertion. */
+  providerCallLifetimeMs?: number;
 }
 export const unresolvedDataPolicy: DataPolicy = { allowStructuredStorage: false, access: denyUnresolvedGrants };
 interface SessionRow { id: string; user_id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number; journal_revision: number; next_epoch: number }
@@ -49,7 +55,8 @@ async function operation<T>(client: PoolClient, userId: string, operationId: str
 
 /** Bound once per authenticated request; never construct identity from the JSON payload. */
 export function createLearningRepository(pool: Pool, identity: AuthenticatedIdentity, policy: DataPolicy = unresolvedDataPolicy) {
-  const run = <T>(work: (client: PoolClient) => Promise<T>, writing = true): Promise<T> => transaction(pool, async client => {
+  const run = <T>(work: (client: PoolClient) => Promise<T>, writing = true, exclusiveActor = false): Promise<T> => transaction(pool, async client => {
+    if (exclusiveActor) await client.query('SELECT id FROM learning_users WHERE id=$1 FOR UPDATE', [identity.userId]);
     await authorize(client, identity, policy.access, 'practice:own');
     if (writing && !policy.allowStructuredStorage) throw new RepositoryError('policy-unresolved');
     return work(client);
@@ -66,15 +73,22 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
     read: sessionId => run(async client => snapshot(await lockSession(client, identity, sessionId)), false),
     startCall(input) {
       exactKeys(input, ['sessionId', 'operationId', 'expectedRevision']); mutation(input);
-      return run(client => operation(client, identity.userId, input.operationId, JSON.stringify(['start', input.sessionId, input.expectedRevision]), async () => {
-        const row = await lockSession(client, identity, input.sessionId); open(row, input.expectedRevision);
-        const active = await client.query('SELECT id FROM learning_segments WHERE session_id=$1 AND NOT ended', [row.id]);
-        if (active.rowCount) throw new RepositoryError('conflict');
-        const segment = { sessionId: row.id, segmentId: randomUUID(), connectionEpoch: row.next_epoch + 1 };
-        await client.query('INSERT INTO learning_segments(id,session_id,epoch) VALUES ($1,$2,$3)', [segment.segmentId, row.id, segment.connectionEpoch]);
-        await client.query('UPDATE learning_sessions SET revision=revision+1, next_epoch=next_epoch+1 WHERE id=$1', [row.id]);
-        return { session: { ...snapshot(row), revision: row.revision + 1 }, segment };
-      }));
+      return run(async client => {
+        const expired = policy.activePractice ? await expireOutstandingCalls(client, identity.userId, policy.providerCallLifetimeMs) : new Set<string>();
+        if (policy.activePractice) await requireActivePractice(client, identity.userId, input.sessionId);
+        return operation(client, identity.userId, input.operationId, JSON.stringify(['start', input.sessionId, input.expectedRevision]), async () => {
+          const row = await lockSession(client, identity, input.sessionId);
+          // This transaction may advance only the revision for its own expired transport cleanup.
+          open(row, input.expectedRevision + (expired.has(input.sessionId) ? 1 : 0));
+          if (policy.activePractice) await requireNoOutstandingCall(client, identity.userId);
+          const active = await client.query('SELECT id FROM learning_segments WHERE session_id=$1 AND NOT ended', [row.id]);
+          if (active.rowCount) throw new RepositoryError('conflict');
+          const segment = { sessionId: row.id, segmentId: randomUUID(), connectionEpoch: row.next_epoch + 1 };
+          await client.query('INSERT INTO learning_segments(id,session_id,epoch) VALUES ($1,$2,$3)', [segment.segmentId, row.id, segment.connectionEpoch]);
+          await client.query('UPDATE learning_sessions SET revision=revision+1, next_epoch=next_epoch+1 WHERE id=$1', [row.id]);
+          return { session: { ...snapshot(row), revision: row.revision + 1 }, segment };
+        });
+      }, true, policy.activePractice);
     },
     stopCall(input) {
       exactKeys(input, ['sessionId', 'operationId', 'expectedRevision', 'segment']); mutation(input);

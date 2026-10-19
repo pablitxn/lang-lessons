@@ -231,14 +231,18 @@ test('a spoken pause intent disconnects rather than leaving the microphone activ
 });
 
 
-test('voice readiness distinguishes disabled calls from missing server credentials without exposing provider details', async () => {
+test('voice readiness explains availability without exposing setup instructions or provider details', async () => {
   const signal = new AbortController().signal;
   for (const [reason, expected] of [
-    ['disabled', /turned off/], ['missing-credentials', /API key/], ['unknown', /not ready/],
+    ['disabled', /turned off/], ['missing-credentials', /unavailable/], ['unknown', /unavailable/],
   ] as const) {
     await assert.rejects(checkVoiceAvailability(signal, async () => new Response(JSON.stringify({
       enabled: false, reason, error: 'Untrusted provider detail that must never be shown',
-    }))), expected);
+    }))), error => {
+      assert.ok(error instanceof Error); assert.match(error.message, expected);
+      assert.doesNotMatch(error.message, /API key|credentials|setup|Untrusted provider/);
+      return true;
+    });
   }
 });
 

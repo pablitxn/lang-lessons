@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { DEFAULT_SETTINGS, type LearnerSettings, type LessonMode } from '../contracts';
-import { browserStorage, loadSettings, resetSettings, saveSettings } from '../platform/settings-store';
+import { DEFAULT_SETTINGS, type CurrentUser, type LearnerSettings, type LessonMode } from '../contracts';
+import { browserStorage, loadSettings, saveSettings } from '../platform/settings-store';
+import { createAccountSettings, type AccountSettingsApi } from '../platform/account-settings';
 import { MODES, modeHref, resolveLessonRoute } from './routes';
 import { LessonSession, type LessonRenderer } from './LessonSession';
 import { PersistedLesson, type PersistedSessionServices } from './PersistedLesson';
@@ -21,23 +22,44 @@ export interface AppProps {
   homeProgress?: ReactNode;
   sessionServices?: PersistedSessionServices;
   homeContent?: ReactNode;
-  resumedSession?: import('./session-recovery').RecoveryRecord | null;
-  onHome?: () => void;
+  onSignOut?: () => Promise<void>;
+  accountEmail?: string | undefined;
+  account?: CurrentUser;
+  profileSettings?: ReactNode;
+  preferencesApi?: AccountSettingsApi;
 }
-
-export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices, homeContent, resumedSession, onHome }: AppProps) {
-  const [settings, setSettings] = useState(() => loadSettings(browserStorage()));
+export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices, homeContent, onSignOut, accountEmail, account, profileSettings, preferencesApi }: AppProps) {
+  const [settings, setSettings] = useState(() => preferencesApi ? { ...DEFAULT_SETTINGS, difficulty: { ...DEFAULT_SETTINGS.difficulty } } : loadSettings(browserStorage()));
+  const accountSettings = useRef<ReturnType<typeof createAccountSettings> | null>(null);
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [voiceStatusTarget, setVoiceStatusTarget] = useState<HTMLDivElement | null>(null);
   const [notice, setNotice] = useState('');
+  useEffect(() => {
+    if (!account || !preferencesApi) return;
+    const controller = createAccountSettings({ accountId: account.id, api: preferencesApi, storage: browserStorage() });
+    accountSettings.current = controller;
+    const update = () => { const next = controller.getSnapshot(); setSettings(next.settings); setNotice(next.notice); };
+    const unsubscribe = controller.subscribe(update);
+    const sync = () => { void controller.sync(); };
+    const visible = () => { if (document.visibilityState === 'visible') sync(); };
+    update(); sync();
+    window.addEventListener('online', sync);
+    document.addEventListener('visibilitychange', visible);
+    return () => {
+      window.removeEventListener('online', sync); document.removeEventListener('visibilitychange', visible);
+      unsubscribe(); controller.dispose(); accountSettings.current = null;
+    };
+  }, [account?.id, preferencesApi]);
   const current = MODES.find(item => item.id === mode);
   const modeRef = useRef(mode); modeRef.current = mode;
   const requireGuard = useRef(requireExitRegistration); requireGuard.current = requireExitRegistration || Boolean(sessionServices);
   const guard = useRef<null | ((hash: string) => Promise<string | null>)>(null);
   const navigator = useRef<ReturnType<typeof createRootNavigator> | null>(null);
   const [navigationError, setNavigationError] = useState('');
-  const homeCallback = useRef(onHome); homeCallback.current = onHome;
+  const [signingOut, setSigningOut] = useState(false);
+  const signOutPending = useRef(false);
+  const logoutNavigation = useRef(false);
   const registerExit = useCallback<RegisterRootExit>(handler => {
     let alive = true;
     const registered = async (hash: string) => {
@@ -50,10 +72,11 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
 
   useEffect(() => {
     const routing = createRootNavigator(window, hash => {
-      setNavigationError(''); setMode(resolveLessonRoute(hash));
-      if (!resolveLessonRoute(hash)) homeCallback.current?.();
+      modeRef.current = resolveLessonRoute(hash);
+      setNavigationError(''); setMode(modeRef.current);
       requestAnimationFrame(() => document.getElementById('lesson')?.focus());
     }, async hash => {
+      if (signOutPending.current && (!logoutNavigation.current || hash !== '#/')) return null;
       setNavigationError('');
       if (!modeRef.current) return hash;
       if (guard.current) return guard.current(hash);
@@ -74,19 +97,32 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
   }, [settings.theme]);
 
   function updateSettings(next: LearnerSettings) {
+    if (accountSettings.current) { accountSettings.current.update(next); return; }
     setSettings(next);
     setNotice(saveSettings(next, browserStorage()) ? 'Preferences saved on this device.' : 'Preferences changed for this visit. Device storage is unavailable.');
   }
-  function reset() {
-    const removed = resetSettings(browserStorage());
-    setSettings({ ...DEFAULT_SETTINGS, difficulty: { ...DEFAULT_SETTINGS.difficulty } });
-    setNotice(removed ? 'Saved preferences cleared.' : 'Preferences reset for this visit. Device storage is unavailable.');
+  async function signOut() {
+    if (!onSignOut || signOutPending.current) return;
+    signOutPending.current = true; setSigningOut(true); setNavigationError('');
+    setSettingsOpen(false);
+    try {
+      // Use the same explicit close/flush guard as All lessons before revoking the cookie.
+      if (modeRef.current) {
+        logoutNavigation.current = true;
+        const exited = await navigator.current?.request('#/');
+        logoutNavigation.current = false;
+        if (!exited || modeRef.current) return;
+      }
+      await onSignOut();
+    } catch { setNavigationError('Could not sign out. Please try again.'); }
+    finally { logoutNavigation.current = false; signOutPending.current = false; setSigningOut(false); }
   }
 
-  return <RootExitRegistration.Provider value={registerExit}><div className="app-shell" onClickCapture={event => {
+  return <RootExitRegistration.Provider value={registerExit}><div className="app-shell" data-lesson={mode || undefined} onClickCapture={event => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#/"]') : null;
     if (!anchor || anchor.target || anchor.hasAttribute('download')) return;
+    if (signOutPending.current) { event.preventDefault(); return; }
     event.preventDefault(); void navigator.current?.request(anchor.hash);
   }}>
     <a href="#lesson" className="skip-link" onClick={event => { event.preventDefault(); document.getElementById('lesson')?.focus(); }}>Skip to lesson</a>
@@ -98,8 +134,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
         <div ref={setVoiceStatusTarget} className="header-voice-status" />
         <button id="profile-preferences" className="profile-avatar" aria-label="Preferences" title="Preferences"
           aria-haspopup="dialog" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(true)}>
-          {/* Temporary profile initials; no account or identity is persisted. */}
-          <span aria-hidden="true">PC</span>
+          {account?.image ? <img src={account.image} alt="" /> : <span aria-hidden="true">{(account?.name || accountEmail || 'Aa').slice(0, 2).toUpperCase()}</span>}
         </button>
       </div>
     </header>
@@ -115,14 +150,13 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
           <h1 aria-label={current.title}>{current.short}</h1>
         </div>
         <LessonToolsVisible.Provider value={false}>{sessionServices ?
-          <PersistedLesson key={`${sessionServices.actorId}:${mode}:${resumedSession?.sessionId ?? "new"}`} mode={mode} services={sessionServices}
-            {...(resumedSession?.session.mode === mode ? { resumedSession } : {})} settings={settings}
+          <PersistedLesson key={`${sessionServices.actorId}:${mode}`} mode={mode} services={sessionServices} settings={settings}
             preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget} renderLesson={renderLesson}
             fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /> :
           <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
             renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />}</LessonToolsVisible.Provider>
-      </> : <section className="lesson-catalog" aria-labelledby="catalog-title">
-        <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Practice with your voice, or write a translation.</p></div>
+      </> : <section className="lesson-catalog" aria-labelledby="catalog-title" inert={signingOut}>
+        <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Pick a lesson and start writing. The voice tutor is optional.</p></div>
         <nav className="lesson-cards" aria-label="Lessons">
           {MODES.map((item, index) => <a className={`lesson-card lesson-card-${item.id}`} key={item.id}
             href={modeHref(item.id)} aria-label={`Start ${item.title}`} onClick={() => updateSettings({ ...settings, preferredMode: item.id })}>
@@ -146,6 +180,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
         </nav>
       </section>}
     </main>
-    {settingsOpen && <Preferences settings={settings} onChange={updateSettings} onReset={reset} onClose={() => setSettingsOpen(false)} notice={notice} />}
+    {settingsOpen && <Preferences settings={settings} onChange={updateSettings} onClose={() => setSettingsOpen(false)} notice={notice}
+      profile={profileSettings} onSignOut={onSignOut ? () => void signOut() : undefined} signingOut={signingOut} />}
   </div></RootExitRegistration.Provider>;
 }

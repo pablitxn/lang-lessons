@@ -19,6 +19,7 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
   const [draft, setDraft] = useState(props.initialDraft ?? '');
   const [result, setResult] = useState<WrittenComparisonResult | undefined>(() => props.initialFinalized ? compareWrittenTranslation(props.initialDraft ?? '', props.sentence.alternatives) : undefined);
   const [compositionActive, setCompositionActive] = useState(false);
+  const [hintOpen, setHintOpen] = useState(false);
   const composing = useRef(false);
   const revision = useRef(0);
   const checkedRevision = useRef(props.initialFinalized ? 0 : -1);
@@ -28,6 +29,7 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
   currentDraft.current = draft;
 
   function clearResult() {
+    setHintOpen(false);
     setResult(undefined);
     latest.current.onResultChange(undefined);
   }
@@ -53,13 +55,15 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
   }, [draft, compositionActive]);
 
   const current = compositionActive ? undefined : result;
+  const canHelp = props.helpEnabled && current?.status === 'different';
 
   return <section className="sentences-written ll-field" data-status={current?.status ?? 'empty'} aria-label="Written translation">
     <label htmlFor={id} className="ll-sr-only">English translation</label>
     <div className="sentences-written-controls">
       <input id={id} type="text" value={draft} maxLength={MAX_WRITTEN_TRANSLATION_LENGTH}
         placeholder="Write your translation…" autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={false}
-        aria-describedby={current ? `${id}-feedback` : undefined}
+        aria-describedby={current ? `${id}-feedback${canHelp ? ` ${id}-help-shortcut` : ''}` : undefined}
+        aria-keyshortcuts={canHelp ? 'Alt+ArrowDown' : undefined}
         onChange={event => {
           const value = event.target.value;
           currentDraft.current = value;
@@ -76,27 +80,34 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
         }}
         onCompositionEnd={() => { composing.current = false; setCompositionActive(false); }}
         onBlur={event => {
+          setHintOpen(false);
           if (event.relatedTarget instanceof Element && event.relatedTarget.closest('[data-skip-written-check]')) return;
           finalize();
         }}
         onKeyDown={event => {
+          if (canHelp && event.altKey && event.key === 'ArrowDown' && !event.nativeEvent.isComposing && !composing.current) {
+            event.preventDefault(); setHintOpen(previous => !previous);
+          }
+          if (event.key === 'Escape' && hintOpen) { event.preventDefault(); event.stopPropagation(); setHintOpen(false); }
           if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.nativeEvent.keyCode !== 229 && !composing.current) {
             event.preventDefault();
             finalize();
           }
         }} />
     </div>
-    {current && <div id={`${id}-feedback`} role="status" aria-label="Written translation feedback">
-      <WrittenFeedback key={current.submittedText} result={current} helpEnabled={props.helpEnabled} hint={props.hint} />
+    {canHelp && <span id={`${id}-help-shortcut`} className="ll-sr-only">Press Alt+Down Arrow for a translation hint. Press Escape to close it.</span>}
+    {current && <div id={`${id}-feedback`} role="status" aria-label="Written translation feedback" tabIndex={-1}>
+      <WrittenFeedback key={current.submittedText} result={current} helpEnabled={props.helpEnabled} hint={props.hint} open={hintOpen} setOpen={setHintOpen} />
     </div>}
   </section>;
 }
 
 /** The error itself opens the same hover, keyboard and tap interaction as picture information. */
-function WrittenFeedback({ result, helpEnabled, hint }: Pick<WrittenTranslationProps, 'helpEnabled' | 'hint'> & { result: WrittenComparisonResult }) {
+function WrittenFeedback({ result, helpEnabled, hint, open, setOpen }: Pick<WrittenTranslationProps, 'helpEnabled' | 'hint'> & {
+  result: WrittenComparisonResult; open: boolean; setOpen(open: boolean): void;
+}) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
   const matched = result.status === 'matched';
   const different = result.status === 'different';
   const canHelp = helpEnabled && different;
@@ -120,12 +131,12 @@ function WrittenFeedback({ result, helpEnabled, hint }: Pick<WrittenTranslationP
     onPointerLeave={event => { if (event.pointerType === 'mouse' && !root.current?.contains(document.activeElement)) setOpen(false); }}
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setOpen(false); } }}>
-    {(matched || different) && <div className={`ll-spelling${matched ? ' ll-correct' : ''}`}>
+    {(matched || different) && <div className={`ll-spelling${matched ? ' ll-correct' : ''}`} tabIndex={-1}>
       {matched && <span className="ll-outcome-icon" aria-hidden="true">✓</span>}
       {groups.map((group, index) => {
         const content = group.segments.map((segment, position) => <span key={position} data-gap={segment.gap || undefined}>{segment.gap ? '▴' : segment.text}</span>);
         return canHelp && group.different
-          ? <button key={index} type="button" className="sentences-error-trigger ll-incorrect" aria-label="Translation hint"
+          ? <button key={index} type="button" className="sentences-error-trigger ll-incorrect" aria-label="Translation hint" tabIndex={-1} title="Translation hint (Alt+↓ from the answer)"
             aria-describedby={visible ? id : undefined} aria-expanded={visible}
             onPointerEnter={event => { if (event.pointerType === 'mouse') setOpen(true); }} onFocus={() => setOpen(true)} onClick={() => setOpen(true)}>{content}</button>
           : <span key={index} className={different && group.different ? 'll-incorrect' : undefined}>{content}</span>;

@@ -12,17 +12,18 @@ const feedbackText: Record<FeedbackState, string> = {
   'insufficient-evidence': 'There was not enough observed interaction to prepare a tutor comment.',
 };
 /** Root owns controller lifetime and calls load after authenticating the returning account. */
-export function SessionRecovery({ recovery, exitTarget }: { recovery: RecoveryController; exitTarget: string }) {
+export function SessionRecovery({ recovery, exitTarget, compact = false }: { recovery: RecoveryController; exitTarget: string; compact?: boolean }) {
   const finalizeButton = useRef<HTMLButtonElement>(null);
   const state = useSyncExternalStore(recovery.subscribe, recovery.getSnapshot);
   if (state.phase === 'invalidated' || state.phase === 'resumed') return null;
   return <section aria-label="Interrupted session recovery" aria-busy={state.busy}>
-    <h2>{state.record?.session.status === 'closed' ? 'Session finalized' : 'Continue your practice'}</h2>
+    {!compact && <h2>{state.record?.session.status === 'closed' ? 'Session finalized' : 'Continue your practice'}</h2>}
     {state.error && <p role="alert">{state.error}</p>}
     {!state.record && <p role="status">{state.busy ? 'Checking your saved session…' : 'Check for your saved session.'}</p>}
     {state.record?.session.status === 'open' && <>
-      {state.record.hadConnectedCall === null && <p>Previous call observations are unavailable. Finalizing will clean up the call and may have insufficient evidence for a tutor comment.</p>}
-      <p>Your previous session is still open. Resume it, or finalize it after saving pending progress.</p>
+      {state.record.hadConnectedCall === null && (compact ? <details><summary>About this saved session</summary><p>Previous call observations are unavailable. Finalizing will clean up the call and may have insufficient evidence for a tutor comment.</p></details>
+        : <p>Previous call observations are unavailable. Finalizing will clean up the call and may have insufficient evidence for a tutor comment.</p>)}
+      <p>{compact ? 'Your progress is saved. Pick up where you left off.' : 'Your previous session is still open. Resume it, or finalize it after saving pending progress.'}</p>
       <button type="button" disabled={state.busy} onClick={() => { void recovery.resume(); }}>Resume session</button>
       <button ref={finalizeButton} type="button" disabled={state.busy} onClick={() => { void recovery.finalize(exitTarget); }}>Finalize session</button>
     </>}

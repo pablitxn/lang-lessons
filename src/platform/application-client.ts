@@ -1,11 +1,14 @@
 import { parsePracticeEvent } from '../foundation/progress-batch';
-import type { CurrentUser, ExerciseIdentity, ProgressBatchResult, SessionCommands, SessionSnapshot, CloseResult, CallSegmentRef } from '../contracts';
+import type { ActivePractice, CurrentUser, ExerciseIdentity, LessonMode, ProgressBatchResult, SessionCommands, SessionSnapshot, CloseResult, CallSegmentRef } from '../contracts';
 import type { LoginApi } from '../features/accounts';
 import type { AdminUsersApi } from '../features/administration';
 import type { UserManagementApi } from '../features/administration/management';
 import type { ProfessorApi, StudentSessionView } from '../features/professor';
+import { parseSettings } from './settings-store';
+import type { AccountSettingsApi } from './account-settings';
 const object = (value: unknown): value is Record<string, any> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const id = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 256;
+const email = (value: unknown): value is string => typeof value === 'string' && value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value);
 const instant = (value: unknown) => value === null || typeof value === 'string' && Number.isFinite(Date.parse(value));
 const timeZone = (value: unknown): value is string => {
   if (typeof value !== 'string' || value.length > 128 || !(value === 'UTC' || /^[A-Za-z_]+(?:\/[A-Za-z0-9_+\-]+)+$/u.test(value))) return false;
@@ -14,12 +17,19 @@ const timeZone = (value: unknown): value is string => {
 const role = (value: unknown) => ['administrator', 'professor', 'student'].includes(String(value));
 const revision = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0;
 export class ApplicationRequestError extends Error { constructor(readonly status: number) { super('Application request failed'); } }
-export function createApplicationClient(request: typeof fetch = fetch, expired: () => void = () => {}) {
+export function createApplicationClient(request: typeof fetch = fetch, expired: () => void = () => {}, authenticationGeneration: () => number = () => 0) {
   const revisions = new Map<string, number>();
   async function json(path: string, body?: unknown, signal?: AbortSignal): Promise<unknown> {
+    const generation = authenticationGeneration();
+    const headers: Record<string, string> = {};
+    try {
+      const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (timeZone(zone)) headers['x-learning-time-zone'] = zone;
+    } catch { /* The server retains the saved timezone when navigation context is unavailable. */ }
+    if (body !== undefined) headers['content-type'] = 'application/json';
     const response = await request(path, { credentials: 'same-origin', cache: 'no-store', ...(signal ? { signal } : {}),
-      ...(body === undefined ? {} : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }) });
-    if (!response.ok) { if (response.status === 401) expired(); throw new ApplicationRequestError(response.status); }
+      headers, ...(body === undefined ? {} : { method: 'POST', body: JSON.stringify(body) }) });
+    if (!response.ok) { if (response.status === 401 && generation === authenticationGeneration()) expired(); throw new ApplicationRequestError(response.status); }
     return response.json();
   }
   function snapshot(value: unknown): SessionSnapshot {
@@ -27,25 +37,62 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       || !['open', 'closed'].includes(value.status) || !revision(value.revision)) throw new Error('Invalid session response');
     return { sessionId: value.sessionId, mode: value.mode, status: value.status, revision: value.revision };
   }
+  function activePractice(value: unknown): ActivePractice {
+    if (!object(value) || !['none', 'active', 'uncertain'].includes(value.callState)) throw new Error('Invalid active practice response');
+    const session = snapshot(value.session);
+    if (session.status !== 'open') throw new Error('Active practice is not open');
+    return { session, callState: value.callState as ActivePractice['callState'] };
+  }
+  const practice = {
+    async enter(input: { mode: LessonMode; operationId: string }): Promise<ActivePractice> {
+      const result = activePractice(await json('/api/learning/session/enter', input));
+      if (result.session.mode !== input.mode) throw new Error('Practice mode mismatch');
+      return result;
+    },
+    async current(): Promise<ActivePractice | null> {
+      const value = await json('/api/learning/session/current');
+      return value === null ? null : activePractice(value);
+    },
+  };
   function close(value: unknown): CloseResult {
     if (!object(value) || !id(value.sessionId) || !id(value.operationId) || value.status !== 'closed' || !revision(value.revision)
       || !['not-requested', 'pending', 'running', 'succeeded', 'failed', 'insufficient-evidence'].includes(value.feedback)) throw new Error('Invalid close response');
     return value as unknown as CloseResult;
   }
-  async function me(): Promise<CurrentUser> {
-    const value = await json('/api/me');
+  function currentUser(value: unknown): CurrentUser {
     if (!object(value) || !id(value.id) || !role(value.role) || !object(value.capabilities) || !Array.isArray(value.capabilities.granted)
-      || value.capabilities.granted.some((grant: unknown) => !id(grant))) throw new Error('Invalid account response');
-    return { id: value.id, role: value.role, capabilities: { granted: [...value.capabilities.granted] } };
+      || value.capabilities.granted.some((grant: unknown) => !id(grant)) || value.email !== undefined && !email(value.email)
+      || value.name !== undefined && (typeof value.name !== 'string' || value.name.length > 80)
+      || value.image !== undefined && value.image !== null && (typeof value.image !== 'string' || value.image.length > 180000
+        || !/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/u.test(value.image))) throw new Error('Invalid account response');
+    return { id: value.id, ...(value.email ? { email: value.email } : {}), ...(value.name !== undefined ? { name: value.name } : {}),
+      ...(value.image !== undefined ? { image: value.image } : {}), role: value.role, capabilities: { granted: [...value.capabilities.granted] } };
   }
+  async function me(): Promise<CurrentUser> { return currentUser(await json('/api/me')); }
+  const profile = { async update(input: { name: string; image: string | null }, signal: AbortSignal): Promise<CurrentUser> {
+    return currentUser(await json('/api/learning/profile', input, signal));
+  } };
+  function preferencesSnapshot(value: unknown) {
+    if (!object(value) || !revision(value.revision)) throw new Error('Invalid preferences response');
+    const settings = value.settings === null ? null : parseSettings(value.settings);
+    if (value.settings !== null && !settings || settings === null && value.revision !== 0 || settings !== null && value.revision === 0) throw new Error('Invalid preferences response');
+    return { settings, revision: value.revision as number };
+  }
+  const preferences: AccountSettingsApi = {
+    async read(signal) { return preferencesSnapshot(await json('/api/learning/preferences', undefined, signal)); },
+    async update(input, signal) { return preferencesSnapshot(await json('/api/learning/preferences', input, signal)); },
+  };
   async function readPage(path: string, cursor: string | null, signal: AbortSignal) {
     try {
       const value = await json(`${path}${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`, undefined, signal);
       if (!object(value) || !Array.isArray(value.items) || value.items.length > 100 || !(value.nextCursor === null || id(value.nextCursor))) throw new Error('Invalid list response');
       const items = value.items.map((item: unknown) => {
         if (!object(item) || !id(item.id) || !role(item.role)) throw new Error('Invalid user response');
+        if (item.email !== undefined && !email(item.email) || item.credentialStatus !== undefined && !['ready', 'setup-required'].includes(item.credentialStatus)) throw new Error('Invalid account details');
         if (revision(item.revision)) revisions.set(item.id, item.revision);
-        return { id: item.id, role: item.role, ...(typeof item.disabled === 'boolean' ? { disabled: item.disabled } : {}) };
+        return { id: item.id, role: item.role, ...(typeof item.disabled === 'boolean' ? { disabled: item.disabled } : {}),
+          ...(path === '/api/learning/users' && item.email ? { email: item.email } : {}),
+          ...(path === '/api/learning/users' && item.credentialStatus ? { credentialStatus: item.credentialStatus } : {}) };
       });
       return { status: 'ok' as const, value: { items, nextCursor: value.nextCursor as string | null } };
     } catch (error) { if (error instanceof ApplicationRequestError && [401,403].includes(error.status)) return { status: 'denied' as const }; throw error; }
@@ -202,7 +249,12 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
       }
     },
   };
-  return { timeZone: studentTimeZone, json, me, login, administration, management, professor, commands, recovery,
+  return { profile, preferences, practice, timeZone: studentTimeZone, json, me, login, administration, management, professor, commands, recovery,
+    async signOut(): Promise<void> {
+      const value = await json('/api/auth/sign-out', {}, AbortSignal.timeout(15000));
+      if (!object(value) || value.ok !== true) throw new Error('Sign out was not confirmed');
+      revisions.clear();
+    },
     async readFence(sessionId: string): Promise<import('../contracts').ProgressFence> {
       const value = await json(`/api/learning/recovery?sessionId=${encodeURIComponent(sessionId)}`);
       if (!object(value) || !object(value.progress) || value.progress.sessionId !== sessionId || !revision(value.progress.journalRevision)) throw new Error('Invalid progress fence');

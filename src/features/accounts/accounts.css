@@ -1,19 +1,162 @@
-.p3-accounts, .p3-admin, .p3-professor { box-sizing: border-box; max-width: 64rem; margin-inline: auto; padding: 1rem; color: #202a36; background: #fff; overflow-wrap: anywhere; font-family: system-ui, sans-serif; }
+.p3-accounts, .p3-admin, .p3-professor {
+  --p3-ink: var(--ink, #203b32); --p3-muted: var(--muted, #5c6d65); --p3-line: var(--line, #d9dfd5);
+  --p3-paper: var(--paper, #fffefa); --p3-surface: var(--surface, #eef1e8); --p3-primary: var(--primary, #08675f); --p3-primary-ink: var(--primary-ink, #fff);
+  box-sizing: border-box; color: var(--p3-ink); overflow-wrap: anywhere; font-family: system-ui, sans-serif; line-height: 1.5;
+}
+.p3-accounts { max-width: 72rem; margin-inline: auto; padding: 24px 0; }
 :is(.p3-accounts, .p3-admin, .p3-professor) * { box-sizing: border-box; }
-:is(.p3-accounts, .p3-admin, .p3-professor) button { min-height: 44px; padding: .65rem 1rem; margin: .25rem; white-space: normal; font: inherit; cursor: pointer; }
-:is(.p3-accounts, .p3-admin, .p3-professor) :focus-visible { outline: 3px solid #145fbc; outline-offset: 3px; }
-.p3-accounts form { display: grid; gap: 1rem; max-width: 28rem; }
-.p3-accounts label { display: grid; gap: .4rem; }
-.p3-accounts input { width: 100%; min-height: 44px; font: inherit; padding: .65rem; }
-:is(.p3-admin, .p3-professor) ul { padding: 0; list-style: none; }
-:is(.p3-admin, .p3-professor) li, .p3-professor article { border: 1px solid #c7cdd5; border-radius: .5rem; margin-block: .75rem; padding: 1rem; }
+:is(.p3-accounts, .p3-admin, .p3-professor) :focus-visible { outline: 3px solid var(--p3-primary); outline-offset: 4px; }
+:is(.p3-accounts, .p3-admin, .p3-professor) button { min-height: 44px; padding: 10px 15px; margin: 0; border: 1px solid var(--p3-line); border-radius: 10px; background: var(--p3-paper); color: var(--p3-ink); white-space: normal; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; }
+:is(.p3-accounts, .p3-admin, .p3-professor) button:disabled { cursor: not-allowed; opacity: .5; }
+:is(.p3-accounts, .p3-admin, .p3-professor) button:not(:disabled):hover { background: var(--p3-surface); }
+:is(.p3-accounts, .p3-admin) button.p3-primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 16px; background: var(--p3-primary); color: var(--p3-primary-ink); border-color: var(--p3-primary); }
+:is(.p3-accounts, .p3-admin) button.p3-primary-button:not(:disabled):hover { filter: brightness(.93); }
+:is(.p3-accounts, .p3-admin) .p3-secondary-button { background: transparent; }
+:is(.p3-accounts, .p3-admin) button.p3-text-button { border-color: transparent; background: transparent; color: var(--p3-muted); padding-inline: 0; text-align: left; }
+:is(.p3-accounts, .p3-admin) button.p3-text-button:not(:disabled):hover { color: var(--error, #b42318); text-decoration: underline; }
+:is(.p3-accounts, .p3-admin) input, .p3-admin select { min-width: 0; width: 100%; min-height: 48px; padding: 11px 13px; border: 1px solid var(--p3-line); border-radius: 10px; background: var(--p3-paper); color: var(--p3-ink); font: inherit; font-size: .9375rem; }
+:is(.p3-accounts, .p3-admin) input::placeholder { color: var(--p3-muted); opacity: .8; }
+:is(.p3-accounts, .p3-admin) label { display: grid; gap: 8px; font-size: .8125rem; font-weight: 600; }
+:is(.p3-accounts, .p3-admin) summary { cursor: pointer; }
+.p3-eyebrow { display: block; color: var(--p3-muted); font-size: .625rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.p3-field-help { color: var(--p3-muted); font-size: .8125rem; font-weight: 400; }
+.p3-account-notice { padding: 40px 0; }
+.p3-login-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 620px; margin-block: 18px 20px; border: 1px solid var(--p3-line); border-radius: 24px; overflow: hidden; background: var(--p3-paper); }
+.p3-login-welcome { display: flex; flex-direction: column; align-items: flex-start; padding: clamp(28px, 4vw, 48px); background: var(--p3-surface); }
+.p3-login-welcome h2 { font-family: Georgia, serif; font-size: clamp(2.25rem, 3.4vw, 3.2rem); font-weight: 400; line-height: 1.12; letter-spacing: -.045em; margin: 26px 0 18px; }
+.p3-login-welcome > p { color: var(--p3-muted); font-size: .9375rem; line-height: 1.7; margin: 0; }
+.p3-login-wordcard { display: flex; flex-direction: column; width: min(100%, 260px); align-self: center; margin: 40px auto 26px; padding: 24px 28px 18px; border: 1px solid var(--p3-line); border-radius: 16px; background: var(--p3-paper); box-shadow: 0 12px 28px rgb(25 43 30 / .045); transform: rotate(-5deg); }
+.p3-login-wordcard > span { text-align: center; font-family: Georgia, serif; font-size: 2.1rem; line-height: 1.35; letter-spacing: -.035em; }
+.p3-login-wordcard > span:nth-child(2) { color: var(--p3-primary); font-style: italic; }
+.p3-login-wordcard > span:nth-child(3) { color: var(--p3-muted); }
+.p3-login-wordcard > div { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--p3-line); color: var(--p3-muted); font-size: .6875rem; }
+.p3-login-welcome .p3-login-caption { margin-top: auto; font-size: .75rem; }
+.p3-login-panel { align-self: center; padding: clamp(28px, 4vw, 48px); }
+.p3-login-panel h1 { margin: 12px 0 14px; font-family: Georgia, serif; font-size: clamp(2.1rem, 3.3vw, 2.8rem); font-weight: 400; line-height: 1.12; letter-spacing: -.045em; }
+.p3-login-intro { margin: 0 0 28px; color: var(--p3-muted); font-size: .875rem; }
+.p3-login-form { display: grid; gap: 9px; }
+.p3-login-form > label:first-child { margin-bottom: 12px; }
+.p3-password-input { position: relative; }
+.p3-password-input input { padding-right: 70px; }
+.p3-password-input button.p3-password-toggle { position: absolute; right: 4px; top: 3px; min-height: 42px; padding: 6px 10px; border: 0; background: transparent; color: var(--p3-muted); font-size: .75rem; }
+.p3-login-form .p3-sign-in { margin-top: 16px; width: 100%; min-height: 50px; justify-content: space-between; padding-inline: 18px; }
+.p3-form-error { width: 100%; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--error, #b42318) 35%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--error, #b42318) 6%, var(--p3-paper)); color: var(--error, #b42318); font-size: .8125rem; line-height: 1.6; }
+.p3-login-help { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--p3-line); }
+.p3-login-help h2 { margin: 0 0 8px; font-size: .875rem; font-weight: 650; letter-spacing: -.015em; }
+.p3-login-help p { margin: 0; color: var(--p3-muted); font-size: .8125rem; line-height: 1.6; }
+.p3-login-help details { margin-top: 16px; font-size: .8125rem; }
+.p3-login-help details p { margin-top: 12px; }
+.p3-account-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 22px; border: 1px solid var(--p3-line); border-radius: 16px; background: var(--p3-paper); }
+.p3-account-identity { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+.p3-person-avatar { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; border: 1px solid var(--p3-line); border-radius: 50%; background: var(--p3-surface); color: var(--p3-primary); font-family: Georgia, serif; font-size: 1.2rem; }
+.p3-account-identity > div { min-width: 0; }
+.p3-account-identity .p3-eyebrow { margin: 0 0 2px; }
+.p3-account-email { margin: 0; font-size: .9375rem; font-weight: 600; }
+.p3-role-label { color: var(--p3-muted); font-size: .75rem; }
+.p3-accounts button.p3-profile-button { flex: 0 0 44px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%; overflow: hidden; background: var(--p3-surface); }
+.p3-profile-button img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.p3-account-preferences { width: min(34rem, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; border: 1px solid var(--p3-line); border-radius: 20px; background: var(--p3-paper); color: var(--p3-ink); overflow: auto; }
+.p3-account-preferences::backdrop { background: rgb(15 30 22 / .5); }
+.p3-preferences-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.p3-preferences-heading h2 { margin: 0; font-size: 1.35rem; }
+.p3-account-preferences > h3 { margin: 0 0 16px; font-size: 1.05rem; }
+.p3-profile-summary { color: var(--p3-muted); font-size: .875rem; }
+.p3-profile-sign-out { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--p3-line); }
+.p3-admin { margin-top: 34px; }
+.p3-admin-heading { margin-bottom: 30px; }
+.p3-admin-heading h1 { margin: 10px 0 12px; font-family: Georgia, serif; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 400; line-height: 1.15; letter-spacing: -.045em; }
+.p3-admin-heading > p { margin: 0; color: var(--p3-muted); font-size: .9375rem; }
+.p3-admin-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, .52fr); align-items: start; gap: 28px; }
+.p3-admin-layout-list-only { grid-template-columns: minmax(0, 1fr); }
+.p3-people-panel { min-width: 0; }
+.p3-directory-heading { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 14px; justify-content: space-between; margin-bottom: 18px; }
+.p3-directory-heading h2 { margin: 0; padding-block: 10px; font-size: 1.125rem; font-weight: 600; letter-spacing: -.025em; }
+.p3-directory-search { min-width: 0; flex: 0 1 260px; }
+.p3-directory-search input { min-height: 44px; font-size: .8125rem; }
+.p3-admin ul.p3-user-list { display: grid; gap: 14px; padding: 0; margin: 0; list-style: none; }
+.p3-admin .p3-user-card { min-width: 0; padding: 22px; border: 1px solid var(--p3-line); border-radius: 16px; background: var(--p3-paper); }
+.p3-user-card-heading { display: flex; align-items: center; gap: 12px; }
+.p3-user-card-identity { min-width: 0; }
+.p3-user-card h3 { font-size: .9375rem; line-height: 1.5; font-weight: 650; letter-spacing: -.015em; margin: 0 0 6px; }
+.p3-user-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.p3-role-badge, .p3-you-badge, .p3-status-badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 6px; background: var(--p3-surface); font-size: .625rem; font-weight: 600; }
+.p3-you-badge { background: transparent; border: 1px solid var(--p3-line); padding: 2px 7px; color: var(--p3-muted); }
+.p3-status-badge { color: var(--success, #17643c); background: color-mix(in srgb, var(--success, #17643c) 8%, var(--p3-paper)); }
+.p3-status-badge::before { content: ''; width: 5px; height: 5px; margin-right: 5px; border-radius: 50%; background: currentColor; }
+.p3-status-badge.p3-status-inactive { color: var(--p3-muted); background: var(--p3-surface); }
+.p3-user-description { margin: 16px 0 8px; color: var(--p3-muted); font-size: .8125rem; }
+.p3-credential-status { margin: 0 0 18px; color: var(--p3-muted); font-size: .75rem; }
+.p3-setup-needed { color: var(--p3-ink); font-weight: 600; }
+.p3-credential-controls { min-width: 0; padding: 0; margin: 0; border: 0; }
+.p3-management-actions { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 4px 16px; padding-block: 16px; border-top: 1px solid var(--p3-line); }
+.p3-management-actions form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; flex: 1 1 260px; min-width: 0; }
+.p3-management-actions label { flex: 1 1 150px; min-width: 0; font-size: .6875rem; color: var(--p3-muted); }
+.p3-management-actions select { min-height: 44px; font-size: .8125rem; padding: 9px 10px; }
+.p3-management-actions button { font-size: .75rem; }
+.p3-technical-details { padding-top: 14px; margin-top: 6px; border-top: 1px solid var(--p3-line); color: var(--p3-muted); font-size: .6875rem; }
+.p3-technical-details p { margin-bottom: 4px; }
+.p3-technical-details code { display: block; overflow-wrap: anywhere; font-size: .6875rem; }
+.p3-create-panel { min-width: 0; padding: 26px; border: 1px solid var(--p3-line); border-radius: 16px; background: var(--p3-surface); }
+.p3-management-form { display: grid; gap: 16px; }
+.p3-management-form h2 { font-size: 1.3rem; font-weight: 550; letter-spacing: -.035em; margin: -4px 0 -10px; }
+.p3-management-form > p { margin: 0; color: var(--p3-muted); font-size: .8125rem; }
+.p3-management-form .p3-field-help { margin-top: -9px; font-size: .75rem; min-height: 2.5em; }
+.p3-management-form .p3-primary-button { justify-content: space-between; }
+.p3-create-next { border-top: 1px solid var(--p3-line); margin-top: 24px; padding-top: 20px; }
+.p3-create-next h3 { margin: 0; font-size: .8125rem; font-weight: 650; }
+.p3-create-next ol { padding-left: 18px; margin: 14px 0; color: var(--p3-muted); font-size: .75rem; }
+.p3-create-next li { padding-left: 4px; margin-block: 10px; }
+.p3-create-next > p { margin: 0; color: var(--p3-muted); font-size: .6875rem; }
+.p3-feedback { border: 1px solid var(--p3-line); border-left: 3px solid var(--p3-primary); border-radius: 10px; background: var(--p3-surface); padding: 16px 18px; margin: 0 0 24px; font-size: .875rem; }
+.p3-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; }
+.p3-pagination > span { color: var(--p3-muted); font-size: .75rem; }
+.p3-pagination button { font-size: .75rem; }
+.p3-empty-accounts { padding: 24px; border: 1px dashed var(--p3-line); border-radius: 14px; color: var(--p3-muted); }
+.p3-admin-footer { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--p3-line); color: var(--p3-muted); font-size: .75rem; }
+.p3-admin dialog { width: 460px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid var(--p3-line); border-radius: 20px; padding: 28px; color: var(--p3-ink); background: var(--p3-paper); }
+.p3-admin dialog::backdrop { background: rgb(10 25 18 / .5); backdrop-filter: blur(3px); }
+.p3-admin dialog h2 { margin: 12px 0 18px; font-size: 1.5rem; font-weight: 550; letter-spacing: -.035em; }
+.p3-admin dialog p { font-size: .875rem; }
+.p3-dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.p3-professor { max-width: 64rem; margin-inline: auto; padding: 1rem; }
+.p3-professor ul { padding: 0; list-style: none; }
+.p3-professor li, .p3-professor article { border: 1px solid var(--p3-line); border-radius: 12px; margin-block: .75rem; padding: 1rem; background: var(--p3-paper); }
 .p3-professor .p3-comment { white-space: pre-wrap; }
-.p3-admin .p3-management-form, .p3-admin .p3-management-actions form { display: grid; gap: .75rem; max-width: 28rem; }
-.p3-admin label { display: grid; gap: .4rem; }
-.p3-admin input, .p3-admin select { min-width: 0; width: 100%; min-height: 44px; font: inherit; padding: .5rem; }
-.p3-admin dialog { max-width: min(32rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #697586; border-radius: .6rem; padding: 1rem; color: #202a36; background: #fff; }
-.p3-admin dialog::backdrop { background: #0008; }
-
 .p3-professor .p3-daily-totals { display: flex; flex-wrap: wrap; gap: 1rem; }
-.p3-professor .p3-daily-totals div { flex: 1 1 10rem; padding: .75rem; background: #f2f5f9; border-radius: .4rem; }
+.p3-professor .p3-daily-totals div { flex: 1 1 10rem; padding: .75rem; background: var(--p3-surface); border-radius: .4rem; }
 .p3-professor dd { margin: .25rem 0 .75rem; }
+@media (max-width: 860px) {
+  .p3-admin-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .p3-create-next { margin-top: 18px; padding-top: 16px; }
+  .p3-login-welcome { padding: 28px; }
+  .p3-login-panel { padding: 30px; }
+}
+@media (max-width: 620px) {
+  .p3-accounts { padding-block: 18px; }
+  .p3-login-layout { grid-template-columns: minmax(0, 1fr); margin-block: 4px 12px; min-height: auto; border-radius: 18px; }
+  .p3-login-welcome { padding: 22px 24px; }
+  .p3-login-welcome h2 { font-size: 1.8rem; margin: 12px 0 8px; }
+  .p3-login-welcome h2 br, .p3-login-welcome > p br { display: none; }
+  .p3-login-welcome > p { font-size: .8125rem; }
+  .p3-login-wordcard, .p3-login-welcome .p3-login-caption { display: none; }
+  .p3-login-panel { padding: 28px 24px; }
+  .p3-login-panel h1 { font-size: 2.1rem; }
+  .p3-login-help { margin-top: 24px; padding-top: 20px; }
+  .p3-account-header { padding: 16px; }
+  .p3-account-identity { flex-basis: calc(100% - 100px); }
+  .p3-account-identity .p3-person-avatar { display: none; }
+  .p3-account-email { font-size: .8125rem; }
+  .p3-admin { margin-top: 26px; }
+  .p3-admin-heading { margin-bottom: 22px; }
+  .p3-admin-heading > p { font-size: .875rem; }
+  .p3-create-panel, .p3-admin .p3-user-card { padding: 20px; }
+  .p3-directory-search { flex-basis: 100%; }
+  .p3-directory-heading h2 { padding: 0; }
+  .p3-directory-heading { gap: 10px; }
+  .p3-user-card-heading .p3-person-avatar { flex-basis: 36px; width: 36px; height: 36px; font-size: 1rem; }
+  .p3-user-card h3 { font-size: .8125rem; }
+  .p3-pagination { gap: 8px; }
+  .p3-pagination button { padding-inline: 10px; }
+  .p3-pagination > span { order: 1; width: 100%; text-align: center; }
+  .p3-admin dialog { padding: 22px; }
+}

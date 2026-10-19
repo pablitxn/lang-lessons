@@ -24,9 +24,26 @@ export async function studentDayWindows(client: PoolClient, studentId: string, d
   return { windows: rows.map(row=>({ start:row.start,end:row.end,timeZone:row.time_zone })), currentTimeZone:current.rows[0].time_zone, firstConfiguredAt:current.rows[0].first };
 }
 
-/** Only the authenticated student's own setting; no professor/admin location or browser default. */
+/** Only the authenticated student's own setting; browser context never chooses another user's zone. */
 export function createStudentTimeZoneRepository(pool: Pool, identity: AuthenticatedIdentity) {
   return {
+    async observe(value: unknown): Promise<StudentTimeZone | null> {
+      // The request is a location hint, not an authority. Missing/invalid hints preserve saved attribution.
+      let zone: string;
+      try { zone = canonicalTimeZone(value); } catch { return null; }
+      return transaction(pool, async client => {
+        await client.query('SELECT id FROM learning_users WHERE id=$1 FOR UPDATE', [identity.userId]);
+        await authorize(client, identity, approvedAccountAccess, 'timezone:own');
+        const latest = await client.query<{ time_zone: string; revision: number; effective_at: Date; precise_at: string }>(
+          'SELECT time_zone,revision,effective_at,effective_at::text AS precise_at FROM learning_student_timezones WHERE user_id=$1 ORDER BY revision DESC LIMIT 1', [identity.userId]);
+        const previous = latest.rows[0];
+        if (previous?.time_zone === zone) return { timeZone: zone, revision: previous.revision, effectiveAt: previous.effective_at.toISOString() };
+        const revision = (previous?.revision ?? 0) + 1;
+        const { rows } = await client.query<{ effective_at: Date }>(`INSERT INTO learning_student_timezones(user_id,revision,time_zone,effective_at)
+          VALUES ($1,$2,$3,GREATEST(clock_timestamp(),$4::timestamptz+interval '1 microsecond')) RETURNING effective_at`, [identity.userId, revision, zone, previous?.precise_at ?? null]);
+        return { timeZone: zone, revision, effectiveAt: rows[0]!.effective_at.toISOString() };
+      });
+    },
     read(): Promise<StudentTimeZone | null> {
       return transaction(pool,async client=>{
         await authorize(client,identity,approvedAccountAccess,'timezone:own');

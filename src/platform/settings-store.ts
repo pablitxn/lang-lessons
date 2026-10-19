@@ -23,7 +23,7 @@ export function parseSettings(value: unknown): LearnerSettings | null {
     || (value.sentenceTense !== undefined && value.sentenceTense !== 'all' && !TENSES.some(tense => tense === value.sentenceTense))
     || !isRecord(value.difficulty) || !isLevel(value.difficulty.grammar)
     || !isLevel(value.difficulty.vocabulary)
-    || !['verb-image', 'verb-visible', 'sentence'].includes(String(value.preferredMode))) return null;
+    || typeof value.preferredMode !== 'string' || !['verb-image', 'verb-visible', 'sentence'].includes(value.preferredMode)) return null;
   return {
     schemaVersion: 1, helpEnabled: value.helpEnabled, untimedHelp: value.untimedHelp === true,
     difficulty: { grammar: value.difficulty.grammar, vocabulary: value.difficulty.vocabulary },

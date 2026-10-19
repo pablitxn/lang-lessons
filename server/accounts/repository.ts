@@ -4,6 +4,7 @@ import type { PublicUser } from '../../src/contracts/accounts';
 import { authorize, denyUnresolvedGrants } from './authorization';
 import type { AccessPolicy, AuthenticatedIdentity } from './authorization';
 import { transaction, RepositoryError, requireId } from '../data/database';
+import { publicProfileImage, publicProfileName, validateProfileInput } from './profile';
 
 export interface Page<T> { readonly items: readonly T[]; readonly nextCursor: string | null }
 export interface SessionFeedbackView { sessionId: string; startedAt: string | null; endedAt: string | null; feedback: FeedbackState; comment: ProfessorComment | null }
@@ -45,7 +46,22 @@ export function createAccountRepository(pool: Pool, policy: AccessPolicy = denyU
       return { studentId, sessions: page(rows.map(row => ({ sessionId: row.id, startedAt: row.started_at?.toISOString() ?? null, endedAt: row.closed_at?.toISOString() ?? null, feedback: row.state ?? 'not-requested',
         comment: row.state === 'succeeded' && row.text !== null && row.provenance_version !== null ? { sessionId: row.id, text: row.text, provenanceVersion: row.provenance_version } : null })), limit, item => item.sessionId) };
     }),
-    me: (identity: AuthenticatedIdentity) => transaction(pool, client => authorize(client, identity, policy)),
+    me: (identity: AuthenticatedIdentity) => transaction(pool, async client => {
+      const current = await authorize(client, identity, policy);
+      const { rows } = await client.query<{ email: string; name: string; image: string | null }>('SELECT email,name,image FROM "user" WHERE id=$1', [identity.userId]);
+      if (!rows[0]) throw new RepositoryError('forbidden');
+      return { ...current, email: rows[0].email, name: publicProfileName(rows[0].name, identity.userId), image: publicProfileImage(rows[0].image) };
+    }),
+    updateProfile: (identity: AuthenticatedIdentity, input: unknown) => {
+      const profile = validateProfileInput(input);
+      return transaction(pool, async client => {
+        const current = await authorize(client, identity, policy);
+        const { rows } = await client.query<{ email: string; name: string; image: string | null }>(
+          'UPDATE "user" SET name=$2,image=$3,"updatedAt"=clock_timestamp() WHERE id=$1 RETURNING email,name,image', [identity.userId, profile.name, profile.image]);
+        if (!rows[0]) throw new RepositoryError('forbidden');
+        return { ...current, ...rows[0] };
+      });
+    },
     /** All students, cursor paginated; deliberately no assignment filter or personal fields. */
     listStudents: (identity: AuthenticatedIdentity, after = '', limit = 50): Promise<readonly PublicUser[]> => transaction(pool, async client => {
       await authorize(client, identity, policy, 'students:list');

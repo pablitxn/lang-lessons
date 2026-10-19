@@ -20,20 +20,24 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
     return { context, page, transport, errors };
   }
   async function startTutor(page) {
-    const dialog = page.getByRole('dialog', { name: 'Voice call details', exact: true });
-    const scope = await dialog.isVisible() ? dialog : page.locator('header');
-    await scope.getByRole('button', { name: 'Start tutor', exact: true }).click();
+    await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
   }
   async function ready(page) {
     await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open');
     await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent === 'Mute microphone' && !button.disabled));
-    const details = page.getByRole('dialog', { name: 'Voice call details', exact: true });
-    if (await details.isVisible()) await details.getByRole('button', { name: 'Close voice details', exact: true }).click();
+    assert.equal(await page.getByRole('button', { name: 'Stop tutor', exact: true }).count(), 1);
+    assert.equal(await page.locator('header .voice-status-badge').innerText(), '');
+    const aligned = await page.locator('header').evaluate(header => {
+      const call = header.querySelector('.voice-status-badge').getBoundingClientRect();
+      const profile = header.querySelector('.profile-avatar').getBoundingClientRect();
+      return Math.abs(call.y + call.height / 2 - profile.y - profile.height / 2) < 1 && call.width >= 44 && call.height >= 44;
+    });
+    assert.equal(aligned, true, 'Call and profile controls share one aligned row with a usable call target');
   }
   async function openVoiceError(page) {
-    const details = page.getByRole('dialog', { name: 'Voice call details', exact: true });
-    if (!await details.isVisible()) await page.getByRole('button', { name: 'Voice unavailable', exact: true }).click();
-    await details.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+    await page.locator('.voice-call-error').waitFor();
+    await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+    assert.equal(await page.getByRole('dialog', { name: 'Voice call details', exact: true }).count(), 0);
   }
   async function assertReleased(page) {
     const state = await inspectTransport(page);
@@ -64,17 +68,16 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
           assert.equal(await exercise.getAttribute(attribute), firstId);
           await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+          await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Appearance', exact: true }).click();
           await page.getByLabel('Theme', { exact: true }).selectOption('dark');
           await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
           await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('2');
           await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
           assert.equal(await exercise.getAttribute(attribute), firstId); assert.equal(transport.sessionRequests, 1);
-          await page.getByRole('button', { name: 'Voice call details', exact: true }).click();
-          await page.getByRole('dialog').getByRole('button', { name: 'Mute microphone', exact: true }).click();
+          await page.getByRole('button', { name: 'Mute microphone', exact: true }).click();
           assert.equal((await inspectTransport(page)).tracks[0].enabled, false);
-          await page.getByRole('dialog').getByRole('button', { name: 'Unmute microphone', exact: true }).click();
+          await page.getByRole('button', { name: 'Unmute microphone', exact: true }).click();
           assert.equal((await inspectTransport(page)).tracks[0].enabled, true);
-          await page.getByRole('button', { name: 'Close voice details', exact: true }).click();
           const pausedRelease = page.waitForResponse(response => response.url().endsWith('/api/realtime/session/end'));
           await call.getByRole('button', { name: 'Stop tutor', exact: true }).click();
           await pausedRelease; assert.equal(transport.releaseRequests, 1);
@@ -97,7 +100,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
           await page.getByRole('button', { name: 'Leave session', exact: true }).click(); await routeRelease;
           await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); await assertReleased(page);
           assert.equal(transport.releaseRequests, 2);
-          const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.settings.v1')));
+          const persisted = await page.evaluate(() => JSON.parse(localStorage.getItem('lang-lessons.account-settings.v1:browser-fixture-student')).settings);
           assert.deepEqual(Object.keys(persisted).sort(), ['difficulty', 'helpEnabled', 'preferredMode', 'schemaVersion', 'sentenceTense', 'theme', 'untimedHelp']);
           assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
           console.log(JSON.stringify({ status: 'passed', mode, port, viewport, evidence: 'actual app rendering; mocked browser transport; no real microphone/provider', checks: ['one explicit connection', 'progress home-only', 'settings preserve exercise/session', 'microphone mute', 'pause release/resume', 'reference home-only', 'route cleanup', '200% text/reflow', 'preferences-only storage', 'no external requests'] }));
@@ -108,17 +111,52 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const viewport = { width: 390, height: 844 };
       {
         const { context, page, transport, errors } = await setup(port, viewport);
+        transport.enabled = false;
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+        const unavailable = page.getByRole('button', { name: 'Voice unavailable', exact: true }); await unavailable.waitFor();
+        assert.equal(await unavailable.isDisabled(), true); assert.equal(transport.sessionRequests, 0);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
+        transport.enabled = true;
+        await page.getByRole('button', { name: 'Check voice availability', exact: true }).click();
+        await page.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
+        await startTutor(page); await ready(page);
+        assert.equal(transport.sessionRequests, 1); assert.equal((await inspectTransport(page)).mediaCalls, 1);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+        await page.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+        transport.enabled = false; await startTutor(page);
+        const unavailable = page.getByRole('button', { name: 'Voice unavailable', exact: true }); await unavailable.waitFor();
+        assert.equal(await unavailable.isDisabled(), true); assert.equal(transport.sessionRequests, 0);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
+        assert.equal((await inspectTransport(page)).mediaCalls, 0);
+        transport.enabled = true;
+        await page.getByRole('button', { name: 'Check voice availability', exact: true }).click();
+        await page.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+        assert.equal(await page.locator('.voice-call-error').count(), 0);
+        assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).mediaCalls, 0);
+        await startTutor(page); await ready(page);
+        assert.equal(transport.sessionRequests, 1);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
         await page.getByRole('button', { name: 'Preferences', exact: true }).click();
         await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
         await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('3');
         await page.getByLabel('Vocabulary difficulty', { exact: true }).selectOption('3');
         await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
         await page.getByRole('link', { name: 'Start Sentence practice', exact: true }).click();
-        await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+        await page.getByRole('heading', { name: 'Sentence practice', exact: true, level: 1 }).waitFor();
+        await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
         assert.equal(await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).isDisabled(), true);
         await page.getByText(/No authored prompt matches grammar 3 and vocabulary 3/).waitFor();
         assert.equal(await page.locator('.ll-sentences[data-exercise-id]').count(), 0);
-        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0); assert.equal(transport.statusRequests, 0);
+        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0); assert.ok(transport.statusRequests >= 1);
         await page.getByRole('button', { name: 'Preferences', exact: true }).click();
         await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
         await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('1');
@@ -196,11 +234,26 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         const { context, page, transport, errors } = await setup(port, viewport);
         let release; transport.statusBarrier = new Promise(resolve => { release = resolve; });
         const pendingStatus = page.waitForRequest(request => request.url().endsWith('/api/realtime/status'));
-        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await startTutor(page); await pendingStatus;
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click(); await pendingStatus;
+        assert.equal(await page.getByRole('button', { name: 'Checking voice availability', exact: true }).isDisabled(), true);
         await page.getByRole('link', { name: 'All lessons', exact: true }).click();
         await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
         release();
         assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
+        assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
+      }
+      {
+        const { context, page, transport, errors } = await setup(port, viewport);
+        await page.getByRole('link', { name: 'Start Picture practice', exact: true }).click();
+        await page.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+        let release; transport.statusBarrier = new Promise(resolve => { release = resolve; });
+        const pendingStatus = page.waitForRequest(request => request.url().endsWith('/api/realtime/status'));
+        await startTutor(page); await pendingStatus;
+        await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+        await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor(); release();
+        assert.equal((await inspectTransport(page)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
         assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []); await context.close();
       }
       {

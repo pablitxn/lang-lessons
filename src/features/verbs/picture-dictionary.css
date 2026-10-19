@@ -1,3 +1,16 @@
-.picture-dictionary { border: 1px solid currentColor; border-radius: 1rem; padding: 1rem; margin-block: 1rem; overflow-wrap: anywhere; }
-.picture-dictionary small { display: block; opacity: .8; }
-.picture-dictionary .ll-button { margin-block-start: 1rem; }
+.picture-dictionary { margin-block: 28px 0; padding-block-start: 24px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.dictionary-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; margin-bottom: 20px; }
+.picture-dictionary .dictionary-heading h2 { margin: 0; font-family: Georgia, serif; font-size: 2rem; font-weight: 400; letter-spacing: -.03em; line-height: 1.15; }
+.dictionary-pronunciations { display: flex; flex-wrap: wrap; gap: 8px 16px; min-width: 0; }
+.dictionary-pronunciation { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.dictionary-ipa { color: var(--muted); font-size: .875rem; line-height: 1.5; }
+.dictionary-dialect { color: var(--muted); font-size: .75rem; line-height: 1.5; }
+.dictionary-senses { display: grid; gap: 24px; }
+.dictionary-part-of-speech, .dictionary-example-label { display: block; color: var(--muted); font-size: .625rem; font-weight: 650; letter-spacing: .12em; line-height: 1.5; text-transform: uppercase; }
+.picture-dictionary .dictionary-definition { margin: 6px 0 0; font-size: .9375rem; line-height: 1.65; }
+.dictionary-examples { margin-top: 18px; padding: 16px 18px; border-left: 3px solid color-mix(in srgb, var(--primary) 40%, var(--line)); border-radius: 0 12px 12px 0; background: var(--surface); }
+.dictionary-examples blockquote { margin: 8px 0 0; }
+.picture-dictionary .dictionary-examples p { margin: 0; font-family: Georgia, serif; font-size: 1.125rem; font-style: italic; line-height: 1.55; }
+.picture-dictionary .dictionary-next { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: 100%; margin-top: 24px; border-color: var(--line); background: color-mix(in srgb, var(--primary) 4%, var(--paper)); color: var(--ink); font-size: .875rem; font-weight: 500; }
+.picture-dictionary .dictionary-next:hover { background: color-mix(in srgb, var(--primary) 8%, var(--paper)); }
+.dictionary-next svg { width: 20px; height: 20px; flex-shrink: 0; }

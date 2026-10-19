@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 
-test('Pictures card renders after written-only completion and explicit Next works at mobile width', { skip: process.env.P5_BROWSER !== '1', timeout: 60000 }, async () => {
-  const { chromium } = createRequire(import.meta.url)('playwright');
+test('Picture dictionary preserves written completion and provides attribution through preferences at mobile width', { skip: process.env.P5_BROWSER !== '1', timeout: 60000 }, async () => {
+  const require = createRequire(import.meta.url);
+  const { chromium } = require('playwright');
+  const { installBrowserTransport, inspectTransport } = require('./helpers/browser-transport.cjs');
   const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5198', '--strictPort']);
   let output = ''; server.stdout.on('data', data => { output += String(data); });
   let browser: any;
@@ -35,15 +37,13 @@ test('Pictures card renders after written-only completion and explicit Next work
     await page.getByRole('heading', { name: 'Verb lesson fixture' }).click();
     await page.clock.runFor(2500);
     await card.waitFor();
+    await card.getByRole('heading', { name: 'be', exact: true }).waitFor();
+    assert.equal(await card.getByText('/ˈbiː/', { exact: true }).count(), 1);
+    assert.equal(await card.getByText(/^verb$/i).count(), 1);
     assert.match(await card.innerText(), /To occupy a place\./);
     assert.match(await card.innerText(), /The cup is on the table\./);
-    assert.equal(await card.getByRole('link', { name: 'English Wiktionary contributors — be', exact: true }).first().getAttribute('href'), 'https://en.wiktionary.org/w/index.php?title=be&oldid=93578862#English');
-    assert.equal(await card.getByRole('link', { name: 'CC BY-SA 4.0', exact: true }).first().getAttribute('href'), 'https://creativecommons.org/licenses/by-sa/4.0/');
-    await card.getByText('Source and reuse details', { exact: true }).click();
-    assert.match(await card.innerText(), /No definitions or examples generated/);
-    const download = card.getByRole('link', { name: 'Download attributed snapshot (CC BY-SA 4.0)', exact: true });
-    const response = await page.request.get(new URL(await download.getAttribute('href'), page.url()).href);
-    assert.equal(response.ok(), true); assert.equal((await response.json()).entries.length, 25);
+    assert.equal(await card.getByRole('link').count(), 0, 'Source links remain outside the exercise card');
+    assert.doesNotMatch(await card.innerText(), /Written forms complete|Source and reuse details|Wiktionary|CC BY-SA/);
     await page.getByRole('textbox', { name: 'Past', exact: true }).fill('waz');
     await card.waitFor({ state: 'detached' });
     await page.getByRole('textbox', { name: 'Past', exact: true }).fill('was');
@@ -56,5 +56,27 @@ test('Pictures card renders after written-only completion and explicit Next work
     assert.notEqual(await lesson.getAttribute('data-exercise'), initial);
     assert.equal(await page.getByTestId('observations').getAttribute('data-completed'), '0');
     assert.deepEqual(external, []); assert.deepEqual(errors, []);
+
+    const origin = 'http://127.0.0.1:5198';
+    const context = await browser.newContext({ viewport: { width: 320, height: 640 }, colorScheme: 'dark' });
+    const transport = await installBrowserTransport(context, origin, { enabled: false });
+    const app = await context.newPage();
+    const appErrors: string[] = [];
+    app.on('pageerror', (error: Error) => appErrors.push(error.message));
+    await app.goto(origin, { waitUntil: 'networkidle' });
+    await app.getByRole('button', { name: 'Preferences', exact: true }).click();
+    await app.getByRole('button', { name: 'Credits', exact: true }).click();
+    const credits = app.getByRole('region', { name: 'Credits', exact: true });
+    await credits.waitFor();
+    assert.equal(await credits.getByRole('link', { name: 'be', exact: true }).getAttribute('href'), 'https://en.wiktionary.org/w/index.php?title=be&oldid=93578862#English');
+    assert.equal(await credits.getByRole('link', { name: 'CC BY-SA 4.0', exact: true }).getAttribute('href'), 'https://creativecommons.org/licenses/by-sa/4.0/');
+    assert.match(await credits.innerText(), /English Wiktionary contributors/);
+    assert.match(await credits.innerText(), /No definitions or examples generated/);
+    const download = credits.getByRole('link', { name: 'Download attributed snapshot (CC BY-SA 4.0)', exact: true });
+    const response = await app.request.get(new URL(await download.getAttribute('href'), app.url()).href);
+    assert.equal(response.ok(), true); assert.equal((await response.json()).entries.length, 25);
+    assert.equal((await inspectTransport(app)).mediaCalls, 0); assert.equal(transport.sessionRequests, 0);
+    assert.deepEqual(transport.externalRequests, []); assert.deepEqual(appErrors, []);
+    await context.close();
   } finally { await browser?.close(); server.kill(); }
 });
