@@ -18,10 +18,10 @@ export function SessionExitDialog({ lifecycle, returnFocus, onRetry }: { lifecyc
   return <>
     {state.error && <p role="alert">{state.error}</p>}
     {state.canRetryExit && <button type="button" disabled={state.busy}
-      onClick={() => { if (onRetry) onRetry(); else void lifecycle.retryExit(); }}>Retry finalization</button>}
+      onClick={() => { if (onRetry) onRetry(); else void lifecycle.retryExit(); }}>Try leaving again</button>}
     <dialog ref={ref} aria-labelledby={id} onCancel={event => { event.preventDefault(); lifecycle.decide('cancel'); }}>
-      <h2 id={id}>Leave this exercise session?</h2>
-      <p>You used the tutor in this session. Leaving closes the session and requests a short tutor comment when eligible.</p>
+      <h2 id={id}>End your call and leave?</h2>
+      <p>Your tutor call is active. Leaving ends the call and saves your practice.</p>
       <button type="button" autoFocus onClick={() => lifecycle.decide('cancel')}>Keep practicing</button>
       <button type="button" onClick={() => lifecycle.decide('confirm')}>Leave session</button>
     </dialog>

@@ -104,7 +104,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         page.on('pageerror', error => errors.push(error.message));
         await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
         if (enabled) { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click(); await page.waitForFunction(() => window.__voiceTransportFixture.peers.at(-1)?.channel?.readyState === 'open'); }
-        else { await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor(); assert.equal(transport.statusRequests, 0); }
+        else { const call = page.locator('header').getByRole('button', { name: 'Voice unavailable', exact: true }); await call.waitFor(); assert.equal(await call.isDisabled(), true); assert.ok(transport.statusRequests >= 1); }
         const lesson = page.locator('.ll-sentences[data-exercise-id]');
         const exerciseId = await lesson.getAttribute('data-exercise-id');
         const field = page.getByRole('textbox', { name: 'English translation', exact: true });
@@ -223,7 +223,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(answer);
       const choice = page.getByRole('combobox', { name: 'Verb tense', exact: true });
       const listbox = page.getByRole('listbox');
@@ -327,7 +327,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       const field = page.getByRole('textbox', { name: 'English translation', exact: true });
       const written = page.locator('.sentences-written');
@@ -439,7 +439,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const page = await context.newPage(); const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
-      await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
+      await page.locator('header').getByRole('button', { name: 'Voice unavailable', exact: true }).waitFor();
       await setHelp(page, true);
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(typo);
       const request = await hints.waitForCount(1);

@@ -9,7 +9,7 @@ function fixture() {
   const services = {
     origin, allowRequest: async (address: string) => { calls.push(['limit', address]); return allowed; },
     auth: { identity: async () => { if (denied) throw new RepositoryError('unauthenticated'); return { userId: 'canonical' }; },
-      handle: async () => { calls.push('login'); return new Response('{"ok":true}'); } },
+      handle: async (request: Request) => { calls.push(['auth', new URL(request.url).pathname]); return new Response('{"ok":true}', { headers: { 'set-cookie': 'session=; Max-Age=0; HttpOnly; SameSite=Lax' } }); } },
     accounts: { me: async (identity: unknown) => { calls.push(identity); return { id: 'canonical', role: 'student', capabilities: { granted: [] } }; },
       readProgressPage: async (identity: unknown, studentId: string, cursor: string | null) => { calls.push([identity, studentId, cursor]); return { studentId, sessions: { items: [], nextCursor: 'next-page' } }; } },
     learning: (identity: unknown) => { calls.push(identity); return { commands: {
@@ -20,18 +20,37 @@ function fixture() {
   const request = (path: string, body?: unknown, headers?: Record<string, string>) => handler(new Request(origin + path, body === undefined ? { headers: headers ?? {} } : {
     method: 'POST', headers: { origin, 'content-type': 'application/json', ...headers }, body: JSON.stringify(body),
   }), '127.0.0.1');
-  return { calls, request, disallow: () => { allowed = false; }, deny: () => { denied = true; } };
+  return { calls, request, handler, disallow: () => { allowed = false; }, deny: () => { denied = true; } };
 }
-test('root HTTP leaves unowned routes alone and gates unresolved services/logout/signup', async () => {
+test('root HTTP leaves unowned routes alone and gates unresolved services and signup', async () => {
   const blocked = createLearningHttpHandler(null);
   assert.equal(await blocked(new Request(origin + '/api/realtime/status'), '127.0.0.1'), null);
   const response = await blocked(new Request(origin + '/api/me'), '127.0.0.1');
   assert.equal(response?.status, 503); assert.equal(response?.headers.get('cache-control'), 'private, no-store');
   const f = fixture();
   assert.equal((await f.request('/api/realtime/session', {}))?.status, 503);
-  assert.equal((await f.request('/api/auth/sign-out', {}))?.status, 503);
   assert.equal((await f.request('/api/auth/sign-up/email', {}))?.status, 404);
-  assert.equal(f.calls.includes('login'), false);
+  assert.equal(f.calls.some(item => Array.isArray(item) && item[0] === 'auth'), false);
+});
+test('root HTTP sign-out preserves revocation cookies and enforces method, origin, content type and rate limits', async () => {
+  const f = fixture();
+  assert.equal((await f.request('/api/auth/sign-out'))?.status, 404);
+  assert.equal((await f.handler(new Request(origin + '/api/auth/sign-out', { method: 'DELETE' }), '127.0.0.1'))?.status, 405);
+  assert.equal((await f.request('/api/auth/sign-out', {}, { origin: 'https://other.invalid' }))?.status, 403);
+  assert.equal((await f.request('/api/auth/sign-out', {}, { 'sec-fetch-site': 'cross-site' }))?.status, 403);
+  assert.equal((await f.request('/api/auth/sign-out', {}, { 'content-type': 'text/plain' }))?.status, 415);
+  assert.equal(f.calls.some(item => Array.isArray(item) && item[0] === 'auth'), false);
+  // Already expired or disabled accounts must still be able to clear their auth cookie.
+  f.deny();
+  const result = await f.request('/api/auth/sign-out', {});
+  assert.equal(result?.status, 200);
+  assert.deepEqual(await result?.json(), { ok: true });
+  assert.equal(result?.headers.get('cache-control'), 'private, no-store');
+  assert.match(result?.headers.getSetCookie()[0] ?? '', /Max-Age=0/);
+  assert.deepEqual(f.calls.at(-1), ['auth', '/api/auth/sign-out']);
+  f.disallow();
+  assert.equal((await f.request('/api/auth/sign-out', {}))?.status, 429);
+  assert.equal(f.calls.filter(item => Array.isArray(item) && item[0] === 'auth').length, 1);
 });
 test('root HTTP enforces origin/type/limiter, canonical actor and bounded validated bodies', async () => {
   const f = fixture();

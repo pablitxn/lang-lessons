@@ -47,7 +47,9 @@ export function createRecoveryRepository(pool: Pool, identity: AuthenticatedIden
         if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new RepositoryError('invalid-input');
         const after = cursor ?? ''; if (cursor !== null) requireId(cursor);
         const { rows } = await client.query<{ id: string; mode: LessonMode; status: 'open'; revision: number }>(
-          "SELECT id,mode,status,revision FROM learning_sessions WHERE user_id=$1 AND status='open' AND id>$2 ORDER BY id LIMIT $3", [identity.userId, after, limit + 1]);
+          `SELECT id,mode,status,revision FROM learning_sessions WHERE user_id=$1 AND status='open' AND id>$2
+            ${policy.activePractice ? 'AND id=(SELECT session_id FROM learning_active_practice WHERE user_id=$1)' : ''}
+            ORDER BY id LIMIT $3`, [identity.userId, after, limit + 1]);
         const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision }));
         return { items, nextCursor: rows.length > limit ? items.at(-1)!.sessionId : null };
       });

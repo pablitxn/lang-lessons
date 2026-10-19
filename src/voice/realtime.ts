@@ -25,6 +25,19 @@ interface Resources {
 class PreviousCallCloseError extends Error {
   constructor() { super('The previous call could not close. Retry to finish closing it before starting another.'); }
 }
+class VoiceStartError extends Error {
+  constructor(message: string, readonly code: Extract<VoiceEvent, { type: 'error' }>['code'] = 'connection') { super(message); }
+}
+function brokerStartError(status: number) {
+  // Status codes are the broker contract. Never reflect untrusted provider or
+  // proxy response bodies into the lesson, logs, or diagnostics.
+  if (status === 401) return new VoiceStartError('Your sign-in expired. Sign in again before starting the tutor.', 'configuration');
+  if (status === 403) return new VoiceStartError('Your account does not have access to tutor calls.', 'configuration');
+  if (status === 400 || status === 409) return new VoiceStartError('This lesson has changed. Reopen it before starting the tutor again.', 'configuration');
+  if (status === 429) return new VoiceStartError('Another tutor call is still active. End it before starting a new call.');
+  if (status === 503) return new VoiceStartError('Tutor calls are unavailable right now. Try again when the voice service is ready.', 'configuration');
+  return new VoiceStartError('The voice service could not start this call. Please try again.');
+}
 interface ReleaseTask { endpoint: string; run(): Promise<void> }
 // Shared across adapter instances so selecting another lesson also waits for
 // the preceding call to close. Tokens remain only in this in-memory queue.
@@ -141,11 +154,19 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         peer.onconnectionstatechange = () => {
           if (peer.connectionState === 'failed' || peer.connectionState === 'disconnected') failure(resource, 'Voice disconnected. Your local lesson progress is preserved.');
         };
+        let startChannelTimeout = () => {};
         const opened = new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => finish(new Error('Voice channel timed out.')), 15000);
+          let settled = false;
+          let timeout: ReturnType<typeof setTimeout> | undefined;
+          startChannelTimeout = () => {
+            if (!settled) timeout = setTimeout(() => finish(new VoiceStartError('The voice connection timed out. Check your connection and try again.')), 15000);
+          };
           const cancelled = () => finish(new DOMException('Session cancelled.', 'AbortError'));
           function finish(error?: Error) {
-            clearTimeout(timeout); resource.controller.signal.removeEventListener('abort', cancelled);
+            if (settled) return;
+            settled = true;
+            if (timeout) clearTimeout(timeout);
+            resource.controller.signal.removeEventListener('abort', cancelled);
             if (error) reject(error); else resolve();
           }
           channel.onopen = () => finish();
@@ -167,7 +188,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         const response = await deps.fetch(endpoint.href, { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sdp: offer.sdp, ...(options.segment ? { segment: options.segment } : {}) }), credentials: 'same-origin',
           signal: AbortSignal.any([resource.controller.signal, AbortSignal.timeout(15000)]) });
-        if (!response.ok) throw new Error(response.status === 503 ? 'The local voice broker is disabled or missing server credentials.' : 'The voice session broker could not start this session.');
+        if (!response.ok) throw brokerStartError(response.status);
         const payload: unknown = await response.json();
         if (!isObject(payload) || typeof payload.sdp !== 'string' || !payload.sdp.startsWith('v=0')
           || payload.sdp.length > 60000 || !Number.isInteger(payload.maxDurationSeconds)
@@ -180,6 +201,9 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
             receipt: payload.telemetryReceipt, fetch: deps.fetch });
         }
         await peer.setRemoteDescription({ type: 'answer', sdp: payload.sdp });
+        // The channel cannot connect until its SDP answer has arrived. Offer
+        // preparation and the separately bounded broker request get their own time.
+        startChannelTimeout();
         await opened;
         if (!current(resource)) throw new DOMException('Session cancelled.', 'AbortError');
         resource.ready = true;
@@ -195,7 +219,8 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         if (current(resource)) {
           const denied = error instanceof DOMException && (error.name === 'NotAllowedError' || error.name === 'NotFoundError');
           failure(resource, denied ? 'Microphone access was not available. Check browser permission and try again.'
-            : error instanceof PreviousCallCloseError ? error.message : 'Voice could not start. Check the local broker and browser connection, then retry.', denied ? 'permission' : 'connection');
+            : error instanceof PreviousCallCloseError || error instanceof VoiceStartError ? error.message : 'Voice could not start. Check the voice service and browser connection, then retry.',
+          denied ? 'permission' : error instanceof VoiceStartError ? error.code : 'connection');
         } else cleanup(resource);
         throw error;
       }

@@ -71,6 +71,5 @@ export async function createBrowserWrittenPractice(options: { userId: string; se
 function WrittenStorageStatus({ status }: { status: { getSnapshot(): string; subscribe(listener: () => void): () => void } }) {
   const state = useSyncExternalStore(status.subscribe, status.getSnapshot);
   return state === 'invalid' ? <p role="alert">Saved written practice could not be restored. Your saved draft has not been replaced.</p>
-    : state === 'failed' ? <p role="alert">Your written draft could not be saved on this device. Keep this lesson open and retry saving before leaving.</p>
-      : state === 'saving' ? <p role="status">Saving written draft on this device…</p> : null;
+    : state === 'failed' ? <p role="alert">Your written draft could not be saved on this device. Keep this lesson open and retry saving before leaving.</p> : null;
 }

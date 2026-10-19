@@ -129,6 +129,7 @@ export function SpellingField(props: SpellingFieldProps) {
     onBlurCapture={event => {
       if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
         focused.current = false; setEngaged(false);
+        closeGuide();
         latest.current.onActivity?.({ inputFocused: false, compositionActive: composing.current });
       }
     }} onKeyDown={event => {
@@ -137,7 +138,8 @@ export function SpellingField(props: SpellingFieldProps) {
     <label htmlFor={id}>{label}</label>
     <div className="ll-field-controls">
       <input id={id} value={value} autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
-        aria-invalid={error || undefined} aria-describedby={`${id}-status${guideOpen && eligible ? ` ${id}-guide` : ''}`}
+        aria-invalid={error || undefined} aria-describedby={`${id}-status${eligible ? ` ${id}-help-shortcut` : ''}${guideOpen && eligible ? ` ${id}-guide` : ''}`}
+        aria-keyshortcuts={eligible ? 'Alt+ArrowDown' : undefined}
         onFocus={offerHelp}
         onChange={event => { finalized.current = ''; props.onChange(event.target.value); }}
         onCompositionStart={() => {
@@ -150,11 +152,14 @@ export function SpellingField(props: SpellingFieldProps) {
         }}
         onBlur={finalize}
         onKeyDown={event => {
+          if (eligible && event.altKey && event.key === 'ArrowDown' && !event.nativeEvent.isComposing && !composing.current) {
+            event.preventDefault(); setOffered(true); if (guideOpen) closeGuide(); else showGuide();
+          }
           if (event.key === 'Enter' && !event.nativeEvent.isComposing && !composing.current) { event.preventDefault(); offerHelp(); finalize(); }
         }} />
     </div>
     {current && (accepted || error) && <div className="ll-spelling-feedback">
-      <div className={`ll-spelling ${accepted ? 'll-correct' : ''}`} aria-hidden="true">
+      <div className={`ll-spelling ${accepted ? 'll-correct' : ''}`} aria-hidden="true" tabIndex={-1}>
         <span className="ll-outcome-icon">{accepted ? '✓' : '!'}</span>
         {spellingSegments(current).map((segment, index) => <span key={index} className={!accepted && segment.incorrect ? 'll-incorrect' : undefined}
           data-gap={segment.gap || undefined}>{segment.text}</span>)}
@@ -163,7 +168,7 @@ export function SpellingField(props: SpellingFieldProps) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => { setHovered(false); if (!help.current?.contains(document.activeElement)) closeGuide(); }}
         onFocus={showGuide} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) closeGuide(); }}>
-        <button className="ll-sound-help-trigger" type="button" aria-label={`Sound help for ${label}`}
+        <button className="ll-sound-help-trigger" type="button" aria-label={`Sound help for ${label}`} tabIndex={-1} title="Sound help (Alt+↓ from the answer)"
           aria-describedby={guideOpen ? `${id}-guide` : undefined} onMouseEnter={showGuide} onClick={showGuide}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
             <circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 17h.01" />
@@ -176,6 +181,7 @@ export function SpellingField(props: SpellingFieldProps) {
         </span>}
       </span>}
     </div>}
-    <p className={`ll-field-status${error || accepted || !status ? ' ll-sr-only' : ''}`} id={`${id}-status`} role="status">{status}{!error && current?.feedback ? ` ${current.feedback}` : ''}</p>
+    {eligible && <span id={`${id}-help-shortcut`} className="ll-sr-only">Press Alt+Down Arrow for sound help. Press Escape to close it.</span>}
+    <p className={`ll-field-status${error || accepted || !status ? ' ll-sr-only' : ''}`} id={`${id}-status`} role="status" tabIndex={-1}>{status}{!error && current?.feedback ? ` ${current.feedback}` : ''}</p>
   </div>;
 }

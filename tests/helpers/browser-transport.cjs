@@ -8,7 +8,8 @@ async function installBrowserTransport(context, origin, options = {}) {
     statusBarrier: null, sessionBarrier: null, releaseBarrier: null, progressBarrier: null, closeBarrier: null, learningCalls: [],
   };
   const sessions = new Map(); const operations = new Map(); const eventReceipts = new Map();
-  let sequence = 0; let timeZone = null;
+  let sequence = 0; let timeZone = null; let currentSessionId = null;
+  let preferences = { settings: options.settings ?? null, revision: options.settings ? 1 : 0 };
   await context.route('**/*', async route => {
     const request = route.request(); const url = new URL(request.url());
     if (url.origin !== origin) {
@@ -31,6 +32,24 @@ async function installBrowserTransport(context, origin, options = {}) {
       let row = sessions.get(sessionId); let result;
       const snapshot = () => ({ sessionId, mode: row.mode, status: row.status, revision: row.revision });
       switch (url.pathname) {
+        case '/api/learning/session/enter': {
+          const existing = [...sessions].find(([, session]) => session.mode === body.mode && session.status === 'open');
+          const id = existing?.[0] ?? `fixture-session-${++sequence}`;
+          if (!existing) sessions.set(id, { mode: body.mode, status: 'open', revision: 0, journal: 0, epoch: 0, close: null });
+          currentSessionId = id;
+          const selected = sessions.get(id);
+          result = { session: { sessionId: id, mode: selected.mode, status: selected.status, revision: selected.revision }, callState: 'none' }; break;
+        }
+        case '/api/learning/session/current': {
+          const selected = sessions.get(currentSessionId);
+          result = selected?.status === 'open' ? { session: { sessionId: currentSessionId, mode: selected.mode, status: selected.status, revision: selected.revision }, callState: 'none' } : null; break;
+        }
+        case '/api/learning/preferences':
+          if (body) {
+            if (body.expectedRevision !== preferences.revision) { await route.fulfill({ status: 409, json: { error: 'Revision conflict' } }); return; }
+            preferences = { settings: body.settings, revision: preferences.revision + 1 };
+          }
+          result = preferences; break;
         case '/api/learning/time-zone':
           if (body) { assert.equal(body.expectedRevision, timeZone?.revision ?? 0); timeZone = { timeZone: body.timeZone, revision: (timeZone?.revision ?? 0) + 1, effectiveAt: new Date().toISOString() }; }
           result = timeZone; break;

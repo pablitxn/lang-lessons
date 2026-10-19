@@ -79,4 +79,4 @@ start('voice broker', ['--env-file-if-exists=.env.local', '--import', 'tsx', 'se
 const frontendEnvironment = { ...process.env };
 delete frontendEnvironment.OPENAI_API_KEY;
 start('frontend', ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1'], frontendEnvironment);
-console.log(`Local app: http://127.0.0.1:5174/ | paid voice ${live ? 'enabled; selecting a lesson starts a call' : 'disabled'}. Ctrl-C stops both processes.`);
+console.log(`Local app: http://127.0.0.1:5174/ | paid voice ${live ? 'enabled; Start tutor initiates a call' : 'disabled'}. Ctrl-C stops both processes.`);

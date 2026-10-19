@@ -19,7 +19,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const response = await page.goto(`${origin}/`, { waitUntil: 'networkidle' }); assert.equal(response.status(), 200);
       await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
       const lessons = page.getByRole('navigation', { name: 'Lessons', exact: true });
-      assert.equal(await page.getByRole('button', { name: 'Preferences', exact: true }).innerText(), 'PC');
+      assert.equal(await page.getByRole('button', { name: 'Preferences', exact: true }).isEnabled(), true);
       assert.equal(await page.locator('.ll-dock').count(), 0);
       for (const name of ['Picture', 'Verb', 'Sentence']) assert.equal(await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).count(), 1);
       await page.getByRole('button', { name: 'Your progress', exact: true }).click();
@@ -40,7 +40,10 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await preferences.click(); await dialog.waitFor();
       const sections = dialog.getByRole('navigation', { name: 'Preferences sections' });
       const selectSection = name => sections.getByRole('button', { name, exact: true }).click();
-      assert.equal(await sections.getByRole('button', { name: 'Appearance', exact: true }).getAttribute('aria-current'), 'page');
+      assert.equal(await sections.getByRole('button', { name: 'Profile', exact: true }).getAttribute('aria-current'), 'page');
+      assert.equal(await dialog.getByRole('button', { name: 'Sign out', exact: true }).count(), 1);
+      assert.equal(await page.locator('header').getByRole('button', { name: 'Sign out', exact: true }).count(), 0);
+      await selectSection('Appearance');
       assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).count(), 0);
       if (viewport.width >= 540) {
         const navBounds = await sections.boundingBox();
@@ -82,11 +85,12 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
       await page.emulateMedia({ colorScheme: 'light' });
       await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
-      await selectSection('Storage');
-      await page.getByRole('button', { name: 'Clear saved preferences' }).click();
-      await dialog.getByText('Saved preferences cleared.', { exact: true }).waitFor();
+      assert.equal(await sections.getByRole('button', { name: 'Storage', exact: true }).count(), 0);
+      assert.equal(await dialog.getByRole('button', { name: 'Clear saved preferences', exact: true }).count(), 0);
       await selectSection('Learning');
-      assert.equal(await page.getByLabel('Grammar difficulty', { exact: true }).inputValue(), '1');
+      await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('1');
+      await page.getByLabel('Offer help after written corrections').uncheck();
+      await page.getByLabel('Keep sound-help offers available until dismissed').uncheck();
       await selectSection('Appearance');
       assert.equal(await page.getByLabel('Theme', { exact: true }).inputValue(), 'system');
       assert.equal(await page.evaluate(() => localStorage.getItem('unrelated.preference')), 'preserve');
@@ -94,7 +98,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
 
       for (const name of ['Picture', 'Verb', 'Sentence']) {
         await lessons.getByRole('link', { name: `Start ${name} practice`, exact: true }).click();
-        const heading = page.getByRole('heading', { name: `${name} practice`, exact: true });
+        const heading = page.getByRole('heading', { name: `${name} practice`, exact: true, level: 1 });
         await heading.waitFor();
         assert.equal(await heading.innerText(), name);
         // Read both boxes in one frame: route focus may scroll between separate protocol calls.
@@ -104,23 +108,20 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         }));
         assert.ok(Math.abs(headingBounds.y + headingBounds.height / 2 - backBounds.y - backBounds.height / 2) < 1, `Lesson identity and back navigation share a compact row: ${JSON.stringify({ name, viewport, headingBounds, backBounds })}`);
         assert.ok(backBounds.height >= 44, 'Back navigation retains its touch target');
-        await page.locator('header').getByRole('button', { name: 'Start tutor', exact: true }).click();
         const voiceBadge = page.getByRole('button', { name: 'Voice unavailable', exact: true });
         await voiceBadge.waitFor();
+        assert.equal(await voiceBadge.isDisabled(), true);
+        assert.equal(await voiceBadge.innerText(), '');
         assert.equal(await page.locator('.voice-call-bar').count(), 0);
         assert.doesNotMatch(await page.locator('.ll-exercise').innerText(), /Voice is unavailable|Voice calls are turned off/);
         const statusRequests = transport.statusRequests;
-        await voiceBadge.click();
-        const voiceDetails = page.getByRole('dialog', { name: 'Voice call details', exact: true });
-        await voiceDetails.waitFor();
-        assert.equal(await voiceDetails.getByRole('button', { name: 'Unmute microphone', exact: true }).isDisabled(), true);
-        await voiceDetails.getByRole('button', { name: 'Start tutor', exact: true }).waitFor();
-        assert.match(await voiceDetails.locator('.voice-call-status').innerText(), /Voice/);
-        if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-voice-details.png' });
-        await page.keyboard.press('Escape');
-        await voiceDetails.waitFor({ state: 'hidden' });
-        assert.equal(await voiceBadge.evaluate(element => document.activeElement === element), true);
-        assert.equal(transport.statusRequests, statusRequests);
+        assert.match(await page.locator('.voice-call-error').innerText(), /Voice/);
+        assert.equal(await page.getByRole('dialog', { name: 'Voice call details', exact: true }).count(), 0);
+        await page.getByRole('button', { name: 'Check voice availability', exact: true }).click();
+        await voiceBadge.waitFor();
+        assert.equal(transport.statusRequests, statusRequests + 1);
+        assert.equal(transport.learningCalls.includes('/api/learning/session/start-call'), false);
+        if (viewport.width === 390 && name === 'Sentence') await page.screenshot({ path: '/tmp/lang-lessons-voice-unavailable.png' });
         const next = page.getByRole('button', { name: name === 'Sentence' ? 'Next sentence' : name === 'Picture' ? 'Next image' : 'Next word', exact: true });
         if (name === 'Sentence') assert.equal((await next.innerText()).trim(), '→');
         else assert.equal(await next.locator('svg[aria-hidden="true"]').count(), 1);
@@ -149,15 +150,15 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
       }
       await page.goBack({ waitUntil: 'networkidle' });
-      await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+      await page.getByRole('heading', { name: 'Sentence practice', exact: true, level: 1 }).waitFor();
       await page.reload({ waitUntil: 'networkidle' });
-      await page.getByRole('heading', { name: 'Sentence practice', exact: true }).waitFor();
+      await page.getByRole('heading', { name: 'Sentence practice', exact: true, level: 1 }).waitFor();
       await page.getByRole('link', { name: 'All lessons', exact: true }).click();
       await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
       assert.equal(transport.sessionRequests, 0); assert.equal((await inspectTransport(page)).mediaCalls, 0);
       assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
       if (process.env.SCREENSHOT_PATH && port === ports[0] && viewport.width === 390) await page.screenshot({ path: process.env.SCREENSHOT_PATH, fullPage: true });
-      console.log(JSON.stringify({ status: 'passed', port, viewport, evidence: 'actual browser rendering; mocked permission check and disabled broker; no real audio/provider', checks: ['lesson cards', 'preferences section navigation and focus/Escape', 'microphone permission check releases device without call', 'theme and system preference', 'independent preferences', 'persistence', 'owned reset', 'offline spelling without voice', 'three routes', 'reload/history', 'reflow', 'no external requests'], errors: errors.length }));
+      console.log(JSON.stringify({ status: 'passed', port, viewport, evidence: 'actual browser rendering; mocked permission check and disabled broker; no real audio/provider', checks: ['lesson cards', 'preferences section navigation and focus/Escape', 'microphone permission check releases device without call', 'theme and system preference', 'independent preferences', 'persistence', 'no storage/reset controls', 'offline spelling without voice', 'three routes', 'reload/history', 'reflow', 'no external requests'], errors: errors.length }));
       await context.close();
     }
   } finally { await browser.close(); }

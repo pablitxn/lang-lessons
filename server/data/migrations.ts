@@ -16,6 +16,9 @@ export const MIGRATIONS = [
   { version: '2026-10-18-broker-receipts', source: new URL('../broker/receipts.sql', import.meta.url) },
   { version: '2026-10-18-client-call-time', source: new URL('./migrations/root-client-call-time.sql', import.meta.url) },
   { version: '2026-10-18-credential-links', source: new URL('./migrations/p2-credential-links.sql', import.meta.url) },
+  { version: '2026-10-19-account-preferences', source: new URL('./migrations/account-preferences.sql', import.meta.url) },
+  { version: '2026-10-19-active-practice', source: new URL('./migrations/active-practice.sql', import.meta.url) },
+  { version: '2026-10-19-practice-reentry', source: new URL('./migrations/practice-reentry.sql', import.meta.url) },
 ] as const;
 export async function migrateLearningDatabase(pool: Pool) {
   const migrations = await Promise.all(MIGRATIONS.map(async migration => {

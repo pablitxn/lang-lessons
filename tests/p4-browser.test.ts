@@ -22,7 +22,8 @@ test('optional tutor entry, stop and restart preserve written drafts in the rend
       }
       const draft = page.getByRole('textbox', { name: 'Past', exact: true });
       await draft.fill('kept draft');
-      assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
+      assert.ok(transport.statusRequests > 0, 'Read-only readiness is checked before enabling the call button');
+      assert.equal(transport.sessionRequests, 0, 'Readiness never allocates a provider session');
       assert.equal((await inspectTransport(page)).mediaCalls, 0);
       const header = page.locator('header');
       await header.getByRole('button', { name: 'Start tutor', exact: true }).click();

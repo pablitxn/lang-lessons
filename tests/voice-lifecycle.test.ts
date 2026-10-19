@@ -94,6 +94,80 @@ test('permission denial and a disabled broker leave no active media', async () =
   await assert.rejects(second.connect({ sessionId: 's2', signal: new AbortController().signal }));
   assert.equal(disabled.track.stops, 1); assert.equal(disabled.peer.closes, 1);
 });
+test('broker startup failures retain safe actionable errors without exposing response contents', async () => {
+  const cases = [
+    [401, /sign in again/i], [403, /account.*access/i], [409, /lesson.*changed/i],
+    [429, /another.*call/i], [503, /unavailable/i], [502, /voice service/i],
+  ] as const;
+  for (const [status, message] of cases) {
+    const f = fixture();
+    f.dependencies.fetch = async () => Response.json({ error: 'PRIVATE_PROVIDER_RESPONSE' }, { status });
+    const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+    adapter.subscribe(event => f.events.push(event));
+    await assert.rejects(adapter.connect({ sessionId: `failure-${status}`, signal: new AbortController().signal }), message);
+    const error = f.events.find(event => event.type === 'error');
+    assert.ok(error); assert.match(error.message, message);
+    assert.doesNotMatch(error.message, /PRIVATE_PROVIDER_RESPONSE/);
+    assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1);
+  }
+});
+test('SDP preparation and broker exchange do not consume the data channel connection timeout', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const f = fixture();
+  let offerReady!: () => void; let requestReady!: () => void;
+  let finishOffer!: (offer: { type: string; sdp: string }) => void; let finishRequest!: (response: Response) => void;
+  const preparing = new Promise<void>(resolve => { offerReady = resolve; });
+  const requesting = new Promise<void>(resolve => { requestReady = resolve; });
+  f.peer.createOffer = () => { offerReady(); return new Promise(resolve => { finishOffer = resolve; }); };
+  const fetcher = f.dependencies.fetch;
+  f.dependencies.fetch = (url, init) => {
+    if (String(url).endsWith('/end')) return fetcher(url, init);
+    requestReady(); return new Promise(resolve => { finishRequest = resolve; });
+  };
+  const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+  t.after(() => adapter.disconnect());
+  const connection = adapter.connect({ sessionId: 'delayed-negotiation', signal: new AbortController().signal });
+  await preparing; t.mock.timers.tick(10000);
+  finishOffer({ type: 'offer', sdp: 'v=0\r\noffer' });
+  await requesting; t.mock.timers.tick(6000);
+  finishRequest(Response.json({ sdp: 'v=0\r\nanswer', maxDurationSeconds: 600, releaseToken: 'fixture-release-token-00000000000000' }));
+  await connection;
+  assert.equal(f.track.stops, 0); assert.equal(f.peer.closes, 0);
+});
+test('a data channel that never opens still times out and releases the created call', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const f = fixture(); let remoteReady!: () => void;
+  const answered = new Promise<void>(resolve => { remoteReady = resolve; });
+  f.peer.setRemoteDescription = async () => { remoteReady(); };
+  const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+  adapter.subscribe(event => f.events.push(event));
+  const connection = adapter.connect({ sessionId: 'channel-timeout', signal: new AbortController().signal });
+  const rejected = assert.rejects(connection, /connection timed out/i);
+  await answered; await Promise.resolve();
+  t.mock.timers.tick(15000);
+  await rejected;
+  assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1); assert.equal(f.releases(), 1);
+  assert.ok(f.events.some(event => event.type === 'error' && /connection timed out/i.test(event.message)));
+});
+test('a late broker answer after cancellation is released without reconnecting media', async () => {
+  const f = fixture(); let requestReady!: () => void; let finishRequest!: (response: Response) => void; let remoteDescriptions = 0;
+  const requesting = new Promise<void>(resolve => { requestReady = resolve; });
+  const fetcher = f.dependencies.fetch;
+  f.dependencies.fetch = (url, init) => {
+    if (String(url).endsWith('/end')) return fetcher(url, init);
+    requestReady(); return new Promise(resolve => { finishRequest = resolve; });
+  };
+  f.peer.setRemoteDescription = async () => { remoteDescriptions++; f.channel.onopen?.(); };
+  const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+  adapter.subscribe(event => f.events.push(event));
+  const abort = new AbortController();
+  const connection = adapter.connect({ sessionId: 'cancelled-negotiation', signal: abort.signal });
+  await requesting; abort.abort();
+  finishRequest(Response.json({ sdp: 'v=0\r\nanswer', maxDurationSeconds: 600, releaseToken: 'fixture-release-token-00000000000000' }));
+  await assert.rejects(connection, { name: 'AbortError' });
+  assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1); assert.equal(f.releases(), 1); assert.equal(remoteDescriptions, 0);
+  assert.equal(f.events.some(event => event.type === 'state' && event.state === 'ready'), false);
+});
 test('cross-origin session endpoints fail before microphone permission or credentials', async () => {
   const f = fixture(); let media = 0;
   f.dependencies.getUserMedia = async () => { media++; return f.stream; };

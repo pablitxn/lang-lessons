@@ -49,8 +49,35 @@ test('P2 admin creates matching auth/application records once without credential
     assert.equal((await f.pool.query('SELECT * FROM learning_users')).rowCount, 4);
     const first = await f.repo.list(actor, null, 2); assert.equal(first.items.length, 2); assert.ok(first.nextCursor);
     const second = await f.repo.list(actor, first.nextCursor, 2); assert.equal(second.items.length, 2); assert.equal(second.nextCursor, null);
-    assert.ok(first.items.every(item => !('email' in item) && !('password' in item)));
+    assert.ok([...first.items, ...second.items].every(item => typeof item.email === 'string' && item.credentialStatus === 'setup-required' && !('password' in item)));
     assert.throws(() => f.repo.create(actor, { ...createInput(), password: 'not-accepted' } as ReturnType<typeof createInput>), /invalid-input/);
+  } finally { await f.cleanup(); }
+});
+
+test('P2 identity discloses only the actor email while the administrator directory includes credential readiness', isolated, async () => {
+  const f = await fixture();
+  try {
+    const accounts = createAccountRepository(f.pool, approvedAccountAccess);
+    for (const [userId, email] of [['admin', 'admin@example.invalid'], ['prof', 'prof@example.invalid'], ['student', 'student@example.invalid']] as const) {
+      const current = await accounts.me({ userId });
+      assert.equal(current.id, userId); assert.equal(current.email, email);
+      assert.deepEqual(Object.keys(current).sort(), ['capabilities', 'email', 'id', 'image', 'name', 'role']);
+    }
+    await f.pool.query('INSERT INTO account(id,"accountId","providerId","userId",password,"updatedAt") VALUES ($1,$1,$2,$3,$4,CURRENT_TIMESTAMP)', ['student-credential', 'credential', 'student', 'fixture-only-password-hash']);
+    await f.pool.query('INSERT INTO account(id,"accountId","providerId","userId",password,"updatedAt") VALUES ($1,$1,$2,$3,NULL,CURRENT_TIMESTAMP)', ['prof-credential', 'credential', 'prof']);
+    const directory = await f.repo.list(actor);
+    assert.deepEqual(directory.items.find(item => item.id === 'student'), { id: 'student', role: 'student', disabled: false, revision: 0, email: 'student@example.invalid', credentialStatus: 'ready' });
+    assert.equal(directory.items.find(item => item.id === 'prof')?.credentialStatus, 'setup-required');
+    assert.equal(JSON.stringify(directory).includes('fixture-only-password-hash'), false);
+    const publicRows = [
+      ...(await accounts.listAllStudents({ userId: 'prof' })).items,
+      ...await accounts.listStudents({ userId: 'prof' }),
+      ...(await accounts.listUsers(actor)).items,
+    ];
+    assert.ok(publicRows.length > 0);
+    assert.ok(publicRows.every(item => Object.keys(item).sort().join(',') === 'id,role'));
+    await assert.rejects(accounts.listAllStudents({ userId: 'student' }), /forbidden/);
+    await assert.rejects(f.repo.list({ userId: 'prof' }), /forbidden/);
   } finally { await f.cleanup(); }
 });
 

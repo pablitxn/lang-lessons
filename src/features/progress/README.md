@@ -286,7 +286,7 @@ Both pictureComplete and nextPicture now share a feature-owned predicate requiri
 accepted base/past/participle records for the current exercise/generation with valid
 typed evidence (explicit mock evidence only in mock fixtures). The controller's
 oral ledger, completion callback and visible-word behavior are unchanged. The card
-heading says Written forms complete. Editing invalidates/hides the card immediately;
+heading presents the dictionary lemma. Editing invalidates/hides the card immediately;
 rechecking restores it. History can restore the written card without restoring oral
 evidence. Next retains its exercise-identity guard against a stale/double callback.
 

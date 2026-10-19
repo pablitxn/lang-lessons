@@ -4,6 +4,8 @@ import type { FeedbackState } from './feedback';
 
 export interface CallSegmentRef { readonly sessionId: string; readonly segmentId: string; readonly connectionEpoch: number }
 export interface SessionSnapshot { readonly sessionId: string; readonly mode: LessonMode; readonly status: 'open' | 'closed'; readonly revision: number }
+/** Written practice is restored independently from any outstanding tutor transport. */
+export interface ActivePractice { readonly session: SessionSnapshot; readonly callState: 'none' | 'active' | 'uncertain' }
 export interface SessionMutation { readonly sessionId: string; readonly operationId: string; readonly expectedRevision: number }
 export interface ConfirmCloseRequest extends SessionMutation { readonly finalProgress: ProgressFence }
 export interface CloseResult { readonly sessionId: string; readonly operationId: string; readonly status: 'closed'; readonly revision: number; readonly feedback: FeedbackState }

@@ -4,7 +4,54 @@ Date: 2026-10-16. Owner: EN-WP-01 foundation/integration executor.
 Status: selected reversible implementation defaults under the delegated roadmap
 launch. These are implementation decisions, not retroactive product approvals.
 
-## Product flow update (2026-10-17)
+## Product flow update (2026-10-19)
+
+The 2026-10-19 browser review supersedes automatic voice startup: the header has
+one phone button that starts the tutor, changes to hang up during a call, and is
+disabled while readiness is unknown or unavailable. Readiness checks do not
+request media or allocate a call segment. The lifecycle rechecks readiness before
+allocation, and the adapter starts its data-channel deadline after SDP negotiation.
+Transport tests remain simulated evidence, not real voice validation.
+
+Account preferences now contain profile name/photo editing and sign-out. Profile
+changes retain the active account/session/exercise identity. Uploaded photographs
+are locally resized and stored as bounded raster data in the account backend.
+The backend validates browser timezone request context and records prospective
+changes in timezone history; the catalog no longer asks learners to configure it.
+The later session-flow review supersedes recovery choices on entry. All three
+lesson modes enter directly: the backend atomically selects the saved written
+practice and maintains one current-practice pointer per account. Concurrent
+entries cannot create duplicate current sessions; switching modes retains the
+other mode's drafts and historical progress without showing a list. Text-only
+exit saves without closing the canonical record or asking for confirmation.
+Current call transport is separate from historical call evidence. Only an
+actually connected call asks for exit confirmation; an unresolved live transport
+can be checked or ended without presenting written-session recovery controls.
+Confirming departure ends that call and saves the same open written practice.
+Production transport recovery excludes receipts older than 65 minutes (the
+provider's documented 60-minute maximum plus a conservative setup margin),
+without inferring whether the historical call connected. Entry reconciles those
+expired receipts without sending a provider request.
+
+All three exercise routes use the remaining viewport height for a stable practice
+card below the header and lesson navigation. Photographs retain their proportions
+and occupy at most 300px or 40% of the card's content height, with a 96px allowance
+in very short viewports. Exercise feedback and call controls
+scroll inside that card instead of increasing the page height. The card is
+keyboard-focusable; text reflow and short viewports retain internal scrolling.
+Routine local saves and progress synchronization are silent. Failed persistence
+still displays an actionable notice and retry control inside the card; internal
+event counts are not shown to learners.
+
+The follow-up preferences review fixes the home tools to the viewport footer and
+keeps the modal dimensions stable across sections. The content pane scrolls while
+section navigation and sign-out remain in the sidebar. Storage is automatic:
+non-sensitive settings have an account-scoped browser cache and an authenticated
+PostgreSQL snapshot. Local pending field changes survive reload and merge with the
+current server snapshot after revision conflicts. This supersedes the earlier
+device-only preferences default below; microphone permission remains browser-owned.
+
+### Earlier product flow (2026-10-17)
 
 The user's browser review supersedes the initial mock-first product defaults:
 the root is a lesson catalog, selecting a lesson starts the configured voice

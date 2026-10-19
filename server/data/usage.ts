@@ -24,9 +24,9 @@ export interface UsagePorts {
 interface StreamRow { id: string; visible: boolean; sequence: number; active_interval_id: string | null; last_observed_at: Date | null }
 
 /** Called inside the existing session transaction, so time cannot extend beyond explicit stop/close. */
-export async function finishUsage(client: PoolClient, sessionId: string, segmentId?: string) {
-  await client.query(`UPDATE learning_time_intervals i SET ended_at=GREATEST(i.started_at,LEAST(COALESCE(i.ended_at,clock_timestamp()),clock_timestamp()))
-    FROM learning_time_streams t WHERE i.stream_id=t.id AND t.session_id=$1 AND ($2::text IS NULL OR t.segment_id=$2) AND i.id=t.active_interval_id`, [sessionId, segmentId ?? null]);
+export async function finishUsage(client: PoolClient, sessionId: string, segmentId?: string, until?: Date) {
+  await client.query(`UPDATE learning_time_intervals i SET ended_at=GREATEST(i.started_at,LEAST(COALESCE(i.ended_at,clock_timestamp()),COALESCE($3::timestamptz,clock_timestamp())))
+    FROM learning_time_streams t WHERE i.stream_id=t.id AND t.session_id=$1 AND ($2::text IS NULL OR t.segment_id=$2) AND i.id=t.active_interval_id`, [sessionId, segmentId ?? null, until ?? null]);
   await client.query('UPDATE learning_time_streams SET active_interval_id=NULL,visible=false WHERE session_id=$1 AND ($2::text IS NULL OR segment_id=$2)', [sessionId, segmentId ?? null]);
 }
 export async function readUsageForWindow(client: PoolClient, userId: string, start: Date, end: Date, now?: Date): Promise<UsageSummary> {

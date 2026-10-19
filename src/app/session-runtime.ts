@@ -20,9 +20,8 @@ export async function checkVoiceAvailability(signal: AbortSignal, request: typeo
   }
   if (!status.enabled) {
     const reason = 'reason' in status ? status.reason : undefined;
-    if (reason === 'disabled') throw new Error('Voice calls are turned off. Enable the voice service, then retry.');
-    if (reason === 'missing-credentials') throw new Error('Voice setup is incomplete. Configure the voice service API key, then retry.');
-    throw new Error('Voice service is not ready. Complete voice setup, then retry.');
+    if (reason === 'disabled') throw new Error('Voice calls are turned off right now. You can keep practicing here.');
+    throw new Error('Voice is unavailable right now. You can keep practicing here.');
   }
 }
 

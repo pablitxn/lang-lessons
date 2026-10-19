@@ -41,19 +41,21 @@ per lemma; link markup and numeric list markers removed; display whitespace
 normalized. Grammatical qualifiers and dating retained. Other senses, phonetic
 variants, etymologies and translations omitted. Definitions and examples are
 **not generated, paraphrased or translated**. Regional/form labels reproduce the
-selected source labels; unspecified regions are explicitly marked as unspecified.
+selected source labels; unspecified regions remain recorded in the snapshot but
+are omitted from the exercise display.
 
 Coverage: **25/25 exact curriculum verbs** have a sourced English verb definition,
 part of speech and phonemic IPA; **24/25** have a contributor usage example.
 The selected “bleed” example gives medical instructions and is deliberately omitted;
-the card explicitly marks the example unavailable. This is a limited learning
-snapshot, not a comprehensive dictionary or a live-updating service. Sense choices
+the card omits the example block when no reviewed example is available. This is a
+limited learning snapshot, not a comprehensive dictionary or a live-updating service. Sense choices
 follow existing photo cues (e.g. beat/mix food, catch/intercept a ball, deal/cards,
 draw/depict). Spelling guidance and the photo ledger are unchanged.
 
-The card links each field to its exact entry revision and links the license.
-“Source and reuse details” describes the changes and offers the attributed JSON
-as a downloadable asset. No runtime dictionary request or generation occurs.
+Preferences > Credits lists each exact entry revision, links the license, describes
+the changes and offers the attributed JSON as a downloadable asset. The exercise
+card presents the reviewed content without repeated source links. No runtime
+dictionary request or generation occurs.
 
 ## Maintenance and integration
 

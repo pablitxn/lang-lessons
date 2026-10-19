@@ -7,17 +7,13 @@ export function ProgressSyncStatus({ queue }: { queue: {
   flush(): Promise<unknown>;
 } }) {
   const status = useSyncExternalStore(queue.subscribe, queue.getSnapshot, queue.getSnapshot);
-  if (status.phase === 'idle') return null;
+  if (status.phase !== 'error' && status.phase !== 'inactive') return null;
   return <section aria-label="Progress synchronization">
-    <p role="status">{status.phase === 'loading' ? "Checking this account’s pending progress on this device." : status.unsaved > 0
-      ? `${status.unsaved} progress events have not been saved on this device. Keep this page open to retry.`
-      : status.error === 'local-write'
-        ? 'Local progress storage could not be read or updated. Pending data has not been discarded.'
+    <p role="status">{status.error === 'local-write'
+      ? 'Your progress could not be saved on this device. Keep this lesson open and try again.'
       : status.phase === 'inactive'
-        ? 'Pending progress remains associated with the previous account. Sign in to that account to synchronize it.'
-        : status.phase === 'error'
-          ? `${status.pending} progress events remain pending on this device. Synchronization has not completed.`
-          : `${status.pending + status.unsaved} progress events are waiting for server acknowledgment.`}</p>
-    {status.phase === 'error' && <button type="button" className="ll-button" onClick={() => { void queue.flush().catch(() => {}); }}>Retry progress sync</button>}
+        ? 'Sign in to the original account to finish saving this practice.'
+        : 'Your progress could not be synced. Please try again.'}</p>
+    {status.phase === 'error' && <button type="button" className="ll-button" onClick={() => { void queue.flush().catch(() => {}); }}>Retry saving</button>}
   </section>;
 }

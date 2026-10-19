@@ -116,7 +116,7 @@ export function createSessionRecovery(ports: SessionRecoveryPorts) {
       if (!record || record.session.status !== 'open') return;
       const prepared = await prepare(record);
       if (!prepared || !current()) return;
-      const result = await prepared.lifecycle.requestExit(target);
+      const result = await prepared.lifecycle.finalize(target);
       if (!current()) return;
       if (result === 'closed') await read();
       // Lifecycle surfaces confirmation, rejected progress and ambiguous close errors itself.

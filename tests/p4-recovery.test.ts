@@ -12,6 +12,7 @@ function fixture(called = false) {
   const calls: string[] = []; const retryIds: string[] = []; const closeRequests: ConfirmCloseRequest[] = [];
   let invalidation = () => {}; let current = true; let number = 0; let closedReplyFails = false; let flushFails = false;
   let retriesFail = false;
+  let flushBarrier: Promise<void> | null = null;
   const sessions: SessionCommands = {
     async create() { throw new Error('No new session'); },
     async read() { return record.session; },
@@ -34,7 +35,7 @@ function fixture(called = false) {
       const runtime = createSessionRuntime(createMockVoiceAdapter(), recovered.sessionId);
       const lifecycle = createSessionLifecycle(runtime, {
         hadConnectedCall: recovered.hadConnectedCall, sessions,
-        progress: { async flush() { calls.push('flush'); if (flushFails) throw new Error('Offline'); return { sessionId: 's', journalRevision: 3 }; } },
+        progress: { async flush() { calls.push('flush'); await flushBarrier; if (flushFails) throw new Error('Offline'); return { sessionId: 's', journalRevision: 3 }; } },
         freezeWrites() { calls.push('freeze'); }, releasePreparation() { calls.push('unfreeze'); },
         operationId: () => `close-${++number}`, isCurrent: () => current,
         navigate: target => calls.push(`navigate:${target}`),
@@ -50,7 +51,8 @@ function fixture(called = false) {
   const recovery = createSessionRecovery(ports);
   return { recovery, ports, calls, retryIds, closeRequests, setRecord(next: Partial<RecoveryRecord>) { record = { ...record, ...next }; },
     record: () => record, invalidate() { current = false; invalidation(); },
-    failRetry(value: boolean) { retriesFail = value; }, failClose(value: boolean) { closedReplyFails = value; }, failFlush(value: boolean) { flushFails = value; } };
+    failRetry(value: boolean) { retriesFail = value; }, failClose(value: boolean) { closedReplyFails = value; }, failFlush(value: boolean) { flushFails = value; },
+    holdFlush() { let release!: () => void; flushBarrier = new Promise<void>(resolve => { release = resolve; }); return release; } };
 }
 
 test('recovery reads without media or queue writes; explicit resume restores the same session', async () => {
@@ -66,13 +68,10 @@ test('recovered no-call session finalizes directly after queue flush without a p
   assert.deepEqual(f.calls, ['read', 'restore-queue', 'freeze', 'flush', 'close', 'navigate:home', 'read', 'release-handle']);
   assert.equal(f.retryIds.length, 0); f.recovery.dispose();
 });
-test('recovered earlier call requires confirmation even with offline transport; cancel preserves queue', async () => {
+test('explicit legacy finalization of an earlier call does not present an active-call confirmation', async () => {
   const f = fixture(true); await f.recovery.load();
-  const exit = f.recovery.finalize('home'); await tick();
-  const lifecycle = f.recovery.getSnapshot().lifecycle!;
-  assert.equal(lifecycle.getSnapshot().confirming, true); lifecycle.decide('cancel'); await exit;
-  assert.deepEqual(f.calls, ['read', 'restore-queue']);
-  const confirmed = f.recovery.finalize('home'); await tick(); lifecycle.decide('confirm'); await confirmed;
+  const confirmations: boolean[] = []; const unsubscribe = f.recovery.subscribe(() => confirmations.push(f.recovery.getSnapshot().lifecycle?.getSnapshot().confirming ?? false));
+  await f.recovery.finalize('home'); assert.equal(confirmations.includes(true), false); unsubscribe();
   assert.equal(f.recovery.getSnapshot().record?.feedback, 'pending'); assert.equal(f.closeRequests.length, 1); f.recovery.dispose();
 });
 test('failed final flush remains visible and manual finalization retry preserves the session', async () => {
@@ -117,11 +116,11 @@ test('foreign account/session recovery responses are rejected before opening any
     assert.equal(f.recovery.getSnapshot().record, null); assert.deepEqual(f.calls, ['read']); f.recovery.dispose();
   }
 });
-test('account invalidation disposes pending confirmation and releases only the attached local handle', async () => {
-  const f = fixture(true); await f.recovery.load(); const exit = f.recovery.finalize('home'); await tick();
-  f.invalidate(); await exit;
+test('account invalidation during a final flush releases the handle without closing the old session', async () => {
+  const f = fixture(true); const release = f.holdFlush(); await f.recovery.load(); const exit = f.recovery.finalize('home'); await tick();
+  f.invalidate(); release(); await exit;
   assert.equal(f.recovery.getSnapshot().record, null); assert.equal(f.recovery.getSnapshot().lifecycle, null);
-  assert.deepEqual(f.calls, ['read', 'restore-queue', 'release-handle']); assert.equal(f.closeRequests.length, 0); f.recovery.dispose();
+  assert.deepEqual(f.calls, ['read', 'restore-queue', 'freeze', 'flush', 'release-handle', 'unfreeze']); assert.equal(f.closeRequests.length, 0); f.recovery.dispose();
 });
 
 test('late queue restoration after account change releases its handle without resuming another account', async () => {
@@ -158,13 +157,11 @@ test('a failed root resume handoff remains visible and does not hide recovery co
   assert.match(f.recovery.getSnapshot().error, /could not be resumed/); f.recovery.dispose();
 });
 
-test('a cancelled destination does not replace the destination of a later manual finalization retry', async () => {
-  const f = fixture(true); await f.recovery.load();
-  const first = f.recovery.finalize('cancelled-target'); await tick();
-  const lifecycle = f.recovery.getSnapshot().lifecycle!; lifecycle.decide('cancel'); await first;
-  f.failFlush(true); const second = f.recovery.finalize('chosen-target'); await tick(); lifecycle.decide('confirm'); await second;
-  f.failFlush(false); const retry = f.recovery.retryFinalize(); await tick(); lifecycle.decide('confirm'); await retry;
-  assert.ok(f.calls.includes('navigate:chosen-target')); assert.ok(!f.calls.includes('navigate:cancelled-target')); f.recovery.dispose();
+test('a pending failed finalization retains its chosen destination for manual retry', async () => {
+  const f = fixture(true); await f.recovery.load(); f.failFlush(true);
+  await f.recovery.finalize('chosen-target'); await f.recovery.finalize('replacement-target');
+  f.failFlush(false); await f.recovery.retryFinalize();
+  assert.ok(f.calls.includes('navigate:chosen-target')); assert.ok(!f.calls.includes('navigate:replacement-target')); f.recovery.dispose();
 });
 
 test('async resume waits for root reconciliation and shares duplicate clicks without terminating practice', async () => {
@@ -203,13 +200,12 @@ test('account invalidation or disposal during async resume cannot mark the old s
     assert.equal(f.recovery.getSnapshot().lifecycle, null); assert.equal(f.recovery.getSnapshot().error, ''); f.recovery.dispose();
   }
 });
-test('cancelled finalization does not close or stop a recovered session before asynchronous resume', async () => {
+test('failed final flush leaves the recovered session open for asynchronous resume', async () => {
   const f = fixture(true); let finish!: () => void;
   f.ports.resume = () => new Promise<void>(resolve => { finish = resolve; });
-  await f.recovery.load(); const finalize = f.recovery.finalize('home'); await tick();
-  f.recovery.getSnapshot().lifecycle!.decide('cancel'); await finalize;
+  await f.recovery.load(); f.failFlush(true); await f.recovery.finalize('home');
   const resume = f.recovery.resume(); await tick();
   assert.equal(f.recovery.getSnapshot().phase, 'available'); assert.equal(f.closeRequests.length, 0);
-  assert.deepEqual(f.calls, ['read', 'restore-queue']);
+  assert.deepEqual(f.calls, ['read', 'restore-queue', 'freeze', 'flush', 'unfreeze']);
   finish(); await resume; assert.equal(f.recovery.getSnapshot().phase, 'resumed'); f.recovery.dispose();
 });

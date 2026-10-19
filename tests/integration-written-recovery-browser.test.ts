@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 
-test('shipped application restores a local written draft in the same canonical session without starting audio',
+test('shipped application automatically restores written work after reload and home navigation without starting audio',
   { skip: process.env.RECOVERY_BROWSER !== '1', timeout: 60000 }, async () => {
     const require = createRequire(import.meta.url); const { chromium } = require('playwright');
     const { installBrowserTransport } = require('./helpers/browser-transport.cjs');
@@ -13,7 +13,7 @@ test('shipped application restores a local written draft in the same canonical s
     try {
       for (let i = 0; i < 100 && !output.includes('Local:'); i++) await new Promise(resolve => setTimeout(resolve, 50));
       assert.match(output, /Local:/);
-      browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true,
+      browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium', headless: true,
         env: { ...process.env, XDG_CONFIG_HOME: '/tmp/root-written-config', XDG_CACHE_HOME: '/tmp/root-written-cache' } });
       const context = await browser.newContext(); const origin = 'http://127.0.0.1:5210';
       const transport = await installBrowserTransport(context, origin, { enabled: false, recoveryEnabled: true });
@@ -22,13 +22,11 @@ test('shipped application restores a local written draft in the same canonical s
       page.on('request', (request: any) => { if (request.url().includes('/api/')) payloads.push(request.postData() ?? ''); });
       await page.addInitScript('globalThis.__name = value => value');
       await page.goto(origin);
-      const zone = page.getByLabel('Your IANA timezone', { exact: true }); await zone.waitFor();
-      assert.equal(await zone.inputValue(), '', 'no browser timezone is selected implicitly');
-      await zone.fill('America/New_York'); await page.getByRole('button', { name: 'Save timezone', exact: true }).click();
-      await page.getByText('Configured timezone', { exact: true }).waitFor();
-      const opened = page.waitForResponse((response: any) => response.url().endsWith('/api/learning/session/create'));
+      await page.getByRole('heading', { name: 'Choose a lesson' }).waitFor();
+      assert.equal(await page.getByLabel('Your IANA timezone', { exact: true }).count(), 0);
+      const opened = page.waitForResponse((response: any) => response.url().endsWith('/api/learning/session/enter'));
       await page.getByRole('link', { name: 'Start Sentence practice', exact: true }).click();
-      const session = await (await opened).json();
+      const { session } = await (await opened).json();
       const input = page.getByRole('textbox').first(); await input.fill('local-only unfinished draft');
       await page.waitForFunction(async (sessionId: string) => {
         const path = '/src/features/progress/written-snapshot-store.ts'; const { createIndexedDbWrittenSnapshotStore } = await import(path);
@@ -36,12 +34,22 @@ test('shipped application restores a local written draft in the same canonical s
         try { return (await store.load({ userId: 'browser-fixture-student', sessionId }, 'sentence'))?.draft === 'local-only unfinished draft'; }
         finally { await store.close(); }
       }, session.sessionId);
-      await page.goto(origin + '/?return=1');
-      await page.getByRole('button', { name: 'Resume session', exact: true }).click();
+      const exerciseId = await page.locator('.ll-sentences').getAttribute('data-exercise-id');
+      await page.reload({ waitUntil: 'networkidle' });
       await page.getByRole('textbox').first().waitFor();
       assert.equal(await page.getByRole('textbox').first().inputValue(), 'local-only unfinished draft');
-      assert.equal(transport.learningCalls.filter((path: string) => path === '/api/learning/session/create').length, 1);
-      assert.equal(transport.sessionRequests, 0); assert.equal(transport.statusRequests, 0);
+      assert.equal(await page.locator('.ll-sentences').getAttribute('data-exercise-id'), exerciseId);
+      await page.getByRole('link', { name: 'All lessons', exact: true }).click();
+      await page.getByRole('heading', { name: 'Choose a lesson', exact: true }).waitFor();
+      assert.equal(await page.getByRole('dialog').count(), 0, 'Written navigation never asks to end a session');
+      await page.getByRole('link', { name: 'Start Sentence practice', exact: true }).click();
+      await page.getByRole('textbox').first().waitFor();
+      assert.equal(await page.getByRole('textbox').first().inputValue(), 'local-only unfinished draft');
+      assert.equal(await page.locator('.ll-sentences').getAttribute('data-exercise-id'), exerciseId);
+      assert.equal(await page.getByRole('button', { name: /^(Resume session|Finalize session|Start new practice|Check session status)$/ }).count(), 0);
+      assert.equal(transport.learningCalls.includes('/api/learning/session/create'), false);
+      assert.equal(transport.learningCalls.includes('/api/learning/session/confirm-close'), false);
+      assert.equal(transport.sessionRequests, 0); assert.ok(transport.statusRequests >= 2, 'availability checks do not start audio');
       assert.equal(payloads.some(payload => payload.includes('local-only unfinished draft')), false);
       const identities = await page.evaluate(async (sessionId: string) => {
         const modulePath = '/src/app/browser-written-practice.tsx'; const { createBrowserWrittenPractice } = await import(modulePath);

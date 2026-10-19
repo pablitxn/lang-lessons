@@ -1,7 +1,20 @@
 import type { PublicUser, Role } from '../../contracts';
 
 /** Feature adapter DTOs; root maps these to the approved P2 policy API. */
-export interface ManagedUser extends PublicUser { readonly disabled: boolean }
+export interface ManagedUser extends PublicUser {
+  readonly disabled: boolean;
+  readonly email?: string;
+  readonly credentialStatus?: 'ready' | 'setup-required';
+}
+export const roleLabels: Record<Role, string> = { student: 'Student', professor: 'Teacher', administrator: 'Administrator' };
+export const roleDescriptions: Record<Role, string> = {
+  student: 'Practice lessons and keep track of your progress.',
+  professor: 'Review students and their learning progress.',
+  administrator: 'Manage accounts, access and password setup.',
+};
+export function accountLabel(user: PublicUser & { readonly email?: string }): string {
+  return user.email || 'Account without email';
+}
 export type UserChange =
   | { readonly kind: 'create'; readonly email: string; readonly role: Role }
   | { readonly kind: 'change-role'; readonly userId: string; readonly role: Role }

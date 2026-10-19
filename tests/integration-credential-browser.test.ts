@@ -9,7 +9,7 @@ test('shipped credential page clears fragment, honors policy, redeems synthetic 
   server.stdout.on('data', c => output += c); server.stderr.on('data', c => output += c); let browser: any;
   try {
     for (let i=0;i<100&&!output.includes('Local:');i++) await new Promise(resolve=>setTimeout(resolve,50)); assert.match(output,/Local:/);
-    browser = await chromium.launch({executablePath:'/usr/bin/chromium',headless:true}); const context = await browser.newContext();
+    browser = await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium',headless:true}); const context = await browser.newContext();
     const token = randomBytes(32).toString('base64url'); const password = randomUUID(); let redeemed = 0; const requests: string[] = [];
     await context.route('**/*',async (route: any) => {
       const request=route.request(); const url=new URL(request.url()); requests.push(request.url()); assert.equal(url.origin,origin);
@@ -39,13 +39,13 @@ test('administrator issues a manual synthetic setup link and can dismiss it with
   server.stdout.on('data',c=>output+=c);server.stderr.on('data',c=>output+=c);let browser:any;
   try {
     for(let i=0;i<100&&!output.includes('Local:');i++)await new Promise(resolve=>setTimeout(resolve,50));assert.match(output,/Local:/);
-    browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true});const context=await browser.newContext();
+    browser=await chromium.launch({executablePath:process.env.CHROMIUM_EXECUTABLE_PATH || '/usr/bin/chromium',headless:true});const context=await browser.newContext();
     const token=randomBytes(32).toString('base64url');let issued=0;
     await context.route('**/*',async(route:any)=>{
       const request=route.request();const url=new URL(request.url());assert.equal(url.origin,origin);
       if(url.pathname==='/api/learning/config')return route.fulfill({status:200,json:{accountsEnabled:true}});
       if(url.pathname==='/api/me')return route.fulfill({status:200,json:{id:'admin',role:'administrator',capabilities:{granted:['users:list','users:manage']}}});
-      if(url.pathname==='/api/learning/users')return route.fulfill({status:200,json:{items:[{id:'student',role:'student',disabled:false,revision:0}],nextCursor:null}});
+      if(url.pathname==='/api/learning/users')return route.fulfill({status:200,json:{items:[{id:'student',email:'student@example.test',role:'student',disabled:false,revision:0,credentialStatus:'setup-required'}],nextCursor:null}});
       if(url.pathname==='/api/learning/credential-links/issue'){
         issued++;assert.deepEqual(request.postDataJSON(),{userId:'student',purpose:'setup'});
         return route.fulfill({status:200,json:{link:`${origin}/account/credentials#token=${token}`,expiresAt:new Date(Date.now()+1800000).toISOString()}});
@@ -53,8 +53,9 @@ test('administrator issues a manual synthetic setup link and can dismiss it with
       return route.continue();
     });
     const page=await context.newPage();await page.goto(origin);
-    const section=page.getByRole('region',{name:'Credential links for student'});
-    await section.getByRole('button',{name:'Issue setup link',exact:true}).click();
+    const section=page.getByRole('region',{name:'Credential links for student@example.test'});
+    assert.equal(await section.getByRole('button',{name:'Create password reset link',exact:true}).count(),0);
+    await section.getByRole('button',{name:'Create setup link',exact:true}).click();
     await section.getByText('No email was sent.',{exact:false}).waitFor();
     assert.equal(await section.getByLabel('Private credential link').inputValue(),`${origin}/account/credentials#token=${token}`);
     assert.equal(issued,1);await section.getByRole('button',{name:'Dismiss link'}).click();assert.equal(await section.getByLabel('Private credential link').count(),0);

@@ -1,24 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearnerSettings } from '../contracts';
 import { TENSE_GUIDE } from '../content/tense-guide';
+import { LearningCredits } from './LearningCredits';
 
 type MicrophonePermission = PermissionState | 'unknown' | 'unavailable';
 const PERMISSION_LABELS: Record<MicrophonePermission, string> = {
   granted: 'Microphone access is allowed.',
   denied: 'Microphone access is blocked. Allow it in your browser’s site settings, then try again.',
-  prompt: 'Your browser will ask for microphone access when you start a lesson.',
+  prompt: 'Your browser will ask for microphone access when you start a call.',
   unknown: 'Microphone permission is managed by your browser.',
   unavailable: 'Microphone access is unavailable in this browser.',
 };
 
-export function Preferences({ settings, onChange, onReset, onClose, notice }: {
+export function Preferences({ settings, onChange, onClose, notice, profile, onSignOut, signingOut }: {
   settings: LearnerSettings; onChange: (settings: LearnerSettings) => void;
-  onReset: () => void; onClose: () => void; notice: string;
+  onClose: () => void; notice: string;
+  profile?: ReactNode; onSignOut?: (() => void) | undefined; signingOut?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [permission, setPermission] = useState<MicrophonePermission>('unknown');
   const [checking, setChecking] = useState(false);
-  const [section, setSection] = useState('appearance');
+  const [section, setSection] = useState(profile ? 'profile' : 'appearance');
   const active = useRef(false);
   useEffect(() => {
     active.current = true;
@@ -67,21 +69,40 @@ export function Preferences({ settings, onChange, onReset, onClose, notice }: {
   return <dialog ref={dialog} className="preferences-dialog" aria-labelledby="preferences-title"
     onCancel={event => { event.preventDefault(); onClose(); }}>
     <div className="preferences-heading"><h2 id="preferences-title">Preferences</h2>
-      <button className="quiet-button" aria-label="Close preferences" onClick={onClose}>Close</button></div>
+      <button className="preferences-close" aria-label="Close preferences" onClick={onClose}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="m6 6 12 12M18 6 6 18" /></svg>
+      </button></div>
     <div className="preferences-layout">
+      <div className="preferences-sidebar">
       <nav className="preferences-nav" aria-label="Preferences sections">
         {[
+          ...(profile || onSignOut ? [['profile', 'Profile', 'M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z']] : []),
           ['appearance', 'Appearance', 'M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm0 0v18'],
           ['voice', 'Voice', 'M9 5a3 3 0 0 1 6 0v7a3 3 0 0 1-6 0V5Zm-3 6v1a6 6 0 0 0 12 0v-1M12 18v4m-3 0h6'],
           ['learning', 'Learning', 'm2 9 10-5 10 5-10 5L2 9Zm4 2v6l6 3 6-3v-6M22 9v7'],
-          ['device', 'Storage', 'M5 3h14v18H5V3Zm4 14h6'],
         ].map(([id, label, path]) => <button key={id} type="button" aria-current={section === id ? 'page' : undefined}
-          aria-controls="preferences-content" onClick={() => setSection(id!)}>
+          aria-controls="preferences-content" title={label} onClick={() => { setSection(id!); document.getElementById('preferences-content')?.scrollTo(0, 0); }}>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>
-          {label}
+          <span>{label}</span>
         </button>)}
       </nav>
+      <div className="preferences-sidebar-footer">
+        <button type="button" aria-current={section === 'credits' ? 'page' : undefined} aria-controls="preferences-content" title="Credits"
+          onClick={() => { setSection('credits'); document.getElementById('preferences-content')?.scrollTo(0, 0); }}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M15 8a5 5 0 1 0 0 8" /></svg><span>Credits</span>
+        </button>
+      {onSignOut && <button type="button" disabled={signingOut} onClick={onSignOut} title="Sign out">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 4H4v16h5m5-12 4 4-4 4m-6-4h12" /></svg>
+        <span>{signingOut ? 'Signing out…' : 'Sign out'}</span>
+      </button>}
+      </div>
+      </div>
       <div id="preferences-content" className="preferences-content">
+        {section === 'credits' && <LearningCredits />}
+        {section === 'profile' && <section className="preferences-section" aria-labelledby="profile-title">
+          <h3 id="profile-title">Profile</h3>
+          {profile}
+        </section>}
         {section === 'appearance' && <section className="preferences-section" aria-labelledby="appearance-title">
           <h3 id="appearance-title">Appearance</h3>
           <p className="muted">Make this space feel comfortable for you.</p>
@@ -114,11 +135,6 @@ export function Preferences({ settings, onChange, onReset, onClose, notice }: {
             </select></label>)}</div>
           <label className="check-label"><input type="checkbox" checked={settings.helpEnabled} onChange={event => onChange({ ...settings, helpEnabled: event.target.checked })} />Offer help after written corrections</label>
           <label className="check-label"><input type="checkbox" checked={settings.untimedHelp} onChange={event => onChange({ ...settings, untimedHelp: event.target.checked })} />Keep sound-help offers available until dismissed</label>
-        </section>}
-        {section === 'device' && <section className="preferences-section" aria-labelledby="device-title">
-          <h3 id="device-title">Storage</h3><p className="muted">Your appearance and learning preferences are saved on this device.</p>
-          <div className="setting-card"><h4>Saved preferences</h4><p className="muted">Restore the default appearance, difficulty and sound-help settings.</p>
-            <button className="quiet-button" onClick={onReset}>Clear saved preferences</button></div>
         </section>}
         <p className="muted preferences-notice" role="status">{notice}</p>
       </div>

@@ -1,36 +1,29 @@
-import { WIKTIONARY_NOTICE } from './dictionary';
-import snapshotUrl from './dictionary/wiktionary.snapshot.json?url';
-import type { PictureCompletion, SourcedDictionaryText } from '../../contracts';
+import type { PictureCompletion } from '../../contracts';
 import './picture-dictionary.css';
-
-function SourcedText({ value }: { value: SourcedDictionaryText }) {
-  const source = value.source;
-  const safeUrl = /^https?:\/\//u.test(source.url) ? source.url : undefined;
-  return <div><p>{value.text}</p><small>
-    {safeUrl ? <a href={safeUrl} target="_blank" rel="noreferrer">{source.attribution}</a> : source.attribution}
-    {' · '}{source.license === 'CC BY-SA 4.0' ? <a href={WIKTIONARY_NOTICE.licenseUrl} target="_blank" rel="noreferrer">{source.license}</a> : source.license}
-  </small></div>;
-}
 
 /** Caller must supply only the current accepted completion, never a preview. */
 export function PictureDictionaryCard({ completion, onNext }: { completion: PictureCompletion; onNext: () => void }) {
   const entry = completion.dictionary;
-  const source = entry?.senses[0]?.definition.source;
-  const isWiktionary = source?.snapshotId === WIKTIONARY_NOTICE.snapshotId;
   return <section className="picture-dictionary" aria-label="Completed picture dictionary">
-    <h2>Written forms complete</h2>
-    {entry ? <><h3>{entry.lemma}</h3>
-      {!entry.pronunciations.length && <p>Pronunciation unavailable in this snapshot.</p>}
-      {entry.pronunciations.map((item, index) => <div key={index}><span>{item.dialect}</span><SourcedText value={item.notation} /></div>)}
-      {entry.senses.map(sense => <section key={sense.id}><SourcedText value={sense.partOfSpeech} />
-        <SourcedText value={sense.definition} />{!sense.examples.length && <p>Example unavailable in this snapshot.</p>}{sense.examples.map((example, index) => <SourcedText key={index} value={example} />)}</section>)}
-      {isWiktionary && <details><summary>Source and reuse details</summary>
-        <p>Selected English verb sense from Wiktionary; other senses and regional pronunciations are not included.</p>
-        <p>{WIKTIONARY_NOTICE.modifications}</p>
-        <p>Retrieved {source.retrievedOn}. Snapshot {source.snapshotId}. Content hash {source.contentHash}.</p>
-        <a href={snapshotUrl} download="wiktionary.snapshot.json">Download attributed snapshot (CC BY-SA 4.0)</a>
-      </details>}
+    {entry ? <>
+      <header className="dictionary-heading">
+        <h2>{entry.lemma}</h2>
+        <div className="dictionary-pronunciations">{entry.pronunciations.map((item, index) => <div key={index} className="dictionary-pronunciation">
+          <span className="dictionary-ipa">{item.notation.text}</span>
+          {!item.dialect.includes('not specified') && <span className="dictionary-dialect">{item.dialect}</span>}
+        </div>)}</div>
+      </header>
+      <div className="dictionary-senses">{entry.senses.map(sense => <section key={sense.id} className="dictionary-sense">
+        <span className="dictionary-part-of-speech">{sense.partOfSpeech.text}</span>
+        <p className="dictionary-definition">{sense.definition.text}</p>
+        {sense.examples.length > 0 && <div className="dictionary-examples">
+          <span className="dictionary-example-label">{sense.examples.length === 1 ? 'Example' : 'Examples'}</span>
+          {sense.examples.map((example, index) => <blockquote key={index}><p>{example.text}</p></blockquote>)}
+        </div>}
+      </section>)}</div>
     </> : <p>Dictionary content is unavailable for this entry.</p>}
-    <button type="button" className="ll-button" onClick={onNext}>Next picture</button>
+    <button type="button" className="ll-button dictionary-next" onClick={onNext}>Next picture
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+    </button>
   </section>;
 }

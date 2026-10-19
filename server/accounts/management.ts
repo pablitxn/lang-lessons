@@ -8,11 +8,13 @@ import { exactKeys, requireId, requireRevision, RepositoryError, transaction } f
 
 /** Local consumer DTO; integrator alone may promote this to shared contracts. */
 export interface ManagedUser { readonly id: string; readonly role: Role; readonly disabled: boolean; readonly revision: number }
+/** Personal account details are returned only by the administrator directory. */
+export interface ManagedUserListItem extends ManagedUser { readonly email: string; readonly credentialStatus: 'ready' | 'setup-required' }
 export interface CreateAccountInput { readonly operationId: string; readonly email: string; readonly role: Role; readonly disabled: boolean }
 export interface CreateAccountResult { readonly user: ManagedUser; readonly credentialSetup: 'pending-policy' }
 export type UpdateAccountInput = { readonly operationId: string; readonly userId: string; readonly expectedRevision: number } & (
   { readonly kind: 'set-role'; readonly role: Role } | { readonly kind: 'set-disabled'; readonly disabled: boolean });
-export interface ManagedUserPage { readonly items: readonly ManagedUser[]; readonly nextCursor: string | null }
+export interface ManagedUserPage { readonly items: readonly ManagedUserListItem[]; readonly nextCursor: string | null }
 function role(value: unknown): asserts value is Role {
   if (typeof value !== 'string' || !['administrator', 'professor', 'student'].includes(value)) throw new RepositoryError('invalid-input');
 }
@@ -57,7 +59,11 @@ export function createUserManagementRepository(pool: Pool) {
           after = Buffer.from(cursor, 'base64url').toString('utf8'); requireId(after);
           if (Buffer.from(after).toString('base64url') !== cursor) throw new RepositoryError('invalid-input');
         }
-        const { rows } = await client.query<ManagedUser>('SELECT id,role,disabled,revision FROM learning_users WHERE id>$1 ORDER BY id LIMIT $2', [after, limit + 1]);
+        const { rows } = await client.query<ManagedUserListItem>(
+          `SELECT u.id,u.role,u.disabled,u.revision,a.email,
+            CASE WHEN EXISTS (SELECT 1 FROM account c WHERE c."userId"=u.id AND c."providerId"='credential' AND c.password IS NOT NULL)
+              THEN 'ready' ELSE 'setup-required' END AS "credentialStatus"
+           FROM learning_users u JOIN "user" a ON a.id=u.id WHERE u.id>$1 ORDER BY u.id LIMIT $2`, [after, limit + 1]);
         const items = rows.slice(0, limit);
         return { items, nextCursor: rows.length > limit ? Buffer.from(items.at(-1)!.id).toString('base64url') : null };
       });
