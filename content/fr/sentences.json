@@ -1436,6 +1436,2177 @@
         "meaning": "Conserva el significado de esta frase española: Si el presupuesto lo permitiera, nosotros ofreceríamos una solución más completa.",
         "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
       }
+    },
+    {
+      "id": "fr-sentence-present-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Tú guardas las llaves en este cajón.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Tu gardes les clés dans ce tiroir.",
+          "tense": "fr-present",
+          "explanation": "Gardes concuerda con tu. El presente describe dónde sueles guardar las llaves; dans sitúa el objeto dentro del cajón."
+        }
+      ],
+      "hintSeeds": [
+        "Piensa en una costumbre y en el lugar donde se guarda el objeto.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Tú guardas las llaves en este cajón.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Mis vecinos comparten un huerto.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Mes voisins partagent un potager.",
+          "tense": "fr-present",
+          "explanation": "Partagent concuerda con el sujeto plural mes voisins. Se describe una situación habitual; potager designa un huerto de verduras."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica a las personas que comparten el espacio y qué tipo de espacio es.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Mis vecinos comparten un huerto.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g1-v3",
+      "language": "fr",
+      "spanish": "La investigadora analiza las muestras en el laboratorio.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "La chercheuse analyse les échantillons au laboratoire.",
+          "tense": "fr-present",
+          "explanation": "Analyse está en presente con un sujeto singular. La frase describe una actividad actual o habitual; ambas lecturas son compatibles si no se añade otro contexto."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue quién trabaja, qué examina y dónde lo hace.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La investigadora analiza las muestras en el laboratorio.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Hoy no comemos en casa.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Aujourd’hui, nous ne mangeons pas à la maison.",
+          "tense": "fr-present",
+          "explanation": "La negación ne… pas rodea mangeons. El presente puede describir el plan de hoy; no implica que nunca comamos en casa."
+        }
+      ],
+      "hintSeeds": [
+        "La negación se refiere a la comida de hoy, no a una costumbre permanente.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Hoy no comemos en casa.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Ella trabaja desde casa, pero no participa en todas las reuniones.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Elle travaille de chez elle, mais elle ne participe pas à toutes les réunions.",
+          "tense": "fr-present",
+          "explanation": "Travaille y participe están en presente. Pas à toutes niega la totalidad, no afirma que ella falte a todas las reuniones."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva el contraste y la diferencia entre no ir a todas e ir a ninguna.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ella trabaja desde casa, pero no participa en todas las reuniones.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g2-v3",
+      "language": "fr",
+      "spanish": "Este contrato no incluye la renovación automática.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Ce contrat ne prévoit pas de renouvellement automatique.",
+          "tense": "fr-present",
+          "explanation": "Ne prévoit pas niega una disposición actual del contrato. De renouvellement sigue a la negación; no se afirma que el contrato no pueda renovarse por otro medio."
+        }
+      ],
+      "hintSeeds": [
+        "La frase niega una condición concreta del contrato, no toda posibilidad de renovación.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Este contrato no incluye la renovación automática.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Por qué están llorando los niños ahora?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Pourquoi les enfants pleurent-ils maintenant ?",
+          "tense": "fr-present",
+          "explanation": "Pleurent está en presente y puede expresar una acción en curso. La inversión con ils forma la pregunta; être en train de también puede subrayar el desarrollo actual."
+        },
+        {
+          "text": "Pourquoi est-ce que les enfants sont en train de pleurer maintenant ?",
+          "tense": "fr-present",
+          "explanation": "Sont en train de pleurer subraya que la acción está desarrollándose ahora; el verbo finito está en presente y conserva la misma pregunta."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por la causa de lo que ocurre en este momento.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Por qué están llorando los niños ahora?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g3-v2",
+      "language": "fr",
+      "spanish": "¿Desde cuándo viven tus primos en Lyon?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Depuis quand tes cousins habitent-ils à Lyon ?",
+          "tense": "fr-present",
+          "explanation": "Depuis quand pregunta por el inicio de una situación que continúa. El francés usa aquí el presente habitent, sin exigir un tiempo perfecto como en inglés."
+        },
+        {
+          "text": "Depuis quand est-ce que tes cousins vivent à Lyon ?",
+          "tense": "fr-present",
+          "explanation": "Vivent y habitent son alternativas naturales para residir aquí; depuis quand conserva el inicio de una situación que sigue vigente."
+        }
+      ],
+      "hintSeeds": [
+        "La residencia comenzó antes y continúa: conserva esa relación temporal.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Desde cuándo viven tus primos en Lyon?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-present-exp-g3-v3",
+      "language": "fr",
+      "spanish": "¿Cómo reduce este programa el consumo de energía cuando el edificio está vacío?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Comment ce programme réduit-il la consommation d’énergie quand le bâtiment est vide ?",
+          "tense": "fr-present",
+          "explanation": "Réduit y est están en presente: describen el funcionamiento habitual bajo una condición recurrente. La pregunta pide el mecanismo, no una predicción."
+        }
+      ],
+      "hintSeeds": [
+        "Relaciona el funcionamiento del programa con la condición habitual del edificio.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Cómo reduce este programa el consumo de energía cuando el edificio está vacío?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Los niños comieron pasta anoche.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Les enfants ont mangé des pâtes hier soir.",
+          "tense": "fr-passe-compose",
+          "explanation": "Ont mangé combina avoir en presente y el participio mangé. Hier soir sitúa una comida acabada; el participio no concuerda con el sujeto al llevar avoir."
+        }
+      ],
+      "hintSeeds": [
+        "Sitúa la comida como un acontecimiento terminado de anoche.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Los niños comieron pasta anoche.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Ella olvidó su cita del martes.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Elle a oublié son rendez-vous de mardi.",
+          "tense": "fr-passe-compose",
+          "explanation": "A oublié presenta un olvido concreto. Son rendez-vous es el complemento directo colocado después del verbo; oublié no recibe una marca femenina por el sujeto."
+        }
+      ],
+      "hintSeeds": [
+        "Se trata de una cita concreta y de un olvido, no de una costumbre.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ella olvidó su cita del martes.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g1-v3",
+      "language": "fr",
+      "spanish": "El ayuntamiento aprobó el presupuesto ayer.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Le conseil municipal a adopté le budget hier.",
+          "tense": "fr-passe-compose",
+          "explanation": "A adopté expresa la decisión terminada de ayer. El sujeto institucional es singular; adopter le budget es una colocación natural para aprobarlo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica la decisión y su fecha, sin convertirla en una actividad habitual.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El ayuntamiento aprobó el presupuesto ayer.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Tú no llamaste a tu hermana ayer.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Tu n’as pas appelé ta sœur hier.",
+          "tense": "fr-passe-compose",
+          "explanation": "N’… pas rodea el auxiliar as. Appelé permanece como participio; hier fija el intervalo pasado en que no ocurrió la llamada."
+        }
+      ],
+      "hintSeeds": [
+        "Niega la llamada de ayer y conserva a quién iba dirigida.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Tú no llamaste a tu hermana ayer.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g2-v2",
+      "language": "fr",
+      "spanish": "El mecánico no encontró la fuga durante la revisión.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Le mécanicien n’a pas trouvé la fuite pendant la révision.",
+          "tense": "fr-passe-compose",
+          "explanation": "N’a pas trouvé niega el resultado de una revisión concreta. La negación rodea avoir, no el participio."
+        }
+      ],
+      "hintSeeds": [
+        "La revisión ocurrió; lo que no se consiguió fue encontrar el problema.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El mecánico no encontró la fuga durante la revisión.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g2-v3",
+      "language": "fr",
+      "spanish": "El comité rechazó la enmienda, pero aceptó el informe.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Le comité a rejeté l’amendement, mais il a accepté le rapport.",
+          "tense": "fr-passe-compose",
+          "explanation": "A rejeté y a accepté presentan dos decisiones acabadas y contrastadas. Se conserva cuál fue negativa y cuál fue favorable."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue los dos documentos y la decisión que corresponde a cada uno.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El comité rechazó la enmienda, pero aceptó el informe.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Dónde pusiste mi bolso esta mañana?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Où as-tu mis mon sac ce matin ?",
+          "tense": "fr-passe-compose",
+          "explanation": "La inversión as-tu forma la pregunta; mis es el participio de mettre. Se pregunta por una acción ya realizada esta mañana, no por una costumbre."
+        },
+        {
+          "text": "Où est-ce que tu as mis mon sac ce matin ?",
+          "tense": "fr-passe-compose",
+          "explanation": "Est-ce que forma la pregunta sin inversión; as mis sigue siendo passé composé y sitúa la misma acción terminada."
+        }
+      ],
+      "hintSeeds": [
+        "La persona ya movió el objeto: pregunta por el destino de esa acción.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Dónde pusiste mi bolso esta mañana?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g3-v2",
+      "language": "fr",
+      "spanish": "Ella cruzó la plaza mientras llovía.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Elle a traversé la place pendant qu’il pleuvait.",
+          "tense": "fr-passe-compose",
+          "explanation": "A traversé presenta el cruce como acontecimiento completo; pleuvait, en imparfait, da el fondo meteorológico. La acción principal es la de cruzar."
+        }
+      ],
+      "hintSeeds": [
+        "Separa el acontecimiento que avanzó la historia de la condición que lo acompañaba.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ella cruzó la plaza mientras llovía.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-exp-g3-v3",
+      "language": "fr",
+      "spanish": "¿Qué garantías propuso el proveedor durante la negociación?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Quelles garanties le fournisseur a-t-il proposées pendant la négociation ?",
+          "tense": "fr-passe-compose",
+          "explanation": "A-t-il proposées está en passé composé. Proposées concuerda con quelles garanties, complemento directo femenino plural situado antes del auxiliar."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por lo propuesto y observa la posición del complemento en la pregunta.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué garantías propuso el proveedor durante la negociación?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Ayer a las seis estábamos viendo la televisión.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Hier à six heures, nous regardions la télévision.",
+          "tense": "fr-imparfait",
+          "explanation": "Regardions sitúa la actividad en desarrollo en un momento pasado. No dice cuándo empezó o terminó; no exige una perífrasis continua."
+        }
+      ],
+      "hintSeeds": [
+        "Describe lo que estaba ocurriendo en ese momento, sin inventar su final.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ayer a las seis estábamos viendo la televisión.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Aquel invierno tú llevabas siempre un abrigo rojo.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Cet hiver-là, tu portais toujours un manteau rouge.",
+          "tense": "fr-imparfait",
+          "explanation": "Portais y toujours describen una costumbre dentro de un periodo pasado. Cet hiver-là distingue aquel invierno del actual."
+        }
+      ],
+      "hintSeeds": [
+        "La ropa era habitual durante aquel periodo, no un uso aislado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Aquel invierno tú llevabas siempre un abrigo rojo.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g1-v3",
+      "language": "fr",
+      "spanish": "En aquella época, el observatorio registraba la temperatura cada hora.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "À cette époque, l’observatoire relevait la température toutes les heures.",
+          "tense": "fr-imparfait",
+          "explanation": "Relevait describe una medición repetida en una época pasada. Toutes les heures marca la frecuencia, no una única medición terminada."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva la regularidad de las mediciones dentro del periodo pasado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: En aquella época, el observatorio registraba la temperatura cada hora.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g2-v1",
+      "language": "fr",
+      "spanish": "De pequeño, él no quería irse a dormir.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Quand il était petit, il ne voulait pas aller se coucher.",
+          "tense": "fr-imparfait",
+          "explanation": "Était y ne voulait pas describen la etapa infantil y una actitud habitual. Se coucher expresa irse a la cama, no simplemente estar dormido."
+        }
+      ],
+      "hintSeeds": [
+        "Describe una actitud repetida en la infancia, no una negativa de una sola noche.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: De pequeño, él no quería irse a dormir.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Antes, las oficinas no tenían ascensor.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Avant, les bureaux n’avaient pas d’ascenseur.",
+          "tense": "fr-imparfait",
+          "explanation": "N’avaient pas describe una carencia duradera del pasado. Después de la negación se usa d’ascenseur; no se cuenta un cambio concreto."
+        }
+      ],
+      "hintSeeds": [
+        "La frase describe cómo eran las oficinas en aquella época.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Antes, las oficinas no tenían ascensor.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g2-v3",
+      "language": "fr",
+      "spanish": "Entonces el sistema detectaba los fallos, pero no garantizaba la recuperación de los datos.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "À l’époque, le système détectait les pannes, mais ne garantissait pas la récupération des données.",
+          "tense": "fr-imparfait",
+          "explanation": "Détectait y ne garantissait pas describen capacidades estables de un sistema pasado. El contraste distingue detectar un problema de recuperar la información."
+        }
+      ],
+      "hintSeeds": [
+        "Diferencia las dos capacidades del sistema y conserva el contraste.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Entonces el sistema detectaba los fallos, pero no garantizaba la recuperación de los datos.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Qué estabais haciendo cuando se apagó la luz?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Que faisiez-vous quand la lumière s’est éteinte ?",
+          "tense": "fr-imparfait",
+          "explanation": "Faisiez describe la actividad en curso; s’est éteinte presenta el acontecimiento que la interrumpe. La pregunta principal está en imparfait."
+        },
+        {
+          "text": "Qu’est-ce que vous faisiez quand la lumière s’est éteinte ?",
+          "tense": "fr-imparfait",
+          "explanation": "La pregunta con est-ce que mantiene faisiez como actividad en curso y s’est éteinte como interrupción."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por la actividad de fondo y sitúa aparte la interrupción.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué estabais haciendo cuando se apagó la luz?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g3-v2",
+      "language": "fr",
+      "spanish": "Cuando se averió el tren, llevábamos una hora esperando en el andén.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Nous attendions sur le quai depuis une heure quand le train est tombé en panne.",
+          "tense": "fr-imparfait",
+          "explanation": "Attendions con depuis une heure expresa una espera que seguía en curso en aquel momento. El francés no necesita traducir esta duración con plus-que-parfait."
+        }
+      ],
+      "hintSeeds": [
+        "La espera ya había empezado y todavía continuaba en el momento de la avería.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Cuando se averió el tren, llevábamos una hora esperando en el andén.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-exp-g3-v3",
+      "language": "fr",
+      "spanish": "¿Por qué el equipo revisaba cada solicitud manualmente cuando la plataforma ya funcionaba?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Pourquoi l’équipe examinait-elle chaque demande manuellement alors que la plateforme fonctionnait déjà ?",
+          "tense": "fr-imparfait",
+          "explanation": "Examinait y fonctionnait describen dos situaciones simultáneas del pasado. Alors que introduce el contraste; no convierte la revisión habitual en un hecho único."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva la simultaneidad y el contraste entre el trabajo manual y la plataforma disponible.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Por qué el equipo revisaba cada solicitud manualmente cuando la plataforma ya funcionaba?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Con esas nubes negras, va a llover.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Avec ces nuages noirs, il va pleuvoir.",
+          "tense": "fr-futur-proche",
+          "explanation": "Va pleuvoir usa aller en presente más infinitivo para una predicción basada en señales visibles. Il es impersonal; no se trata de un desplazamiento."
+        }
+      ],
+      "hintSeeds": [
+        "La predicción se apoya en algo que se observa ahora.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Con esas nubes negras, va a llover.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Tú vas a recoger a tu prima en el aeropuerto esta tarde.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Tu vas chercher ta cousine à l’aéroport cet après-midi.",
+          "tense": "fr-futur-proche",
+          "explanation": "Vas chercher expresa el plan próximo de ir a buscar a la prima. Aller chercher es natural para recoger a una persona; el momento del plan está indicado."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica a quién se va a buscar, dónde y cuándo.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Tú vas a recoger a tu prima en el aeropuerto esta tarde.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g1-v3",
+      "language": "fr",
+      "spanish": "La técnica va a calibrar el sensor antes de la prueba.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "La technicienne va étalonner le capteur avant l’essai.",
+          "tense": "fr-futur-proche",
+          "explanation": "Va étalonner presenta una acción prevista antes de una prueba. Aller se conjuga y étalonner queda en infinitivo."
+        }
+      ],
+      "hintSeeds": [
+        "Sitúa la preparación técnica antes de la prueba prevista.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La técnica va a calibrar el sensor antes de la prueba.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g2-v1",
+      "language": "fr",
+      "spanish": "No voy a comprar más pan hoy.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne vais pas acheter davantage de pain aujourd’hui.",
+          "tense": "fr-futur-proche",
+          "explanation": "Ne vais pas rodea aller; acheter queda en infinitivo. Davantage de pain conserva el sentido de más pan, sin negar compras anteriores."
+        }
+      ],
+      "hintSeeds": [
+        "La decisión se refiere a una compra adicional de hoy.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: No voy a comprar más pan hoy.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Nosotros vamos a cambiar de hotel, pero no vamos a cancelar el viaje.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Nous allons changer d’hôtel, mais nous n’allons pas annuler le voyage.",
+          "tense": "fr-futur-proche",
+          "explanation": "Allons changer y n’allons pas annuler contrastan dos planes. La negación afecta solo a cancelar el viaje."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue el plan que cambia de la parte del viaje que se mantiene.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Nosotros vamos a cambiar de hotel, pero no vamos a cancelar el viaje.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g2-v3",
+      "language": "fr",
+      "spanish": "La aseguradora no va a cubrir los daños causados por la inundación.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "L’assureur ne va pas couvrir les dommages causés par l’inondation.",
+          "tense": "fr-futur-proche",
+          "explanation": "Ne va pas couvrir presenta una decisión futura negativa. Causés concuerda con dommages en la descripción del daño; no es el verbo principal."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva qué daños quedan fuera de la cobertura y cuándo se sitúa la decisión.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La aseguradora no va a cubrir los daños causados por la inundación.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Qué vas a cocinar con estas patatas?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Qu’est-ce que tu vas cuisiner avec ces pommes de terre ?",
+          "tense": "fr-futur-proche",
+          "explanation": "Vas cuisiner expresa la intención sobre una comida próxima. Qu’est-ce que introduce una pregunta por el plato, no por quien cocina."
+        },
+        {
+          "text": "Que vas-tu cuisiner avec ces pommes de terre ?",
+          "tense": "fr-futur-proche",
+          "explanation": "La inversión vas-tu sustituye a est-ce que; la intención y los ingredientes se conservan."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por el resultado previsto y conserva los ingredientes disponibles.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué vas a cocinar con estas patatas?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g3-v2",
+      "language": "fr",
+      "spanish": "¿A qué hora van a embarcar los pasajeros del vuelo a Roma?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "À quelle heure les passagers du vol pour Rome vont-ils embarquer ?",
+          "tense": "fr-futur-proche",
+          "explanation": "Vont embarquer expresa la acción prevista; vont-ils forma la inversión con el sujeto plural. Se pregunta por la hora de embarque, no de llegada."
+        }
+      ],
+      "hintSeeds": [
+        "La pregunta pide la hora de una fase concreta del viaje.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿A qué hora van a embarcar los pasajeros del vuelo a Roma?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-exp-g3-v3",
+      "language": "fr",
+      "spanish": "Si el ensayo confirma la hipótesis, vamos a ampliar el estudio.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Si l’essai confirme l’hypothèse, nous allons élargir l’étude.",
+          "tense": "fr-futur-proche",
+          "explanation": "La condición posible usa confirme en presente después de si; la consecuencia prevista usa allons élargir. No se coloca un futuro después del si condicional."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue la condición aún abierta de la ampliación prevista si se cumple.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Si el ensayo confirma la hipótesis, vamos a ampliar el estudio.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Te llamaré esta noche sin falta.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je t’appellerai ce soir sans faute.",
+          "tense": "fr-futur-simple",
+          "explanation": "Appellerai expresa un compromiso para esta noche, reforzado por sans faute. El pronombre t’ va antes del verbo conjugado en futuro."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva la promesa y a quién va dirigida la llamada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Te llamaré esta noche sin falta.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g1-v2",
+      "language": "fr",
+      "spanish": "El museo abrirá sus nuevas salas en junio.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Le musée ouvrira ses nouvelles salles en juin.",
+          "tense": "fr-futur-simple",
+          "explanation": "Ouvrira anuncia una apertura futura con una fecha. Ses nouvelles salles es el objeto; no se afirma que las salas ya estén abiertas."
+        }
+      ],
+      "hintSeeds": [
+        "Sitúa la apertura anunciada en el mes indicado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El museo abrirá sus nuevas salas en junio.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g1-v3",
+      "language": "fr",
+      "spanish": "Los investigadores publicarán los resultados tras la evaluación.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Les chercheurs publieront les résultats après l’évaluation.",
+          "tense": "fr-futur-simple",
+          "explanation": "Publieront concuerda con les chercheurs y sitúa una publicación futura. Après l’évaluation ordena las etapas sin inventar un resultado de la revisión."
+        }
+      ],
+      "hintSeeds": [
+        "La evaluación precede a la publicación anunciada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Los investigadores publicarán los resultados tras la evaluación.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Ella no olvidará tu ayuda.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Elle n’oubliera pas ton aide.",
+          "tense": "fr-futur-simple",
+          "explanation": "N’oubliera pas es una predicción o compromiso sobre el futuro. La negación rodea el verbo simple; no hace falta un auxiliar equivalente al inglés will."
+        }
+      ],
+      "hintSeeds": [
+        "La frase proyecta hacia el futuro el recuerdo de la ayuda.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ella no olvidará tu ayuda.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g2-v2",
+      "language": "fr",
+      "spanish": "El autobús no parará en esta plaza durante las obras.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Le bus ne s’arrêtera pas sur cette place pendant les travaux.",
+          "tense": "fr-futur-simple",
+          "explanation": "Ne s’arrêtera pas combina futuro y verbo pronominal. Pendant les travaux limita la suspensión de esa parada al periodo de las obras."
+        }
+      ],
+      "hintSeeds": [
+        "La parada se suspende durante un periodo concreto, no para siempre.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El autobús no parará en esta plaza durante las obras.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g2-v3",
+      "language": "fr",
+      "spanish": "La nueva norma reducirá los trámites, pero no eliminará todos los controles.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "La nouvelle règle réduira les formalités, mais ne supprimera pas tous les contrôles.",
+          "tense": "fr-futur-simple",
+          "explanation": "Réduira y ne supprimera pas presentan efectos futuros contrastados. Pas tous niega la eliminación total de controles."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue reducir trámites de eliminar todos los controles.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La nueva norma reducirá los trámites, pero no eliminará todos los controles.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Quién cuidará al gato mientras estamos fuera?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Qui s’occupera du chat pendant notre absence ?",
+          "tense": "fr-futur-simple",
+          "explanation": "S’occupera está en futuro; qui es el sujeto de la pregunta. Pendant notre absence conserva el periodo futuro de ausencia sin imponer otra cláusula."
+        },
+        {
+          "text": "Qui gardera le chat pendant que nous serons absents ?",
+          "tense": "fr-futur-simple",
+          "explanation": "Gardera expresa el cuidado futuro y serons absents conserva la ausencia futura; ambas proposiciones usan futur simple."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por la persona responsable durante la ausencia.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Quién cuidará al gato mientras estamos fuera?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g3-v2",
+      "language": "fr",
+      "spanish": "Cuando terminen las obras, los vecinos volverán a usar el jardín.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Quand les travaux seront terminés, les voisins utiliseront de nouveau le jardin.",
+          "tense": "fr-futur-simple",
+          "explanation": "Utiliseront es el futuro de la acción principal. Seront terminés describe el estado futuro de las obras; quand admite futuro en francés, a diferencia del subjuntivo español."
+        }
+      ],
+      "hintSeeds": [
+        "Ordena el fin de las obras y la vuelta al uso del espacio común.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Cuando terminen las obras, los vecinos volverán a usar el jardín.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-exp-g3-v3",
+      "language": "fr",
+      "spanish": "¿Cómo financiará la asociación el proyecto si no recibe la subvención?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Comment l’association financera-t-elle le projet si elle ne reçoit pas la subvention ?",
+          "tense": "fr-futur-simple",
+          "explanation": "Financera-t-elle forma la pregunta en futuro. La condición posible usa ne reçoit pas en presente después de si, no un futuro."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por el medio de financiación y conserva la condición negativa.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Cómo financiará la asociación el proyecto si no recibe la subvención?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Me gustaría una mesa junto a la ventana.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "J’aimerais une table près de la fenêtre.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Aimerais expresa un deseo cortés actual. No es un anuncio de que la mesa se obtendrá en el futuro."
+        }
+      ],
+      "hintSeeds": [
+        "Formula una preferencia con cortesía sin presentarla como un hecho seguro.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Me gustaría una mesa junto a la ventana.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g1-v2",
+      "language": "fr",
+      "spanish": "En tu lugar, hablaría con la encargada.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "À ta place, je parlerais à la responsable.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Parlerais ofrece un consejo desde una situación hipotética. À ta place aporta esa perspectiva sin necesidad de una cláusula con si."
+        }
+      ],
+      "hintSeeds": [
+        "La persona aconseja imaginándose en el lugar de otra.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: En tu lugar, hablaría con la encargada.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g1-v3",
+      "language": "fr",
+      "spanish": "Esta modificación permitiría reducir el consumo de combustible.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Cette modification permettrait de réduire la consommation de carburant.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Permettrait presenta un efecto potencial de una modificación, no un resultado ya garantizado. De réduire completa el verbo permettre."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva el carácter potencial del beneficio anunciado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Esta modificación permitiría reducir el consumo de combustible.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Yo no comería esa fruta; está verde.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne mangerais pas ce fruit ; il n’est pas mûr.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Ne mangerais pas expresa una elección hipotética o un consejo. N’est pas mûr describe la razón actual; verde aquí significa no maduro."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue la decisión hipotética del estado actual de la fruta.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Yo no comería esa fruta; está verde.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Con este ruido, ellos no podrían concentrarse.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Avec ce bruit, ils ne pourraient pas se concentrer.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Ne pourraient pas expresa una dificultad hipotética bajo la condición avec ce bruit. Se concentrer conserva el pronombre reflexivo después del modal."
+        }
+      ],
+      "hintSeeds": [
+        "La imposibilidad depende de la condición de ruido descrita.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Con este ruido, ellos no podrían concentrarse.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g2-v3",
+      "language": "fr",
+      "spanish": "Sin garantías adicionales, el banco no concedería el préstamo.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Sans garanties supplémentaires, la banque n’accorderait pas le prêt.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "N’accorderait pas proyecta una decisión hipotética bajo una condición negativa. No afirma que ya se haya denegado un préstamo concreto."
+        }
+      ],
+      "hintSeeds": [
+        "La concesión depende de unas garantías que faltan en la hipótesis.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Sin garantías adicionales, el banco no concedería el préstamo.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Me pasarías la sal, por favor?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Tu me passerais le sel, s’il te plaît ?",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Passerais suaviza una petición. La entonación interrogativa es natural en la conversación; una inversión o pourrais-tu conserva también la cortesía."
+        },
+        {
+          "text": "Pourrais-tu me passer le sel, s’il te plaît ?",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Pourrais-tu más infinitivo formula una petición cortés equivalente; el condicional está en el modal pouvoir."
+        }
+      ],
+      "hintSeeds": [
+        "Formula una petición cortés dirigida a una persona cercana.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Me pasarías la sal, por favor?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g3-v2",
+      "language": "fr",
+      "spanish": "¿Qué haríais si perdierais el último tren?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Que feriez-vous si vous manquiez le dernier train ?",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Feriez está en conditionnel présent y manquiez en imparfait después del si hipotético. La frase imagina una situación, no informa de un tren ya perdido."
+        }
+      ],
+      "hintSeeds": [
+        "Separa la situación imaginada de la reacción que se pregunta.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué haríais si perdierais el último tren?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-exp-g3-v3",
+      "language": "fr",
+      "spanish": "Si los costes bajaran, la cooperativa invertiría en equipos más eficientes.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Si les coûts baissaient, la coopérative investirait dans des équipements plus efficaces.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Baissaient expresa la condición hipotética en imparfait; investirait da su consecuencia en conditionnel présent. No se usa condicional después de este si."
+        }
+      ],
+      "hintSeeds": [
+        "Relaciona una bajada hipotética de costes con la inversión que permitiría.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Si los costes bajaran, la cooperativa invertiría en equipos más eficientes.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g1-v1",
+      "language": "fr",
+      "spanish": "El bebé acaba de despertarse.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Le bébé vient de se réveiller.",
+          "tense": "fr-passe-recent",
+          "explanation": "Vient de más infinitivo expresa un hecho inmediatamente anterior al presente. Se réveiller conserva el pronombre reflexivo; no se habla de venir físicamente."
+        }
+      ],
+      "hintSeeds": [
+        "El cambio acaba de ocurrir: distingue esa cercanía de un hecho de ayer.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El bebé acaba de despertarse.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Nosotras acabamos de reservar una habitación para el fin de semana.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Nous venons de réserver une chambre pour le week-end.",
+          "tense": "fr-passe-recent",
+          "explanation": "Venons de réserver sitúa la reserva justo antes de hablar. El fin de semana corresponde a la estancia futura, no al momento de reservar."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue el momento reciente de la reserva del periodo de la estancia.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Nosotras acabamos de reservar una habitación para el fin de semana.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g1-v3",
+      "language": "fr",
+      "spanish": "La ingeniera acaba de detectar una anomalía en el circuito.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "L’ingénieure vient de détecter une anomalie dans le circuit.",
+          "tense": "fr-passe-recent",
+          "explanation": "Vient de détecter presenta un hallazgo reciente. El verbo con significado léxico queda en infinitivo; no hay participio que concuerde con ingénieure."
+        }
+      ],
+      "hintSeeds": [
+        "La detección ya ocurrió y es muy reciente.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La ingeniera acaba de detectar una anomalía en el circuito.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Acabo de apagar la luz, no de encenderla.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je viens d’éteindre la lumière, pas de l’allumer.",
+          "tense": "fr-passe-recent",
+          "explanation": "Viens d’éteindre expresa la acción recién acabada. Pas de l’allumer corrige cuál fue la acción; no significa que todavía no haya ocurrido algo."
+        }
+      ],
+      "hintSeeds": [
+        "Contrasta dos acciones opuestas y conserva cuál acaba de realizarse.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Acabo de apagar la luz, no de encenderla.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Ella acaba de leer el mensaje, pero todavía no ha respondido.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Elle vient de lire le message, mais elle n’a pas encore répondu.",
+          "tense": "fr-passe-recent",
+          "explanation": "Vient de lire marca la lectura reciente; n’a pas encore répondu es una negación en passé composé. La ausencia de respuesta no se expresa negando venir de."
+        }
+      ],
+      "hintSeeds": [
+        "La lectura ya ocurrió; la respuesta sigue pendiente.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ella acaba de leer el mensaje, pero todavía no ha respondido.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g2-v3",
+      "language": "fr",
+      "spanish": "La aseguradora acaba de rechazar la solicitud; no va a reembolsar esos gastos.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "L’assureur vient de rejeter la demande ; il ne va pas rembourser ces frais.",
+          "tense": "fr-passe-recent",
+          "explanation": "Vient de rejeter sitúa la decisión en el pasado inmediato. Ne va pas rembourser expresa su consecuencia futura, no una segunda acción ya terminada."
+        }
+      ],
+      "hintSeeds": [
+        "Diferencia la decisión recién tomada de su consecuencia posterior.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: La aseguradora acaba de rechazar la solicitud; no va a reembolsar esos gastos.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Qué acabas de decir?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Qu’est-ce que tu viens de dire ?",
+          "tense": "fr-passe-recent",
+          "explanation": "Viens de dire combina venir en presente, de e infinitivo. La pregunta pide el contenido de unas palabras pronunciadas inmediatamente antes."
+        },
+        {
+          "text": "Que viens-tu de dire ?",
+          "tense": "fr-passe-recent",
+          "explanation": "La inversión viens-tu forma la pregunta sobre el contenido recién pronunciado; de dire permanece en infinitivo."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por las palabras que se han pronunciado hace un momento.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué acabas de decir?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g3-v2",
+      "language": "fr",
+      "spanish": "¿Por qué acaban de cerrar la estación?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Pourquoi viennent-ils de fermer la gare ?",
+          "tense": "fr-passe-recent",
+          "explanation": "Viennent-ils de fermer pregunta por la causa de un cierre recién ocurrido. Ils representa a quienes han cerrado la estación; se admiten formulaciones impersonales equivalentes."
+        },
+        {
+          "text": "Pourquoi est-ce qu’ils viennent de fermer la gare ?",
+          "tense": "fr-passe-recent",
+          "explanation": "Est-ce que evita la inversión y mantiene la acción recién acabada; el sujeto representa a las personas responsables del cierre."
+        }
+      ],
+      "hintSeeds": [
+        "El cierre ya se produjo: pregunta por su motivo sin transformarlo en un plan.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Por qué acaban de cerrar la estación?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-recent-exp-g3-v3",
+      "language": "fr",
+      "spanish": "El laboratorio acaba de publicar los resultados que esperábamos desde marzo.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Le laboratoire vient de publier les résultats que nous attendions depuis mars.",
+          "tense": "fr-passe-recent",
+          "explanation": "Vient de publier es la acción principal reciente. Attendions describe la espera anterior que se prolongaba desde marzo; no confundir ambos planos temporales."
+        }
+      ],
+      "hintSeeds": [
+        "Separa la publicación recién ocurrida de la espera prolongada que la precedía.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El laboratorio acaba de publicar los resultados que esperábamos desde marzo.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Ayer a las ocho, los niños ya habían cenado.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Hier à huit heures, les enfants avaient déjà dîné.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avaient dîné combina avoir en imparfait y participio. La cena estaba acabada antes de las ocho de ayer, punto de referencia explícito."
+        }
+      ],
+      "hintSeeds": [
+        "Sitúa la cena antes de otro momento que también pertenece al pasado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Ayer a las ocho, los niños ya habían cenado.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g1-v2",
+      "language": "fr",
+      "spanish": "El lunes, nuestra compañera ya había enviado la invitación.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Lundi, notre collègue avait déjà envoyé l’invitation.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avait envoyé presenta el envío como anterior al momento de referencia del lunes. Envoyé no concuerda con collègue porque el auxiliar es avoir y el objeto va después."
+        }
+      ],
+      "hintSeeds": [
+        "La invitación ya estaba enviada en el momento pasado indicado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: El lunes, nuestra compañera ya había enviado la invitación.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g1-v3",
+      "language": "fr",
+      "spanish": "Antes de la auditoría, la empresa había actualizado el inventario.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Avant l’audit, l’entreprise avait mis à jour l’inventaire.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avait mis es plus-que-parfait de mettre. La actualización precede a una auditoría pasada; mettre à jour es la expresión natural para actualizar."
+        }
+      ],
+      "hintSeeds": [
+        "Ordena la actualización y la auditoría pasada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Antes de la auditoría, la empresa había actualizado el inventario.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g2-v1",
+      "language": "fr",
+      "spanish": "Cuando llamaste, yo todavía no había salido.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je n’étais pas encore sorti quand tu as appelé.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "N’étais pas encore sorti combina être en imparfait y participio para una salida aún no realizada al llamar. Sortie es igualmente válido si quien habla es mujer."
+        },
+        {
+          "text": "Je n’étais pas encore sortie quand tu as appelé.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Sortie concuerda con una hablante mujer. La construcción con être y la anterioridad respecto de la llamada no cambian."
+        }
+      ],
+      "hintSeeds": [
+        "En el momento de la llamada, la salida seguía pendiente.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Cuando llamaste, yo todavía no había salido.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Aquel día, los viajeros no habían reservado alojamiento.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Ce jour-là, les voyageurs n’avaient pas réservé d’hébergement.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "N’avaient pas réservé niega una reserva anterior al día de referencia. D’hébergement sigue a la negación; no se afirma que nunca viajaran con reserva."
+        }
+      ],
+      "hintSeeds": [
+        "La falta de reserva se evalúa desde aquel día pasado.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Aquel día, los viajeros no habían reservado alojamiento.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g2-v3",
+      "language": "fr",
+      "spanish": "Antes de la reunión, el informe había identificado el riesgo, pero no había propuesto medidas correctivas.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Avant la réunion, le rapport avait identifié le risque, mais n’avait pas proposé de mesures correctives.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avait identifié y n’avait pas proposé contrastan dos resultados anteriores a la reunión pasada. La segunda negación afecta solo a las medidas."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue el riesgo identificado de la respuesta que faltaba antes de la reunión.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Antes de la reunión, el informe había identificado el riesgo, pero no había propuesto medidas correctivas.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Dónde habías dejado la bicicleta antes de entrar?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Où avais-tu laissé le vélo avant d’entrer ?",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avais-tu laissé pregunta por una acción anterior a la entrada. Avant d’entrer mantiene el mismo sujeto y deja clara la secuencia."
+        },
+        {
+          "text": "Où est-ce que tu avais laissé le vélo avant d’entrer ?",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "La interrogación con est-ce que conserva avais laissé y el orden temporal previo a la entrada."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por el lugar de una acción que precedió a la entrada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Dónde habías dejado la bicicleta antes de entrar?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g3-v2",
+      "language": "fr",
+      "spanish": "Mis hermanas ya se habían ido cuando llegué a la estación.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Mes sœurs étaient déjà parties quand je suis arrivé à la gare.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Étaient parties expresa la partida anterior y concuerda en femenino plural con mes sœurs. Suis arrivé sitúa la llegada posterior; arrivée vale para una hablante mujer."
+        },
+        {
+          "text": "Mes sœurs étaient déjà parties quand je suis arrivée à la gare.",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Arrivée concuerda con una hablante mujer; parties sigue concordando con mes sœurs. La partida precede a la llegada."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica qué pasó primero y quiénes realizaron cada acción.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Mis hermanas ya se habían ido cuando llegué a la estación.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-plus-que-parfait-exp-g3-v3",
+      "language": "fr",
+      "spanish": "¿Qué pruebas había reunido la comisión antes de publicar sus conclusiones?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Quelles preuves la commission avait-elle réunies avant de publier ses conclusions ?",
+          "tense": "fr-plus-que-parfait",
+          "explanation": "Avait réunies es plus-que-parfait; réunies concuerda con quelles preuves, complemento directo antepuesto. La recopilación precede a la publicación pasada."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por las pruebas recogidas y conserva su anterioridad respecto de la publicación.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Qué pruebas había reunido la comisión antes de publicar sus conclusiones?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g1-v1",
+      "language": "fr",
+      "spanish": "Para mañana, tú ya habrás terminado este libro.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "D’ici demain, tu auras déjà fini ce livre.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Auras fini combina avoir en futur simple y participio. El libro estará terminado al llegar al límite de mañana; el contexto puede ser leerlo o escribirlo y no precisa cuándo empezó esa actividad."
+        }
+      ],
+      "hintSeeds": [
+        "Piensa en el resultado que estará completo al llegar al plazo.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Para mañana, tú ya habrás terminado este libro.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g1-v2",
+      "language": "fr",
+      "spanish": "Para el viernes, nuestras amigas ya habrán vuelto de viaje.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "D’ici vendredi, nos amies seront déjà revenues de voyage.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Seront revenues usa être en futuro y participio femenino plural acorde con nos amies. El regreso se presenta como completado antes del límite del viernes."
+        }
+      ],
+      "hintSeeds": [
+        "El regreso estará completo al llegar a la fecha indicada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Para el viernes, nuestras amigas ya habrán vuelto de viaje.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g1-v3",
+      "language": "fr",
+      "spanish": "Para finales de año, la empresa habrá reducido sus emisiones.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "D’ici la fin de l’année, l’entreprise aura réduit ses émissions.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Aura réduit presenta la reducción como lograda en un plazo futuro. El participio réduit va con avoir y no concuerda con el sujeto."
+        }
+      ],
+      "hintSeeds": [
+        "La frase evalúa un resultado completado al cierre del periodo.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Para finales de año, la empresa habrá reducido sus emisiones.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g2-v1",
+      "language": "fr",
+      "spanish": "A las diez, yo todavía no habré terminado la cena.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "À dix heures, je n’aurai pas encore fini le dîner.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "N’aurai pas encore fini niega que la cena esté terminada al llegar a las diez. La negación rodea el auxiliar futuro; no dice que no vaya a cenar."
+        }
+      ],
+      "hintSeeds": [
+        "El punto de referencia es futuro y la actividad aún no estará acabada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: A las diez, yo todavía no habré terminado la cena.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g2-v2",
+      "language": "fr",
+      "spanish": "Para el lunes, el taller no habrá recibido la pieza de repuesto.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "D’ici lundi, l’atelier n’aura pas reçu la pièce de rechange.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "N’aura pas reçu prevé que la recepción siga sin completarse al llegar el lunes. La frase no descarta que la pieza llegue después."
+        }
+      ],
+      "hintSeeds": [
+        "Conserva el plazo y la posibilidad de que el hecho ocurra más tarde.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Para el lunes, el taller no habrá recibido la pieza de repuesto.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g2-v3",
+      "language": "fr",
+      "spanish": "Para entonces, el equipo habrá validado el diseño, pero no habrá completado la certificación.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "D’ici là, l’équipe aura validé la conception, mais n’aura pas achevé la certification.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Aura validé y n’aura pas achevé contrastan dos grados de avance en el mismo punto futuro. Solo el primer resultado se habrá completado."
+        }
+      ],
+      "hintSeeds": [
+        "Compara los dos resultados desde un mismo momento futuro.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Para entonces, el equipo habrá validado el diseño, pero no habrá completado la certificación.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g3-v1",
+      "language": "fr",
+      "spanish": "¿Habrás hecho la cama para cuando vuelva mamá?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Auras-tu fait le lit quand maman rentrera ?",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Auras-tu fait pregunta por un resultado completado antes del regreso futuro. Rentrera está en futuro después de quand; el español usa aquí subjuntivo."
+        },
+        {
+          "text": "Est-ce que tu auras fait le lit quand maman rentrera ?",
+          "tense": "fr-futur-anterieur",
+          "explanation": "La pregunta con est-ce que conserva el resultado anterior al regreso futuro; auras fait es futur antérieur."
+        }
+      ],
+      "hintSeeds": [
+        "Ordena la tarea y el regreso futuro sin convertirlo en una rutina.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Habrás hecho la cama para cuando vuelva mamá?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g3-v2",
+      "language": "fr",
+      "spanish": "¿Cuántas solicitudes habréis revisado para el final de la jornada?",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Combien de demandes aurez-vous examinées d’ici la fin de la journée ?",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Aurez-vous examinées pregunta por un total completado antes de un plazo futuro. Examinées concuerda con demandes, complemento directo situado delante."
+        }
+      ],
+      "hintSeeds": [
+        "Pregunta por la cantidad ya revisada al llegar al final de la jornada.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: ¿Cuántas solicitudes habréis revisado para el final de la jornada?",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-anterieur-exp-g3-v3",
+      "language": "fr",
+      "spanish": "Cuando se inaugure el puente, los técnicos ya habrán verificado la resistencia de los materiales.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Les techniciens auront déjà vérifié la résistance des matériaux quand le pont sera inauguré.",
+          "tense": "fr-futur-anterieur",
+          "explanation": "Auront vérifié es la acción principal, completada antes de la inauguración futura. Sera inauguré es una pasiva en futuro simple, no otro futur antérieur."
+        }
+      ],
+      "hintSeeds": [
+        "Distingue la comprobación previa de la inauguración que sirve de referencia futura.",
+        "Comprueba quién realiza cada acción y qué partes de la frase se afirman, se niegan o se preguntan.",
+        "Revisa la concordancia y los enlaces entre las partes sin cambiar el mensaje de la consigna."
+      ],
+      "explanationRubric": {
+        "structure": "Explica el verbo conjugado, los auxiliares o infinitivos que realmente usaste y las concordancias pertinentes. Nombrar un tiempo no basta.",
+        "meaning": "Conserva el significado de esta frase española: Cuando se inaugure el puente, los técnicos ya habrán verificado la resistencia de los materiales.",
+        "usage": "Acepta paráfrasis gramaticales y formas naturales de pregunta que conserven el sentido. Los ejemplos no son una lista exhaustiva. Explica la construcción realmente usada en español; el filtro no obliga a rechazar otra lectura temporal compatible. En frases con varias proposiciones, distingue la acción principal de los tiempos de las subordinadas. Respeta el sujeto indicado y acepta las variantes de género compatibles cuando el español no lo especifica."
+      }
     }
   ]
 }

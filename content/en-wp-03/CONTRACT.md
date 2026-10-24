@@ -97,7 +97,7 @@ label alone does not complete the explanation obligations.
 
 Do not infer tense from `-ing`, `-ed` or ongoingness alone. Present perfect
 continuous can also describe a recently stopped activity with current evidence.
-Stative/dynamic readings and dialect choices require context; the eight-tense
+Stative/dynamic readings and dialect choices require context; the supported
 teaching scope is not a universal ban on grammatical constructions outside it.
 If a valid response uses a construction outside the current practice scope,
 acknowledge it and request a scoped reformulation without calling it bad grammar.

@@ -14,16 +14,25 @@ export interface WrittenTenseProps {
 interface MenuPosition {
   left: number; top: number | undefined; bottom: number | undefined; width: number; maxHeight: number;
 }
-const aspect = (label: string) => label.replace(/^(Present|Past) /u, '').replace(/^./u, letter => letter.toUpperCase());
+const aspect = (label: string) => label.replace(/^(Present|Past|Future) /u, '').replace(/^./u, letter => letter.toUpperCase());
 
 /** Local recognition practice; no oral evidence or connection is required. */
 export function WrittenTense({ expected, onResultChange, initialSelected, language = expected.startsWith('fr-') ? 'fr' : 'en' }: WrittenTenseProps) {
   const guide = getTenseGuide(language);
-  const presentCount = guide.filter(item => item.tense.startsWith('present-')).length;
   const localize = (english: string, spanish: string) => language === 'fr' ? spanish : english;
   const groups = language === 'fr'
     ? [{ id: 'French', label: 'Tiempos y modos', items: guide.map((item, index) => ({ ...item, index })) }]
-    : ['Present', 'Past'].map(family => ({ id: family, label: family, items: guide.map((item, index) => ({ ...item, index })).filter(item => item.tense.startsWith(family.toLowerCase() + '-')) }));
+    : ['Present', 'Past', 'Future'].map(family => ({ id: family, label: family, items: guide.map((item, index) => ({ ...item, index })).filter(item => item.tense.startsWith(family.toLowerCase() + '-')) }));
+
+  function adjacentGroup(index: number, direction: -1 | 1): number {
+    if (language === 'fr') return Math.max(0, Math.min(guide.length - 1, index + direction));
+    const groupIndex = groups.findIndex(group => group.items.some(item => item.index === index));
+    const current = groups[groupIndex];
+    const adjacent = groups[groupIndex + direction];
+    if (!current || !adjacent) return index;
+    const row = current.items.findIndex(item => item.index === index);
+    return adjacent.items[Math.min(row, adjacent.items.length - 1)]!.index;
+  }
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -151,8 +160,7 @@ export function WrittenTense({ expected, onResultChange, initialSelected, langua
           if (!open) { show(selectedIndex < 0 && event.key === 'ArrowUp' ? guide.length - 1 : selectedIndex < 0 ? 0 : selectedIndex); return; }
           setActiveIndex(index => event.key === 'ArrowDown' ? Math.min(guide.length - 1, index + 1)
             : event.key === 'ArrowUp' ? Math.max(0, index - 1)
-              : event.key === 'ArrowRight' ? Math.min(guide.length - 1, language === 'fr' ? index + 1 : index < presentCount ? index + presentCount : index)
-                : language === 'fr' ? Math.max(0, index - 1) : index >= presentCount ? index - presentCount : index);
+              : adjacentGroup(index, event.key === 'ArrowRight' ? 1 : -1));
           return;
         }
         if (event.key.length === 1 && !event.altKey && !event.ctrlKey && !event.metaKey) { event.preventDefault(); typeahead(event.key); }

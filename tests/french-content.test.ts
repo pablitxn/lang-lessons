@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { FRENCH_TENSES, FRENCH_VERB_FORMS, VERB_IDS } from '../src/contracts';
+import { ENGLISH_TENSES, FRENCH_TENSES, FRENCH_VERB_FORMS, VERB_IDS } from '../src/contracts';
 import { ALL_VERBS, ALL_SENTENCES, FRENCH_VERBS, FRENCH_SENTENCES, FRENCH_VERB_PHOTOS, VERBS, SENTENCES, verbsForLanguage, sentencesForLanguage, photosForLanguage, pickNextVerb } from '../src/content';
 import { getTenseGuide, getVerbTenseGuide } from '../src/content/tense-guide';
 import { getPictureDictionaryEntry } from '../src/features/verbs/dictionary';
@@ -41,8 +41,8 @@ test('French curriculum has 25 separate irregular verbs and real French paradigm
 test('French tenses cover every independent difficulty pair without leaking into English', () => {
   assert.equal(sentencesForLanguage(), SENTENCES);
   assert.equal(sentencesForLanguage('fr'), FRENCH_SENTENCES);
-  assert.equal(FRENCH_SENTENCES.length, 54);
-  assert.equal(ALL_SENTENCES.length, SENTENCES.length + 54);
+  assert.equal(FRENCH_SENTENCES.length, 135);
+  assert.equal(ALL_SENTENCES.length, SENTENCES.length + FRENCH_SENTENCES.length);
   assert.equal(new Set(ALL_SENTENCES.map(sentence => sentence.id)).size, ALL_SENTENCES.length);
   for (const tense of FRENCH_TENSES) for (const grammar of [1, 2, 3]) for (const vocabulary of [1, 2, 3]) {
     const candidates = FRENCH_SENTENCES.filter(sentence => sentence.difficulty.grammar === grammar && sentence.difficulty.vocabulary === vocabulary && sentence.alternatives.some(alternative => alternative.tense === tense));
@@ -55,8 +55,8 @@ test('French tenses cover every independent difficulty pair without leaking into
     }
   }
   assert.deepEqual(getTenseGuide('fr').map(item => item.tense), [...FRENCH_TENSES]);
-  assert.equal(getTenseGuide().length, 8);
-  assert.equal(getVerbTenseGuide('fr').length, 6);
+  assert.deepEqual(getTenseGuide().map(item => item.tense), [...ENGLISH_TENSES]);
+  assert.deepEqual(getVerbTenseGuide('fr').map(item => item.tense), [...FRENCH_TENSES]);
 });
 
 test('French image collection preserves source provenance, local bytes and contextual mapping', () => {

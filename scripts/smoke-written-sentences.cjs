@@ -17,7 +17,8 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   const answer = 'He buys bread every morning.';
   const typo = 'He bux bread every morning.';
   const tenseLabels = ['Present simple', 'Present continuous', 'Present perfect', 'Present perfect continuous',
-    'Past simple', 'Past continuous', 'Past perfect', 'Past perfect continuous'];
+    'Past simple', 'Past continuous', 'Past perfect', 'Past perfect continuous',
+    'Future simple · will', 'Future going to', 'Future continuous', 'Future perfect', 'Future perfect continuous'];
   const responseCount = page => page.evaluate(() => window.__voiceTransportFixture.messages.filter(message => message.type === 'response.create').length);
 
   async function chooseTense(page, label) {
@@ -140,7 +141,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await tenseChoice.click();
         const tenseOptions = page.getByRole('listbox');
         await tenseOptions.waitFor({ state: 'visible' });
-        assert.equal(await tenseOptions.getByRole('option').count(), 8);
+        assert.equal(await tenseOptions.getByRole('option').count(), tenseLabels.length);
         for (const label of tenseLabels) assert.equal(await tenseOptions.getByRole('option', { name: label, exact: true }).count(), 1);
         assert.equal(await tenseOptions.getByRole('group', { name: 'Present', exact: true }).count(), 1);
         assert.equal(await tenseOptions.getByRole('group', { name: 'Past', exact: true }).count(), 1);

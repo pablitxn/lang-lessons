@@ -27,7 +27,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await page.keyboard.press('Escape');
       await page.getByRole('button', { name: 'Reference table', exact: true }).click();
       await page.getByRole('dialog', { name: 'Reference', exact: true }).waitFor();
-      assert.equal(await page.getByRole('dialog', { name: 'Reference', exact: true }).locator('tbody tr').count(), 8);
+      assert.equal(await page.getByRole('dialog', { name: 'Reference', exact: true }).locator('tbody tr').count(), 13);
       await page.keyboard.press('Escape');
       assert.equal(transport.statusRequests, 0); assert.equal(transport.sessionRequests, 0);
       assert.equal((await inspectTransport(page)).mediaCalls, 0);

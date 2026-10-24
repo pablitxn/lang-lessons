@@ -20,8 +20,10 @@ export const PRESENT_TENSES = [
 ] as const;
 export type PresentTense = (typeof PRESENT_TENSES)[number];
 export const PAST_TENSES = ['past-simple', 'past-continuous', 'past-perfect', 'past-perfect-continuous'] as const;
-export const ENGLISH_TENSES = [...PRESENT_TENSES, ...PAST_TENSES] as const;
-export const FRENCH_TENSES = ['fr-present', 'fr-passe-compose', 'fr-imparfait', 'fr-futur-proche', 'fr-futur-simple', 'fr-conditionnel-present'] as const;
+/** Future constructions are learning categories, including the going-to periphrasis. */
+export const FUTURE_TENSES = ['future-simple', 'future-going-to', 'future-continuous', 'future-perfect', 'future-perfect-continuous'] as const;
+export const ENGLISH_TENSES = [...PRESENT_TENSES, ...PAST_TENSES, ...FUTURE_TENSES] as const;
+export const FRENCH_TENSES = ['fr-present', 'fr-passe-compose', 'fr-imparfait', 'fr-futur-proche', 'fr-futur-simple', 'fr-conditionnel-present', 'fr-passe-recent', 'fr-plus-que-parfait', 'fr-futur-anterieur'] as const;
 export const TENSES = [...ENGLISH_TENSES, ...FRENCH_TENSES] as const;
 export function tensesForLanguage(language: LearningLanguage = 'en') { return language === 'fr' ? FRENCH_TENSES : ENGLISH_TENSES; }
 export type Tense = (typeof TENSES)[number];

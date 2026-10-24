@@ -10,7 +10,8 @@ ROOT = Path(__file__).resolve().parent
 VERSION = "en-wp-03/1"
 EXACT25 = "be beat become begin bend bet bite bleed blow break bring build burn burst buy catch choose come cost cut deal dig do draw dream".split()
 PAST_TENSES = {"past_simple", "past_continuous", "past_perfect", "past_perfect_continuous"}
-TENSES = {"present_simple", "present_continuous", "present_perfect", "present_perfect_continuous"} | PAST_TENSES
+FUTURE_TENSES = {"future_simple", "future_going_to", "future_continuous", "future_perfect", "future_perfect_continuous"}
+TENSES = {"present_simple", "present_continuous", "present_perfect", "present_perfect_continuous"} | PAST_TENSES | FUTURE_TENSES
 FILES = ("verbs.json", "sentences.json", "evaluation-fixtures.json", "hint-policy.json", "asset-ledger.json")
 
 
@@ -96,8 +97,10 @@ def validate(bundle):
             require(v is not None and {f["text"] for f in v["forms"][role]} == required, f"{lemma}/{role}: missing standard alternatives")
         pairs = {(c["input"]["past"], c["input"]["participle"]) for c in cases if c["id"].startswith("forms-" + lemma + "-") and c["expected"]["decision"] == "accept"}
         require(pairs == {(a, b) for a in required for b in required}, f"{lemma}: fixture coverage must accept every variant pair")
-    require(set(bundle["sentences.json"]["scope"]) == TENSES, "sentence scope must contain all eight present/past tenses")
-    require({s["primary_tense"] for s in sentences} == TENSES, "all eight primary tenses need content")
+    require(set(bundle["sentences.json"]["scope"]) == TENSES, "sentence scope must contain every supported present/past/future construction")
+    require({s["primary_tense"] for s in sentences} == TENSES, "all supported primary constructions need content")
+    prompts = [re.sub(r"\W+", " ", s["prompt_es"].casefold()).strip() for s in sentences]
+    require(len(prompts) == len(set(prompts)), "Spanish prompts must not be duplicated")
     for s in sentences:
         sid = s["id"]
         require(s["acceptance_policy"] == "semantic-open-set", f"{sid}: exact-answer-only policy forbidden")
@@ -106,17 +109,18 @@ def validate(bundle):
         require(all(type(x) is int and 1 <= x <= 3 for x in s["difficulty"].values()), f"{sid}: difficulty must use local levels 1..3")
         require(len(s["post_acceptance"]) == 3 and bool(s["meaning_requirements"]), f"{sid}: missing explanation obligations")
         require(len(s["hint_intents"]) == 3, f"{sid}: progressive semantic hint intents missing")
+        require(any(e["tense"] == s["primary_tense"] for e in s["accepted_examples"]), f"{sid}: primary construction needs an accepted example")
         for example in s["accepted_examples"]:
             require(all(example.get(k) for k in ["text", "tense", "structure", "meaning"]), f"{sid}: incomplete accepted example")
             require(example["tense"] in TENSES, f"{sid}: unsupported example tense")
     # Demonstrate both independent authoring axes inside every tense.
     for tense in TENSES:
         cells = {(s["difficulty"]["grammar"], s["difficulty"]["vocabulary"]) for s in sentences if s["primary_tense"] == tense}
+        require(cells == {(g, v) for g in (1, 2, 3) for v in (1, 2, 3)}, f"{tense}: all nine difficulty pairs need content")
         require(any(g1 == g2 and v1 != v2 for g1, v1 in cells for g2, v2 in cells), f"{tense}: vocabulary cannot vary at fixed grammar")
         require(any(g1 != g2 and v1 == v2 for g1, v1 in cells for g2, v2 in cells), f"{tense}: grammar cannot vary at fixed vocabulary")
-        if tense in PAST_TENSES:
-            forms = {s.get("sentence_form") for s in sentences if s["primary_tense"] == tense}
-            require({"affirmative", "negative", "question"} <= forms, f"{tense}: affirmative, negative and question coverage required")
+        forms = {s.get("sentence_form") for s in sentences if s["primary_tense"] == tense}
+        require({"affirmative", "negative", "question"} <= forms, f"{tense}: affirmative, negative and question coverage required")
     since = next((s for s in sentences if s["id"] == "sentence-since-2020"), None)
     live_examples = {
         "We have lived here since 2020.": "present_perfect",

@@ -29,8 +29,9 @@ and sound guides, a sourced dictionary, complete present conjugations, auxiliary
 and agreement notes. The written fields are **infinitive**, **présent with je/j’**
 and **past participle**. Oral original sentences use natural infinitival,
 present and complete participial constructions. These are not renamed English
-past forms. The six French constructions are présent, passé composé, imparfait,
-futur proche, futur simple and conditionnel présent, with 54 Spanish prompts
+past forms. The nine French constructions are présent, passé composé, imparfait,
+futur proche, futur simple, conditionnel présent, passé récent, plus-que-parfait
+and futur antérieur, with 135 Spanish prompts
 covering all independent grammar/vocabulary selections. Reference, written checks,
 tense selection, optional hints, voice controls and professor reporting are shared.
 See [French curriculum](content/fr/README.md) and [parity contract](docs/french-parity.md).
@@ -187,6 +188,7 @@ Then run the existing helpers (omit port 4174 if preview is not running):
 npm run test:browser -- 5174 4174
 node scripts/smoke-practice.cjs 5174 4174
 node scripts/smoke-past-tenses.cjs 5174
+node scripts/smoke-tense-expansion.cjs 5174
 node scripts/smoke-written-sentences.cjs 5174
 node scripts/smoke-preferences-layout.cjs 5174
 node scripts/smoke-session-continuity.cjs 5174
@@ -247,14 +249,15 @@ The [October 17 reconciliation](docs/evidence/published-reconciliation-2026-10-1
 pins the pre-feature published code, PRs, checks and Atlas handoff. Earlier dated
 receipts describe their original local revisions.
 
-## Eight-tense practice
+## Present, past and future practice
 
-Sentence practice includes present and past simple, continuous, perfect and
-perfect continuous. In **Preferences → Learning → Sentence tenses**, choose all
-eight or one tense. Grammar and vocabulary stay independent. Changed settings
+English sentence practice has 150 Spanish prompts across present and past simple,
+continuous, perfect and perfect continuous, plus will, going to, future continuous,
+future perfect and future perfect continuous. In **Preferences → Learning → Sentence
+tenses**, choose all constructions for the current language or one construction. Grammar and vocabulary stay independent. Changed settings
 apply to the next prompt and preserve current progress; unsupported combinations
 show a message instead of silently changing difficulty. Older saved preferences
-adopt all eight tenses. Both verb modes retain their three spelling/form families
+keep the default selection of all constructions. Both verb modes retain their three spelling/form families
 and use the expanded context and reference guide for original oral sentences.
 
 See [curriculum](docs/curriculum.md) for tense/family distinctions and evidence

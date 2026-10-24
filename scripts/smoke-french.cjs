@@ -15,7 +15,7 @@ const defaults = { schemaVersion: 1, learningLanguage: 'en', theme: 'system', he
 const frenchVerbs = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/fr/verbs.json'), 'utf8')).verbs;
 const frenchSentences = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/fr/sentences.json'), 'utf8')).sentences;
 const frenchPhotos = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/fr/asset-ledger.json'), 'utf8')).assets;
-const frenchTenses = ['fr-present', 'fr-passe-compose', 'fr-imparfait', 'fr-futur-proche', 'fr-futur-simple', 'fr-conditionnel-present'];
+const frenchTenses = ['fr-present', 'fr-passe-compose', 'fr-imparfait', 'fr-futur-proche', 'fr-futur-simple', 'fr-conditionnel-present', 'fr-passe-recent', 'fr-plus-que-parfait', 'fr-futur-anterieur'];
 const loadedScripts = page => page.locator('script[src]').evaluateAll(scripts => scripts.map(script => new URL(script.src).pathname));
 
 async function installLanguageSessions(context, origin, options = {}) {
@@ -158,7 +158,7 @@ async function frenchContentPractice(page, state, origin) {
     await page.getByRole('button', { name: 'Preferences', exact: true }).click();
     await page.getByRole('button', { name: 'Learning', exact: true }).click();
     const choices = await page.getByRole('combobox', { name: 'Sentence tenses', exact: true }).locator('option').evaluateAll(options => options.map(option => option.value));
-    assert.deepEqual(choices, ['all', ...frenchTenses], 'French settings contain the six authored French constructions');
+    assert.deepEqual(choices, ['all', ...frenchTenses], 'French settings contain the nine authored French constructions');
     await page.getByRole('combobox', { name: 'Sentence tenses', exact: true }).selectOption(tense);
     await settingsSettled(page, 'fr');
     await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
@@ -173,7 +173,7 @@ async function frenchContentPractice(page, state, origin) {
     await page.locator('.sentences-written[data-status="matched"]').waitFor();
     const chooser = page.getByRole('combobox', { name: 'Tiempo verbal', exact: true });
     await chooser.click();
-    assert.equal(await page.getByRole('listbox', { name: 'Opciones de tiempo verbal', exact: true }).getByRole('option').count(), 6);
+    assert.equal(await page.getByRole('listbox', { name: 'Opciones de tiempo verbal', exact: true }).getByRole('option').count(), frenchTenses.length);
     await chooser.press('Home');
     for (let step = 0; step < frenchTenses.indexOf(tense); step++) await chooser.press('ArrowDown');
     await chooser.press('Enter');
@@ -358,7 +358,7 @@ async function activeCallLanguageSwitch(browser, origin, port) {
       const content = await frenchContentPractice(page, state, origin);
       await verifyQuiet(page, state, errors);
       console.log(JSON.stringify({ status: 'passed', port, scripts: await loadedScripts(page), evidence: 'actual Chromium with server-only French preferences; HTTP fixture', ...content,
-        checks: ['fresh-device French direct-link hydration', 'six French tense filters and accepted translations', 'six-choice keyboard tense picker', 'accent-sensitive spelling', 'French dictionary after written completion', 'previous picture retains photograph and writing', 'every authored French photograph decodes'] }));
+        checks: ['fresh-device French direct-link hydration', 'nine French tense filters and accepted translations', 'nine-choice keyboard tense picker', 'accent-sensitive spelling', 'French dictionary after written completion', 'previous picture retains photograph and writing', 'every authored French photograph decodes'] }));
       await context.close();
       await activeCallLanguageSwitch(browser, origin, port);
     }

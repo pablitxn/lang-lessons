@@ -64,6 +64,17 @@ class ContentIntegrityTests(unittest.TestCase):
         self.data["sentences.json"]["sentences"][0]["acceptance_policy"] = "exact-match-only"
         self.assertViolation("exact-answer-only")
 
+    def test_missing_future_difficulty_pair_is_rejected(self):
+        sentences = self.data["sentences.json"]["sentences"]
+        self.data["sentences.json"]["sentences"] = [s for s in sentences if not (
+            s["primary_tense"] == "future_perfect" and s["difficulty"] == {"grammar": 3, "vocabulary": 2})]
+        self.assertViolation("future_perfect: all nine difficulty pairs")
+
+    def test_reworded_punctuation_cannot_hide_duplicate_prompts(self):
+        sentences = self.data["sentences.json"]["sentences"]
+        sentences[-1]["prompt_es"] = sentences[0]["prompt_es"].upper().rstrip(".") + "!"
+        self.assertViolation("Spanish prompts must not be duplicated")
+
     def test_difficulty_axes_must_be_independently_represented(self):
         for s in self.data["sentences.json"]["sentences"]:
             s["difficulty"]["vocabulary"] = s["difficulty"]["grammar"]
@@ -147,7 +158,7 @@ class PastTenseIntegrityTests(unittest.TestCase):
 
     def test_past_tense_cannot_disappear_from_scope(self):
         self.data['sentences.json']['scope'].remove('past_perfect_continuous')
-        self.assertTrue(any('all eight' in e for e in CONTENT.validate(self.data)))
+        self.assertTrue(any('every supported present/past/future construction' in e for e in CONTENT.validate(self.data)))
 
     def test_negative_and_question_coverage_cannot_disappear(self):
         for record in self.data['sentences.json']['sentences']:
