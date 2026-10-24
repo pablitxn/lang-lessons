@@ -1,5 +1,5 @@
 import { createBrowserWrittenPractice } from './browser-written-practice';
-import type { LessonMode, PracticeEvent, ProgressBatchResult, ProgressFence } from '../contracts';
+import type { LearningLanguage, LessonMode, PracticeEvent, ProgressBatchResult, ProgressFence } from '../contracts';
 import { createIndexedDbProgressStore } from '../features/progress/pending-progress-store';
 import { createIndexedDbWrittenUsageStore, type UsageReceipt, type WrittenObservation } from '../features/progress/written-usage-store';
 import { createQueuedProgressSink } from '../features/progress/queued-progress-sink';
@@ -9,7 +9,7 @@ import type { SessionProgressBinding } from './PersistedLesson';
 
 /** One account/session binding; queues preserve their original identities across reloads. */
 export async function createBrowserProgressBinding(options: {
-  actorId: string; sessionId: string; mode?: LessonMode; isCurrentUser(): boolean;
+  actorId: string; sessionId: string; language?: LearningLanguage; mode?: LessonMode; isCurrentUser(): boolean;
   send(events: readonly PracticeEvent[]): Promise<ProgressBatchResult>;
   readFence(): Promise<ProgressFence>;
   usage: { openWrittenStream(sessionId: string): Promise<string>; written(row: WrittenObservation): Promise<UsageReceipt> };
@@ -22,7 +22,7 @@ export async function createBrowserProgressBinding(options: {
   const queue = createQueuedProgressSink({ scope, store, isCurrentUser, send: options.send, readFence: options.readFence });
   let usage; let written: Awaited<ReturnType<typeof createBrowserWrittenPractice>> | undefined;
   try {
-    if (options.mode) written = await createBrowserWrittenPractice({ userId: options.actorId, sessionId: options.sessionId, mode: options.mode, isCurrent: isCurrentUser });
+    if (options.mode) written = await createBrowserWrittenPractice({ userId: options.actorId, sessionId: options.sessionId, mode: options.mode, language: options.language ?? 'en', isCurrent: isCurrentUser });
     usage = await createP2WrittenUsageQueue({ scope, store: usageStore, isCurrentUser, usage: options.usage }); }
   catch (error) { written?.dispose(); active = false; queue.deactivate(); await Promise.all([store.close(), usageStore.close()]); throw error; }
   const preparation = new Set<() => void>();

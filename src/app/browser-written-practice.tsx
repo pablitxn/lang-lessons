@@ -2,12 +2,12 @@ import { useSyncExternalStore } from 'react';
 import { createSentenceSession } from '../features/sentences/session';
 import { createVerbSession } from '../features/verbs/session';
 import { createRealtimeVoiceAdapter } from '../voice/realtime';
-import { DEFAULT_SETTINGS, type LessonMode, type PracticeEvent } from '../contracts';
+import { DEFAULT_SETTINGS, type LearningLanguage, type LessonMode, type PracticeEvent } from '../contracts';
 import { createIndexedDbWrittenSnapshotStore } from '../features/progress/written-snapshot-store';
 import type { WrittenPracticeBinding, WrittenPracticePort, WrittenPracticeSnapshot } from '../features/progress/written-snapshot';
 
 /** Local draft persistence is separate from server progress and never sends text. */
-export async function createBrowserWrittenPractice(options: { userId: string; sessionId: string; mode: LessonMode; isCurrent(): boolean }) {
+export async function createBrowserWrittenPractice(options: { userId: string; sessionId: string; mode: LessonMode; language?: LearningLanguage; isCurrent(): boolean }) {
   const scope = { userId: options.userId, sessionId: options.sessionId };
   const store = createIndexedDbWrittenSnapshotStore();
   let initial: WrittenPracticeSnapshot | null;
@@ -16,7 +16,7 @@ export async function createBrowserWrittenPractice(options: { userId: string; se
     if (initial) {
       // Use the producer's own curriculum/progression validator before resume can succeed.
       // This detached session has no progress sink and never connects its voice adapter.
-      const common = { voice: createRealtimeVoiceAdapter(), sessionId: scope.sessionId, writtenPracticeUserId: scope.userId, onComplete: () => {} };
+      const common = { language: options.language ?? 'en', voice: createRealtimeVoiceAdapter(), sessionId: scope.sessionId, writtenPracticeUserId: scope.userId, onComplete: () => {} };
       const validator = options.mode === 'sentence' ? createSentenceSession({ ...common, difficulty: DEFAULT_SETTINGS.difficulty })
         : createVerbSession({ ...common, mode: options.mode });
       try { if (!validator.restoreWrittenPractice(initial)) throw new Error('Saved written practice is incompatible.'); }

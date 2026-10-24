@@ -1,4 +1,4 @@
-import { TENSES } from '../../contracts';
+import { TENSES, FRENCH_VERB_FORMS, VERB_FORMS } from '../../contracts';
 import { parsePracticeEvent } from '../../foundation/progress-batch';
 import { validateProgressScope, type ProgressScope } from './pending-progress-store';
 import { snapshotIdentity, snapshotId, snapshotObject, type WrittenPracticeSnapshot } from './written-snapshot';
@@ -24,12 +24,12 @@ export function parseWrittenSnapshot(scope: ProgressScope, value: unknown): Writ
   } else if (value.kind === 'verb-image' || value.kind === 'verb-visible') {
     if (!exact(value, ['schemaVersion','kind','userId','identity','verbId','photoSrc','drafts','records'])
       || !snapshotId(value.verbId) || typeof value.photoSrc !== 'string' || value.photoSrc.length > 2048
-      || !snapshotObject(value.drafts) || !exact(value.drafts, ['base','past','participle']) || !Object.values(value.drafts).every(text)
+      || !snapshotObject(value.drafts) || !exact(value.drafts, (typeof value.verbId === 'string' && value.verbId.startsWith('fr-') ? FRENCH_VERB_FORMS : VERB_FORMS)) || !Object.values(value.drafts).every(text)
       || !Array.isArray(value.records) || value.records.length > 3) return null;
     const forms = new Set();
     for (const record of value.records) {
       if (!snapshotObject(record) || !exact(record, ['form','revision','attemptId','finalized'])
-        || !['base','past','participle'].includes(record.form as string) || forms.has(record.form)
+        || !(typeof value.verbId === 'string' && value.verbId.startsWith('fr-') ? FRENCH_VERB_FORMS : VERB_FORMS).some(form => form === record.form) || forms.has(record.form)
         || !Number.isSafeInteger(record.revision) || (record.revision as number) < 1 || !snapshotId(record.attemptId) || typeof record.finalized !== 'boolean') return null;
       forms.add(record.form);
     }

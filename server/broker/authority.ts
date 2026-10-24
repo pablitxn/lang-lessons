@@ -1,16 +1,17 @@
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Pool } from 'pg';
-import type { CallSegmentRef } from '../../src/contracts';
+import type { CallSegmentRef, LearningLanguage } from '../../src/contracts';
 import type { createAuthAdapter } from '../auth/better-auth';
 import { authorize, type AuthenticatedIdentity, type AccessPolicy } from '../accounts/authorization';
 import { exactKeys, requireId, requireRevision, RepositoryError, transaction } from '../data/database';
 import { requireActivePractice, requireNoOutstandingCall } from '../data/active-practice';
 import { expireOutstandingCalls } from './lifetime';
 
-export interface BrokerBinding { readonly identity: AuthenticatedIdentity; readonly segment: CallSegmentRef; readonly tokenDigest: string }
+export interface BrokerBinding { readonly identity: AuthenticatedIdentity; readonly segment: CallSegmentRef; readonly tokenDigest: string; readonly language?: LearningLanguage }
 export interface BrokerAuthority {
   authenticate(request: IncomingMessage): Promise<AuthenticatedIdentity>;
+  authorizeSentenceHint?(identity: AuthenticatedIdentity, sessionId: string, language: LearningLanguage): Promise<void>;
   reserve(identity: AuthenticatedIdentity, segment: unknown, token: string): Promise<BrokerBinding>;
   isEnded(binding: BrokerBinding): Promise<boolean>;
   created(binding: BrokerBinding, providerCallId: string): Promise<void>;
@@ -48,6 +49,16 @@ export function createBrokerAuthority(options: {
       await transaction(pool, async client => { await authorize(client, identity, access, 'practice:own'); });
       return identity;
     },
+    async authorizeSentenceHint(identity, sessionId, language) {
+      requireId(sessionId);
+      await transaction(pool, async client => {
+        await authorize(client, identity, access, 'practice:own');
+        const session = await client.query<{ language: LearningLanguage }>("SELECT language FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' AND mode='sentence' FOR SHARE", [sessionId, identity.userId]);
+        if (!session.rows[0]) throw new RepositoryError('not-found');
+        if (session.rows[0].language !== language) throw new RepositoryError('conflict');
+        if (options.activePractice) await requireActivePractice(client, identity.userId, sessionId);
+      });
+    },
     reserve(identity, raw, token) {
       exactKeys(raw, ['sessionId', 'segmentId', 'connectionEpoch']); requireId(raw.sessionId); requireId(raw.segmentId); requireRevision(raw.connectionEpoch);
       if (raw.connectionEpoch < 1) throw new RepositoryError('invalid-input');
@@ -57,7 +68,7 @@ export function createBrokerAuthority(options: {
         if (options.activePractice) await client.query('SELECT id FROM learning_users WHERE id=$1 FOR UPDATE', [identity.userId]);
         await authorize(client, identity, access, 'practice:own');
         if (options.activePractice) await expireOutstandingCalls(client, identity.userId, options.providerCallLifetimeMs);
-        const session = await client.query("SELECT id FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' FOR UPDATE", [segment.sessionId, identity.userId]);
+        const session = await client.query<{ language: LearningLanguage }>("SELECT id,language FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' FOR UPDATE", [segment.sessionId, identity.userId]);
         if (!session.rowCount) throw new RepositoryError('not-found');
         if (options.activePractice) {
           await requireActivePractice(client, identity.userId, segment.sessionId);
@@ -68,7 +79,7 @@ export function createBrokerAuthority(options: {
         const prior = await client.query('SELECT segment_id FROM learning_broker_receipts WHERE segment_id=$1', [segment.segmentId]);
         if (prior.rowCount) throw new RepositoryError('conflict');
         await client.query("INSERT INTO learning_broker_receipts(segment_id,session_id,user_id,epoch,token_digest,state) VALUES ($1,$2,$3,$4,$5,'reserved')", [segment.segmentId, segment.sessionId, identity.userId, segment.connectionEpoch, tokenDigest]);
-        return { identity: { userId: identity.userId }, segment, tokenDigest };
+        return { identity: { userId: identity.userId }, segment, tokenDigest, ...(session.rows[0]!.language === 'fr' ? { language: 'fr' as const } : {}) };
       });
     },
     async isEnded(binding) {

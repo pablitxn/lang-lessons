@@ -1,7 +1,7 @@
 # Lang Lessons
 
-A voice-first English-learning app with three lesson types: picture-based
-irregular verbs, visible-base irregular verbs, and Spanish-to-English sentences.
+A Spanish-base English/French learning app with three shared lesson types: picture-based
+irregular verbs, visible-base irregular verbs, and Spanish-to-target-language sentences.
 Authenticated students see lesson cards. Selecting a lesson opens written practice
 without starting audio. The tutor starts only after an explicit Start action. The lesson keeps compact
 mute and pause/resume controls; failures collapse into a red header badge that
@@ -13,6 +13,27 @@ and Learning, with compact icon navigation on small screens and sign-out at the
 bottom. Only the content panel scrolls. They include system/light/dark
 appearance, microphone permission and independent learning settings. Test adapters and simulated evidence are confined
 to internal fixtures, never offered as an application mode.
+
+## Learning language
+
+Choose **Preferences → Learning → Idioma de aprendizaje → Inglés / Francés**.
+The account preference survives reloads, reconnects and device changes. Switching
+languages saves the active written practice through the normal exit guard, then
+returns to the lesson catalog. An active tutor call uses the existing exit
+confirmation. Each language has its own saved practice for each lesson mode;
+returning restores its draft and selected photograph. Historical sessions and
+preferences without a language remain English.
+
+French includes 25 useful irregular verbs, real local photographs, Spanish meaning
+and sound guides, a sourced dictionary, complete present conjugations, auxiliary
+and agreement notes. The written fields are **infinitive**, **présent with je/j’**
+and **past participle**. Oral original sentences use natural infinitival,
+present and complete participial constructions. These are not renamed English
+past forms. The six French constructions are présent, passé composé, imparfait,
+futur proche, futur simple and conditionnel présent, with 54 Spanish prompts
+covering all independent grammar/vocabulary selections. Reference, written checks,
+tense selection, optional hints, voice controls and professor reporting are shared.
+See [French curriculum](content/fr/README.md) and [parity contract](docs/french-parity.md).
 
 ## Local development
 

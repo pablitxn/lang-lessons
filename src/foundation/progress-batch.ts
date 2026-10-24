@@ -1,7 +1,7 @@
 import type { PracticeEvent, PracticeEventAck, ProgressBatchResult } from '../contracts/progress';
 
 export const MAX_PRACTICE_BATCH = 100;
-const obligations = new Set(['spelling:base', 'spelling:past', 'spelling:participle', 'meaning',
+const obligations = new Set(['spelling:infinitive', 'spelling:present', 'pronunciation:infinitive', 'pronunciation:present', 'sentence:infinitive', 'sentence:present', 'spelling:base', 'spelling:past', 'spelling:participle', 'meaning',
   'pronunciation:base', 'pronunciation:past', 'pronunciation:participle', 'sentence:base', 'sentence:past',
   'sentence:participle', 'translation', 'tense', 'structure', 'meaning-fit', 'written:translation', 'written:tense']);
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value);

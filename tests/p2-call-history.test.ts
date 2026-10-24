@@ -17,7 +17,7 @@ async function fixture(){
   const admin=new Pool({connectionString:database});const guard=await admin.connect();await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))");
   const schema=`p2_history_${randomUUID().replaceAll('-','')}`;await admin.query(`CREATE SCHEMA ${schema}`);
   const pool=new Pool({connectionString:database,options:`-c search_path=${schema}`});
-  for(const name of ['p2-learning','p2-day-projection','p2-usage','p2-recovery','p2-call-history'])await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`,import.meta.url),'utf8'));
+  for(const name of ['p2-learning','p2-day-projection','p2-usage','p2-recovery','p2-call-history', 'learning-language'])await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`,import.meta.url),'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('owner','student'),('other','student')");
   await pool.query('CREATE TABLE p2_broker_fixture(session_id text PRIMARY KEY, unresolved boolean NOT NULL)');
   await pool.query('CREATE TABLE p2_guard_receipts(session_id text, transaction_id text)');

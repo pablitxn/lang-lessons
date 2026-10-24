@@ -1,12 +1,12 @@
-import type { ExerciseIdentity, PracticeEvent, Tense, VerbForm, VerbMode } from '../../contracts';
+import type { ExerciseIdentity, PracticeEvent, Tense, PracticeVerbForm, VerbDrafts, VerbMode } from '../../contracts';
 export interface SentenceWrittenSnapshot {
   schemaVersion: 1; kind: 'sentence'; userId: string; identity: ExerciseIdentity; sentenceId: string;
   draft: string; finalized: boolean; selectedTense: Tense | null; events: readonly PracticeEvent[];
 }
 export interface VerbWrittenSnapshot {
   schemaVersion: 1; kind: VerbMode; userId: string; identity: ExerciseIdentity; verbId: string; photoSrc: string;
-  drafts: Record<VerbForm, string>;
-  records: readonly { form: VerbForm; revision: number; attemptId: string; finalized: boolean }[];
+  drafts: VerbDrafts;
+  records: readonly { form: PracticeVerbForm; revision: number; attemptId: string; finalized: boolean }[];
 }
 export type WrittenPracticeSnapshot = SentenceWrittenSnapshot | VerbWrittenSnapshot;
 export interface WrittenPracticePort {

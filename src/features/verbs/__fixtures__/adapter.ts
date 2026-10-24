@@ -1,3 +1,4 @@
+import { getFormGuidance, type PracticeVerbForm } from '../../../contracts';
 import type { EvidenceResult, EvidenceSource, ExerciseContext, HintRequest, LearnerInput, VoiceAdapter, VoiceConnectOptions, VoiceEvent } from '../../../contracts';
 
 /** Recording test double only: oral fixture acceptance is not linguistic assessment. */
@@ -23,8 +24,8 @@ export class VerbFixtureAdapter implements VoiceAdapter {
     if (!this.autoAssess || !input.attempts.length) return;
     if (input.kind === 'typed') {
       const obligation = input.attempts[0]!.obligation;
-      const form = obligation === 'spelling:base' ? 'base' : obligation === 'spelling:past' ? 'past' : 'participle';
-      const accepted = this.context?.mode !== 'sentence' && this.context?.verb.forms[form].accepted.includes(input.text.trim().toLowerCase());
+      const form = obligation.slice('spelling:'.length) as PracticeVerbForm;
+      const accepted = this.context && this.context.mode !== 'sentence' && getFormGuidance(this.context.verb, form)?.accepted.includes(input.text.trim().toLowerCase());
       this.settle(input, accepted ? 'accepted' : 'incorrect');
     } else this.settle(input, 'accepted');
   }

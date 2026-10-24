@@ -1,4 +1,4 @@
-import type { ExerciseIdentity, LessonMode, VerbMode } from './curriculum';
+import { VERB_FORMS, FRENCH_VERB_FORMS, type LearningLanguage, type ExerciseIdentity, type LessonMode, type VerbMode } from './curriculum';
 import type { AdvanceTicket, AttemptRef, EvidenceLedger, EvidenceResult, InteractionState, Obligation } from './evidence';
 import { TIMING } from './settings';
 
@@ -9,13 +9,13 @@ export function isCurrentAttempt(current: AttemptRef, candidate: AttemptRef): bo
   return sameExercise(current, candidate) && current.obligation === candidate.obligation
     && current.attemptId === candidate.attemptId && current.revision === candidate.revision;
 }
-export function requiredObligations(mode: LessonMode): readonly Obligation[] {
+export function requiredObligations(mode: LessonMode, language: LearningLanguage = 'en'): readonly Obligation[] {
   if (mode === 'sentence') return ['translation', 'tense', 'structure', 'meaning-fit'];
+  const forms = language === 'fr' ? FRENCH_VERB_FORMS : VERB_FORMS;
   return [
-    ...(mode === 'verb-image' ? ['spelling:base' as const] : []),
-    'spelling:past', 'spelling:participle', 'meaning',
-    'pronunciation:base', 'pronunciation:past', 'pronunciation:participle',
-    'sentence:base', 'sentence:past', 'sentence:participle',
+    ...(mode === 'verb-image' ? forms : forms.slice(1)).map(form => `spelling:${form}` as Obligation),
+    'meaning', ...forms.map(form => `pronunciation:${form}` as Obligation),
+    ...forms.map(form => `sentence:${form}` as Obligation),
   ];
 }
 /** Mock acceptances can exercise the UI but must never count as real audio validation. */
@@ -24,8 +24,8 @@ export function hasValidEvidenceSource(result: Pick<EvidenceResult, 'source' | '
   if (result.ref.obligation.startsWith('spelling:')) return result.source.kind === 'typed';
   return result.source.kind === 'audio' && result.source.audioAvailable;
 }
-export function hasAllEvidence(mode: LessonMode, identity: ExerciseIdentity, ledger: EvidenceLedger, allowMock = false): boolean {
-  return requiredObligations(mode).every(key => {
+export function hasAllEvidence(mode: LessonMode, identity: ExerciseIdentity, ledger: EvidenceLedger, allowMock = false, language: LearningLanguage = 'en'): boolean {
+  return requiredObligations(mode, language).every(key => {
     const record = ledger[key];
     return record?.status === 'accepted' && record.ref.obligation === key && sameExercise(identity, record.ref)
       && record.source !== undefined && hasValidEvidenceSource({ ref: record.ref, source: record.source }, allowMock);
@@ -40,9 +40,9 @@ export function isQuiet(interaction: InteractionState): boolean {
 /** Sentence mode deliberately has no automatic advance contract. */
 export function canAdvanceVerb(
   mode: VerbMode, identity: ExerciseIdentity, ledger: EvidenceLedger,
-  interaction: InteractionState, ticket: AdvanceTicket, now: number, allowMock = false,
+  interaction: InteractionState, ticket: AdvanceTicket, now: number, allowMock = false, language: LearningLanguage = 'en',
 ): boolean {
   return sameExercise(identity, ticket) && ticket.activityRevision === interaction.activityRevision
-    && hasAllEvidence(mode, identity, ledger, allowMock) && isQuiet(interaction)
+    && hasAllEvidence(mode, identity, ledger, allowMock, language) && isQuiet(interaction)
     && now >= ticket.dueAt && now - interaction.lastActivityAt >= TIMING.verbQuietPeriodMs;
 }

@@ -1,4 +1,5 @@
 import type { Pool } from 'pg';
+import type { LearningLanguage } from '../src/contracts';
 import { transaction } from './data/database';
 import { createFeedbackRepository } from './data/feedback-repository';
 import { createFeedbackService, type FeedbackGenerationClient } from './feedback/service';
@@ -9,7 +10,7 @@ import { parsePracticeEvent } from '../src/foundation/progress-batch';
 /** Internal worker reader. No browser evidence or Phoenix transcripts are accepted here. */
 export function createCanonicalFeedbackReader(pool: Pool): FeedbackEvidenceReader {
   return { read: claim => transaction(pool, async client => {
-    const session = await client.query<{ revision: number; closed: unknown }>(`SELECT s.revision,c.result AS closed
+    const session = await client.query<{ revision: number; closed: unknown; language: LearningLanguage }>(`SELECT s.revision,s.language,c.result AS closed
       FROM learning_sessions s JOIN learning_closes c ON c.session_id=s.id
       JOIN learning_feedback_jobs j ON j.session_id=s.id
       WHERE s.id=$1 AND s.status='closed' AND j.id=$2 AND j.state='running' AND j.claim_token=$3
@@ -35,7 +36,7 @@ export function createCanonicalFeedbackReader(pool: Pool): FeedbackEvidenceReade
       // No inferred call attribution: these are whole-session written outcomes.
       return activity ? [{ observationId: event.eventId, sessionId: claim.sessionId, segmentId: null, activity, outcome: event.result }] : [];
     });
-    return { claim: { ...claim }, session: { sessionId: claim.sessionId, status: 'closed', revision: row.revision }, closedRevision: row.revision,
+    return { claim: { ...claim }, session: { sessionId: claim.sessionId, status: 'closed', revision: row.revision, ...(row.language === 'fr' ? { language: 'fr' } : {}) }, closedRevision: row.revision,
       segments: segments.rows.map(segment => ({ sessionId: claim.sessionId, segmentId: segment.id, connectionEpoch: segment.epoch, qualified: true })), observations };
   }) };
 }

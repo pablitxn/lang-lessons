@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CurrentUser, FeedbackState, ProfessorComment, PublicUser, DailyPageRequest, DailyProgressPage, ResultPage } from '../../contracts';
+import type { LearningLanguage, CurrentUser, FeedbackState, ProfessorComment, PublicUser, DailyPageRequest, DailyProgressPage, ResultPage } from '../../contracts';
 import { hasCapability, type Page, type ReadResult } from '../accounts/access';
 import { ReadPanel } from '../accounts/ReadPanel';
 import { ProfessorProgress } from './ProfessorProgress';
@@ -7,6 +7,7 @@ import { SessionComments } from './SessionComments';
 
 /** Server-grouped display DTOs: the browser never selects a timezone or aggregates visits. */
 export interface StudentSessionView {
+  readonly language?: LearningLanguage;
   readonly sessionId: string;
   readonly feedback: FeedbackState;
   readonly comment: ProfessorComment | null;

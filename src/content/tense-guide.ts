@@ -1,4 +1,4 @@
-import type { Tense } from '../contracts';
+import type { Tense, LearningLanguage } from '../contracts';
 
 /** Full structures shown after a sentence translation is accepted. */
 export const TENSE_GUIDE: readonly { tense: Tense; label: string; guidance: string }[] = [
@@ -13,7 +13,7 @@ export const TENSE_GUIDE: readonly { tense: Tense; label: string; guidance: stri
 ];
 
 /** Verb practice omits concrete auxiliaries, which can be the requested forms of be/do. */
-const VERB_STRUCTURES: Record<Tense, string> = {
+const VERB_STRUCTURES: Partial<Record<Tense, string>> = {
   'present-simple': 'Base family with subject agreement; habits and states. Use the appropriate auxiliary for questions and negatives, except with the copular verb.',
   'present-continuous': 'Present progressive auxiliary + present participle (-ing); activity in progress around now.',
   'present-perfect': 'Present perfect auxiliary + past participle; earlier events or states connected to now.',
@@ -24,4 +24,28 @@ const VERB_STRUCTURES: Record<Tense, string> = {
   'past-perfect-continuous': 'Past perfect auxiliary + progressive auxiliary participle + -ing; duration or repetition up to a past reference.',
 };
 
-export const VERB_TENSE_GUIDE = TENSE_GUIDE.map(item => ({ ...item, guidance: VERB_STRUCTURES[item.tense] }));
+export const VERB_TENSE_GUIDE = TENSE_GUIDE.map(item => ({ ...item, guidance: VERB_STRUCTURES[item.tense]! }));
+
+export const FRENCH_TENSE_GUIDE: readonly { tense: Tense; label: string; guidance: string }[] = [
+  { tense: 'fr-present', label: 'Présent · presente', guidance: 'Sujeto + verbo conjugado. Expresa estados, hábitos o acciones actuales. No necesita una forma continua equivalente al inglés. Ejemplo: je lis — leo / estoy leyendo.' },
+  { tense: 'fr-passe-compose', label: 'Passé composé · pasado compuesto', guidance: 'Avoir o être en presente + participio pasado. Expresa un hecho terminado. Con être, el participio concuerda con el sujeto: elle est partie. Con avoir, concuerda con un objeto directo anterior: les lettres que j’ai écrites.' },
+  { tense: 'fr-imparfait', label: 'Imparfait · imperfecto', guidance: 'Radical de nous en presente sin -ons + -ais, -ais, -ait, -ions, -iez, -aient. Être usa ét-. Describe hábitos, estados o acciones en curso en el pasado: je lisais — leía.' },
+  { tense: 'fr-futur-proche', label: 'Futur proche · ir a + infinitivo', guidance: 'Aller en presente + infinitivo: je vais lire — voy a leer. Expresa una intención o un hecho ligado al presente; no significa solamente que falte poco tiempo.' },
+  { tense: 'fr-futur-simple', label: 'Futur simple · futuro', guidance: 'Radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Hay radicales irregulares: ser-, aur-, ir-, fer-, viendr-. Ejemplo: je lirai — leeré. En quand / dès que con referencia futura se usa futuro; después de si condicional, presente.' },
+  { tense: 'fr-conditionnel-present', label: 'Conditionnel présent · condicional', guidance: 'Radical del futuro + terminaciones del imperfecto. Cortesía, deseo o hipótesis: je voudrais — quisiera; si j’avais le temps, je lirais — si tuviera tiempo, leería. También puede expresar futuro visto desde el pasado; no se enseña como una forma inglesa.' },
+];
+export function getTenseGuide(language: LearningLanguage = 'en') { return language === 'fr' ? FRENCH_TENSE_GUIDE : TENSE_GUIDE; }
+/** Verb-reference guidance does not reveal the current exercise’s requested forms. */
+export function getVerbTenseGuide(language: LearningLanguage = 'en') {
+  return language === 'fr' ? FRENCH_TENSE_GUIDE.map(item => ({ ...item,
+    guidance: item.tense === 'fr-passe-compose'
+      ? 'Auxiliar adecuado en presente + participio pasado; revisa la concordancia con el sujeto o con un objeto directo anterior según el auxiliar.'
+      : item.tense === 'fr-futur-proche'
+        ? 'Verbo de movimiento conjugado en presente + infinitivo; expresa una intención o un hecho ligado al presente.'
+        : item.tense === 'fr-futur-simple' || item.tense === 'fr-conditionnel-present'
+          ? 'Usa el radical de futuro propio del verbo y las terminaciones del tiempo seleccionado. Revisa las raíces irregulares y la concordancia con el sujeto.'
+          : item.tense === 'fr-present'
+            ? 'Verbo conjugado según la persona; estados, hábitos y acciones actuales. La casilla de esta práctica pide la forma de je / j’.'
+            : 'Radical del presente plural y terminaciones del imperfecto; describe hábitos o estados del pasado. El verbo copulativo tiene un radical propio.'
+  })) : VERB_TENSE_GUIDE;
+}

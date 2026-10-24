@@ -60,16 +60,16 @@ export function LearningApplication({ renderLesson, progressFactory }: { renderL
     actorId: user.id, commands: client.commands, enter: client.practice.enter, current: client.practice.current,
     reconcileClose: sessionId => client.recovery.reconcile(sessionId, 'finalize', new AbortController().signal).then(() => {}),
     reportCall: async (segment, intervals) => { await client.json('/api/learning/usage/client-call', { segment, intervals }, AbortSignal.timeout(5000)); },
-    progress: (sessionId, mode) => {
+    progress: (sessionId, mode, language) => {
       const send = createIssuedProgressSender({ issue: client.issue, send: client.send });
       return progressFactory ? progressFactory(user.id, sessionId, send) : createBrowserProgressBinding({
-        actorId: user.id, sessionId, ...(mode ? { mode } : {}), send, usage: client.usage, readFence: () => client.readFence(sessionId),
+        actorId: user.id, sessionId, language: language ?? 'en', ...(mode ? { mode } : {}), send, usage: client.usage, readFence: () => client.readFence(sessionId),
         isCurrentUser: () => currentActor.current === user.id,
       });
     },
   } : undefined, [user?.id, client, progressFactory]);
   if (enabled === false) return <p role="alert">The account service is unavailable. Practice cannot open until it is configured.</p>;
-  if (enabled === null) return <p role="status">Opening English practice…</p>;
+  if (enabled === null) return <p role="status">Opening Lang Lessons…</p>;
   if (signingOut && !user) return <p role="status">Signing out…</p>;
   if (user?.role === 'student' && services) return <StudentApplication user={user} key={JSON.stringify([user.id, user.role, user.capabilities])} renderLesson={renderLesson} services={services} client={client} onSignOut={signOut} onProfileUpdated={updateProfile} />;
   return <AccountShell state={state} loginApi={client.login} onSignOut={signOut} profileSettings={user ? <ProfileSettings user={user} onSave={client.profile.update} onUpdated={updateProfile} /> : undefined} onAuthenticated={next => { authenticationGeneration.current++; authEpoch.current++; setState({ status: 'authenticated', user: next }); }}>

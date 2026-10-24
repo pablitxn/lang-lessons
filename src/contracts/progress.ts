@@ -1,3 +1,4 @@
+import type { PracticeVerbForm } from './curriculum';
 import type { AttemptRef } from './evidence';
 
 /** Independent local written checks; these identifiers never enter the oral evidence ledger. */
@@ -34,7 +35,7 @@ export interface DailyPracticeProjection {
   readonly studentId: string;
   readonly day: PracticeDayBoundary;
   /** Preserved attempt/results across visits; no totals formula or elapsed time is implied. */
-  readonly writtenEvents: readonly (PracticeEvent & { source: 'typed'; ref: WrittenPracticeRef | (AttemptRef & { obligation: 'spelling:base' | 'spelling:past' | 'spelling:participle' }) })[];
+  readonly writtenEvents: readonly (PracticeEvent & { source: 'typed'; ref: WrittenPracticeRef | (AttemptRef & { obligation: `spelling:${PracticeVerbForm}` }) })[];
   readonly sessions: readonly {
     sessionId: string; startedAt: string; endedAt: string | null;
     feedback: import('./feedback').FeedbackState;

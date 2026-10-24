@@ -1,3 +1,4 @@
+import type { LearningLanguage } from '../../src/contracts';
 import type { FeedbackJobRef } from '../../src/contracts/feedback';
 import type { CallSegmentRef } from '../../src/contracts/session';
 import type { FeedbackPolicy, SessionEvidence } from './coordinator';
@@ -15,13 +16,14 @@ export interface FeedbackObservation {
 }
 export interface ClosedFeedbackEvidence {
   readonly claim: FeedbackJobRef;
-  readonly session: { readonly sessionId: string; readonly status: 'closed'; readonly revision: number };
+  readonly session: { readonly sessionId: string; readonly status: 'closed'; readonly revision: number; readonly language?: LearningLanguage };
   readonly closedRevision: number;
   /** Qualification must come from canonical verified connection evidence, never browser ready or SDP creation. */
   readonly segments: readonly (CallSegmentRef & { readonly qualified: true })[];
   readonly observations: readonly FeedbackObservation[];
 }
 export interface QualitativeEvidence {
+  readonly language?: LearningLanguage;
   readonly observations: readonly FeedbackObservation[];
   readonly allowedComments: readonly string[];
 }
@@ -34,6 +36,11 @@ const labels: Record<FeedbackActivity, string> = {
   'written-form': 'written verb forms', 'written-translation': 'written translations',
   'tense-identification': 'tense identification', 'oral-meaning': 'spoken meanings',
   'oral-sentence': 'spoken sentences',
+};
+const spanishLabels: Record<FeedbackActivity, string> = {
+  'written-form': 'formas verbales escritas', 'written-translation': 'traducciones escritas',
+  'tense-identification': 'identificación de tiempos', 'oral-meaning': 'significados expresados oralmente',
+  'oral-sentence': 'frases orales',
 };
 const outcomes = new Set<FeedbackOutcome>(['accepted', 'incorrect', 'uncertain']);
 function object(value: unknown): value is Record<string, unknown> {
@@ -50,7 +57,8 @@ function project(raw: unknown, claim: FeedbackJobRef): ClosedFeedbackEvidence | 
   if (!object(raw) || !keys(raw, ['claim', 'session', 'closedRevision', 'segments', 'observations'])) return null;
   if (!object(raw.claim) || !keys(raw.claim, ['sessionId', 'jobId', 'claimToken']) ||
       raw.claim.sessionId !== claim.sessionId || raw.claim.jobId !== claim.jobId || raw.claim.claimToken !== claim.claimToken) return null;
-  if (!object(raw.session) || !keys(raw.session, ['sessionId', 'status', 'revision']) ||
+  if (!object(raw.session) || !keys(raw.session, ['sessionId', 'status', 'revision', ...(raw.session.language === undefined ? [] : ['language'])]) ||
+      raw.session.language !== undefined && raw.session.language !== 'en' && raw.session.language !== 'fr' ||
       raw.session.sessionId !== claim.sessionId || raw.session.status !== 'closed' || !revision(raw.session.revision) ||
       raw.closedRevision !== raw.session.revision) return null;
   if (!Array.isArray(raw.segments) || !raw.segments.length || !Array.isArray(raw.observations) || !raw.observations.length) return null;
@@ -78,17 +86,23 @@ function project(raw: unknown, claim: FeedbackJobRef): ClosedFeedbackEvidence | 
     observations.push({ observationId: observation.observationId, sessionId: claim.sessionId,
       segmentId: observation.segmentId, activity: observation.activity as FeedbackActivity, outcome: observation.outcome as FeedbackOutcome });
   }
-  return { claim: { ...claim }, session: { sessionId: claim.sessionId, status: 'closed', revision: raw.session.revision },
+  return { claim: { ...claim }, session: { sessionId: claim.sessionId, status: 'closed', revision: raw.session.revision,
+      ...(raw.session.language === 'fr' ? { language: 'fr' as const } : {}) },
     closedRevision: raw.session.revision, segments, observations };
 }
 
 /** Controlled language intentionally avoids unverifiable free-text semantic checks.
  * Accepted outcomes describe recorded responses, never objective acoustic quality. */
-function comments(observations: readonly FeedbackObservation[], maximum: number): string[] {
+function comments(observations: readonly FeedbackObservation[], maximum: number, language: LearningLanguage = 'en'): string[] {
   const suggestions = new Set<string>();
   for (const { activity, outcome } of observations) {
     const label = labels[activity];
-    const text = outcome === 'accepted' ? `Your practice in ${label} includes accepted responses. Keep building on this work.`
+    const spanish = spanishLabels[activity];
+    const text = language === 'fr' ? (outcome === 'accepted'
+      ? `Tu práctica de francés en ${spanish} incluye respuestas aceptadas. Sigue avanzando con ese trabajo.`
+      : outcome === 'incorrect' ? `Algunas respuestas de francés en ${spanish} necesitaron corrección. Repasa este aspecto en tu próxima práctica.`
+      : `Algunas respuestas de francés en ${spanish} siguen siendo inciertas. Revísalas con tu tutor.`)
+      : outcome === 'accepted' ? `Your practice in ${label} includes accepted responses. Keep building on this work.`
       : outcome === 'incorrect' ? `Some responses in your ${label} practice needed correction. Review this area in your next practice.`
       : `Some responses in your ${label} practice remain uncertain. Revisit this area with your tutor.`;
     if (Array.from(text).length <= maximum) suggestions.add(text);
@@ -105,18 +119,18 @@ export function createFeedbackPolicy(reader: FeedbackEvidenceReader, options: { 
     async evidence(claim) {
       const evidence = project(await reader.read(claim), claim);
       if (!evidence) return { status: 'insufficient-evidence' };
-      const allowedComments = comments(evidence.observations, maximum);
+      const allowedComments = comments(evidence.observations, maximum, evidence.session.language);
       if (!allowedComments.length) return { status: 'insufficient-evidence' };
       // Freeze owned copies; the model cannot rewrite the grounding or reference set.
       const snapshot: SessionEvidence<QualitativeEvidence> = Object.freeze({
         sessionId: claim.sessionId,
         segments: Object.freeze(evidence.segments.map(({ sessionId, segmentId, connectionEpoch }) => Object.freeze({ sessionId, segmentId, connectionEpoch }))),
-        value: Object.freeze({ observations: Object.freeze(evidence.observations.map(item => Object.freeze(item))), allowedComments: Object.freeze(allowedComments) }),
+        value: Object.freeze({ ...(evidence.session.language === 'fr' ? { language: 'fr' as const } : {}), observations: Object.freeze(evidence.observations.map(item => Object.freeze(item))), allowedComments: Object.freeze(allowedComments) }),
       });
       return { status: 'sufficient', snapshot };
     },
     accepts(text, snapshot) {
-      return Array.from(text).length <= maximum && comments(snapshot.value.observations, maximum).includes(text);
+      return Array.from(text).length <= maximum && comments(snapshot.value.observations, maximum, snapshot.value.language).includes(text);
     },
   };
 }

@@ -1,5 +1,5 @@
 import type { Pool, PoolClient } from 'pg';
-import type { LessonMode } from '../../src/contracts/curriculum';
+import type { LearningLanguage, LessonMode } from '../../src/contracts/curriculum';
 import type { SessionSnapshot, CallSegmentRef } from '../../src/contracts/session';
 import type { ProgressFence } from '../../src/contracts/progress';
 import type { FeedbackState } from '../../src/contracts/feedback';
@@ -36,9 +36,9 @@ export function createRecoveryRepository(pool: Pool, identity: AuthenticatedIden
       return run(async client => {
         if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new RepositoryError('invalid-input');
         const after = cursor ?? ''; if (cursor !== null) requireId(cursor);
-        const { rows } = await client.query<{ id: string; mode: LessonMode; status: 'closed'; revision: number }>(
-          "SELECT s.id,s.mode,s.status,s.revision FROM learning_sessions s JOIN learning_feedback_jobs j ON j.session_id=s.id WHERE s.user_id=$1 AND s.status='closed' AND j.state='failed' AND NOT EXISTS (SELECT 1 FROM learning_comments c WHERE c.session_id=s.id) AND s.id>$2 ORDER BY s.id LIMIT $3", [identity.userId, after, limit + 1]);
-        const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision }));
+        const { rows } = await client.query<{ id: string; mode: LessonMode; language: LearningLanguage; status: 'closed'; revision: number }>(
+          "SELECT s.id,s.mode,s.language,s.status,s.revision FROM learning_sessions s JOIN learning_feedback_jobs j ON j.session_id=s.id WHERE s.user_id=$1 AND s.status='closed' AND j.state='failed' AND NOT EXISTS (SELECT 1 FROM learning_comments c WHERE c.session_id=s.id) AND s.id>$2 ORDER BY s.id LIMIT $3", [identity.userId, after, limit + 1]);
+        const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}), status: row.status, revision: row.revision }));
         return { items, nextCursor: rows.length > limit ? items.at(-1)!.sessionId : null };
       });
     },
@@ -46,24 +46,24 @@ export function createRecoveryRepository(pool: Pool, identity: AuthenticatedIden
       return run(async client => {
         if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new RepositoryError('invalid-input');
         const after = cursor ?? ''; if (cursor !== null) requireId(cursor);
-        const { rows } = await client.query<{ id: string; mode: LessonMode; status: 'open'; revision: number }>(
-          `SELECT id,mode,status,revision FROM learning_sessions WHERE user_id=$1 AND status='open' AND id>$2
+        const { rows } = await client.query<{ id: string; mode: LessonMode; language: LearningLanguage; status: 'open'; revision: number }>(
+          `SELECT id,mode,language,status,revision FROM learning_sessions WHERE user_id=$1 AND status='open' AND id>$2
             ${policy.activePractice ? 'AND id=(SELECT session_id FROM learning_active_practice WHERE user_id=$1)' : ''}
             ORDER BY id LIMIT $3`, [identity.userId, after, limit + 1]);
-        const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision }));
+        const items = rows.slice(0, limit).map(row => ({ sessionId: row.id, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}), status: row.status, revision: row.revision }));
         return { items, nextCursor: rows.length > limit ? items.at(-1)!.sessionId : null };
       });
     },
     read(sessionId: string): Promise<RecoverySnapshot> {
       requireId(sessionId);
       return run(async client => {
-        const { rows } = await client.query<{ id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number; journal_revision: number }>(
-          'SELECT id,mode,status,revision,journal_revision FROM learning_sessions WHERE id=$1 AND user_id=$2 FOR UPDATE', [sessionId, identity.userId]);
+        const { rows } = await client.query<{ id: string; mode: LessonMode; language: LearningLanguage; status: 'open' | 'closed'; revision: number; journal_revision: number }>(
+          'SELECT id,mode,language,status,revision,journal_revision FROM learning_sessions WHERE id=$1 AND user_id=$2 FOR UPDATE', [sessionId, identity.userId]);
         const row = rows[0]; if (!row) throw new RepositoryError('not-found');
         const segments = await client.query<{ id: string; epoch: number }>('SELECT id,epoch FROM learning_segments WHERE session_id=$1 AND NOT ended ORDER BY epoch', [sessionId]);
         const jobs = await client.query<{ id: string; state: FeedbackState; retry_revision: number }>('SELECT id,state,retry_revision FROM learning_feedback_jobs WHERE session_id=$1', [sessionId]);
         const job = jobs.rows[0];
-        return { session: { sessionId, mode: row.mode, status: row.status, revision: row.revision }, progress: { sessionId, journalRevision: row.journal_revision },
+        return { session: { sessionId, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}), status: row.status, revision: row.revision }, progress: { sessionId, journalRevision: row.journal_revision },
           activeSegments: segments.rows.map(segment => ({ sessionId, segmentId: segment.id, connectionEpoch: segment.epoch })),
           feedback: job ? { jobId: job.id, state: job.state, retryRevision: job.retry_revision } : null };
       });

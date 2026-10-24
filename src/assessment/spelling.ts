@@ -1,4 +1,4 @@
-import type { AttemptRef, EvidenceResult, ExerciseContext, VerbForm } from '../contracts';
+import { getFormGuidance, type AttemptRef, type EvidenceResult, type ExerciseContext, type PracticeVerbForm } from '../contracts';
 
 const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
 const graphemes = (text: string) => [...segmenter.segment(text.normalize('NFC'))].map(part => part.segment);
@@ -28,8 +28,8 @@ export function assessSpelling(context: ExerciseContext, ref: AttemptRef, text: 
   if (context.mode === 'sentence' || !ref.obligation.startsWith('spelling:') || !text.trim() || text.length > 256) {
     return { ...base, status: 'uncertain', feedback: 'Enter a short spelling attempt before checking this field.' };
   }
-  const form = ref.obligation.slice('spelling:'.length) as VerbForm;
-  const variants = context.verb.forms[form]?.accepted;
+  const form = ref.obligation.slice('spelling:'.length) as PracticeVerbForm;
+  const variants = getFormGuidance(context.verb, form)?.accepted;
   if (!variants?.length) return { ...base, status: 'uncertain', feedback: 'Spelling guidance is unavailable.' };
   const submittedText = text.normalize('NFC');
   if (variants.some(value => value.toLowerCase() === submittedText.trim().toLowerCase())) {

@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { VERB_IDS, TENSES } from '../src/contracts/curriculum';
+import { VERB_IDS, ENGLISH_TENSES as TENSES } from '../src/contracts/curriculum';
 import { VERBS, SENTENCES, VERB_CUE_BRIEFS, VERB_PHOTOS, photosForVerb, pickVerbPhoto, pickNextVerb } from '../src/content/index';
 
 test('content exports exactly the contract inventory with guidance and three complete example families', () => {
@@ -67,7 +67,7 @@ test('sentence adapter preserves both residence constructions and contractions w
   }
 });
 
-test('all tenses have independent grammar and vocabulary selection cells', () => {
+test('all English tenses have independent grammar and vocabulary selection cells', () => {
   assert.deepEqual(new Set(SENTENCES.flatMap(s => s.alternatives.map(a => a.tense))), new Set(TENSES));
   for (const tense of TENSES) {
     const entries = SENTENCES.filter(s => s.alternatives.some(a => a.tense === tense));

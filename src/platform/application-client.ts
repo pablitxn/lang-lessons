@@ -1,5 +1,5 @@
 import { parsePracticeEvent } from '../foundation/progress-batch';
-import type { ActivePractice, CurrentUser, ExerciseIdentity, LessonMode, ProgressBatchResult, SessionCommands, SessionSnapshot, CloseResult, CallSegmentRef } from '../contracts';
+import type { ActivePractice, CurrentUser, ExerciseIdentity, LearningLanguage, LessonMode, ProgressBatchResult, SessionCommands, SessionSnapshot, CloseResult, CallSegmentRef } from '../contracts';
 import type { LoginApi } from '../features/accounts';
 import type { AdminUsersApi } from '../features/administration';
 import type { UserManagementApi } from '../features/administration/management';
@@ -34,8 +34,9 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
   }
   function snapshot(value: unknown): SessionSnapshot {
     if (!object(value) || !id(value.sessionId) || !['sentence', 'verb-image', 'verb-visible'].includes(value.mode)
+      || value.language !== undefined && !['en', 'fr'].includes(value.language)
       || !['open', 'closed'].includes(value.status) || !revision(value.revision)) throw new Error('Invalid session response');
-    return { sessionId: value.sessionId, mode: value.mode, status: value.status, revision: value.revision };
+    return { sessionId: value.sessionId, mode: value.mode, ...(value.language === 'fr' ? { language: 'fr' as const } : {}), status: value.status, revision: value.revision };
   }
   function activePractice(value: unknown): ActivePractice {
     if (!object(value) || !['none', 'active', 'uncertain'].includes(value.callState)) throw new Error('Invalid active practice response');
@@ -44,9 +45,9 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
     return { session, callState: value.callState as ActivePractice['callState'] };
   }
   const practice = {
-    async enter(input: { mode: LessonMode; operationId: string }): Promise<ActivePractice> {
+    async enter(input: { mode: LessonMode; language?: LearningLanguage; operationId: string }): Promise<ActivePractice> {
       const result = activePractice(await json('/api/learning/session/enter', input));
-      if (result.session.mode !== input.mode) throw new Error('Practice mode mismatch');
+      if (result.session.mode !== input.mode || (result.session.language ?? 'en') !== (input.language ?? 'en')) throw new Error('Practice mode mismatch');
       return result;
     },
     async current(): Promise<ActivePractice | null> {
@@ -141,7 +142,7 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
         if (!object(value) || value.studentId !== studentId || !object(value.sessions) || !Array.isArray(value.sessions.items) || value.sessions.items.length > 100
           || !(value.sessions.nextCursor === null || id(value.sessions.nextCursor))) throw new Error('Invalid progress page');
         for (const session of value.sessions.items) {
-          if (!object(session) || !id(session.sessionId) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)
+          if (!object(session) || !id(session.sessionId) || session.language !== undefined && !['en', 'fr'].includes(session.language) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)
             || session.comment !== null && (!object(session.comment) || session.comment.sessionId !== session.sessionId || typeof session.comment.text !== 'string' || !id(session.comment.provenanceVersion))) throw new Error('Invalid session feedback');
         }
         return { status: 'ok', value: { studentId, sessions: { items: value.sessions.items, nextCursor: value.sessions.nextCursor } } };
@@ -162,10 +163,10 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
         new Intl.DateTimeFormat('en', { timeZone: value.timeZone });
         for (const row of value.writtenEvents.items) {
           const event = object(row) ? parsePracticeEvent(row.event) : null;
-          if (!timeZone(row.timeZone) || !value.attributionTimeZones.includes(row.timeZone) || !event || event.source !== 'typed' || !revision(row.committedRevision) || row.committedRevision < 1 || typeof row.receivedAt !== 'string' || !Number.isFinite(Date.parse(row.receivedAt))) throw new Error('Invalid daily event');
+          if (row.language !== undefined && !['en', 'fr'].includes(row.language) || !timeZone(row.timeZone) || !value.attributionTimeZones.includes(row.timeZone) || !event || event.source !== 'typed' || !revision(row.committedRevision) || row.committedRevision < 1 || typeof row.receivedAt !== 'string' || !Number.isFinite(Date.parse(row.receivedAt))) throw new Error('Invalid daily event');
         }
         for (const row of value.sessions.items) {
-          if (!object(row) || !id(row.sessionId) || !['sentence','verb-image','verb-visible'].includes(row.mode)
+          if (!object(row) || !id(row.sessionId) || row.language !== undefined && !['en', 'fr'].includes(row.language) || !['sentence','verb-image','verb-visible'].includes(row.mode)
             || ![row.startedAt,row.closedAt].every(value => value === null || typeof value === 'string' && Number.isFinite(Date.parse(value)))
             || ![null,'not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(row.feedback)
             || row.comment !== null && (!object(row.comment) || row.comment.sessionId !== row.sessionId || typeof row.comment.text !== 'string' || !id(row.comment.provenanceVersion))) throw new Error('Invalid daily session');
@@ -184,7 +185,7 @@ export function createApplicationClient(request: typeof fetch = fetch, expired: 
           if (!object(value) || value.studentId !== studentId || !object(value.sessions) || !Array.isArray(value.sessions.items)
             || value.sessions.items.length > 100 || !(value.sessions.nextCursor === null || id(value.sessions.nextCursor))) throw new Error('Invalid progress page');
           for (const session of value.sessions.items) {
-            if (!object(session) || !id(session.sessionId) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)) throw new Error('Invalid session feedback');
+            if (!object(session) || !id(session.sessionId) || session.language !== undefined && !['en', 'fr'].includes(session.language) || !instant(session.startedAt) || !instant(session.endedAt) || !['not-requested','pending','running','succeeded','failed','insufficient-evidence'].includes(session.feedback)) throw new Error('Invalid session feedback');
             if (session.comment !== null && (!object(session.comment) || session.comment.sessionId !== session.sessionId || typeof session.comment.text !== 'string' || !id(session.comment.provenanceVersion))) throw new Error('Invalid comment response');
             sessions.push(session as unknown as StudentSessionView);
           }

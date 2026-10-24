@@ -1,10 +1,11 @@
-import { TENSES } from '../../contracts';
+import { tensesForLanguage } from '../../contracts';
 import type { ExerciseIdentity, PracticeEvent, ProgressSink, SentenceEntry, Tense, WrittenPracticeRef } from '../../contracts';
 import { parsePracticeEvent } from '../../foundation/progress-batch';
 import { compareWrittenTranslation, MAX_WRITTEN_TRANSLATION_LENGTH } from './written-comparison';
 import { snapshotIdentity, snapshotObject, type SentenceWrittenSnapshot } from '../progress/written-snapshot';
 
 export function createSentenceWrittenPractice(options: { identity: ExerciseIdentity; sentence: SentenceEntry; userId?: string; sink?: ProgressSink; onError?: () => void }) {
+  const allowedTenses: readonly Tense[] = tensesForLanguage(options.sentence.language ?? (options.sentence.alternatives.some(item => item.tense.startsWith('fr-')) ? 'fr' : 'en'));
   let draft = ''; let finalized = false; let selectedTense: Tense | null = null;
   let events: PracticeEvent[] = [];
   const revisions = { 'written:translation': 0, 'written:tense': 0 };
@@ -37,7 +38,7 @@ export function createSentenceWrittenPractice(options: { identity: ExerciseIdent
       emit('written:translation', result.status === 'matched' ? 'accepted' : 'uncertain');
     },
     selectTense(tense: Tense) {
-      if (!TENSES.includes(tense) || !finalized || result.status !== 'matched' || !result.matchedAlternative || selectedTense === tense) return;
+      if (!allowedTenses.includes(tense) || !finalized || result.status !== 'matched' || !result.matchedAlternative || selectedTense === tense) return;
       if (selectedTense !== null) emit('written:tense', null);
       selectedTense = tense; emit('written:tense', tense === result.matchedAlternative.tense ? 'accepted' : 'incorrect');
     },
@@ -64,7 +65,7 @@ export function createSentenceWrittenPractice(options: { identity: ExerciseIdent
         nextRevisions[obligation] = event.ref.revision; ids.add(event.eventId); parsed.push(event);
       }
       const comparison = compareWrittenTranslation(value.draft, options.sentence.alternatives);
-      if (value.selectedTense !== null && !TENSES.includes(value.selectedTense as Tense)) return false;
+      if (value.selectedTense !== null && !allowedTenses.includes(value.selectedTense as Tense)) return false;
       if (value.selectedTense !== null && (!value.finalized || comparison.status !== 'matched')) return false;
       const translation = [...parsed].reverse().find(event => event.ref.obligation === 'written:translation');
       const tense = [...parsed].reverse().find(event => event.ref.obligation === 'written:tense');

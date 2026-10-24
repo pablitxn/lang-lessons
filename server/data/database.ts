@@ -28,3 +28,10 @@ export function exactKeys(value: unknown, keys: readonly string[]): asserts valu
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).length !== keys.length || !keys.every(key => Object.hasOwn(value, key))) throw new RepositoryError('invalid-input');
 }
+
+/** Legacy requests and records are English; unsupported languages never silently fall back. */
+export function learningLanguage(value: unknown): import('../../src/contracts/curriculum').LearningLanguage {
+  if (value === undefined || value === 'en') return 'en';
+  if (value === 'fr') return 'fr';
+  throw new RepositoryError('invalid-input');
+}

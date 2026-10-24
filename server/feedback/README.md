@@ -165,3 +165,14 @@ Targeted validation: 20 P6 fixture tests pass, including all three null-segment
 written activities through the service/generation adapter, rejection of null
 oral segments and foreign session observations, and no-call/unqualified cases
 with zero model invocations. No shared files or root wiring changed.
+
+## Learning language (2026-10-24)
+
+Canonical feedback reads the session's immutable learning language alongside its
+close revision. Existing records default to English. French sessions select
+Spanish qualitative wording that names French practice; the same bounded,
+allowlisted evidence policy applies. Language does not permit pronunciation,
+score or transcript claims, and cannot combine observations across sessions.
+The language field is an optional additive projection for legacy callers; unknown
+values fail closed. `tests/french-voice.test.ts` exercises French grounding and
+rejects an English-language summary for a French snapshot.

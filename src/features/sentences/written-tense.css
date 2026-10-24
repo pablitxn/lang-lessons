@@ -16,3 +16,5 @@
 .sentences-tense-option[data-active="true"] { background: var(--surface, #eef1e8); border-color: color-mix(in srgb, var(--primary, #08675f) 35%, transparent); }
 .sentences-tense-option[aria-selected="true"] { color: var(--primary, #08675f); font-weight: 650; }
 .sentences-tense-announcement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.sentences-tense-menu[data-language="fr"] { grid-template-columns: minmax(0, 1fr); }

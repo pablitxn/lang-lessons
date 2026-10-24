@@ -1,10 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { TIMING, type SentenceEntry } from '../../contracts';
+import { TIMING, type LearningLanguage, type SentenceEntry } from '../../contracts';
 import { compareWrittenTranslation, MAX_WRITTEN_TRANSLATION_LENGTH, type WrittenComparisonResult } from './written-comparison';
 import './written-translation.css';
 
 export interface WrittenTranslationProps {
   sentence: SentenceEntry;
+  language?: LearningLanguage;
   initialDraft?: string;
   initialFinalized?: boolean;
   onDraftChange?: (draft: string) => void;
@@ -15,9 +16,11 @@ export interface WrittenTranslationProps {
 
 /** Written comparison is independent of the lesson's audio evidence. */
 export function WrittenTranslation(props: WrittenTranslationProps) {
+  const language = props.language ?? props.sentence.language ?? 'en';
+  const localize = (english: string, spanish: string) => language === 'fr' ? spanish : english;
   const id = useId();
   const [draft, setDraft] = useState(props.initialDraft ?? '');
-  const [result, setResult] = useState<WrittenComparisonResult | undefined>(() => props.initialFinalized ? compareWrittenTranslation(props.initialDraft ?? '', props.sentence.alternatives) : undefined);
+  const [result, setResult] = useState<WrittenComparisonResult | undefined>(() => props.initialFinalized ? compareWrittenTranslation(props.initialDraft ?? '', props.sentence.alternatives, language) : undefined);
   const [compositionActive, setCompositionActive] = useState(false);
   const [hintOpen, setHintOpen] = useState(false);
   const composing = useRef(false);
@@ -38,7 +41,7 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
     const text = currentDraft.current;
     if (composing.current || !text.trim() || checkedRevision.current === revision.current) return;
     checkedRevision.current = revision.current;
-    const comparison = compareWrittenTranslation(text, latest.current.sentence.alternatives);
+    const comparison = compareWrittenTranslation(text, latest.current.sentence.alternatives, latest.current.language ?? latest.current.sentence.language);
     const next = comparison.status === 'empty' ? undefined : comparison;
     setResult(next);
     latest.current.onResultChange(next);
@@ -57,11 +60,11 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
   const current = compositionActive ? undefined : result;
   const canHelp = props.helpEnabled && current?.status === 'different';
 
-  return <section className="sentences-written ll-field" data-status={current?.status ?? 'empty'} aria-label="Written translation">
-    <label htmlFor={id} className="ll-sr-only">English translation</label>
+  return <section className="sentences-written ll-field" data-status={current?.status ?? 'empty'} aria-label={localize("Written translation", "Traducción escrita")}>
+    <label htmlFor={id} className="ll-sr-only">{localize("English translation", "Traducción al francés")}</label>
     <div className="sentences-written-controls">
-      <input id={id} type="text" value={draft} maxLength={MAX_WRITTEN_TRANSLATION_LENGTH}
-        placeholder="Write your translation…" autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={false}
+      <input id={id} lang={language} type="text" value={draft} maxLength={MAX_WRITTEN_TRANSLATION_LENGTH}
+        placeholder={localize("Write your translation…", "Escribí tu traducción…")} autoComplete="off" autoCorrect="off" autoCapitalize="sentences" spellCheck={false}
         aria-describedby={current ? `${id}-feedback${canHelp ? ` ${id}-help-shortcut` : ''}` : undefined}
         aria-keyshortcuts={canHelp ? 'Alt+ArrowDown' : undefined}
         onChange={event => {
@@ -95,19 +98,20 @@ export function WrittenTranslation(props: WrittenTranslationProps) {
           }
         }} />
     </div>
-    {canHelp && <span id={`${id}-help-shortcut`} className="ll-sr-only">Press Alt+Down Arrow for a translation hint. Press Escape to close it.</span>}
-    {current && <div id={`${id}-feedback`} role="status" aria-label="Written translation feedback" tabIndex={-1}>
-      <WrittenFeedback key={current.submittedText} result={current} helpEnabled={props.helpEnabled} hint={props.hint} open={hintOpen} setOpen={setHintOpen} />
+    {canHelp && <span id={`${id}-help-shortcut`} className="ll-sr-only">{localize('Press Alt+Down Arrow for a translation hint. Press Escape to close it.', 'Presioná Alt+Flecha abajo para ver una pista. Escape la cierra.')}</span>}
+    {current && <div id={`${id}-feedback`} role="status" aria-label={localize("Written translation feedback", "Resultado de la traducción escrita")} tabIndex={-1}>
+      <WrittenFeedback language={language} key={current.submittedText} result={current} helpEnabled={props.helpEnabled} hint={props.hint} open={hintOpen} setOpen={setHintOpen} />
     </div>}
   </section>;
 }
 
 /** The error itself opens the same hover, keyboard and tap interaction as picture information. */
-function WrittenFeedback({ result, helpEnabled, hint, open, setOpen }: Pick<WrittenTranslationProps, 'helpEnabled' | 'hint'> & {
+function WrittenFeedback({ result, helpEnabled, hint, open, setOpen, language = 'en' }: Pick<WrittenTranslationProps, 'helpEnabled' | 'hint' | 'language'> & {
   result: WrittenComparisonResult; open: boolean; setOpen(open: boolean): void;
 }) {
   const id = useId();
   const root = useRef<HTMLDivElement>(null);
+  const localize = (english: string, spanish: string) => language === 'fr' ? spanish : english;
   const matched = result.status === 'matched';
   const different = result.status === 'different';
   const canHelp = helpEnabled && different;
@@ -136,17 +140,17 @@ function WrittenFeedback({ result, helpEnabled, hint, open, setOpen }: Pick<Writ
       {groups.map((group, index) => {
         const content = group.segments.map((segment, position) => <span key={position} data-gap={segment.gap || undefined}>{segment.gap ? '▴' : segment.text}</span>);
         return canHelp && group.different
-          ? <button key={index} type="button" className="sentences-error-trigger ll-incorrect" aria-label="Translation hint" tabIndex={-1} title="Translation hint (Alt+↓ from the answer)"
+          ? <button key={index} type="button" className="sentences-error-trigger ll-incorrect" aria-label={localize("Translation hint", "Pista para la traducción")} tabIndex={-1} title={localize("Translation hint (Alt+↓ from the answer)", "Pista para la traducción (Alt+↓ desde la respuesta)")}
             aria-describedby={visible ? id : undefined} aria-expanded={visible}
             onPointerEnter={event => { if (event.pointerType === 'mouse') setOpen(true); }} onFocus={() => setOpen(true)} onClick={() => setOpen(true)}>{content}</button>
           : <span key={index} className={different && group.different ? 'll-incorrect' : undefined}>{content}</span>;
       })}
     </div>}
-    {visible && <span id={id} role="tooltip" lang={hint?.status === 'ready' ? 'es' : 'en'} className="ll-written-hint sentences-error-tooltip">
-      {!hint || hint.status === 'loading' ? 'Preparing a hint…' : hint.text}
+    {visible && <span id={id} role="tooltip" lang={hint?.status === 'ready' || language === 'fr' ? 'es' : 'en'} className="ll-written-hint sentences-error-tooltip">
+      {!hint || hint.status === 'loading' ? localize('Preparing a hint…', 'Preparando una pista…') : hint.text}
     </span>}
-    {matched && <span className="ll-sr-only">Translation checked.</span>}
-    {different && <span className="ll-sr-only">Differences from a reference translation are highlighted; other wording may also be valid.</span>}
-    {result.status === 'too-long' && <p className="ll-field-status">Use {MAX_WRITTEN_TRANSLATION_LENGTH.toLocaleString('en')} characters or fewer.</p>}
+    {matched && <span className="ll-sr-only">{localize('Translation checked.', 'Traducción comprobada.')}</span>}
+    {different && <span className="ll-sr-only">{localize('Differences from a reference translation are highlighted; other wording may also be valid.', 'Se resaltan las diferencias con una traducción de referencia; otras formulaciones también pueden ser válidas.')}</span>}
+    {result.status === 'too-long' && <p className="ll-field-status">{localize(`Use ${MAX_WRITTEN_TRANSLATION_LENGTH.toLocaleString('en')} characters or fewer.`, `Usá ${MAX_WRITTEN_TRANSLATION_LENGTH.toLocaleString('es')} caracteres o menos.`)}</p>}
   </div>;
 }

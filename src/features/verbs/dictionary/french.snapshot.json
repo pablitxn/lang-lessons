@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "fr-wiktionnaire-25-verbs-2026-10-24",
+  "retrievedOn": "2026-10-24",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "Colaboradores del Wiktionnaire; definiciones adaptadas al español por Lang Lessons",
+  "modifications": "Selected everyday senses and reference IPA from pinned French Wiktionnaire revisions; adapted the definitions into Spanish. Pronunciation is guidance, not an accent whitelist. Teaching examples were independently authored for Lang Lessons and are separately attributed; they are not Wiktionnaire quotations. Omitted other senses, external literary quotations, etymology, audio and images.",
+  "entries": [
+    {
+      "id": "fr-etre",
+      "revision": "39934606",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=%C3%AAtre&oldid=39934606#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/%C3%AAtre#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=%C3%AAtre&action=history",
+      "content": {
+        "lemma": "être",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Expresar un estado, una característica o el lugar en el que se encuentra alguien o algo.",
+        "pronunciation": {
+          "ipa": "/ɛtʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je suis à la maison."
+        ]
+      },
+      "contentHash": "sha256:3ab1aa3d39495dc06af3813437a77d0a514ef18f478a2a8be4e829aee62832fa",
+      "review": {
+        "senseExcerpt": "Se situer, se trouver, rester, spécifiant une location, une situation.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-avoir",
+      "revision": "39879166",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=avoir&oldid=39879166#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/avoir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=avoir&action=history",
+      "content": {
+        "lemma": "avoir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Tener o poseer algo, concreto o abstracto; también funciona como auxiliar de tiempos compuestos.",
+        "pronunciation": {
+          "ipa": "/a.vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "J’ai un livre."
+        ]
+      },
+      "contentHash": "sha256:798008248acfa368e86cd83da5ee98fa8fd1a567429ebfff326177b60fd1f65c",
+      "review": {
+        "senseExcerpt": "Être en relation possessive, soit concrète ou abstraite",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-aller",
+      "revision": "39934577",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=aller&oldid=39934577#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/aller#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=aller&action=history",
+      "content": {
+        "lemma": "aller",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Desplazarse hasta un lugar.",
+        "pronunciation": {
+          "ipa": "/a.le/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je vais au marché."
+        ]
+      },
+      "contentHash": "sha256:49dd8b288f0181e6b1ab770d8acedf0946deaa98fb13fa2b69b23cf0e6ccc0d5",
+      "review": {
+        "senseExcerpt": "Se déplacer jusqu'à un endroit.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-faire",
+      "revision": "39931658",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=faire&oldid=39931658#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/faire#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=faire&action=history",
+      "content": {
+        "lemma": "faire",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Realizar, efectuar o llevar a cabo una acción.",
+        "pronunciation": {
+          "ipa": "/fɛʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je fais mes devoirs."
+        ]
+      },
+      "contentHash": "sha256:abbe0e1e9d0b5a8d0a2af0afcef77e2214a19b10dfb6609fc1cd6dd5c95f6e38",
+      "review": {
+        "senseExcerpt": "Opérer, effectuer, exécuter, accomplir, réaliser",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-dire",
+      "revision": "39792727",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=dire&oldid=39792727#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/dire#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=dire&action=history",
+      "content": {
+        "lemma": "dire",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Expresar algo mediante palabras.",
+        "pronunciation": {
+          "ipa": "/diʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je dis la vérité."
+        ]
+      },
+      "contentHash": "sha256:fe016ac40368a4959b8de811ad477d589510387d16214d90d462e9c5d17f824b",
+      "review": {
+        "senseExcerpt": "Exprimer par la parole.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-pouvoir",
+      "revision": "39952211",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=pouvoir&oldid=39952211#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/pouvoir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=pouvoir&action=history",
+      "content": {
+        "lemma": "pouvoir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Tener la capacidad, la posibilidad o el permiso para hacer algo.",
+        "pronunciation": {
+          "ipa": "/pu.vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je peux venir."
+        ]
+      },
+      "contentHash": "sha256:5684b38104d21bcbafe63f532dd64b8a1758e4622ceaf1292fa49978249108a0",
+      "review": {
+        "senseExcerpt": "Être capable de ; avoir la faculté de",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-vouloir",
+      "revision": "39905056",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=vouloir&oldid=39905056#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/vouloir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=vouloir&action=history",
+      "content": {
+        "lemma": "vouloir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Tener la intención o el deseo de hacer algo.",
+        "pronunciation": {
+          "ipa": "/vu.lwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je veux un café."
+        ]
+      },
+      "contentHash": "sha256:c33c49f64d5cb52ca7260b6a79d988ebafbffc728006fb441391db96319f7586",
+      "review": {
+        "senseExcerpt": "Avoir l’intention, la volonté de faire quelque chose",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-devoir",
+      "revision": "39864895",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=devoir&oldid=39864895#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/devoir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=devoir&action=history",
+      "content": {
+        "lemma": "devoir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Estar en la necesidad o tener la obligación de hacer algo.",
+        "pronunciation": {
+          "ipa": "/də.vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je dois partir tôt."
+        ]
+      },
+      "contentHash": "sha256:715bf8d064c7f2fe36a4596c81bb6474e26a744387b53b664cf09e98e6d2c2a0",
+      "review": {
+        "senseExcerpt": "Être dans la nécessité de.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-savoir",
+      "revision": "39883195",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=savoir&oldid=39883195#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/savoir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=savoir&action=history",
+      "content": {
+        "lemma": "savoir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Conocer algo de manera cierta; tener un conocimiento o una habilidad.",
+        "pronunciation": {
+          "ipa": "/sa.vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je sais la réponse."
+        ]
+      },
+      "contentHash": "sha256:f910802a030f4e72d49a339f0c9253ad13bfa98408e0be6afd60d901956f3a45",
+      "review": {
+        "senseExcerpt": "Appréhender par l’esprit ou la connaissance ; connaître de façon certaine.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-voir",
+      "revision": "39952242",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=voir&oldid=39952242#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/voir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=voir&action=history",
+      "content": {
+        "lemma": "voir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Percibir mediante la vista.",
+        "pronunciation": {
+          "ipa": "/vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je vois la mer."
+        ]
+      },
+      "contentHash": "sha256:2b6dd358e1d68a2bf8d851526f5ff8eec7b657a426264a9297aa143abbb0decb",
+      "review": {
+        "senseExcerpt": "Percevoir l’image des objets par l’organe de la vue.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-venir",
+      "revision": "39942572",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=venir&oldid=39942572#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/venir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=venir&action=history",
+      "content": {
+        "lemma": "venir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Desplazarse hacia el lugar donde está quien habla o la persona de referencia.",
+        "pronunciation": {
+          "ipa": "/və.niʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je viens avec toi."
+        ]
+      },
+      "contentHash": "sha256:c125fa906ff8d6574d354fc66bb0a95e61ed70345e66b8b04bc8921d03e55226",
+      "review": {
+        "senseExcerpt": "Se rendre sur le lieu où se trouve celui qui parle ou dont on parle.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-tenir",
+      "revision": "39867539",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=tenir&oldid=39867539#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/tenir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=tenir&action=history",
+      "content": {
+        "lemma": "tenir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Mantener algo firmemente en la mano o entre las manos.",
+        "pronunciation": {
+          "ipa": "/tə.niʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je tiens le sac."
+        ]
+      },
+      "contentHash": "sha256:016083ace468eb3f0711633676d2bb66a71eea313b6770cc37ed52984bd26b6a",
+      "review": {
+        "senseExcerpt": "Garder fermement dans la main ou dans les mains.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-prendre",
+      "revision": "39920890",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=prendre&oldid=39920890#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/prendre#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=prendre&action=history",
+      "content": {
+        "lemma": "prendre",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Coger algo y ponerlo en la mano.",
+        "pronunciation": {
+          "ipa": "/pʁɑ̃dʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je prends une pomme."
+        ]
+      },
+      "contentHash": "sha256:648c8363a2218315a32fc9b35a14f4a4724e00856993d30472718bd2adc736e1",
+      "review": {
+        "senseExcerpt": "Saisir, mettre en sa main.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-mettre",
+      "revision": "39948880",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=mettre&oldid=39948880#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/mettre#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=mettre&action=history",
+      "content": {
+        "lemma": "mettre",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Colocar una persona, un animal o una cosa en un lugar determinado.",
+        "pronunciation": {
+          "ipa": "/mɛtʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je mets le livre sur la table."
+        ]
+      },
+      "contentHash": "sha256:91e9903d9f33d455ef6d6254b3bf55ba904322a3047d30032ded4641795a70ee",
+      "review": {
+        "senseExcerpt": "Placer une personne, ou un animal, ou une chose dans un lieu déterminé.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-lire",
+      "revision": "39881049",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=lire&oldid=39881049#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/lire#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=lire&action=history",
+      "content": {
+        "lemma": "lire",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Interpretar información escrita mediante palabras o dibujos.",
+        "pronunciation": {
+          "ipa": "/liʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je lis ce livre."
+        ]
+      },
+      "contentHash": "sha256:3a9a237b47bbac245317f372b6d9d9a2d7b869ce17fa183da24220bbb6685084",
+      "review": {
+        "senseExcerpt": "Interpréter des informations écrites sous forme de mots ou de dessins sur un support.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-ecrire",
+      "revision": "39770681",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=%C3%A9crire&oldid=39770681#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/%C3%A9crire#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=%C3%A9crire&action=history",
+      "content": {
+        "lemma": "écrire",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Representar palabras mediante letras y símbolos en un soporte.",
+        "pronunciation": {
+          "ipa": "/e.kʁiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "J’écris une lettre."
+        ]
+      },
+      "contentHash": "sha256:41da0bdcca825128a36bfa91799ca97e6beacec0fdb08ddeb4b3dadddf66a2c8",
+      "review": {
+        "senseExcerpt": "Créer une représentation de mots à l’aide de lettres et de symboles, par le biais d’un média.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-boire",
+      "revision": "39928257",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=boire&oldid=39928257#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/boire#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=boire&action=history",
+      "content": {
+        "lemma": "boire",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Introducir un líquido en la boca y tragarlo.",
+        "pronunciation": {
+          "ipa": "/bwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je bois de l’eau."
+        ]
+      },
+      "contentHash": "sha256:016a485e2ebc0244f24e1f050da021f71e9974fbbe4f7ea77c9cfdaab505aaa5",
+      "review": {
+        "senseExcerpt": "Mettre un liquide dans sa bouche et l’avaler.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-ouvrir",
+      "revision": "39869432",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=ouvrir&oldid=39869432#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/ouvrir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=ouvrir&action=history",
+      "content": {
+        "lemma": "ouvrir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Hacer que algo cerrado deje de estarlo.",
+        "pronunciation": {
+          "ipa": "/u.vʁiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "J’ouvre la porte."
+        ]
+      },
+      "contentHash": "sha256:1fa3c7b68129c3762124996616c400ef8822a8f3df02afe507f9a9d306ecc81b",
+      "review": {
+        "senseExcerpt": "Faire que ce qui était clos, fermé, ne le soit plus.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-offrir",
+      "revision": "39879991",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=offrir&oldid=39879991#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/offrir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=offrir&action=history",
+      "content": {
+        "lemma": "offrir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Presentar algo a alguien con la intención de que lo acepte.",
+        "pronunciation": {
+          "ipa": "/ɔ.fʁiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "J’offre des fleurs."
+        ]
+      },
+      "contentHash": "sha256:2c77b7b672e4619f533171a8828954bd4668d9c3bbda4ae3e01d62d0458a6a3c",
+      "review": {
+        "senseExcerpt": "Présenter quelque chose à quelqu’un, en souhaitant qu’il l’accepte.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-courir",
+      "revision": "39771167",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=courir&oldid=39771167#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/courir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=courir&action=history",
+      "content": {
+        "lemma": "courir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Desplazarse rápidamente alternando el apoyo de las piernas, con momentos sin tocar el suelo.",
+        "pronunciation": {
+          "ipa": "/ku.ʁiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je cours dans le parc."
+        ]
+      },
+      "contentHash": "sha256:5da9e7c3a86a30a8b861b46dc95279288040f50b674d161e4659f8ce4deb83b7",
+      "review": {
+        "senseExcerpt": "Se déplacer rapidement, avec impétuosité",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-partir",
+      "revision": "39870672",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=partir&oldid=39870672#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/partir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=partir&action=history",
+      "content": {
+        "lemma": "partir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Dejar un lugar para ir a otro.",
+        "pronunciation": {
+          "ipa": "/paʁ.tiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je pars à huit heures."
+        ]
+      },
+      "contentHash": "sha256:f61efda53d0f33fc5a70c89265ca5020efc129180cf8ddc69752f38442decfce",
+      "review": {
+        "senseExcerpt": "Quitter un lieu pour un autre.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-sortir",
+      "revision": "39556148",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=sortir&oldid=39556148#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/sortir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=sortir&action=history",
+      "content": {
+        "lemma": "sortir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Pasar de dentro hacia fuera.",
+        "pronunciation": {
+          "ipa": "/sɔʁ.tiʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je sors avec mes amis."
+        ]
+      },
+      "contentHash": "sha256:199471c04c9d90e2702eff31c0aaa751255412596de6fe7e015c5e192c0a1275",
+      "review": {
+        "senseExcerpt": "Passer du dedans vers le dehors.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-dormir",
+      "revision": "39803288",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=dormir&oldid=39803288#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/dormir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=dormir&action=history",
+      "content": {
+        "lemma": "dormir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Descansar en un estado de sueño.",
+        "pronunciation": {
+          "ipa": "/dɔʁ.miʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je dors huit heures."
+        ]
+      },
+      "contentHash": "sha256:a8c9c4c983fa7be821a4ec44df94ef750a58f7501776629e4278af2391618f0f",
+      "review": {
+        "senseExcerpt": "Se reposer dans un état inconscient, de sommeil.",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-recevoir",
+      "revision": "39865792",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=recevoir&oldid=39865792#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/recevoir#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=recevoir&action=history",
+      "content": {
+        "lemma": "recevoir",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Aceptar o tomar lo que alguien da, presenta u ofrece.",
+        "pronunciation": {
+          "ipa": "/ʁə.sə.vwaʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je reçois un cadeau."
+        ]
+      },
+      "contentHash": "sha256:c0890bcb29944cdcf483e2412b71fc144cd347473b01027eab70cc29efd3943e",
+      "review": {
+        "senseExcerpt": "Accepter, prendre ce qui est donné, ce qui est présenté, ce qui est offert",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    },
+    {
+      "id": "fr-connaitre",
+      "revision": "39700190",
+      "sourceUrl": "https://fr.wiktionary.org/w/index.php?title=conna%C3%AEtre&oldid=39700190#Français",
+      "entryUrl": "https://fr.wiktionary.org/wiki/conna%C3%AEtre#Français",
+      "historyUrl": "https://fr.wiktionary.org/w/index.php?title=conna%C3%AEtre&action=history",
+      "content": {
+        "lemma": "connaître",
+        "partOfSpeech": "Verbo francés · tercer grupo",
+        "definition": "Tener experiencia o familiaridad con una persona o una cosa.",
+        "pronunciation": {
+          "ipa": "/kɔ.nɛtʁ/",
+          "label": "Francés · pronunciación de referencia"
+        },
+        "examples": [
+          "Je connais ce quartier."
+        ]
+      },
+      "contentHash": "sha256:8cd431bcd6ec9f90e162f220c249a775b64aa3da5cd0fd291edf31bda174e4be",
+      "review": {
+        "senseExcerpt": "Faire ou avoir fait l’expérience permettant une représentation mentale de quelque chose ou quelqu’un",
+        "exampleKind": "original Lang Lessons curriculum example; not a Wiktionnaire quotation",
+        "senseSelection": "Everyday French sense adapted into Spanish after reading the pinned French entry; not exhaustive."
+      }
+    }
+  ]
+}

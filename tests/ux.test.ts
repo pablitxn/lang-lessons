@@ -23,6 +23,16 @@ test('feedback never attaches an old attempt or mismatched submitted text to the
   assert.equal(currentSpellingResult(ref, uncertain, 'bentt'), uncertain);
 });
 
+test('French spelling feedback accepts canonical Unicode while preserving accents and attempt identity', () => {
+  const frenchRef: AttemptRef = { ...ref, obligation: 'spelling:infinitive' };
+  const accepted: EvidenceResult = { ...result, ref: frenchRef, status: 'accepted',
+    spelling: { submittedText: 'être', incorrectGraphemeIndices: [], missingGraphemeIndices: [] } };
+  assert.equal(currentSpellingResult(frenchRef, accepted, 'e\u0302tre'), accepted);
+  assert.equal(currentSpellingResult(frenchRef, accepted, 'etre'), undefined);
+  assert.equal(currentSpellingResult(frenchRef, accepted, 'étre'), undefined);
+  assert.equal(currentSpellingResult({ ...frenchRef, revision: frenchRef.revision + 1 }, accepted, 'e\u0302tre'), undefined);
+});
+
 test('grapheme feedback keeps combining marks together and indicates omissions without revealing letters', () => {
   const segments = spellingSegments({ ...result, spelling: { submittedText: 'e\u0301x', incorrectGraphemeIndices: [1], missingGraphemeIndices: [0, 2] } });
   assert.deepEqual(segments, [

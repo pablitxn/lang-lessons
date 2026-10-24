@@ -4,11 +4,11 @@ import type { Tense } from '../../contracts';
 import { createAssessmentProgress } from '../progress/assessment-progress';
 import type { ProgressSink } from '../../contracts';
 import { createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot, type InteractionPatch } from '../../assessment';
-import { SENTENCES } from '../../content';
+import { SENTENCES, sentencesForLanguage } from '../../content';
 import { guardTranslationHint, guardTranslationFeedback } from '../../assessment/coaching-policy';
 export { TRANSLATION_HINTS, guardTranslationHint } from '../../assessment/coaching-policy';
 import { isQuiet, sameExercise, type Difficulty, type ExerciseContext, type LearnerInput,
-  type SentenceEntry, type SentenceTenseSelection, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
+  type LearningLanguage, type SentenceEntry, type SentenceTenseSelection, type VoiceAdapter, type VoiceEvent, type VoiceState } from '../../contracts';
 
 export function matchingSentences(difficulty: Difficulty, sentences = SENTENCES, tense: SentenceTenseSelection = 'all'): readonly SentenceEntry[] {
   return sentences.filter(sentence => sentence.difficulty.grammar === difficulty.grammar
@@ -42,6 +42,7 @@ export interface SentenceSessionOptions {
   sessionId: string;
   difficulty: Difficulty;
   tense?: SentenceTenseSelection;
+  language?: LearningLanguage;
   onComplete: (exerciseId: string) => void;
   progressSink?: ProgressSink;
   writtenPracticeUserId?: string;
@@ -80,7 +81,9 @@ export interface SentenceSession extends WrittenPracticePort {
 /** Orchestrates the shared controller; there is no feature-owned evidence reducer. */
 export function createSentenceSession(options: SentenceSessionOptions): SentenceSession {
   const voice = options.voice;
-  const sentences = options.sentences ?? SENTENCES;
+  const language = options.language ?? options.sentences?.[0]?.language ?? 'en';
+  const sentences = options.sentences ?? sentencesForLanguage(language);
+  const localize = (english: string, spanish: string) => language === 'fr' ? spanish : english;
   const random = options.random ?? Math.random;
   let requestedDifficulty = { ...options.difficulty };
   let requestedTense = options.tense ?? 'all';
@@ -104,7 +107,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   const first = pick(matchingSentences(requestedDifficulty, sentences, requestedTense), undefined, random);
   function context(sentence: SentenceEntry): ExerciseContext {
     return { sessionId: options.sessionId, exerciseId: currentExerciseId, generation,
-      mode: 'sentence', stage: 'translation', sentence };
+      mode: 'sentence', stage: 'translation', language, sentence };
   }
   function makeWritten(next: ExerciseContext) {
     if (next.mode !== 'sentence') throw new Error('Expected sentence context.');
@@ -126,7 +129,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   function startNext(): boolean {
     if (disposed || options.canWrite?.() === false) return false;
     const pool = matchingSentences(requestedDifficulty, sentences, requestedTense);
-    if (!pool.length) { notice = 'No authored prompt matches the selected difficulty and tense. Change either in Preferences.'; publish(); return false; }
+    if (!pool.length) { notice = localize('No authored prompt matches the selected difficulty and tense. Change either in Preferences.', 'No hay una frase para la dificultad y el tiempo elegidos. Cambiá la selección en Preferencias.'); publish(); return false; }
     const current = controller.getSnapshot().context;
     const sentence = pick(pool, current.mode === 'sentence' ? current.sentence.id : undefined, random);
     voice.interrupt();
@@ -149,9 +152,9 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
   }
   function reportFailure(identity: ExerciseContext) {
     if (!current(identity)) return;
-    notice = 'The voice request failed. Previously accepted work is preserved; retry when connected.';
+    notice = localize('The voice request failed. Previously accepted work is preserved; retry when connected.', 'La solicitud de voz falló. Tu trabajo aceptado se conserva; reintentá cuando haya conexión.');
     controller.handleVoiceEvent({ type: 'error', eventId: `sentence-error-${++sequence}`, sessionId: options.sessionId,
-      code: 'provider', retryable: true, message: 'Voice is unavailable. Please reconnect and try again.' });
+      code: 'provider', retryable: true, message: localize('Voice is unavailable. Please reconnect and try again.', 'La voz no está disponible. Volvé a conectar e intentá de nuevo.') });
   }
   function submit(input: LearnerInput, identity: ExerciseContext) {
     try { void voice.submit(input).catch(() => reportFailure(identity)); } catch { reportFailure(identity); }
@@ -173,10 +176,10 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     if (!attempts.length) return false;
     hintOrigin = 'none'; coachText = '';
     if (uncertain || !text.trim()) {
-      notice = 'The audio was unclear. Please repeat; this is not a learner error.';
+      notice = localize('The audio was unclear. Please repeat; this is not a learner error.', 'El audio no se entendió. Repetí la respuesta; esto no cuenta como un error.');
       controller.applyBatch({ ...identity, eventId: `unclear-${++sequence}`, results: attempts.map(ref => ({ ref,
         status: 'uncertain', source: { kind: 'audio', utteranceId, audioAvailable: false },
-        feedback: 'The audio needs clarification. Please repeat your response.' })) });
+        feedback: localize('The audio needs clarification. Please repeat your response.', 'Hace falta aclarar el audio. Repetí tu respuesta.') })) });
       return true;
     }
     notice = ''; lastResponse = text;
@@ -193,7 +196,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       if (event.final && (!event.sentenceScope?.eligible || event.sentenceScope.capturedStage !== before.sentenceStage)) {
         // Leave this turn unclaimed so the root can handle it conversationally.
         utterances.add(event.utteranceId);
-        notice = 'This speech began before the current learning stage. Please give a fresh response for this stage.';
+        notice = localize('This speech began before the current learning stage. Please give a fresh response for this stage.', 'Esta intervención empezó antes de la etapa actual. Respondé de nuevo para esta etapa.');
         publish(); return;
       }
       if (event.final) processResponse(event.text, event.utteranceId, event.uncertain);
@@ -204,7 +207,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
         ? guardTranslationHint(event.hint.text, event.hint.level) : { text: event.hint.text, fallback: false };
       if (controller.applyHint({ ...event.hint, text: guarded.text })) {
         hintOrigin = guarded.fallback ? 'authored-fallback' : event.hint.source;
-        if (guarded.fallback) notice = 'A reviewed meaning-focused prompt is shown because the generated hint could not be safely displayed.';
+        if (guarded.fallback) notice = localize('A reviewed meaning-focused prompt is shown because the generated hint could not be safely displayed.', 'Se muestra una pista revisada sobre el significado porque no se pudo mostrar la pista generada.');
         if (guarded.fallback) queueMicrotask(() => {
           if (current(before) && controller.getSnapshot().hint?.requestId === event.hint.requestId) voice.cancelPendingHints?.();
         });
@@ -216,9 +219,9 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       // No raw pre-acceptance corrective text can bypass the hint envelope via feedback.
       const results = event.batch.results.map(result => ({ ...result,
         feedback: before.sentenceStage === 'translation'
-          ? result.status === 'accepted' ? 'Oral translation accepted. Now explain your actual construction.'
-            : result.status === 'uncertain' ? 'The audio needs clarification. Please repeat without penalty.'
-              : 'Review the Spanish context and try again, or ask for a gradual hint.'
+          ? result.status === 'accepted' ? localize('Oral translation accepted. Now explain your actual construction.', 'Traducción oral aceptada. Ahora explicá la construcción que usaste.')
+            : result.status === 'uncertain' ? localize('The audio needs clarification. Please repeat without penalty.', 'Hace falta aclarar el audio. Repetí sin penalización.')
+              : localize('Review the Spanish context and try again, or ask for a gradual hint.', 'Revisá el contexto en español e intentá de nuevo, o pedí una pista gradual.')
           : result.feedback,
       }));
       controller.handleVoiceEvent({ ...event, batch: { ...event.batch, results } });
@@ -233,7 +236,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       controller.handleVoiceEvent(event); publish(); return;
     }
     if (event.type === 'microphone') muted = event.muted;
-    controller.handleVoiceEvent(event.type === 'error' ? { ...event, message: 'Voice is unavailable. Your accepted work is preserved.' } : event);
+    controller.handleVoiceEvent(event.type === 'error' ? { ...event, message: localize('Voice is unavailable. Your accepted work is preserved.', 'La voz no está disponible. Tu trabajo aceptado se conserva.') } : event);
     publish();
   }
   const unsubscribeVoice = voice.subscribe(receive);
@@ -249,7 +252,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       if (disposed || options.canWrite?.() === false || !snapshotObject(value) || value.kind !== 'sentence'
         || !snapshotIdentity(value.identity, options.sessionId) || value.identity.exerciseId === controller.getSnapshot().exerciseId) return false;
       const sentence = sentences.find(item => item.id === value.sentenceId); if (!sentence) return false;
-      const next: ExerciseContext = { ...value.identity, mode: 'sentence', stage: 'translation', sentence };
+      const next: ExerciseContext = { ...value.identity, mode: 'sentence', stage: 'translation', language, sentence };
       const restored = makeWritten(next); if (!restored.restoreWrittenPractice(value)) return false;
       voice.interrupt(); written = restored; writtenIdentity = value.identity.exerciseId;
       generation = value.identity.generation; currentExerciseId = value.identity.exerciseId; writtenRestoreVersion++;
@@ -268,7 +271,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     askQuestion(text) {
       if (disposed || !text.trim()) return;
       if (controller.getSnapshot().interaction.connection !== 'ready') {
-        notice = 'Connect the conversation before asking a question.'; publish(); return;
+        notice = localize('Connect the conversation before asking a question.', 'Conectá la conversación antes de hacer una pregunta.'); publish(); return;
       }
       const identity = controller.getSnapshot().context;
       controller.setInteraction({ questionPending: true });
@@ -293,7 +296,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
     },
     reviseTranslation() {
       if (disposed || options.canWrite?.() === false) return;
-      notice = 'Say your revised translation. Its explanation will be assessed again.'; lastResponse = '';
+      notice = localize('Say your revised translation. Its explanation will be assessed again.', 'Decí tu traducción revisada. Se evaluará nuevamente su explicación.'); lastResponse = '';
       // Allocate real controller refs before translation reset removes dependent evidence.
       for (const obligation of ['tense', 'structure', 'meaning-fit'] as const) {
         if (controller.getSnapshot().evidence[obligation]) controller.invalidate(obligation);
@@ -305,7 +308,7 @@ export function createSentenceSession(options: SentenceSessionOptions): Sentence
       const snapshot = controller.getSnapshot();
       if (snapshot.completed) return isQuiet(snapshot.interaction) && startNext();
       if (controller.manualContinue()) return true;
-      notice = 'Finish all four requirements and close any question or helper before continuing.'; publish(); return false;
+      notice = localize('Finish all four requirements and close any question or helper before continuing.', 'Completá los cuatro requisitos y cerrá las preguntas o ayudas antes de continuar.'); publish(); return false;
     },
     skip() {
       // Explicit navigation works offline or paused and never reports completion.

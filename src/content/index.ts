@@ -1,8 +1,11 @@
 /** EN-WP-03: thin adapter over the independently reviewable authored JSON. */
-import type { FormGuidance, Tense, SentenceEntry, VerbEntry, VerbForm, VerbId } from '../contracts/index';
+import type { FormGuidance, Tense, SentenceEntry, VerbEntry, EnglishVerbEntry, EnglishVerbId, FrenchVerbEntry, LearningLanguage, VerbForm, VerbId } from '../contracts/index';
 import verbReference from '../../content/en-wp-03/verbs.json' with { type: 'json' };
 import photoLedger from '../../content/en-wp-03/asset-ledger.json' with { type: 'json' };
 import sentenceReference from '../../content/en-wp-03/sentences.json' with { type: 'json' };
+import frenchVerbReference from '../../content/fr/verbs.json' with { type: 'json' };
+import frenchSentenceReference from '../../content/fr/sentences.json' with { type: 'json' };
+import frenchPhotoLedger from '../../content/fr/asset-ledger.json' with { type: 'json' };
 
 type ReferenceForm = (typeof verbReference.verbs)[number]['forms']['base'][number];
 
@@ -19,12 +22,12 @@ function guidance(variants: readonly ReferenceForm[]): FormGuidance {
 /** Curated photo collections stay in content; the shared single-image contract is unchanged. */
 export const VERB_PHOTOS = photoLedger.assets.map(asset => ({
   ...asset,
-  verbId: asset.content_id.slice(5) as VerbId,
+  verbId: asset.content_id.slice(5) as EnglishVerbId,
   alt: `${asset.nonvisual_cue_es} ${asset.context_es}`,
 }));
 
 export function photosForVerb(id: VerbId) {
-  return VERB_PHOTOS.filter(photo => photo.verbId === id);
+  return photosForLanguage(id.startsWith('fr-') ? 'fr' : 'en').filter(photo => photo.verbId === id);
 }
 
 /** Select once when creating an exercise, never during render or a helper toggle. */
@@ -40,9 +43,9 @@ export function pickVerbPhoto(id: VerbId, random: () => number = Math.random) {
 }
 
 /** Real local photographs; ambiguous meanings retain their Spanish context. */
-export const VERBS: readonly VerbEntry[] = verbReference.verbs.map(verb => ({
+export const VERBS: readonly EnglishVerbEntry[] = verbReference.verbs.map(verb => ({
   // Exact membership is pinned by the independent content check and contract tests.
-  id: verb.lemma as VerbId,
+  id: verb.lemma as EnglishVerbId,
   forms: {
     base: guidance(verb.forms.base),
     past: guidance(verb.forms.past),
@@ -110,13 +113,15 @@ export const SENTENCES: readonly SentenceEntry[] = sentenceReference.sentences.m
 
 /** Context/ambiguity metadata for visual and nonvisual cue presentation. */
 export const VERB_CUE_BRIEFS = verbReference.verbs.map(verb => ({
-  id: verb.lemma as VerbId,
+  id: verb.lemma as EnglishVerbId,
   ...verb.image_cue,
 }));
 
 /** Injectable uniform selection, confined to exact25, without an immediate repeat. */
-export function pickNextVerb(previous?: VerbId, random: () => number = Math.random, photoRandom: () => number = Math.random): VerbEntry {
-  const candidates = VERBS.filter(verb => verb.id !== previous);
+export function pickNextVerb(previous?: EnglishVerbId, random?: () => number, photoRandom?: () => number): EnglishVerbEntry;
+export function pickNextVerb(previous: VerbId | undefined, random: (() => number) | undefined, photoRandom: (() => number) | undefined, language: LearningLanguage): VerbEntry;
+export function pickNextVerb(previous?: VerbId, random: () => number = Math.random, photoRandom: () => number = Math.random, language: LearningLanguage = 'en'): VerbEntry {
+  const candidates = verbsForLanguage(language).filter(verb => verb.id !== previous);
   const sample = random();
   if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
     throw new RangeError('Random sample must be finite and within [0, 1).');
@@ -125,3 +130,26 @@ export function pickNextVerb(previous?: VerbId, random: () => number = Math.rand
   const photo = pickVerbPhoto(verb.id, photoRandom);
   return { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } };
 }
+
+/** French has its own pedagogical forms, conjugation tables and Spanish explanations. */
+export const FRENCH_VERBS: readonly FrenchVerbEntry[] = frenchVerbReference.verbs.map(verb => ({
+  ...verb,
+  id: verb.id as `fr-${string}`,
+  language: 'fr',
+  auxiliary: verb.auxiliary as FrenchVerbEntry['auxiliary'],
+  tenseExamples: verb.tenseExamples.map(({ family, ...example }) => ({ ...example, tense: example.tense as Tense, ...(family ? { family: family as 'infinitive' | 'present' | 'participle' } : {}) })),
+}));
+export const FRENCH_SENTENCES: readonly SentenceEntry[] = frenchSentenceReference.sentences.map(sentence => ({
+  ...sentence, language: 'fr',
+  difficulty: { grammar: difficulty(sentence.difficulty.grammar), vocabulary: difficulty(sentence.difficulty.vocabulary) },
+  alternatives: sentence.alternatives.map(example => ({ ...example, tense: example.tense as Tense })),
+}));
+export const FRENCH_VERB_PHOTOS = frenchPhotoLedger.assets.map(asset => ({
+  ...asset, verbId: asset.content_id as `fr-${string}`,
+  alt: `${asset.nonvisual_cue_es} ${asset.context_es}`,
+}));
+export const ALL_VERBS: readonly VerbEntry[] = [...VERBS, ...FRENCH_VERBS];
+export const ALL_SENTENCES: readonly SentenceEntry[] = [...SENTENCES, ...FRENCH_SENTENCES];
+export function verbsForLanguage(language: LearningLanguage = 'en'): readonly VerbEntry[] { return language === 'fr' ? FRENCH_VERBS : VERBS; }
+export function sentencesForLanguage(language: LearningLanguage = 'en'): readonly SentenceEntry[] { return language === 'fr' ? FRENCH_SENTENCES : SENTENCES; }
+export function photosForLanguage(language: LearningLanguage = 'en') { return language === 'fr' ? FRENCH_VERB_PHOTOS : VERB_PHOTOS; }

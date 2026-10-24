@@ -18,7 +18,7 @@ async function fixture() {
   // Better Auth introspects every accessible schema; serialize fixture lifetimes, not tested operations.
   const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_usage_${randomUUID().replaceAll('-','')}`;
   await admin.query(`CREATE SCHEMA ${schema}`); const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
-  for (const name of ['p2-learning','p2-day-projection','p2-usage','p2-recovery']) await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`,import.meta.url),'utf8'));
+  for (const name of ['p2-learning','p2-day-projection','p2-usage','p2-recovery', 'learning-language']) await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`,import.meta.url),'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('student','student'),('other','student')");
   const identity = { userId: 'student' }; const repo = createLearningRepository(pool,identity,policy);
   const session = await repo.commands.create({mode:'verb-image',operationId:'create'});

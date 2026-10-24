@@ -5,7 +5,9 @@ import { SentenceLesson } from '../SentenceLesson';
 import { SentenceFixtureVoice } from './voice';
 import '../../../app/global.css';
 
-const voice = new SentenceFixtureVoice(new URLSearchParams(location.search).get('real') === '1' ? 'openai-realtime' : 'mock');
+const params = new URLSearchParams(location.search);
+const language = params.get('language') === 'fr' ? 'fr' : 'en';
+const voice = new SentenceFixtureVoice(params.get('real') === '1' ? 'openai-realtime' : 'mock');
 declare global { interface Window { sentenceFixture: { voice: SentenceFixtureVoice } } }
 window.sentenceFixture = { voice };
 function Preview() {
@@ -21,7 +23,7 @@ function Preview() {
     </div></details>
     <output data-testid="completion-count">{completed}</output>
     {mounted && <SentenceLesson voice={voice as VoiceAdapter} sessionId="sentence-browser" connectionState="ready"
-      settings={{ ...DEFAULT_SETTINGS, helpEnabled: true, difficulty, sentenceTense: 'present-perfect' }} onComplete={() => setCompleted(value => value + 1)}
+      settings={{ ...DEFAULT_SETTINGS, learningLanguage: language, helpEnabled: true, difficulty, sentenceTense: language === 'fr' ? 'fr-passe-compose' : 'present-perfect' }} onComplete={() => setCompleted(value => value + 1)}
       sessionControls={<button type="button" className="ll-button" onClick={() => voice.emit({ type: 'state', eventId: voice.id(), sessionId: voice.context.sessionId, state: 'offline' })}>Mock Stop session</button>} />}
   </main>;
 }

@@ -1,8 +1,10 @@
+import type { LearningLanguage } from '../../contracts';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { PictureInfo } from './PictureInfo';
 
 /** Reveals navigation on interaction while keeping the supplied word in view. */
-export function WordCue({ base, information, navigation, onHoldChange }: {
+export function WordCue({ base, information, navigation, onHoldChange, language = 'en' }: {
+  language?: LearningLanguage;
   base: string;
   information: string;
   navigation: ReactNode;
@@ -41,11 +43,11 @@ export function WordCue({ base, information, navigation, onHoldChange }: {
         event.stopPropagation();
       }
     }}>
-    <p className="ll-kicker">Supplied base form</p>
-    <p className="ll-base">{base}</p>
+    <p className="ll-kicker">{language === 'fr' ? 'Infinitivo' : 'Supplied base form'}</p>
+    <p className="ll-base" lang={language}>{base}</p>
     {navigation}
     <div className="verbs-word-information">
-      <PictureInfo label="Verb information" text={information} holdId={`${id}-info`} onHoldChange={onHoldChange} />
+      <PictureInfo language={language} label={language === 'fr' ? 'Información del verbo' : 'Verb information'} text={information} holdId={`${id}-info`} onHoldChange={onHoldChange} />
     </div>
   </div>;
 }
