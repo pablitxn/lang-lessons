@@ -17,8 +17,8 @@ stale-stage/attempt guards and no-spoiler envelopes remain required.
 
 `createMockVoiceAdapter()` and `createRealtimeVoiceAdapter()` implement
 `VoiceAdapter`. Root `LessonSession` supplies a memory-only `sessionId`, adapter,
-settings and completion callback through `LessonModuleProps`. It owns automatic
-startup on lesson entry, mute, pause/resume, lesson replacement and unmount cleanup.
+settings and completion callback through `LessonModuleProps`. It owns explicit
+phone-button startup, mute, pause/resume, lesson replacement and unmount cleanup.
 The application composes only the live adapter; test adapters stay in fixtures.
 Preference changes preserve the mounted session. Opening preferences emits a
 scoped `presentation-hold`; helper holds stay independent. The optional
@@ -87,16 +87,17 @@ accepted learner translation in memory and retains valid alternative constructio
 
 ## Local setup and limits
 
-`node scripts/dev-local.mjs` starts the frontend and broker together, explicitly
-disabling paid voice. It supplies `.env.local` to the broker through Node's env-file
-loader. Use `node scripts/dev-local.mjs --voice` for an explicit local paid-voice
-opt-in. Opening a lesson automatically requests microphone permission and starts
-the call; there is no separate session mode or Start step.
+`npm run dev` (or `node scripts/dev-local.mjs`) starts the frontend and broker
+together. The broker loads the optional `accounts.local/app.env` and then
+`.env.local` through Node's env-file loader; inherited variables take precedence.
+The launcher honors saved `ALLOW_PAID_VOICE`, with `--voice` / `--no-voice`
+overrides for one run. The credential example enables availability after a key is
+configured. Opening a lesson only checks availability. The phone button requests
+microphone permission and starts the call after the learner explicitly selects it.
 Ctrl-C stops both processes, and occupied ports are preserved. See the README's
 [credential setup](../README.md#credentials-and-live-voice).
 
-`npm run dev:voice` also binds `127.0.0.1:8787`, but reads only its process
-environment; that standalone command does not automatically load `.env.local`.
+`npm run dev:voice` also binds `127.0.0.1:8787` and loads the same optional env files.
 Without both server-only
 `OPENAI_API_KEY` and `ALLOW_PAID_VOICE=1`, session creation returns 503 and makes
 no provider call. The normal dev/preview servers proxy `/api/realtime` locally.

@@ -43,7 +43,7 @@ exact dependencies and start the frontend plus the local voice broker:
 
 ```sh
 npm ci --cache /tmp/lang-lessons-npm-cache
-node scripts/dev-local.mjs
+npm run dev
 ```
 
 Open `http://127.0.0.1:5174/`. Opening `http://localhost:5174/` in a browser
@@ -86,15 +86,18 @@ The explicit database migration includes account preferences, the single current
 practice pointer and per-mode reentry tracking for legacy saved sessions.
 
 The readiness message distinguishes calls that are turned off from missing server
-credentials. A retry cannot enable a disabled service; restart with the explicit
-voice option below when ready to use paid voice.
+credentials. A retry cannot enable a disabled service; enable it in the saved
+server configuration or use the explicit voice option below.
 
-The broker reads its credentials from `.env.local`; the launcher itself does not
-load secrets. Paid voice stays disabled, even if `ALLOW_PAID_VOICE=1` was
-inherited from the terminal. Ctrl-C stops both processes; either process exiting
-also stops the other. It checks
+The broker loads `accounts.local/app.env` when present, then `.env.local`; the
+launcher itself does not load secrets. Existing process variables take precedence
+over env files. The normal launch honors the saved `ALLOW_PAID_VOICE` value;
+copying `.env.example` and configuring a key makes the phone available by default.
+Set `ALLOW_PAID_VOICE=0` to keep it off, or use `npm run dev -- --no-voice` for one
+run. Availability never starts a call. Ctrl-C stops both processes; either process
+exiting also stops the other. It checks
 ports 5174 and 8787 before starting and preserves occupied listeners. For just
-the frontend, `npm run dev` remains available.
+the frontend, `npm run dev:frontend` remains available.
 
 Vite binds loopback on port 5174 with strict port selection. It does not kill an
 occupied listener or expose a public preview. The three hash routes reload
@@ -140,13 +143,16 @@ Practice requires a configured account service and login. For optional voice, us
 OpenAI project and server API key. Store the key as `OPENAI_API_KEY` in the ignored
 `.env.local` file, using [.env.example](.env.example) for the variable names. If
 the file already exists, preserve it; do not overwrite an existing credential.
-The broker does not automatically load env files with `npm run dev:voice` alone.
+`npm run dev:voice` loads the same optional account and credential files when
+starting only the broker.
 Never prefix a credential with `VITE_`; Vite exposes those variables to browsers.
 
-Stop the default local launcher before enabling live voice:
+With `ALLOW_PAID_VOICE=1` saved in `.env.local`, the normal `npm run dev` command
+keeps voice available across restarts. To override the saved setting for one run,
+stop the current launcher and use:
 
 ```sh
-node scripts/dev-local.mjs --voice
+npm run dev -- --voice
 ```
 
 Select a lesson, then explicitly start the tutor and allow the browser microphone prompt.
@@ -229,8 +235,9 @@ preferences does not delete learning records. Audio is never recorded; raw
 transcripts do not enter application progress/comment tables.
 
 Continuous voice uses one provider-neutral session and a same-origin SDP broker
-with permanent credentials only on the server. Run the disabled-by-default local
-broker with `npm run dev:voice`. See [voice integration](docs/voice-integration.md)
+with permanent credentials only on the server. Run the local broker with
+`npm run dev:voice`; it honors the saved voice configuration. Without
+`ALLOW_PAID_VOICE=1` and a key, calls stay unavailable. See [voice integration](docs/voice-integration.md)
 for adapter/controller APIs, setup, privacy and limits. Real calls require
 separately scoped credentials, budget and authorization; no real pronunciation,
 latency, retention or cost validation has occurred in this task.
