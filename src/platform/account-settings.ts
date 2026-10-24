@@ -8,7 +8,7 @@ export interface AccountSettingsApi {
 }
 export interface AccountSettingsSnapshot { settings: LearnerSettings; notice: string }
 
-const FIELDS = ['helpEnabled', 'untimedHelp', 'theme', 'sentenceTense', 'preferredMode', 'grammar', 'vocabulary'] as const;
+const FIELDS = ['learningLanguage', 'helpEnabled', 'untimedHelp', 'theme', 'sentenceTense', 'preferredMode', 'grammar', 'vocabulary'] as const;
 type Field = typeof FIELDS[number];
 const MIGRATION_OWNER_KEY = 'lang-lessons.account-settings.migration.v1';
 const MAX_CONFLICT_RETRIES = 2;
@@ -22,7 +22,7 @@ function merge(base: LearnerSettings, local: LearnerSettings, fields: Iterable<F
     if (field === 'grammar' || field === 'vocabulary') next.difficulty[field] = local.difficulty[field];
     else Object.assign(next, { [field]: local[field] });
   }
-  return next;
+  return parseSettings(next) ?? next;
 }
 function decodeEnvelope(input: unknown): AccountSettingsEnvelope {
   if (!record(input) || !Number.isSafeInteger(input.revision) || Number(input.revision) < 0) throw new Error('Invalid preferences revision');

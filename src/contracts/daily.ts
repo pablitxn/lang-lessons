@@ -1,11 +1,11 @@
 import type { PracticeEvent } from './progress';
-import type { LessonMode } from './curriculum';
+import type { LearningLanguage, LessonMode } from './curriculum';
 import type { FeedbackState, ProfessorComment } from './feedback';
 
 export interface ResultPage<T> { readonly items: readonly T[]; readonly nextCursor: string | null }
-export interface DailyResult { readonly event: PracticeEvent; readonly receivedAt: string; readonly timeZone: string; readonly committedRevision: number }
+export interface DailyResult { readonly language?: LearningLanguage; readonly event: PracticeEvent; readonly receivedAt: string; readonly timeZone: string; readonly committedRevision: number }
 export interface DailySession {
-  readonly sessionId: string; readonly mode: LessonMode; readonly startedAt: string | null; readonly closedAt: string | null;
+  readonly sessionId: string; readonly language?: LearningLanguage; readonly mode: LessonMode; readonly startedAt: string | null; readonly closedAt: string | null;
   readonly feedback: FeedbackState | null; readonly comment: ProfessorComment | null;
 }
 export interface DailyProgressPage {

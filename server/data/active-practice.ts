@@ -1,19 +1,19 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { ActivePractice, SessionSnapshot } from '../../src/contracts/session';
-import type { LessonMode } from '../../src/contracts/curriculum';
+import type { LearningLanguage, LessonMode } from '../../src/contracts/curriculum';
 import { authorize, type AuthenticatedIdentity } from '../accounts/authorization';
 import type { DataPolicy } from './repository';
-import { exactKeys, RepositoryError, requireId, transaction } from './database';
+import { exactKeys, RepositoryError, requireId, learningLanguage, transaction } from './database';
 import { finishUsage } from './usage';
 import { expireOutstandingCalls } from '../broker/lifetime';
 
-interface SessionRow { id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number }
+interface SessionRow { id: string; mode: LessonMode; language: LearningLanguage; status: 'open' | 'closed'; revision: number }
 interface OutstandingCall extends SessionRow { state: 'reserved' | 'created' }
-const snapshot = (row: SessionRow): SessionSnapshot => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision });
+const snapshot = (row: SessionRow): SessionSnapshot => ({ sessionId: row.id, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}), status: row.status, revision: row.revision });
 const callState = (rows: OutstandingCall[]): ActivePractice['callState'] => rows.some(row => row.state === 'reserved') ? 'uncertain' : rows.length ? 'active' : 'none';
 async function outstanding(client: PoolClient, userId: string, lifetimeMs?: number): Promise<OutstandingCall[]> {
-  return (await client.query<OutstandingCall>(`SELECT s.id,s.mode,s.status,s.revision,b.state FROM learning_broker_receipts b
+  return (await client.query<OutstandingCall>(`SELECT s.id,s.mode,s.language,s.status,s.revision,b.state FROM learning_broker_receipts b
     JOIN learning_sessions s ON s.id=b.session_id WHERE b.user_id=$1 AND b.state IN ('reserved','created')
     AND ($2::bigint IS NULL OR b.created_at+($2*interval '1 millisecond')>clock_timestamp())
     ORDER BY b.created_at,b.segment_id`, [userId, lifetimeMs ?? null])).rows;
@@ -44,7 +44,8 @@ export function createActivePracticeRepository(pool: Pool, policy: DataPolicy) {
       });
     },
     enter(identity: AuthenticatedIdentity, input: unknown): Promise<ActivePractice> {
-      exactKeys(input, ['mode', 'operationId']); requireId(input.operationId);
+      exactKeys(input, input && typeof input === 'object' && Object.hasOwn(input, 'language') ? ['mode', 'operationId', 'language'] : ['mode', 'operationId']); requireId(input.operationId);
+      const language = learningLanguage(input.language);
       if (typeof input.mode !== 'string' || !['verb-image', 'verb-visible', 'sentence'].includes(input.mode)) throw new RepositoryError('invalid-input');
       const mode = input.mode as LessonMode;
       return transaction(pool, async client => {
@@ -54,7 +55,7 @@ export function createActivePracticeRepository(pool: Pool, policy: DataPolicy) {
         await authorize(client, identity, policy.access, 'practice:own');
         if (!policy.allowStructuredStorage) throw new RepositoryError('policy-unresolved');
         await expireOutstandingCalls(client, identity.userId, policy.providerCallLifetimeMs);
-        const fingerprint = JSON.stringify(['enter', mode]);
+        const fingerprint = JSON.stringify(language === 'en' ? ['enter', mode] : ['enter', mode, language]);
         const receipt = (await client.query<{ fingerprint: string; result: { sessionId: string } }>(
           'SELECT fingerprint,result FROM learning_operations WHERE user_id=$1 AND operation_id=$2', [identity.userId, input.operationId])).rows[0];
         const current = (await client.query<SessionRow>(`SELECT s.* FROM learning_active_practice p JOIN learning_sessions s ON s.id=p.session_id
@@ -62,7 +63,7 @@ export function createActivePracticeRepository(pool: Pool, policy: DataPolicy) {
         // Retrying an old request must not reactivate a session after a subsequent mode switch.
         if (receipt && (receipt.fingerprint !== fingerprint || receipt.result.sessionId !== current?.id || current.status !== 'open')) throw new RepositoryError('conflict');
         const calls = await outstanding(client, identity.userId);
-        if (calls.some(row => row.mode !== mode || row.status !== 'open')) throw new RepositoryError('conflict');
+        if (calls.some(row => row.mode !== mode || row.language !== language || row.status !== 'open')) throw new RepositoryError('conflict');
 
         // Unbound/rejected/ended segments never established an outstanding provider call.
         // Reserved/created receipts are left intact until the learner explicitly ends the call.
@@ -78,11 +79,11 @@ export function createActivePracticeRepository(pool: Pool, policy: DataPolicy) {
         }
         if (revised.size) await client.query('UPDATE learning_sessions SET revision=revision+1 WHERE id=ANY($1::text[])', [[...revised]]);
 
-        const selectedId = calls[0]?.id ?? (current?.status === 'open' && current.mode === mode ? current.id : null);
+        const selectedId = calls[0]?.id ?? (current?.status === 'open' && current.mode === mode && current.language === language ? current.id : null);
         let selected = selectedId ? (await client.query<SessionRow>('SELECT * FROM learning_sessions WHERE id=$1 FOR UPDATE', [selectedId])).rows[0]
-          : (await client.query<SessionRow>(`SELECT * FROM learning_sessions WHERE user_id=$1 AND mode=$2 AND status='open'
-            ORDER BY last_entered_at DESC NULLS LAST,started_at DESC NULLS LAST,id DESC LIMIT 1 FOR UPDATE`, [identity.userId, mode])).rows[0];
-        if (!selected) selected = (await client.query<SessionRow>('INSERT INTO learning_sessions(id,user_id,mode) VALUES ($1,$2,$3) RETURNING *', [randomUUID(), identity.userId, mode])).rows[0]!;
+          : (await client.query<SessionRow>(`SELECT * FROM learning_sessions WHERE user_id=$1 AND mode=$2 AND language=$3 AND status='open'
+            ORDER BY last_entered_at DESC NULLS LAST,started_at DESC NULLS LAST,id DESC LIMIT 1 FOR UPDATE`, [identity.userId, mode, language])).rows[0];
+        if (!selected) selected = (await client.query<SessionRow>('INSERT INTO learning_sessions(id,user_id,mode,language) VALUES ($1,$2,$3,$4) RETURNING *', [randomUUID(), identity.userId, mode, language])).rows[0]!;
         if (current && current.id !== selected.id) await finishUsage(client, current.id);
         await client.query('UPDATE learning_sessions SET last_entered_at=clock_timestamp() WHERE id=$1', [selected.id]);
         await client.query(`INSERT INTO learning_active_practice(user_id,session_id) VALUES ($1,$2)

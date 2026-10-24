@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { VERB_IDS, type VerbMode } from '../src/contracts';
+import { getFormGuidance, VERB_IDS, type VerbMode } from '../src/contracts';
 import { createVerbSession, type VerbSession } from '../src/features/verbs/session';
 import { VerbFixtureAdapter } from '../src/features/verbs/__fixtures__/adapter';
 import { FakeClock } from './helpers/assessment-fixtures';
@@ -21,7 +21,7 @@ function spelling(session: VerbSession, voice: VerbFixtureAdapter) {
   assert.notEqual(context.mode, 'sentence');
   if (context.mode === 'sentence') throw new Error('Verb fixture expected');
   for (const form of session.fields) {
-    const value = context.verb.forms[form].accepted[0]!;
+    const value = getFormGuidance(context.verb, form)!.accepted[0]!;
     session.edit(form, value); session.finalize(form, value);
     voice.settle(voice.inputs.at(-1)!);
   }
@@ -350,7 +350,7 @@ test('both verb modes require every oral gate plus only their editable spelling 
     const next = session.getSnapshot();
     assert.equal(next.assessment.generation, 2);
     assert.notEqual(next.assessment.context.mode === 'sentence' ? '' : next.assessment.context.verb.id, 'be');
-    assert.ok(VERB_IDS.includes(next.assessment.context.mode === 'sentence' ? 'be' : next.assessment.context.verb.id));
+    assert.ok((VERB_IDS as readonly string[]).includes(next.assessment.context.mode === 'sentence' ? 'be' : next.assessment.context.verb.id));
     assert.deepEqual(next.drafts, { base: '', past: '', participle: '' });
     clock.advance(10000); assert.equal(completed.length, 1);
     session.dispose();

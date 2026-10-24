@@ -105,12 +105,12 @@ function AttributionZones({ page }: { page: DailyProgressPage & AttributionField
 function WrittenResult({ result }: { result: DailyResult & EventAttributionFields }) {
   const { event } = result;
   return <li><p><strong>{event.kind === 'attempt-result' ? event.result : 'Result invalidated'}</strong> · {event.ref.obligation}</p>
-    <dl><dt>Exercise</dt><dd>{event.ref.exerciseId}</dd><dt>Session</dt><dd>{event.ref.sessionId}</dd>
+    <dl><dt>Idioma</dt><dd>{result.language === 'fr' ? 'Francés' : 'Inglés'}</dd><dt>Exercise</dt><dd>{event.ref.exerciseId}</dd><dt>Session</dt><dd>{event.ref.sessionId}</dd>
       <dt>Received at</dt><dd>{result.receivedAt}</dd><dt>Attribution timezone</dt><dd>{result.timeZone ?? 'Unavailable in this response'}</dd><dt>Attempt</dt><dd>{event.ref.attemptId} · revision {event.ref.revision}</dd>
       <dt>Source / trust</dt><dd>{event.source} / {event.trust}</dd></dl>
   </li>;
 }
 function DailySessions({ sessions }: { sessions: readonly DailySession[] }) {
-  return <SessionComments sessions={sessions.map(session => ({ sessionId: session.sessionId, startedAt: session.startedAt, endedAt: session.closedAt,
+  return <SessionComments sessions={sessions.map(session => ({ sessionId: session.sessionId, language: session.language ?? 'en', startedAt: session.startedAt, endedAt: session.closedAt,
     feedback: session.feedback, comment: session.comment }))} />;
 }

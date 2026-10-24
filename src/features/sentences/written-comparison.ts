@@ -1,5 +1,5 @@
 import { alignGraphemes } from '../../assessment/spelling';
-import type { SentenceEntry } from '../../contracts';
+import type { LearningLanguage, SentenceEntry } from '../../contracts';
 
 /** UTF-16 code units, matching the native input maxLength attribute. */
 export const MAX_WRITTEN_TRANSLATION_LENGTH = 1000;
@@ -27,7 +27,7 @@ const contractions: Readonly<Record<string, string>> = {
   "mustn't": 'must not', "needn't": 'need not',
 };
 
-function normalize(text: string) {
+function normalize(text: string, language: LearningLanguage) {
   const graphemes = [...segmenter.segment(text)].map(part => part.segment);
   const units: Unit[] = [];
   graphemes.forEach((part, index) => {
@@ -40,6 +40,9 @@ function normalize(text: string) {
   while (units[0]?.value === ' ') units.shift();
   while (units.at(-1)?.value === ' ' || /^[.!?]$/u.test(units.at(-1)?.value ?? '')) units.pop();
 
+  // French elisions are grammatical forms, not English auxiliary contractions.
+  // Keep accents significant while normalizing Unicode and typographic apostrophes.
+  if (language === 'fr') return { graphemes, units };
   const expanded: Unit[] = [];
   for (let start = 0; start < units.length;) {
     if (!/^[a-z']$/u.test(units[start]!.value)) { expanded.push(units[start++]!); continue; }
@@ -57,10 +60,10 @@ function normalize(text: string) {
 }
 
 /** Generate ambiguous contractions only from explicit, authored auxiliaries. */
-function targetVariants(text: string): string[][] {
-  const normalized = normalize(text).units.map(unit => unit.value).join('');
+function targetVariants(text: string, language: LearningLanguage): string[][] {
+  const normalized = normalize(text, language).units.map(unit => unit.value).join('');
   const variants = new Set([normalized]);
-  const pending = [normalized];
+  const pending = language === 'fr' ? [] : [normalized];
   while (pending.length && variants.size < 32) {
     const current = pending.shift()!;
     for (const match of current.matchAll(/\b(i|you|he|she|it|we|they) (is|has|had|would)\b/gu)) {
@@ -78,15 +81,15 @@ function plainSegments(text: string): WrittenComparisonSegment[] {
 }
 
 /** Compare with authored examples; a different wording is not a linguistic rejection. */
-export function compareWrittenTranslation(text: string, alternatives: SentenceEntry['alternatives']): WrittenComparisonResult {
+export function compareWrittenTranslation(text: string, alternatives: SentenceEntry['alternatives'], language: LearningLanguage = alternatives.some(item => item.tense.startsWith('fr-')) ? 'fr' : 'en'): WrittenComparisonResult {
   const result = { submittedText: text, segments: plainSegments(text) };
   if (text.length > MAX_WRITTEN_TRANSLATION_LENGTH) return { ...result, status: 'too-long' };
-  const input = normalize(text);
+  const input = normalize(text, language);
   if (!input.units.length) return { ...result, status: 'empty' };
   const values = input.units.map(unit => unit.value);
   let closest: { alternative: Alternative; alignment: ReturnType<typeof alignGraphemes> } | undefined;
   for (const alternative of alternatives) {
-    for (const target of targetVariants(alternative.text)) {
+    for (const target of targetVariants(alternative.text, language)) {
       const alignment = alignGraphemes(values, target);
       if (alignment.distance === 0) return { ...result, status: 'matched', matchedAlternative: alternative };
       if (!closest || alignment.distance < closest.alignment.distance) closest = { alternative, alignment };

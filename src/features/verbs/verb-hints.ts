@@ -1,6 +1,6 @@
-import type { VerbId } from '../../contracts';
+import type { EnglishVerbId } from '../../contracts';
 
-export const VERB_HINTS: Readonly<Record<VerbId, string>> = {
+export const VERB_HINTS: Readonly<Record<EnglishVerbId, string>> = {
   be: 'A name, a place, a feeling: simply existing in the moment.',
   beat: 'A steady rhythm, again and again, until the eggs turn smooth.',
   become: 'A small seed slowly turns into something new.',

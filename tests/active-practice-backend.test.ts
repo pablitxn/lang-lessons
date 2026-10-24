@@ -44,14 +44,14 @@ const database = process.env.P2_DISPOSABLE_DATABASE_URL;
 const isolated = { skip: !database };
 const policy: DataPolicy = { allowStructuredStorage: true, activePractice: true, providerCallLifetimeMs: OPENAI_CALL_LIFETIME_MS, access: { grants: role => role === 'student' ? ['practice:own'] : [] } };
 const alice = { userId: 'alice' };
-async function fixture() {
+async function fixture(includeLanguage = true) {
   assert.ok(database); const url = new URL(database);
   assert.ok(['127.0.0.1', 'localhost'].includes(url.hostname) && url.pathname === '/p2_test');
   const admin = new Pool({ connectionString: database }); const guard = await admin.connect();
   await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))");
   const schema = `active_${randomUUID().replaceAll('-', '')}`; await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
-  for (const name of ['p2-learning', 'p2-day-projection', 'p2-usage', 'p2-call-history', 'active-practice', 'practice-reentry']) await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`, import.meta.url), 'utf8'));
+  for (const name of ['p2-learning', 'p2-day-projection', 'p2-usage', 'p2-call-history', 'active-practice', 'practice-reentry', ...(includeLanguage ? ['learning-language'] : [])]) await pool.query(await readFile(new URL(`../server/data/migrations/${name}.sql`, import.meta.url), 'utf8'));
   await pool.query(await readFile(new URL('../server/broker/receipts.sql', import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('alice','student'),('bob','student'),('professor','professor')");
   const active = createActivePracticeRepository(pool, policy);
@@ -302,5 +302,71 @@ test('entry validates exact input and rejects disabled or unauthorized users wit
     await f.pool.query("UPDATE learning_users SET disabled=true WHERE id='alice'");
     await assert.rejects(f.enter('sentence'), /forbidden/); await assert.rejects(f.active.readCurrent(alice), /forbidden/);
     assert.equal((await f.pool.query('SELECT * FROM learning_sessions')).rowCount, 0);
+  } finally { await f.cleanup(); }
+});
+
+
+test('language migration preserves English records and rejects unsupported persisted language', isolated, async () => {
+  const f = await fixture(false);
+  try {
+    await f.pool.query("INSERT INTO learning_sessions(id,user_id,mode) VALUES ('legacy-en','alice','sentence')");
+    const before = (await f.pool.query("SELECT * FROM learning_sessions WHERE id='legacy-en'")).rows[0];
+    await f.pool.query(await readFile(new URL('../server/data/migrations/learning-language.sql', import.meta.url), 'utf8'));
+    const after = (await f.pool.query("SELECT * FROM learning_sessions WHERE id='legacy-en'")).rows[0];
+    assert.deepEqual(after, { ...before, language: 'en' });
+    await f.pool.query(await readFile(new URL('../server/data/migrations/learning-language.sql', import.meta.url), 'utf8'));
+    assert.deepEqual((await f.pool.query("SELECT * FROM learning_sessions WHERE id='legacy-en'")).rows[0], after);
+    await assert.rejects(f.pool.query("UPDATE learning_sessions SET language='de' WHERE id='legacy-en'"), /check constraint/);
+    await assert.rejects(f.pool.query("UPDATE learning_sessions SET language=NULL WHERE id='legacy-en'"), /not-null constraint/);
+    assert.equal((await f.enter('sentence')).session.sessionId, 'legacy-en');
+  } finally { await f.cleanup(); }
+});
+
+test('French practice partitions all modes, preserves English progress, and rejects cross-language replay and obligations', isolated, async () => {
+  const f = await fixture();
+  try {
+    const ids = new Map<string, string>();
+    for (const language of ['en', 'fr'] as const) for (const mode of ['verb-image', 'verb-visible', 'sentence'] as const) {
+      const entries = await Promise.all(Array.from({ length: 4 }, () => f.active.enter(alice, { mode, language, operationId: randomUUID() })));
+      assert.equal(new Set(entries.map(entry => entry.session.sessionId)).size, 1);
+      const session = entries[0]!.session;
+      assert.equal(session.language ?? 'en', language); ids.set(`${language}:${mode}`, session.sessionId);
+      await f.repository.registerInstance({ sessionId: session.sessionId, exerciseId: `${language}-${mode}`, generation: 0 });
+      const event: PracticeEvent = { schemaVersion: 1, eventId: 'written', kind: 'attempt-result', source: 'typed', trust: 'client-reported', result: 'accepted',
+        ref: { sessionId: session.sessionId, exerciseId: `${language}-${mode}`, generation: 0, obligation: mode === 'sentence' ? 'written:translation' : language === 'fr' ? 'spelling:present' : 'spelling:past', attemptId: 'draft', revision: 1 } };
+      assert.equal((await f.repository.submit(session.sessionId, [event])).status, 'committed');
+      const wrong = { ...event, eventId: 'wrong-language', ref: { ...event.ref, revision: 2, obligation: language === 'fr' ? 'spelling:past' as const : 'spelling:present' as const } };
+      assert.equal((await f.repository.submit(session.sessionId, [wrong])).status, 'rejected');
+    }
+    assert.equal(new Set(ids.values()).size, 6);
+    for (let visit = 0; visit < 3; visit++) for (const language of ['en', 'fr'] as const) for (const mode of ['verb-image', 'verb-visible', 'sentence'] as const) {
+      const entry = await f.active.enter(alice, { mode, language, operationId: randomUUID() });
+      assert.equal(entry.session.sessionId, ids.get(`${language}:${mode}`));
+    }
+    assert.equal((await f.pool.query('SELECT * FROM learning_sessions')).rowCount, 6);
+    assert.equal((await f.pool.query('SELECT * FROM learning_events')).rowCount, 6);
+    assert.equal((await f.pool.query('SELECT * FROM learning_active_practice')).rowCount, 1);
+    const english = await f.active.enter(alice, { mode: 'sentence', language: 'en', operationId: 'same-key' });
+    await assert.rejects(f.active.enter(alice, { mode: 'sentence', language: 'fr', operationId: 'same-key' }), /conflict/);
+    assert.equal((await f.active.readCurrent(alice))?.session.sessionId, english.session.sessionId);
+    assert.throws(() => f.active.enter(alice, { mode: 'sentence', language: 'de', operationId: 'invalid-language' }), /invalid-input/);
+  } finally { await f.cleanup(); }
+});
+
+test('French calls and written hints bind to canonical language and block an active-call language switch', isolated, async () => {
+  const f = await fixture();
+  try {
+    const entry = await f.active.enter(alice, { mode: 'sentence', language: 'fr', operationId: 'french' });
+    assert.ok(f.broker.authorizeSentenceHint);
+    await f.broker.authorizeSentenceHint(alice, entry.session.sessionId, 'fr');
+    await assert.rejects(f.broker.authorizeSentenceHint(alice, entry.session.sessionId, 'en'), /conflict/);
+    await assert.rejects(f.broker.authorizeSentenceHint({ userId: 'bob' }, entry.session.sessionId, 'fr'), /not-found/);
+    const started = await f.repository.commands.startCall({ sessionId: entry.session.sessionId, expectedRevision: entry.session.revision, operationId: 'fr-call' });
+    const binding = await f.broker.reserve(alice, started.segment, 'fr-fixture-token');
+    assert.equal(binding.language, 'fr');
+    await assert.rejects(f.active.enter(alice, { mode: 'sentence', language: 'en', operationId: 'blocked' }), /conflict/);
+    await f.broker.ended(binding);
+    await f.active.enter(alice, { mode: 'sentence', language: 'en', operationId: 'english' });
+    await assert.rejects(f.broker.authorizeSentenceHint(alice, entry.session.sessionId, 'fr'), /conflict/);
   } finally { await f.cleanup(); }
 });

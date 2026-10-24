@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
-import type { LessonMode, ExerciseIdentity } from '../../src/contracts/curriculum';
+import type { LearningLanguage, LessonMode, ExerciseIdentity } from '../../src/contracts/curriculum';
 import type { SessionCommands, SessionSnapshot, SessionMutation, ConfirmCloseRequest, CloseResult } from '../../src/contracts/session';
 import type { FeedbackState } from '../../src/contracts/feedback';
 import type { ProgressBatchResult, PracticeEvent } from '../../src/contracts/progress';
+import { requiredObligations } from '../../src/contracts/policy';
 import { applyProgressBatch, parsePracticeEvent, MAX_PRACTICE_BATCH } from '../../src/foundation/progress-batch';
 import { authorize, denyUnresolvedGrants } from '../accounts/authorization';
 import type { AuthenticatedIdentity, AccessPolicy } from '../accounts/authorization';
@@ -11,7 +12,7 @@ import type { EvaluateClose } from './call-history';
 import { finishUsage } from './usage';
 import { requireActivePractice, requireNoOutstandingCall } from './active-practice';
 import { expireOutstandingCalls } from '../broker/lifetime';
-import { transaction, RepositoryError, requireId, requireRevision, exactKeys } from './database';
+import { transaction, RepositoryError, requireId, requireRevision, exactKeys, learningLanguage } from './database';
 
 export interface DataPolicy {
   /** An affirmative, externally approved storage policy is required. No retention duration is selected here. */
@@ -26,8 +27,8 @@ export interface DataPolicy {
   providerCallLifetimeMs?: number;
 }
 export const unresolvedDataPolicy: DataPolicy = { allowStructuredStorage: false, access: denyUnresolvedGrants };
-interface SessionRow { id: string; user_id: string; mode: LessonMode; status: 'open' | 'closed'; revision: number; journal_revision: number; next_epoch: number }
-const snapshot = (row: SessionRow): SessionSnapshot => ({ sessionId: row.id, mode: row.mode, status: row.status, revision: row.revision });
+interface SessionRow { id: string; user_id: string; mode: LessonMode; language: LearningLanguage; status: 'open' | 'closed'; revision: number; journal_revision: number; next_epoch: number }
+const snapshot = (row: SessionRow): SessionSnapshot => ({ sessionId: row.id, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}), status: row.status, revision: row.revision });
 function mutation(input: SessionMutation) {
   requireId(input.sessionId); requireId(input.operationId); requireRevision(input.expectedRevision);
 }
@@ -63,10 +64,11 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
   });
   const commands: SessionCommands = {
     create(input) {
-      exactKeys(input, ['mode', 'operationId']); requireId(input.operationId);
+      exactKeys(input, input && typeof input === 'object' && Object.hasOwn(input, 'language') ? ['mode', 'operationId', 'language'] : ['mode', 'operationId']); requireId(input.operationId);
+      const language = learningLanguage(input.language);
       if (!['verb-image', 'verb-visible', 'sentence'].includes(input.mode)) throw new RepositoryError('invalid-input');
-      return run(client => operation(client, identity.userId, input.operationId, JSON.stringify(['create', input.mode]), async () => {
-        const { rows } = await client.query<SessionRow>('INSERT INTO learning_sessions(id,user_id,mode) VALUES ($1,$2,$3) RETURNING *', [randomUUID(), identity.userId, input.mode]);
+      return run(client => operation(client, identity.userId, input.operationId, JSON.stringify(language === 'en' ? ['create', input.mode] : ['create', input.mode, language]), async () => {
+        const { rows } = await client.query<SessionRow>('INSERT INTO learning_sessions(id,user_id,mode,language) VALUES ($1,$2,$3,$4) RETURNING *', [randomUUID(), identity.userId, input.mode, language]);
         return snapshot(rows[0]!);
       }));
     },
@@ -152,6 +154,9 @@ export function createLearningRepository(pool: Pool, identity: AuthenticatedIden
         const parsed = input.map(parsePracticeEvent);
         if (parsed.some(event => !event || event.ref.sessionId !== sessionId)) return reject();
         const events = parsed as PracticeEvent[];
+        const allowed = new Set<string>(requiredObligations(row.mode, row.language));
+        if (row.mode === 'sentence') { allowed.add('written:translation'); allowed.add('written:tense'); }
+        if (events.some(event => !allowed.has(event.ref.obligation))) return reject();
         for (const event of events) {
           const found = await client.query('SELECT 1 FROM learning_instances WHERE session_id=$1 AND exercise_id=$2 AND generation=$3', [sessionId, event.ref.exerciseId, event.ref.generation]);
           if (!found.rowCount) return reject();

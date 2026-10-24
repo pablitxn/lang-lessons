@@ -28,3 +28,19 @@ test('practice entry rejects foreign modes, closed records and invented call sta
   const client = createApplicationClient(async () => Response.json(null));
   assert.equal(await client.practice.current(), null);
 });
+
+
+test('French entry is persisted in its request and rejects a response from another language', async () => {
+  const session = { sessionId: 'french', mode: 'sentence', language: 'fr', status: 'open', revision: 1 };
+  const client = createApplicationClient(async (_path, init) => {
+    assert.deepEqual(JSON.parse(String(init?.body)), { mode: 'sentence', language: 'fr', operationId: 'enter-french' });
+    return Response.json({ session, callState: 'none' });
+  });
+  assert.equal((await client.practice.enter({ mode: 'sentence', language: 'fr', operationId: 'enter-french' })).session.language, 'fr');
+  for (const language of ['en', 'de', null, undefined]) {
+    const mismatched = createApplicationClient(async () => Response.json({ session: { ...session, language }, callState: 'none' }));
+    await assert.rejects(mismatched.practice.enter({ mode: 'sentence', language: 'fr', operationId: 'entry' }));
+  }
+  const french = createApplicationClient(async () => Response.json({ session, callState: 'none' }));
+  await assert.rejects(french.practice.enter({ mode: 'sentence', operationId: 'english-entry' }));
+});

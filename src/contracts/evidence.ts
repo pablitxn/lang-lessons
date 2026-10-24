@@ -1,7 +1,7 @@
-import type { ExerciseIdentity, LessonMode, SentenceStage, VerbForm } from './curriculum';
+import type { ExerciseIdentity, LessonMode, SentenceStage, PracticeVerbForm } from './curriculum';
 
-export type VerbObligation = `spelling:${VerbForm}` | 'meaning'
-  | `pronunciation:${VerbForm}` | `sentence:${VerbForm}`;
+export type VerbObligation = `spelling:${PracticeVerbForm}` | 'meaning'
+  | `pronunciation:${PracticeVerbForm}` | `sentence:${PracticeVerbForm}`;
 export type SentenceObligation = 'translation' | 'tense' | 'structure' | 'meaning-fit';
 export type Obligation = VerbObligation | SentenceObligation;
 export type EvidenceStatus = 'not-attempted' | 'processing' | 'uncertain' | 'incorrect' | 'accepted';

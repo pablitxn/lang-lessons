@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { DEFAULT_SETTINGS, type CurrentUser, type LearnerSettings, type LessonMode } from '../contracts';
+import { DEFAULT_SETTINGS, type CurrentUser, type LearnerSettings, type LearningLanguage, type LessonMode } from '../contracts';
 import { browserStorage, loadSettings, saveSettings } from '../platform/settings-store';
 import { createAccountSettings, type AccountSettingsApi } from '../platform/account-settings';
 import { MODES, modeHref, resolveLessonRoute } from './routes';
@@ -8,7 +8,7 @@ import { PersistedLesson, type PersistedSessionServices } from './PersistedLesso
 import { Preferences } from './Preferences';
 import { LessonDialog, ReferenceTable } from '../ui/mobile';
 import { LessonToolsVisible } from '../ui/mobile/lesson-tools-context';
-import { TENSE_GUIDE } from '../content/tense-guide';
+import { getTenseGuide } from '../content/tense-guide';
 import { createRootNavigator } from './root-navigation';
 import { RootExitRegistration, type RegisterRootExit } from './navigation-context';
 import './global.css';
@@ -30,6 +30,9 @@ export interface AppProps {
 }
 export function App({ lessons = {}, renderLesson, requireExitRegistration = false, homeProgress, sessionServices, homeContent, onSignOut, accountEmail, account, profileSettings, preferencesApi }: AppProps) {
   const [settings, setSettings] = useState(() => preferencesApi ? { ...DEFAULT_SETTINGS, difficulty: { ...DEFAULT_SETTINGS.difficulty } } : loadSettings(browserStorage()));
+  const [settingsReady, setSettingsReady] = useState(!preferencesApi);
+  const [sessionLanguage, setSessionLanguage] = useState<LearningLanguage>(settings.learningLanguage);
+  const languageSwitchPending = useRef(false);
   const accountSettings = useRef<ReturnType<typeof createAccountSettings> | null>(null);
   const [mode, setMode] = useState(() => resolveLessonRoute(window.location.hash));
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -39,14 +42,20 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
     if (!account || !preferencesApi) return;
     const controller = createAccountSettings({ accountId: account.id, api: preferencesApi, storage: browserStorage() });
     accountSettings.current = controller;
+    let alive = true;
     const update = () => { const next = controller.getSnapshot(); setSettings(next.settings); setNotice(next.notice); };
     const unsubscribe = controller.subscribe(update);
     const sync = () => { void controller.sync(); };
     const visible = () => { if (document.visibilityState === 'visible') sync(); };
-    update(); sync();
+    update(); void controller.sync().finally(() => {
+      if (!alive) return;
+      setSessionLanguage(controller.getSnapshot().settings.learningLanguage);
+      setSettingsReady(true);
+    });
     window.addEventListener('online', sync);
     document.addEventListener('visibilitychange', visible);
     return () => {
+      alive = false;
       window.removeEventListener('online', sync); document.removeEventListener('visibilitychange', visible);
       unsubscribe(); controller.dispose(); accountSettings.current = null;
     };
@@ -96,11 +105,38 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
     return () => query.removeEventListener('change', update);
   }, [settings.theme]);
 
-  function updateSettings(next: LearnerSettings) {
+  function persistSettings(next: LearnerSettings) {
     if (accountSettings.current) { accountSettings.current.update(next); return; }
     setSettings(next);
     setNotice(saveSettings(next, browserStorage()) ? 'Preferences saved on this device.' : 'Preferences changed for this visit. Device storage is unavailable.');
   }
+  async function updateSettings(next: LearnerSettings) {
+    if (languageSwitchPending.current) return;
+    if (next.learningLanguage !== settings.learningLanguage && modeRef.current) {
+      languageSwitchPending.current = true;
+      setSettingsOpen(false);
+      try {
+        const exited = await navigator.current?.request('#/');
+        if (!exited || modeRef.current) return;
+        setSessionLanguage(next.learningLanguage);
+        const latest = accountSettings.current?.getSnapshot().settings ?? settings;
+        persistSettings({ ...latest, learningLanguage: next.learningLanguage, sentenceTense: next.sentenceTense });
+        setSettingsOpen(true);
+      } finally { languageSwitchPending.current = false; }
+      return;
+    }
+    persistSettings(next);
+  }
+  useEffect(() => {
+    if (!settingsReady || !mode) { setSessionLanguage(settings.learningLanguage); return; }
+    // A preference synced from another device must not replace a mounted curriculum.
+    if (settings.learningLanguage !== sessionLanguage && !languageSwitchPending.current) {
+      languageSwitchPending.current = true;
+      void navigator.current?.request('#/').finally(() => { languageSwitchPending.current = false; });
+    }
+  }, [settings.learningLanguage, settingsReady, mode, sessionLanguage]);
+  const learningSettings = mode ? { ...settings, learningLanguage: sessionLanguage } : settings;
+  const french = learningSettings.learningLanguage === 'fr';
   async function signOut() {
     if (!onSignOut || signOutPending.current) return;
     signOutPending.current = true; setSigningOut(true); setNavigationError('');
@@ -127,8 +163,8 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
   }}>
     <a href="#lesson" className="skip-link" onClick={event => { event.preventDefault(); document.getElementById('lesson')?.focus(); }}>Skip to lesson</a>
     <header className="app-header">
-      <a className="brand" href="#/" aria-label="English practice home">
-        <span className="brand-mark" aria-hidden="true">e.</span><span>English practice</span>
+      <a className="brand" href="#/" aria-label={french ? "Inicio de práctica de francés" : "English practice home"}>
+        <span className="brand-mark" aria-hidden="true">{french ? 'f.' : 'e.'}</span><span>{french ? 'Práctica de francés' : 'English practice'}</span>
       </a>
       <div className="app-header-actions">
         <div ref={setVoiceStatusTarget} className="header-voice-status" />
@@ -140,7 +176,7 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
     </header>
     {navigationError && <p role="alert">{navigationError}</p>}
     <main id="lesson" tabIndex={-1}>
-      {mode && current ? <>
+      {!settingsReady ? <p role="status">Cargando preferencias…</p> : mode && current ? <>
         <div className="lesson-heading">
           <a className="back-link" href="#/" aria-label="All lessons">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m10 6-6 6 6 6M4 12h16" /></svg>
@@ -150,22 +186,22 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
           <h1 aria-label={current.title}>{current.short}</h1>
         </div>
         <LessonToolsVisible.Provider value={false}>{sessionServices ?
-          <PersistedLesson key={`${sessionServices.actorId}:${mode}`} mode={mode} services={sessionServices} settings={settings}
+          <PersistedLesson key={`${sessionServices.actorId}:${sessionLanguage}:${mode}`} mode={mode} services={sessionServices} settings={learningSettings}
             preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget} renderLesson={renderLesson}
             fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} /> :
-          <LessonSession key={mode} mode={mode} settings={settings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
+          <LessonSession key={`${sessionLanguage}:${mode}`} mode={mode} settings={learningSettings} preferencesOpen={settingsOpen} voiceStatusTarget={voiceStatusTarget}
             renderLesson={renderLesson} fallback={lessons[mode] ?? <p>This lesson is unavailable.</p>} />}</LessonToolsVisible.Provider>
       </> : <section className="lesson-catalog" aria-labelledby="catalog-title" inert={signingOut}>
-        <div className="catalog-heading"><h1 id="catalog-title">Choose a lesson</h1><p>Pick a lesson and start writing. The voice tutor is optional.</p></div>
+        <div className="catalog-heading"><h1 id="catalog-title">{french ? 'Elegí una clase de francés' : 'Choose a lesson'}</h1><p>{french ? 'Practicá desde el español. Podés escribir y usar el tutor de voz cuando quieras.' : 'Pick a lesson and start writing. The voice tutor is optional.'}</p></div>
         <nav className="lesson-cards" aria-label="Lessons">
           {MODES.map((item, index) => <a className={`lesson-card lesson-card-${item.id}`} key={item.id}
             href={modeHref(item.id)} aria-label={`Start ${item.title}`} onClick={() => updateSettings({ ...settings, preferredMode: item.id })}>
             <div className="lesson-card-art" aria-hidden="true">
-              {item.id === 'verb-image' ? <div className="verb-card-forms picture-card-words"><span>see</span><span>think</span><span>say</span></div> : item.id === 'verb-visible'
-                ? <div className="verb-card-forms"><span>go</span><span>went</span><span>gone</span></div>
-                : <div className="sentence-card-words"><span>Hola.</span><span>Hello.</span></div>}
+              {item.id === 'verb-image' ? <div className="verb-card-forms picture-card-words"><span>{french ? 'voir' : 'see'}</span><span>{french ? 'penser' : 'think'}</span><span>{french ? 'dire' : 'say'}</span></div> : item.id === 'verb-visible'
+                ? <div className="verb-card-forms"><span>{french ? 'aller' : 'go'}</span><span>{french ? 'je vais' : 'went'}</span><span>{french ? 'allé' : 'gone'}</span></div>
+                : <div className="sentence-card-words"><span>Hola.</span><span>{french ? 'Bonjour.' : 'Hello.'}</span></div>}
             </div>
-            <div className="lesson-card-copy"><span className="eyebrow">Lesson 0{index + 1}</span><h2>{item.short}</h2><p>{item.description}</p>
+            <div className="lesson-card-copy"><span className="eyebrow">Lesson 0{index + 1}</span><h2>{french ? ({'verb-image':'Imágenes','verb-visible':'Verbos','sentence':'Frases'}[item.id]) : item.short}</h2><p>{french ? ({'verb-image':'Reconocé la acción y practicá las formas del verbo francés.','verb-visible':'Practicá el presente y el participio de 25 verbos irregulares.','sentence':'Traducí del español al francés y explicá la construcción.'}[item.id]) : item.description}</p>
               <span className="lesson-card-start">Start lesson <span aria-hidden="true">↗</span></span></div>
           </a>)}
         </nav>
@@ -175,8 +211,8 @@ export function App({ lessons = {}, renderLesson, requireExitRegistration = fals
             closeLabel="Close progress" onHoldChange={noHold}>
             {homeProgress ?? <p>No saved progress is available here yet.</p>}
           </LessonDialog>
-          <ReferenceTable title="Reference" caption="English tense reference" columns={['Tense', 'Structure and use']}
-            rows={TENSE_GUIDE.map(item => [item.label, item.guidance])} onHoldChange={noHold} />
+          <ReferenceTable title="Reference" caption={french ? "Referencia de tiempos franceses" : "English tense reference"} columns={['Tense', 'Structure and use']}
+            rows={getTenseGuide(learningSettings.learningLanguage).map(item => [item.label, item.guidance])} onHoldChange={noHold} />
         </nav>
       </section>}
     </main>

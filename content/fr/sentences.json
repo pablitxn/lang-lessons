@@ -1,0 +1,1441 @@
+{
+  "schemaVersion": 1,
+  "language": "fr",
+  "baseLanguage": "es",
+  "sentences": [
+    {
+      "id": "fr-sentence-present-g1-v1",
+      "language": "fr",
+      "spanish": "Yo estoy en casa.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je suis à la maison.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Yo estoy en casa."
+        },
+        {
+          "text": "Je suis chez moi.",
+          "tense": "fr-present",
+          "explanation": "Chez moi expresa «en mi casa». El presente suis concuerda con je."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo estoy en casa.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g1-v2",
+      "language": "fr",
+      "spanish": "Yo tomo el tren cada mañana.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Je prends le train chaque matin.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Yo tomo el tren cada mañana."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo tomo el tren cada mañana.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g1-v3",
+      "language": "fr",
+      "spanish": "Yo conozco las condiciones del contrato.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Je connais les conditions du contrat.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Yo conozco las condiciones del contrato."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo conozco las condiciones del contrato.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g2-v1",
+      "language": "fr",
+      "spanish": "Yo no bebo café.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne bois pas de café.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Yo no bebo café."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo no bebo café.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g2-v2",
+      "language": "fr",
+      "spanish": "¿Vosotros recibís el correo aquí?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Est-ce que vous recevez le courrier ici ?",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: ¿Vosotros recibís el correo aquí?"
+        },
+        {
+          "text": "Vous recevez le courrier ici ?",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Pregunta por entonación; el contexto mantiene el mismo sentido."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Vosotros recibís el correo aquí?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g2-v3",
+      "language": "fr",
+      "spanish": "¿Usted sabe cómo funciona este procedimiento?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Savez-vous comment fonctionne cette procédure ?",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: ¿Usted sabe cómo funciona este procedimiento?"
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Usted sabe cómo funciona este procedimiento?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g3-v1",
+      "language": "fr",
+      "spanish": "Cuando yo tengo hambre, hago una tortilla.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Quand j’ai faim, je fais une omelette.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Cuando yo tengo hambre, hago una tortilla."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Cuando yo tengo hambre, hago una tortilla.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g3-v2",
+      "language": "fr",
+      "spanish": "Yo sé que tú vienes mañana.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Je sais que tu viens demain.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Yo sé que tú vienes mañana."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo sé que tú vienes mañana.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-present-g3-v3",
+      "language": "fr",
+      "spanish": "Aunque el plazo es corto, nosotros podemos ofrecer una solución.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Même si le délai est court, nous pouvons offrir une solution.",
+          "tense": "fr-present",
+          "explanation": "Presente del indicativo: el verbo concuerda con el sujeto. Puede expresar estados, hábitos o hechos actuales; no necesita una forma continua equivalente al inglés. Traducción: Aunque el plazo es corto, nosotros podemos ofrecer una solución."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Aunque el plazo es corto, nosotros podemos ofrecer una solución.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g1-v1",
+      "language": "fr",
+      "spanish": "Ayer yo bebí agua.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Hier, j’ai bu de l’eau.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Ayer yo bebí agua."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Ayer yo bebí agua.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g1-v2",
+      "language": "fr",
+      "spanish": "Ayer yo recibí un paquete.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Hier, j’ai reçu un colis.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Ayer yo recibí un paquete."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Ayer yo recibí un paquete.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g1-v3",
+      "language": "fr",
+      "spanish": "Yo leí el informe esta mañana.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "J’ai lu le rapport ce matin.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Yo leí el informe esta mañana."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo leí el informe esta mañana.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g2-v1",
+      "language": "fr",
+      "spanish": "Ella salió de casa a las ocho.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Elle est sortie de la maison à huit heures.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Ella salió de casa a las ocho."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Ella salió de casa a las ocho.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g2-v2",
+      "language": "fr",
+      "spanish": "Nosotras fuimos a la estación ayer.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Nous sommes allées à la gare hier.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Nosotras fuimos a la estación ayer."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Nosotras fuimos a la estación ayer.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g2-v3",
+      "language": "fr",
+      "spanish": "Yo no pude cumplir el plazo.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Je n’ai pas pu respecter le délai.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Yo no pude cumplir el plazo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo no pude cumplir el plazo.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g3-v1",
+      "language": "fr",
+      "spanish": "Yo tomé las llaves y las puse sobre la mesa.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "J’ai pris les clés et je les ai mises sur la table.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Yo tomé las llaves y las puse sobre la mesa."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo tomé las llaves y las puse sobre la mesa.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g3-v2",
+      "language": "fr",
+      "spanish": "Las cartas que ella escribió llegaron ayer.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Les lettres qu’elle a écrites sont arrivées hier.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: Las cartas que ella escribió llegaron ayer."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Las cartas que ella escribió llegaron ayer.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-passe-compose-g3-v3",
+      "language": "fr",
+      "spanish": "La propuesta que nosotros recibimos nos permitió avanzar.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "La proposition que nous avons reçue nous a permis d’avancer.",
+          "tense": "fr-passe-compose",
+          "explanation": "Passé composé: avoir o être en presente + participio. Con être concuerda con el sujeto; con avoir revisa si hay un objeto directo anterior. Presenta un hecho terminado. Traducción: La propuesta que nosotros recibimos nos permitió avanzar."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: La propuesta que nosotros recibimos nos permitió avanzar.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g1-v1",
+      "language": "fr",
+      "spanish": "De niño, yo dormía mucho.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Quand j’étais enfant, je dormais beaucoup.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: De niño, yo dormía mucho."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: De niño, yo dormía mucho.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g1-v2",
+      "language": "fr",
+      "spanish": "Antes, yo iba al trabajo en tren.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Avant, j’allais au travail en train.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: Antes, yo iba al trabajo en tren."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Antes, yo iba al trabajo en tren.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g1-v3",
+      "language": "fr",
+      "spanish": "En esa época, yo conocía bien ese sector.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "À cette époque, je connaissais bien ce secteur.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: En esa época, yo conocía bien ese sector."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: En esa época, yo conocía bien ese sector.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g2-v1",
+      "language": "fr",
+      "spanish": "Antes, yo no bebía café.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Avant, je ne buvais pas de café.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: Antes, yo no bebía café."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Antes, yo no bebía café.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g2-v2",
+      "language": "fr",
+      "spanish": "¿Vosotros recibíais muchos clientes los lunes?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Est-ce que vous receviez beaucoup de clients le lundi ?",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: ¿Vosotros recibíais muchos clientes los lunes?"
+        },
+        {
+          "text": "Vous receviez beaucoup de clients le lundi ?",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Pregunta por entonación; el contexto mantiene el mismo sentido."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Vosotros recibíais muchos clientes los lunes?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g2-v3",
+      "language": "fr",
+      "spanish": "En aquella época, nosotros no sabíamos cómo resolver el problema.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "À cette époque, nous ne savions pas comment résoudre le problème.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: En aquella época, nosotros no sabíamos cómo resolver el problema."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: En aquella época, nosotros no sabíamos cómo resolver el problema.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g3-v1",
+      "language": "fr",
+      "spanish": "Mientras yo leía, mi hermana dormía.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Pendant que je lisais, ma sœur dormait.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: Mientras yo leía, mi hermana dormía."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Mientras yo leía, mi hermana dormía.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g3-v2",
+      "language": "fr",
+      "spanish": "Cuando vivíamos aquí, nosotros veníamos a este mercado cada sábado.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Quand nous habitions ici, nous venions à ce marché chaque samedi.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: Cuando vivíamos aquí, nosotros veníamos a este mercado cada sábado."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Cuando vivíamos aquí, nosotros veníamos a este mercado cada sábado.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-imparfait-g3-v3",
+      "language": "fr",
+      "spanish": "Como el presupuesto era limitado, nosotros debíamos elegir cuidadosamente.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Comme le budget était limité, nous devions choisir soigneusement.",
+          "tense": "fr-imparfait",
+          "explanation": "Imparfait: radical de nous en presente sin -ons y terminaciones -ais, -ais, -ait, -ions, -iez, -aient; être usa ét-. Describe hábitos, estados o acciones en curso en el pasado. Traducción: Como el presupuesto era limitado, nosotros debíamos elegir cuidadosamente."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Como el presupuesto era limitado, nosotros debíamos elegir cuidadosamente.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g1-v1",
+      "language": "fr",
+      "spanish": "Yo voy a hacer la cena.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je vais faire le dîner.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Yo voy a hacer la cena."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo voy a hacer la cena.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g1-v2",
+      "language": "fr",
+      "spanish": "Yo voy a tomar el tren esta tarde.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Je vais prendre le train cet après-midi.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Yo voy a tomar el tren esta tarde."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo voy a tomar el tren esta tarde.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g1-v3",
+      "language": "fr",
+      "spanish": "Yo voy a leer las condiciones del contrato.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Je vais lire les conditions du contrat.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Yo voy a leer las condiciones del contrato."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo voy a leer las condiciones del contrato.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g2-v1",
+      "language": "fr",
+      "spanish": "Yo no voy a salir esta noche.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne vais pas sortir ce soir.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Yo no voy a salir esta noche."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo no voy a salir esta noche.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g2-v2",
+      "language": "fr",
+      "spanish": "¿Usted va a recibir el paquete mañana?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Est-ce que vous allez recevoir le colis demain ?",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: ¿Usted va a recibir el paquete mañana?"
+        },
+        {
+          "text": "Vous allez recevoir le colis demain ?",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Pregunta por entonación; el contexto mantiene el mismo sentido."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Usted va a recibir el paquete mañana?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g2-v3",
+      "language": "fr",
+      "spanish": "Nosotros no vamos a poder respetar ese plazo.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Nous n’allons pas pouvoir respecter ce délai.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Nosotros no vamos a poder respetar ese plazo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Nosotros no vamos a poder respetar ese plazo.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g3-v1",
+      "language": "fr",
+      "spanish": "Yo voy a abrir la ventana porque hace calor.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je vais ouvrir la fenêtre parce qu’il fait chaud.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Yo voy a abrir la ventana porque hace calor."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo voy a abrir la ventana porque hace calor.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g3-v2",
+      "language": "fr",
+      "spanish": "Cuando llegues, nosotros vamos a preparar la cena.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Quand tu arriveras, nous allons préparer le dîner.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Cuando llegues, nosotros vamos a preparar la cena."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Cuando llegues, nosotros vamos a preparar la cena.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-proche-g3-v3",
+      "language": "fr",
+      "spanish": "Si tú aceptas la propuesta, nosotros vamos a poner el proyecto en marcha.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Si tu acceptes la proposition, nous allons mettre le projet en route.",
+          "tense": "fr-futur-proche",
+          "explanation": "Futur proche: aller en presente + infinitivo del verbo principal. La negación rodea al verbo aller. Una subordinada temporal puede llevar futuro simple aunque la acción principal use futur proche. Traducción: Si tú aceptas la propuesta, nosotros vamos a poner el proyecto en marcha."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Si tú aceptas la propuesta, nosotros vamos a poner el proyecto en marcha.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g1-v1",
+      "language": "fr",
+      "spanish": "Mañana yo iré al mercado.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Demain, j’irai au marché.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Mañana yo iré al mercado."
+        },
+        {
+          "text": "J’irai au marché demain.",
+          "tense": "fr-futur-simple",
+          "explanation": "El adverbio demain puede ir al final. Irai es futuro simple de aller para je."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Mañana yo iré al mercado.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g1-v2",
+      "language": "fr",
+      "spanish": "Yo recibiré el paquete el lunes.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Je recevrai le colis lundi.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Yo recibiré el paquete el lunes."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo recibiré el paquete el lunes.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g1-v3",
+      "language": "fr",
+      "spanish": "Yo conoceré los resultados la semana que viene.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Je connaîtrai les résultats la semaine prochaine.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Yo conoceré los resultados la semana que viene."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo conoceré los resultados la semana que viene.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g2-v1",
+      "language": "fr",
+      "spanish": "Yo no podré venir mañana.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne pourrai pas venir demain.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Yo no podré venir mañana."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo no podré venir mañana.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g2-v2",
+      "language": "fr",
+      "spanish": "¿Usted tomará el tren de las ocho?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Prendrez-vous le train de huit heures ?",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: ¿Usted tomará el tren de las ocho?"
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Usted tomará el tren de las ocho?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g2-v3",
+      "language": "fr",
+      "spanish": "Nosotros deberemos revisar las condiciones antes del viernes.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Nous devrons revoir les conditions avant vendredi.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Nosotros deberemos revisar las condiciones antes del viernes."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Nosotros deberemos revisar las condiciones antes del viernes.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g3-v1",
+      "language": "fr",
+      "spanish": "Cuando yo tenga tiempo, leeré este libro.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Quand j’aurai le temps, je lirai ce livre.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Cuando yo tenga tiempo, leeré este libro."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Cuando yo tenga tiempo, leeré este libro.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g3-v2",
+      "language": "fr",
+      "spanish": "Si hace buen tiempo, nosotros saldremos después del trabajo.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "S’il fait beau, nous sortirons après le travail.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: Si hace buen tiempo, nosotros saldremos después del trabajo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Si hace buen tiempo, nosotros saldremos después del trabajo.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-futur-simple-g3-v3",
+      "language": "fr",
+      "spanish": "En cuanto nosotros sepamos la respuesta, les escribiremos.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Dès que nous saurons la réponse, nous leur écrirons.",
+          "tense": "fr-futur-simple",
+          "explanation": "Futur simple: radical de futuro + -ai, -as, -a, -ons, -ez, -ont. Después de quand/dès que con referencia futura, el francés usa futuro donde el español suele usar subjuntivo. Después de si condicional, usa presente. Traducción: En cuanto nosotros sepamos la respuesta, les escribiremos."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: En cuanto nosotros sepamos la respuesta, les escribiremos.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g1-v1",
+      "language": "fr",
+      "spanish": "Yo quisiera un café, por favor.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je voudrais un café, s’il vous plaît.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Yo quisiera un café, por favor."
+        },
+        {
+          "text": "Je souhaiterais un café, s’il vous plaît.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Souhaiterais es otro condicional de cortesía; no se exige usar el mismo verbo del ejemplo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo quisiera un café, por favor.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g1-v2",
+      "language": "fr",
+      "spanish": "¿Podría usted abrir la ventana, por favor?",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Pourriez-vous ouvrir la fenêtre, s’il vous plaît ?",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: ¿Podría usted abrir la ventana, por favor?"
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Podría usted abrir la ventana, por favor?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g1-v3",
+      "language": "fr",
+      "spanish": "Yo querría conocer las condiciones antes de decidir.",
+      "difficulty": {
+        "grammar": 1,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Je voudrais connaître les conditions avant de décider.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Yo querría conocer las condiciones antes de decidir."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo querría conocer las condiciones antes de decidir.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g2-v1",
+      "language": "fr",
+      "spanish": "Yo no sabría qué decir.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Je ne saurais pas quoi dire.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Yo no sabría qué decir."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Yo no sabría qué decir.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g2-v2",
+      "language": "fr",
+      "spanish": "¿Usted vendría con nosotros?",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Viendriez-vous avec nous ?",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: ¿Usted vendría con nosotros?"
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: ¿Usted vendría con nosotros?",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g2-v3",
+      "language": "fr",
+      "spanish": "Nosotros no podríamos aceptar esa propuesta sin más información.",
+      "difficulty": {
+        "grammar": 2,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Nous ne pourrions pas accepter cette proposition sans plus d’informations.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Nosotros no podríamos aceptar esa propuesta sin más información."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Nosotros no podríamos aceptar esa propuesta sin más información.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g3-v1",
+      "language": "fr",
+      "spanish": "Si yo tuviera tiempo, leería este libro.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 1
+      },
+      "alternatives": [
+        {
+          "text": "Si j’avais le temps, je lirais ce livre.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Si yo tuviera tiempo, leería este libro."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Si yo tuviera tiempo, leería este libro.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g3-v2",
+      "language": "fr",
+      "spanish": "Si nosotros viviéramos cerca, vendríamos más a menudo.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 2
+      },
+      "alternatives": [
+        {
+          "text": "Si nous habitions près d’ici, nous viendrions plus souvent.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Si nosotros viviéramos cerca, vendríamos más a menudo."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Si nosotros viviéramos cerca, vendríamos más a menudo.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    },
+    {
+      "id": "fr-sentence-conditionnel-present-g3-v3",
+      "language": "fr",
+      "spanish": "Si el presupuesto lo permitiera, nosotros ofreceríamos una solución más completa.",
+      "difficulty": {
+        "grammar": 3,
+        "vocabulary": 3
+      },
+      "alternatives": [
+        {
+          "text": "Si le budget le permettait, nous offririons une solution plus complète.",
+          "tense": "fr-conditionnel-present",
+          "explanation": "Conditionnel présent: radical del futuro + terminaciones del imparfait. Expresa cortesía, deseo o hipótesis. En si + imparfait, la consecuencia lleva condicional; no se pone condicional inmediatamente después del si hipotético. Traducción: Si el presupuesto lo permitiera, nosotros ofreceríamos una solución más completa."
+        }
+      ],
+      "hintSeeds": [
+        "Identifica quién realiza la acción y qué relación temporal expresa la frase.",
+        "Revisa la concordancia, los acentos y la posición de la negación si aparece.",
+        "Distingue el verbo conjugado, su posible auxiliar y los complementos sin traducir palabra por palabra."
+      ],
+      "explanationRubric": {
+        "structure": "Explica la construcción realmente usada: sujeto, verbo conjugado, auxiliar si corresponde y concordancia. Nombrar un tiempo no basta. Si hay varias proposiciones, identifica el tiempo de la acción principal y distingue el de las subordinadas.",
+        "meaning": "Conserva el significado de esta frase española: Si el presupuesto lo permitiera, nosotros ofreceríamos una solución más completa.",
+        "usage": "Acepta paráfrasis gramaticales, inversiones de pregunta y cambios de orden compatibles con el sentido. El español es el idioma de explicación. Elige el tiempo escrito realmente, no el filtro de práctica. Si hay varias cláusulas, identifica el tiempo de la acción principal y explica por separado los de las subordinadas."
+      }
+    }
+  ]
+}

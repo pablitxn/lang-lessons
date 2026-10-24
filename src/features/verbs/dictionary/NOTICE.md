@@ -79,3 +79,14 @@ absence before all three correct forms, removal on edit, attributed snapshot
 asset, source/license links and explicit Next without oral completion. No real
 voice/device/account/provider acceptance is implied. Existing chunk-size warning
 remains (651.21 kB before gzip); downloadable dictionary JSON is 31.59 kB.
+
+## French dictionary extension (2026-10-24)
+
+`french.snapshot.json` contains selected French Wiktionnaire senses adapted into
+Spanish and reference IPA, with per-entry revision URLs and content hashes.
+Attribution: Wiktionnaire contributors, with Spanish adaptations by Lang Lessons.
+License: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+The snapshot records its modifications. Original curriculum examples are
+separately credited to Lang Lessons and are not source quotations. See
+[`content/fr/README.md`](../../../../content/fr/README.md) for scope and source
+review. No external dictionary request occurs during practice.

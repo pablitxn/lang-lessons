@@ -3,12 +3,12 @@ import type { EvidenceLedger } from '../../contracts';
 import { createAssessmentProgress } from '../progress/assessment-progress';
 import type { ProgressSink } from '../../contracts';
 import { assessSpelling, createAssessmentController, type AssessmentClock, type AssessmentController, type AssessmentSnapshot } from '../../assessment';
-import { VERB_PHOTOS, VERBS } from '../../content';
-import { hasValidEvidenceSource, isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type VerbForm, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
+import { photosForLanguage, verbsForLanguage } from '../../content';
+import { getVerbForms, hasValidEvidenceSource, isCurrentAttempt, sameExercise, type ExerciseContext, type ExerciseIdentity, type LearnerInput, type Obligation, type VerbEntry, type PracticeVerbForm, type LearningLanguage, type VerbMode, type VoiceAdapter, type VoiceEvent } from '../../contracts';
 
 export interface VerbSessionSnapshot {
   assessment: AssessmentSnapshot;
-  drafts: Readonly<Record<VerbForm, string>>;
+  drafts: Readonly<Partial<Record<PracticeVerbForm, string>>>;
   coachText: string;
   clarification: string;
   lastUtterance: string;
@@ -22,6 +22,7 @@ export interface VerbSessionOptions {
   voice: VoiceAdapter;
   sessionId: string;
   mode: VerbMode;
+  language?: LearningLanguage;
   onComplete: (exerciseId: string) => void;
   progressSink?: ProgressSink;
   writtenPracticeUserId?: string;
@@ -39,32 +40,38 @@ export interface VerbSessionOptions {
 interface PendingUtterance extends ExerciseIdentity { text: string; utteranceId: string; uncertain: boolean }
 interface HistoryEntry {
   verb: VerbEntry;
-  drafts: Record<VerbForm, string>;
-  finalized: readonly VerbForm[];
+  drafts: Partial<Record<PracticeVerbForm, string>>;
+  finalized: readonly PracticeVerbForm[];
   completed: boolean;
 }
 
 /** Feature orchestration only. The shared controller owns every evidence gate and timer. */
 export function createVerbSession(options: VerbSessionOptions) {
   const { voice, mode, sessionId } = options;
+  const language = options.language ?? 'en';
+  const verbs = verbsForLanguage(language);
+  const languagePhotos = photosForLanguage(language);
+  const forms = getVerbForms(verbs[0]!);
+  const emptyDrafts = (): Partial<Record<PracticeVerbForm, string>> => Object.fromEntries(forms.map(form => [form, '']));
+  const emptyRevisions = (): Partial<Record<PracticeVerbForm, number>> => Object.fromEntries(forms.map(form => [form, 0]));
   const namespace = options.namespace ?? crypto.randomUUID();
   const listeners = new Set<() => void>();
   const reportProgress = createAssessmentProgress(options.progressSink, () => { if (!disposed) options.onProgressError?.(); });
-  const fields: readonly VerbForm[] = mode === 'verb-image' ? ['base', 'past', 'participle'] : ['past', 'participle'];
+  const fields: readonly PracticeVerbForm[] = mode === 'verb-image' ? forms : forms.slice(1);
   let generation = 1;
   let restoredExerciseId: string | null = null;
   let oralEpoch = crypto.randomUUID();
   let restoring = false;
-  let spellingRestoreAttempts: Partial<Record<VerbForm, string>> = {};
-  let spellingOffsets: Partial<Record<VerbForm, number>> = {};
+  let spellingRestoreAttempts: Partial<Record<PracticeVerbForm, string>> = {};
+  let spellingOffsets: Partial<Record<PracticeVerbForm, number>> = {};
   let sequence = 0;
   let disposed = false;
   let initialized = false;
   let scheduledDrain = false;
-  let drafts: Record<VerbForm, string> = { base: '', past: '', participle: '' };
-  let draftRevisions: Record<VerbForm, number> = { base: 0, past: 0, participle: 0 };
-  let submittedRevisions: Partial<Record<VerbForm, number>> = {};
-  let coachText = 'Say the meaning in Spanish, pronounce all three forms, and make one original sentence for each. Any order works.';
+  let drafts = emptyDrafts();
+  let draftRevisions = emptyRevisions();
+  let submittedRevisions: Partial<Record<PracticeVerbForm, number>> = {};
+  let coachText = language === 'fr' ? 'Decí el significado en español, pronunciá el infinitivo, la forma de je en presente y el participio; creá una oración natural con cada forma.' : 'Say the meaning in Spanish, pronounce all three forms, and make one original sentence for each. Any order works.';
   let clarification = '';
   let lastUtterance = '';
   let question = '';
@@ -80,13 +87,13 @@ export function createVerbSession(options: VerbSessionOptions) {
   const initialEvents: VoiceEvent[] = [];
   const queueHold = `${namespace}-queued-utterances`;
   const reviewHold = `${namespace}-completed-review`;
-  const photoBags = new Map<VerbEntry['id'], (typeof VERB_PHOTOS)[number][]>();
+  const photoBags = new Map<VerbEntry['id'], (typeof languagePhotos)[number][]>();
   const lastPhotos = new Map<VerbEntry['id'], string>();
   const history = shuffledDeck();
   let historyIndex = 0;
 
   function newEntry(verb: VerbEntry): HistoryEntry {
-    return { verb, drafts: { base: '', past: '', participle: '' }, finalized: [], completed: false };
+    return { verb, drafts: emptyDrafts(), finalized: [], completed: false };
   }
   function shuffle<T>(items: T[]): T[] {
     for (let index = 0; index < items.length - 1; index++) {
@@ -102,7 +109,7 @@ export function createVerbSession(options: VerbSessionOptions) {
   function withNextPhoto(verb: VerbEntry): VerbEntry {
     let photos = photoBags.get(verb.id);
     if (!photos?.length) {
-      photos = shuffle(VERB_PHOTOS.filter(photo => photo.verbId === verb.id));
+      photos = shuffle(languagePhotos.filter(photo => photo.verbId === verb.id));
       if (!photos.length) throw new Error(`No reviewed photograph for ${verb.id}.`);
       if (photos.length > 1 && photos[0]!.src === lastPhotos.get(verb.id)) {
         [photos[0], photos[1]] = [photos[1]!, photos[0]!];
@@ -115,15 +122,15 @@ export function createVerbSession(options: VerbSessionOptions) {
   }
   function shuffledDeck(previous?: VerbEntry): HistoryEntry[] {
     // Every round contains each verb once, regardless of its photo collection size.
-    const verbs = shuffle([...VERBS]);
-    if (verbs.length > 1 && verbs[0]!.id === previous?.id) {
-      [verbs[0], verbs[1]] = [verbs[1]!, verbs[0]!];
+    const deck = shuffle([...verbs]);
+    if (deck.length > 1 && deck[0]!.id === previous?.id) {
+      [deck[0], deck[1]] = [deck[1]!, deck[0]!];
     }
     // Photo bags are consumed only for new rounds, never while revisiting history.
-    return verbs.map(verb => newEntry(mode === 'verb-image' ? withNextPhoto(verb) : verb));
+    return deck.map(verb => newEntry(mode === 'verb-image' ? withNextPhoto(verb) : verb));
   }
   function context(verb: VerbEntry): ExerciseContext {
-    return { sessionId, exerciseId: restoredExerciseId ?? `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, verb };
+    return { sessionId, exerciseId: restoredExerciseId ?? `${namespace}:${mode}:${verb.id}:${generation}`, generation, mode, language, verb };
   }
   function visit(index: number) {
     if (disposed || options.canWrite?.() === false || index === historyIndex || !history[index]) return false;
@@ -135,7 +142,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     historyIndex = index;
     restoredExerciseId = null; spellingOffsets = {}; spellingRestoreAttempts = {};
     generation++; drafts = { ...next.drafts }; queue = []; heard = new Set();
-    draftRevisions = { base: 0, past: 0, participle: 0 }; submittedRevisions = {};
+    draftRevisions = emptyRevisions(); submittedRevisions = {};
     hintTargetKey = ''; hintLevel = 1; lastUtterance = ''; clarification = '';
     pendingHintId = ''; pendingQuestionId = ''; question = '';
     coachText = 'Keep speaking naturally, and ask questions whenever you need.';
@@ -144,13 +151,13 @@ export function createVerbSession(options: VerbSessionOptions) {
     // Retain only typed work. Each visit has fresh refs, and oral/provider work
     // from a previous visit can never be replayed into the current exercise.
     for (const form of next.finalized) {
-      if (!drafts[form].trim()) continue;
+      if (!(drafts[form] ?? '').trim()) continue;
       const refs = controller.beginAttempt([`spelling:${form}`]);
       const snapshot = controller.getSnapshot();
       const inputId = `restored-spelling-${form}-${++sequence}`;
       controller.applyBatch({ ...snapshot.context, eventId: inputId,
-        results: refs.map(ref => assessSpelling(snapshot.context, ref, drafts[form], inputId)) });
-      submittedRevisions[form] = draftRevisions[form];
+        results: refs.map(ref => assessSpelling(snapshot.context, ref, drafts[form] ?? '', inputId)) });
+      submittedRevisions[form] = draftRevisions[form] ?? 0;
     }
     // A previously completed exercise remains editable for review; advancing
     // from it is manual and must not report the same completion again.
@@ -191,17 +198,17 @@ export function createVerbSession(options: VerbSessionOptions) {
     if (disposed || options.canWrite?.() === false || !snapshotObject(value) || Object.keys(value).length !== 8
       || value.schemaVersion !== 1 || value.kind !== mode || !options.writtenPracticeUserId || value.userId !== options.writtenPracticeUserId
       || !snapshotIdentity(value.identity, sessionId) || value.identity.exerciseId === controller.getSnapshot().exerciseId || !snapshotObject(value.drafts) || Object.keys(value.drafts).length !== 3
-      || !Object.values(value.drafts).every(draft => typeof draft === 'string' && draft.length <= 1000) || !['base','past','participle'].every(form => Object.hasOwn(value.drafts as object, form))
+      || !Object.values(value.drafts).every(draft => typeof draft === 'string' && draft.length <= 1000) || !forms.every(form => Object.hasOwn(value.drafts as object, form))
       || !Array.isArray(value.records) || value.records.length > fields.length) return false;
-    const verb = VERBS.find(item => item.id === value.verbId); if (!verb) return false;
-    const photo = VERB_PHOTOS.find(item => item.verbId === verb.id && item.src === value.photoSrc);
+    const verb = verbs.find(item => item.id === value.verbId); if (!verb) return false;
+    const photo = languagePhotos.find(item => item.verbId === verb.id && item.src === value.photoSrc);
     if (mode === 'verb-image' ? !photo : value.photoSrc !== verb.image.src) return false;
-    const forms = new Set<string>();
+    const restoredForms = new Set<string>();
     for (const record of value.records) {
-      if (!snapshotObject(record) || Object.keys(record).length !== 4 || !fields.includes(record.form as VerbForm) || forms.has(record.form as string)
+      if (!snapshotObject(record) || Object.keys(record).length !== 4 || !fields.includes(record.form as PracticeVerbForm) || restoredForms.has(record.form as string)
         || !Number.isSafeInteger(record.revision) || (record.revision as number) < 1 || !snapshotId(record.attemptId)
         || typeof record.finalized !== 'boolean' || record.finalized && !(value.drafts[record.form as string] as string).trim()) return false;
-      forms.add(record.form as string);
+      restoredForms.add(record.form as string);
     }
     const saved = value as unknown as VerbWrittenSnapshot;
     restoring = true;
@@ -214,7 +221,7 @@ export function createVerbSession(options: VerbSessionOptions) {
       historyIndex = 0;
       const selected = photo ? { ...verb, image: { src: photo.src, alt: photo.alt, attribution: photo.attribution } } : verb;
       history[0] = newEntry(selected); drafts = { ...saved.drafts }; submittedRevisions = {};
-      draftRevisions = { base: 0, past: 0, participle: 0 }; spellingOffsets = {}; spellingRestoreAttempts = {};
+      draftRevisions = emptyRevisions(); spellingOffsets = {}; spellingRestoreAttempts = {};
       controller.startExercise(context(selected));
       for (const record of saved.records) {
         spellingOffsets[record.form] = record.revision - 1; spellingRestoreAttempts[record.form] = record.attemptId;
@@ -223,7 +230,7 @@ export function createVerbSession(options: VerbSessionOptions) {
           const refs = controller.beginAttempt([obligation], record.attemptId);
           const current = controller.getSnapshot();
           controller.applyBatch({ sessionId, exerciseId: current.exerciseId, generation, eventId: `local-restore-${crypto.randomUUID()}`,
-            results: refs.map(ref => assessSpelling(current.context, ref, drafts[record.form], 'local-restore')) });
+            results: refs.map(ref => assessSpelling(current.context, ref, drafts[record.form] ?? '', 'local-restore')) });
           submittedRevisions[record.form] = 0;
         } else controller.invalidate(obligation);
       }
@@ -375,11 +382,11 @@ export function createVerbSession(options: VerbSessionOptions) {
   publish();
   for (const event of initialEvents) handleEvent(event);
 
-  function finalize(form: VerbForm, value: string) {
+  function finalize(form: PracticeVerbForm, value: string) {
     if (disposed || options.canWrite?.() === false || !fields.includes(form) || value !== drafts[form] || !value.trim()) return;
     // Controller refs change from editing to processing; that is not a new draft.
     if (submittedRevisions[form] === draftRevisions[form]) return;
-    submittedRevisions[form] = draftRevisions[form];
+    submittedRevisions[form] = draftRevisions[form] ?? 0;
     const refs = controller.beginAttempt([`spelling:${form}`]);
     if (!refs.length) return;
     const snapshot = controller.getSnapshot();
@@ -388,13 +395,13 @@ export function createVerbSession(options: VerbSessionOptions) {
   }
 
   return {
-    mode, sessionId, voice, fields, controller, snapshotWrittenPractice, restoreWrittenPractice,
+    mode, language, sessionId, voice, fields, controller, snapshotWrittenPractice, restoreWrittenPractice,
     getSnapshot: () => view,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
-    edit(form: VerbForm, value: string) {
+    edit(form: PracticeVerbForm, value: string) {
       if (disposed || options.canWrite?.() === false || controller.getSnapshot().completed || !fields.includes(form)) return;
       drafts = { ...drafts, [form]: value };
-      draftRevisions[form]++;
+      draftRevisions[form] = (draftRevisions[form] ?? 0) + 1;
       controller.invalidate(`spelling:${form}`);
     },
     finalize,
@@ -406,10 +413,10 @@ export function createVerbSession(options: VerbSessionOptions) {
     // Explicit history navigation never reports completion.
     skip: startNext,
     previous,
-    retrySpelling(form: VerbForm) {
+    retrySpelling(form: PracticeVerbForm) {
       if (disposed || controller.getSnapshot().evidence[`spelling:${form}`]?.status !== 'uncertain') return;
       delete submittedRevisions[form];
-      finalize(form, drafts[form]);
+      finalize(form, drafts[form] ?? '');
     },
     ask(text: string) {
       if (disposed || !text.trim()) return;

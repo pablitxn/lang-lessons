@@ -25,6 +25,7 @@ async function fixture() {
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
   const migration = await readFile(new URL('../server/data/migrations/p2-learning.sql', import.meta.url), 'utf8');
   await transaction(pool, async client => { await client.query(migration); });
+  await pool.query(await readFile(new URL('../server/data/migrations/learning-language.sql', import.meta.url), 'utf8'));
   await pool.query(await readFile(new URL('../server/data/migrations/p2-day-projection.sql', import.meta.url), 'utf8'));
   await pool.query(await readFile(new URL('../server/data/migrations/p2-usage.sql', import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('alice','student'),('bob','student'),('prof','professor'),('admin','administrator')");

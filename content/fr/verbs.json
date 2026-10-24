@@ -1,0 +1,2899 @@
+{
+  "schemaVersion": 1,
+  "language": "fr",
+  "baseLanguage": "es",
+  "verbs": [
+    {
+      "id": "fr-etre",
+      "language": "fr",
+      "lemma": "être",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "être"
+          ],
+          "ipa": "/ɛtʁ/",
+          "spanishSoundGuide": "«etr», e abierta y r francesa suave; la e final no suena."
+        },
+        "present": {
+          "accepted": [
+            "suis"
+          ],
+          "ipa": "/sɥi/",
+          "spanishSoundGuide": "«süi»: desliza una u con labios redondeados hacia i."
+        },
+        "participle": {
+          "accepted": [
+            "été"
+          ],
+          "ipa": "/e.te/",
+          "spanishSoundGuide": "«eté», dos vocales e cerradas."
+        }
+      },
+      "spanishMeanings": [
+        "ser",
+        "estar"
+      ],
+      "image": {
+        "src": "/images/verbs/be-375801.jpg",
+        "alt": "Una persona sentada junto al mar. Piensa en el estado o lugar de la persona: estar en ese lugar.",
+        "attribution": "Photo: Atlantic Ambience / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère être à la maison."
+        ],
+        "present": [
+          "Je suis à la maison."
+        ],
+        "participle": [
+          "J’ai été à la maison."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "suis"
+        },
+        {
+          "pronoun": "tu",
+          "form": "es"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "est"
+        },
+        {
+          "pronoun": "nous",
+          "form": "sommes"
+        },
+        {
+          "pronoun": "vous",
+          "form": "êtes"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "sont"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je suis à la maison. → Estoy en casa.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Être se conjuga con avoir en passé composé: j’ai été. No escribas je suis été."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je suis à la maison.",
+          "explanation": "Presente: Estoy en casa. Traducción: Estoy en casa."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai été à la maison.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Estuve en casa."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’étais à la maison.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Estaba en casa."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais être à la maison.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a estar en casa."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je serai à la maison.",
+          "explanation": "Futuro simple: radical ser- y terminación -ai para je. No usa aller como auxiliar. Traducción: Estaré en casa."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je serais à la maison.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Estaría en casa."
+        }
+      ]
+    },
+    {
+      "id": "fr-avoir",
+      "language": "fr",
+      "lemma": "avoir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "avoir"
+          ],
+          "ipa": "/a.vwaʁ/",
+          "spanishSoundGuide": "«avuár», con r francesa."
+        },
+        "present": {
+          "accepted": [
+            "ai"
+          ],
+          "ipa": "/e/",
+          "spanishSoundGuide": "«é», una sola vocal."
+        },
+        "participle": {
+          "accepted": [
+            "eu"
+          ],
+          "ipa": "/y/",
+          "spanishSoundGuide": "No es «eu»: /y/ se hace con lengua de i y labios de u."
+        }
+      },
+      "spanishMeanings": [
+        "tener",
+        "haber"
+      ],
+      "image": {
+        "src": "/images/verbs/bite-1753470.jpg",
+        "alt": "Un hombre clava los dientes en una manzana que sostiene con las manos. La persona tiene una manzana. Piensa en posesión, no en morder.",
+        "attribution": "Photo: Rafael Barros / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère avoir un livre."
+        ],
+        "present": [
+          "J’ai un livre."
+        ],
+        "participle": [
+          "J’ai eu un livre."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "ai"
+        },
+        {
+          "pronoun": "tu",
+          "form": "as"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "a"
+        },
+        {
+          "pronoun": "nous",
+          "form": "avons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "avez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "ont"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: J’ai un livre. → Tengo un libro.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Para la edad y hambre/sed se usa avoir: j’ai vingt ans; j’ai faim; j’ai soif."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "J’ai un livre.",
+          "explanation": "Presente: Tengo un libro. Traducción: Tengo un libro."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai eu un livre.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Tuve un libro."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’avais un livre.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Tenía un libro."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais avoir un livre.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a tener un libro."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "J’aurai un livre.",
+          "explanation": "Futuro simple: radical aur- y terminación -ai para je. No usa aller como auxiliar. Traducción: Tendré un libro."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "J’aurais un livre.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Tendría un libro."
+        }
+      ]
+    },
+    {
+      "id": "fr-aller",
+      "language": "fr",
+      "lemma": "aller",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "aller"
+          ],
+          "ipa": "/a.le/",
+          "spanishSoundGuide": "«alé»; la r del infinitivo no se pronuncia."
+        },
+        "present": {
+          "accepted": [
+            "vais"
+          ],
+          "ipa": "/vɛ/",
+          "spanishSoundGuide": "«ve», con e abierta; la s no suena."
+        },
+        "participle": {
+          "accepted": [
+            "allé"
+          ],
+          "ipa": "/a.le/",
+          "spanishSoundGuide": "«alé»; el acento indica e cerrada."
+        }
+      },
+      "spanishMeanings": [
+        "ir"
+      ],
+      "image": {
+        "src": "/images/verbs/come-10287718.jpg",
+        "alt": "Una niña se acerca a una mujer sentada junto a una moto en la calle. Imagina el trayecto hacia un lugar: ir de un lugar a otro. La dirección depende del contexto.",
+        "attribution": "Photo: Abdulla Hafeez / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère aller au marché."
+        ],
+        "present": [
+          "Je vais au marché."
+        ],
+        "participle": [
+          "Je suis allé au marché."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "vais"
+        },
+        {
+          "pronoun": "tu",
+          "form": "vas"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "va"
+        },
+        {
+          "pronoun": "nous",
+          "form": "allons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "allez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "vont"
+        }
+      ],
+      "auxiliary": "être",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo).",
+        "Presente: Je vais au marché. → Voy al mercado.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je vais au marché.",
+          "explanation": "Presente: Voy al mercado. Traducción: Voy al mercado."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "Je suis allé au marché.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo). Traducción: Fui al mercado."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’allais au marché.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Iba al mercado."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais aller au marché.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a ir al mercado."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "J’irai au marché.",
+          "explanation": "Futuro simple: radical ir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Iré al mercado."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "J’irais au marché.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Iría al mercado."
+        }
+      ]
+    },
+    {
+      "id": "fr-faire",
+      "language": "fr",
+      "lemma": "faire",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "faire"
+          ],
+          "ipa": "/fɛʁ/",
+          "spanishSoundGuide": "«fer», e abierta y r francesa."
+        },
+        "present": {
+          "accepted": [
+            "fais"
+          ],
+          "ipa": "/fɛ/",
+          "spanishSoundGuide": "«fe», e abierta; ni s ni t se oyen."
+        },
+        "participle": {
+          "accepted": [
+            "fait"
+          ],
+          "ipa": "/fɛ/",
+          "spanishSoundGuide": "«fe», e abierta; la t final no suena."
+        }
+      },
+      "spanishMeanings": [
+        "hacer"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5905850.jpg",
+        "alt": "Dos niños realizan una tarea escolar en una mesa. La escena de estudio sirve para pensar en realizar una tarea: hacer algo.",
+        "attribution": "Photo: Katerina Holmes / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère faire mes devoirs."
+        ],
+        "present": [
+          "Je fais mes devoirs."
+        ],
+        "participle": [
+          "J’ai fait mes devoirs."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "fais"
+        },
+        {
+          "pronoun": "tu",
+          "form": "fais"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "fait"
+        },
+        {
+          "pronoun": "nous",
+          "form": "faisons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "faites"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "font"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je fais mes devoirs. → Hago mis deberes.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je fais mes devoirs.",
+          "explanation": "Presente: Hago mis deberes. Traducción: Hago mis deberes."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai fait mes devoirs.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Hice mis deberes."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je faisais mes devoirs.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Hacía mis deberes."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais faire mes devoirs.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a hacer mis deberes."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je ferai mes devoirs.",
+          "explanation": "Futuro simple: radical fer- y terminación -ai para je. No usa aller como auxiliar. Traducción: Haré mis deberes."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je ferais mes devoirs.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Haría mis deberes."
+        }
+      ]
+    },
+    {
+      "id": "fr-dire",
+      "language": "fr",
+      "lemma": "dire",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "dire"
+          ],
+          "ipa": "/diʁ/",
+          "spanishSoundGuide": "«dir», con r francesa."
+        },
+        "present": {
+          "accepted": [
+            "dis"
+          ],
+          "ipa": "/di/",
+          "spanishSoundGuide": "«di»; la s final no suena."
+        },
+        "participle": {
+          "accepted": [
+            "dit"
+          ],
+          "ipa": "/di/",
+          "spanishSoundGuide": "«di»; la t final no suena."
+        }
+      },
+      "spanishMeanings": [
+        "decir"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5905850.jpg",
+        "alt": "Dos niños realizan una tarea escolar en una mesa. Imagina comunicar una respuesta en voz alta: decir algo. El habla no se puede comprobar en la foto.",
+        "attribution": "Photo: Katerina Holmes / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère dire la vérité."
+        ],
+        "present": [
+          "Je dis la vérité."
+        ],
+        "participle": [
+          "J’ai dit la vérité."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "dis"
+        },
+        {
+          "pronoun": "tu",
+          "form": "dis"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "dit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "disons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "dites"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "disent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je dis la vérité. → Digo la verdad.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je dis la vérité.",
+          "explanation": "Presente: Digo la verdad. Traducción: Digo la verdad."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai dit la vérité.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Dije la verdad."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je disais la vérité.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Decía la verdad."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais dire la vérité.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a decir la verdad."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je dirai la vérité.",
+          "explanation": "Futuro simple: radical dir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Diré la verdad."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je dirais la vérité.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Diría la verdad."
+        }
+      ]
+    },
+    {
+      "id": "fr-pouvoir",
+      "language": "fr",
+      "lemma": "pouvoir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "pouvoir"
+          ],
+          "ipa": "/pu.vwaʁ/",
+          "spanishSoundGuide": "«puvuár», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "peux"
+          ],
+          "ipa": "/pø/",
+          "spanishSoundGuide": "/pø/: e con labios redondeados; la x no suena."
+        },
+        "participle": {
+          "accepted": [
+            "pu"
+          ],
+          "ipa": "/py/",
+          "spanishSoundGuide": "/py/: lengua de i y labios de u; no «pu» española."
+        }
+      },
+      "spanishMeanings": [
+        "poder"
+      ],
+      "image": {
+        "src": "/images/verbs/bend-3822450.jpg",
+        "alt": "Una mujer flexiona el cuerpo hacia delante sobre una esterilla. La escena sirve para hablar de capacidad: poder realizar un movimiento. La foto no prueba la capacidad general.",
+        "attribution": "Photo: Elina Fairytale / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je suis content de pouvoir venir."
+        ],
+        "present": [
+          "Je peux venir."
+        ],
+        "participle": [
+          "J’ai pu venir."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "peux"
+        },
+        {
+          "pronoun": "tu",
+          "form": "peux"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "peut"
+        },
+        {
+          "pronoun": "nous",
+          "form": "pouvons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "pouvez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "peuvent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je peux venir. → Puedo venir.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je peux venir.",
+          "explanation": "Presente: Puedo venir. Traducción: Puedo venir."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai pu venir.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Pude venir."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je pouvais venir.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Podía venir."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais pouvoir venir.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a poder venir."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je pourrai venir.",
+          "explanation": "Futuro simple: radical pourr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Podré venir."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je pourrais venir.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Podría venir."
+        }
+      ]
+    },
+    {
+      "id": "fr-vouloir",
+      "language": "fr",
+      "lemma": "vouloir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "vouloir"
+          ],
+          "ipa": "/vu.lwaʁ/",
+          "spanishSoundGuide": "«vuluár», con v labiodental."
+        },
+        "present": {
+          "accepted": [
+            "veux"
+          ],
+          "ipa": "/vø/",
+          "spanishSoundGuide": "/vø/: e con labios redondeados; la x no suena."
+        },
+        "participle": {
+          "accepted": [
+            "voulu"
+          ],
+          "ipa": "/vu.ly/",
+          "spanishSoundGuide": "«vulü»: la última vocal es /y/, no u española."
+        }
+      },
+      "spanishMeanings": [
+        "querer"
+      ],
+      "image": {
+        "src": "/images/verbs/choose-6347547.jpg",
+        "alt": "Una mujer compara prendas colgadas en perchas. Imagina desear el objeto observado: querer algo. El deseo es contexto, no algo visible.",
+        "attribution": "Photo: Liza Summer / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Il est normal de vouloir un café."
+        ],
+        "present": [
+          "Je veux un café."
+        ],
+        "participle": [
+          "J’ai voulu un café."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "veux"
+        },
+        {
+          "pronoun": "tu",
+          "form": "veux"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "veut"
+        },
+        {
+          "pronoun": "nous",
+          "form": "voulons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "voulez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "veulent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je veux un café. → Quiero un café.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je veux un café.",
+          "explanation": "Presente: Quiero un café. Traducción: Quiero un café."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai voulu un café.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Quise un café."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je voulais un café.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Quería un café."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais vouloir un café.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a querer un café."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je voudrai un café.",
+          "explanation": "Futuro simple: radical voudr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Querré un café."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je voudrais un café.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Quisiera un café."
+        }
+      ]
+    },
+    {
+      "id": "fr-devoir",
+      "language": "fr",
+      "lemma": "devoir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "devoir"
+          ],
+          "ipa": "/də.vwaʁ/",
+          "spanishSoundGuide": "«devuár»; la primera e es muy breve."
+        },
+        "present": {
+          "accepted": [
+            "dois"
+          ],
+          "ipa": "/dwa/",
+          "spanishSoundGuide": "«duá»; la s no suena."
+        },
+        "participle": {
+          "accepted": [
+            "dû"
+          ],
+          "ipa": "/dy/",
+          "spanishSoundGuide": "/dy/: lengua de i y labios de u; conserva el circunflejo al escribir."
+        }
+      },
+      "spanishMeanings": [
+        "deber",
+        "tener que"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5303500.jpg",
+        "alt": "Un niño trabaja con un lápiz en un cuaderno abierto sobre un escritorio. Imagina que la tarea es una obligación: tener que terminarla. La obligación viene del contexto.",
+        "attribution": "Photo: Tima Miroshnichenko / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Il est difficile de devoir partir tôt."
+        ],
+        "present": [
+          "Je dois partir tôt."
+        ],
+        "participle": [
+          "J’ai dû partir tôt."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "dois"
+        },
+        {
+          "pronoun": "tu",
+          "form": "dois"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "doit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "devons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "devez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "doivent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je dois partir tôt. → Tengo que salir temprano.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je dois partir tôt.",
+          "explanation": "Presente: Tengo que salir temprano. Traducción: Tengo que salir temprano."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai dû partir tôt.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Tuve que salir temprano."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je devais partir tôt.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Tenía que salir temprano."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais devoir partir tôt.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a tener que salir temprano."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je devrai partir tôt.",
+          "explanation": "Futuro simple: radical devr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Tendré que salir temprano."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je devrais partir tôt.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Tendría que salir temprano."
+        }
+      ]
+    },
+    {
+      "id": "fr-savoir",
+      "language": "fr",
+      "lemma": "savoir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "savoir"
+          ],
+          "ipa": "/sa.vwaʁ/",
+          "spanishSoundGuide": "«savuár», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "sais"
+          ],
+          "ipa": "/sɛ/",
+          "spanishSoundGuide": "«se», e abierta; la s final no suena."
+        },
+        "participle": {
+          "accepted": [
+            "su"
+          ],
+          "ipa": "/sy/",
+          "spanishSoundGuide": "/sy/: lengua de i y labios de u."
+        }
+      },
+      "spanishMeanings": [
+        "saber"
+      ],
+      "image": {
+        "src": "/images/verbs/do-20435652.jpg",
+        "alt": "Un niño con turbante sostiene un libro abierto al aire libre. Imagina saber la respuesta a una pregunta. El conocimiento no es observable en una foto.",
+        "attribution": "Photo: Charanjeet Channi / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je veux savoir la réponse."
+        ],
+        "present": [
+          "Je sais la réponse."
+        ],
+        "participle": [
+          "J’ai su la réponse."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "sais"
+        },
+        {
+          "pronoun": "tu",
+          "form": "sais"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "sait"
+        },
+        {
+          "pronoun": "nous",
+          "form": "savons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "savez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "savent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je sais la réponse. → Sé la respuesta.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Savoir + infinitivo expresa saber hacer algo; connaître se usa con personas, lugares o cosas conocidas."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je sais la réponse.",
+          "explanation": "Presente: Sé la respuesta. Traducción: Sé la respuesta."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai su la réponse.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Supe la respuesta."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je savais la réponse.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Sabía la respuesta."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais savoir la réponse.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a saber la respuesta."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je saurai la réponse.",
+          "explanation": "Futuro simple: radical saur- y terminación -ai para je. No usa aller como auxiliar. Traducción: Sabré la respuesta."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je saurais la réponse.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Sabría la respuesta."
+        }
+      ]
+    },
+    {
+      "id": "fr-voir",
+      "language": "fr",
+      "lemma": "voir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "voir"
+          ],
+          "ipa": "/vwaʁ/",
+          "spanishSoundGuide": "«vuár», una sílaba con r francesa."
+        },
+        "present": {
+          "accepted": [
+            "vois"
+          ],
+          "ipa": "/vwa/",
+          "spanishSoundGuide": "«vuá», sin s final audible."
+        },
+        "participle": {
+          "accepted": [
+            "vu"
+          ],
+          "ipa": "/vy/",
+          "spanishSoundGuide": "/vy/: v labiodental y vocal /y/."
+        }
+      },
+      "spanishMeanings": [
+        "ver"
+      ],
+      "image": {
+        "src": "/images/verbs/be-16586441.jpg",
+        "alt": "Una persona sentada en una costa rocosa frente al mar. Piensa en percibir lo que rodea a la persona mediante los ojos: ver.",
+        "attribution": "Photo: Lucas Mota / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère voir la mer."
+        ],
+        "present": [
+          "Je vois la mer."
+        ],
+        "participle": [
+          "J’ai vu la mer."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "vois"
+        },
+        {
+          "pronoun": "tu",
+          "form": "vois"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "voit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "voyons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "voyez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "voient"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je vois la mer. → Veo el mar.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je vois la mer.",
+          "explanation": "Presente: Veo el mar. Traducción: Veo el mar."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai vu la mer.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Vi el mar."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je voyais la mer.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Veía el mar."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais voir la mer.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a ver el mar."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je verrai la mer.",
+          "explanation": "Futuro simple: radical verr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Veré el mar."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je verrais la mer.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Vería el mar."
+        }
+      ]
+    },
+    {
+      "id": "fr-venir",
+      "language": "fr",
+      "lemma": "venir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "venir"
+          ],
+          "ipa": "/və.niʁ/",
+          "spanishSoundGuide": "«venir», con e central breve y r francesa."
+        },
+        "present": {
+          "accepted": [
+            "viens"
+          ],
+          "ipa": "/vjɛ̃/",
+          "spanishSoundGuide": "«viẽ»: vocal nasal; no añadas una n final."
+        },
+        "participle": {
+          "accepted": [
+            "venu"
+          ],
+          "ipa": "/və.ny/",
+          "spanishSoundGuide": "«venü»: termina con /y/."
+        }
+      },
+      "spanishMeanings": [
+        "venir"
+      ],
+      "image": {
+        "src": "/images/verbs/come-4871792.jpg",
+        "alt": "Una niña corre hacia una persona que la espera con los brazos abiertos. La niña se acerca a la persona de referencia: venir hacia aquí. La dirección depende de quién habla.",
+        "attribution": "Photo: Gustavo Fring / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère venir avec toi."
+        ],
+        "present": [
+          "Je viens avec toi."
+        ],
+        "participle": [
+          "Je suis venu avec toi."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "viens"
+        },
+        {
+          "pronoun": "tu",
+          "form": "viens"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "vient"
+        },
+        {
+          "pronoun": "nous",
+          "form": "venons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "venez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "viennent"
+        }
+      ],
+      "auxiliary": "être",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo).",
+        "Presente: Je viens avec toi. → Vengo contigo.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je viens avec toi.",
+          "explanation": "Presente: Vengo contigo. Traducción: Vengo contigo."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "Je suis venu avec toi.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo). Traducción: Vine contigo."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je venais avec toi.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Venía contigo."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais venir avec toi.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a venir contigo."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je viendrai avec toi.",
+          "explanation": "Futuro simple: radical viendr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Vendré contigo."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je viendrais avec toi.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Vendría contigo."
+        }
+      ]
+    },
+    {
+      "id": "fr-tenir",
+      "language": "fr",
+      "lemma": "tenir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "tenir"
+          ],
+          "ipa": "/tə.niʁ/",
+          "spanishSoundGuide": "«tenir», e central breve."
+        },
+        "present": {
+          "accepted": [
+            "tiens"
+          ],
+          "ipa": "/tjɛ̃/",
+          "spanishSoundGuide": "«tiẽ»: vocal nasal, sin n consonante final."
+        },
+        "participle": {
+          "accepted": [
+            "tenu"
+          ],
+          "ipa": "/tə.ny/",
+          "spanishSoundGuide": "«tenü»: termina con /y/."
+        }
+      },
+      "spanishMeanings": [
+        "sostener",
+        "mantener"
+      ],
+      "image": {
+        "src": "/images/verbs/bet-8191083.jpg",
+        "alt": "Unas manos sostienen cartas junto a fichas de juego. Piensa en mantener las cartas o fichas en las manos: sostener. La foto puede mostrar también el movimiento de colocarlas.",
+        "attribution": "Photo: cottonbro studio / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère tenir le sac."
+        ],
+        "present": [
+          "Je tiens le sac."
+        ],
+        "participle": [
+          "J’ai tenu le sac."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "tiens"
+        },
+        {
+          "pronoun": "tu",
+          "form": "tiens"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "tient"
+        },
+        {
+          "pronoun": "nous",
+          "form": "tenons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "tenez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "tiennent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je tiens le sac. → Sostengo la bolsa.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je tiens le sac.",
+          "explanation": "Presente: Sostengo la bolsa. Traducción: Sostengo la bolsa."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai tenu le sac.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Sostuve la bolsa."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je tenais le sac.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Sostenía la bolsa."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais tenir le sac.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a sostener la bolsa."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je tiendrai le sac.",
+          "explanation": "Futuro simple: radical tiendr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Sostendré la bolsa."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je tiendrais le sac.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Sostendría la bolsa."
+        }
+      ]
+    },
+    {
+      "id": "fr-prendre",
+      "language": "fr",
+      "lemma": "prendre",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "prendre"
+          ],
+          "ipa": "/pʁɑ̃dʁ/",
+          "spanishSoundGuide": "«prãdr»: vocal nasal; la e final no suena."
+        },
+        "present": {
+          "accepted": [
+            "prends"
+          ],
+          "ipa": "/pʁɑ̃/",
+          "spanishSoundGuide": "«prã»: nasal, sin d ni s audibles."
+        },
+        "participle": {
+          "accepted": [
+            "pris"
+          ],
+          "ipa": "/pʁi/",
+          "spanishSoundGuide": "«pri», sin s audible."
+        }
+      },
+      "spanishMeanings": [
+        "tomar",
+        "coger"
+      ],
+      "image": {
+        "src": "/images/verbs/choose-9475666.jpg",
+        "alt": "Una mujer observa una fruta que sostiene junto a un expositor con distintas frutas. Imagina coger uno de los objetos mostrados: tomarlo con la mano. No se evalúa cuál prefiere la persona.",
+        "attribution": "Photo: Greta Hoffman / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère prendre le train."
+        ],
+        "present": [
+          "Je prends le train."
+        ],
+        "participle": [
+          "J’ai pris le train."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "prends"
+        },
+        {
+          "pronoun": "tu",
+          "form": "prends"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "prend"
+        },
+        {
+          "pronoun": "nous",
+          "form": "prenons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "prenez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "prennent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je prends le train. → Tomo el tren.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Tomar algo con la mano: Je prends une pomme. → Tomo una manzana. Prendre le train significa tomar el tren, otro uso habitual."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je prends le train.",
+          "explanation": "Presente: Tomo el tren. Traducción: Tomo el tren."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai pris le train.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Tomé el tren."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je prenais le train.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Tomaba el tren."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais prendre le train.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a tomar el tren."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je prendrai le train.",
+          "explanation": "Futuro simple: radical prendr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Tomaré el tren."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je prendrais le train.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Tomaría el tren."
+        }
+      ]
+    },
+    {
+      "id": "fr-mettre",
+      "language": "fr",
+      "lemma": "mettre",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "mettre"
+          ],
+          "ipa": "/mɛtʁ/",
+          "spanishSoundGuide": "«metr», e abierta; se oye t, no e final."
+        },
+        "present": {
+          "accepted": [
+            "mets"
+          ],
+          "ipa": "/mɛ/",
+          "spanishSoundGuide": "«me», e abierta; la s no suena."
+        },
+        "participle": {
+          "accepted": [
+            "mis"
+          ],
+          "ipa": "/mi/",
+          "spanishSoundGuide": "«mi», sin s audible."
+        }
+      },
+      "spanishMeanings": [
+        "poner"
+      ],
+      "image": {
+        "src": "/images/verbs/build-7269700.jpg",
+        "alt": "Un niño apila bloques de madera para crear una torre. Imagina colocar un bloque en un lugar: poner. Algunas fotos muestran la construcción después de colocar los bloques.",
+        "attribution": "Photo: www.kaboompics.com / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère mettre le livre sur la table."
+        ],
+        "present": [
+          "Je mets le livre sur la table."
+        ],
+        "participle": [
+          "J’ai mis le livre sur la table."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "mets"
+        },
+        {
+          "pronoun": "tu",
+          "form": "mets"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "met"
+        },
+        {
+          "pronoun": "nous",
+          "form": "mettons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "mettez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "mettent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je mets le livre sur la table. → Pongo el libro sobre la mesa.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je mets le livre sur la table.",
+          "explanation": "Presente: Pongo el libro sobre la mesa. Traducción: Pongo el libro sobre la mesa."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai mis le livre sur la table.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Puse el libro sobre la mesa."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je mettais le livre sur la table.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Ponía el libro sobre la mesa."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais mettre le livre sur la table.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a poner el libro sobre la mesa."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je mettrai le livre sur la table.",
+          "explanation": "Futuro simple: radical mettr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Pondré el libro sobre la mesa."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je mettrais le livre sur la table.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Pondría el libro sobre la mesa."
+        }
+      ]
+    },
+    {
+      "id": "fr-lire",
+      "language": "fr",
+      "lemma": "lire",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "lire"
+          ],
+          "ipa": "/liʁ/",
+          "spanishSoundGuide": "«lir», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "lis"
+          ],
+          "ipa": "/li/",
+          "spanishSoundGuide": "«li», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "lu"
+          ],
+          "ipa": "/ly/",
+          "spanishSoundGuide": "/ly/: lengua de i, labios de u."
+        }
+      },
+      "spanishMeanings": [
+        "leer"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5303500.jpg",
+        "alt": "Un niño trabaja con un lápiz en un cuaderno abierto sobre un escritorio. Imagina interpretar las palabras de la tarea o del libro: leer. La foto puede mostrar también escritura; usa este contexto.",
+        "attribution": "Photo: Tima Miroshnichenko / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère lire ce livre."
+        ],
+        "present": [
+          "Je lis ce livre."
+        ],
+        "participle": [
+          "J’ai lu ce livre."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "lis"
+        },
+        {
+          "pronoun": "tu",
+          "form": "lis"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "lit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "lisons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "lisez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "lisent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je lis ce livre. → Leo este libro.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je lis ce livre.",
+          "explanation": "Presente: Leo este libro. Traducción: Leo este libro."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai lu ce livre.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Leí este libro."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je lisais ce livre.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Leía este libro."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais lire ce livre.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a leer este libro."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je lirai ce livre.",
+          "explanation": "Futuro simple: radical lir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Leeré este libro."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je lirais ce livre.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Leería este libro."
+        }
+      ]
+    },
+    {
+      "id": "fr-ecrire",
+      "language": "fr",
+      "lemma": "écrire",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "écrire"
+          ],
+          "ipa": "/e.kʁiʁ/",
+          "spanishSoundGuide": "«ekrir», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "écris"
+          ],
+          "ipa": "/e.kʁi/",
+          "spanishSoundGuide": "«ekri», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "écrit"
+          ],
+          "ipa": "/e.kʁi/",
+          "spanishSoundGuide": "«ekri», sin t audible."
+        }
+      },
+      "spanishMeanings": [
+        "escribir"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5303500.jpg",
+        "alt": "Un niño trabaja con un lápiz en un cuaderno abierto sobre un escritorio. Piensa en usar el lápiz para escribir palabras en la tarea.",
+        "attribution": "Photo: Tima Miroshnichenko / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère écrire une lettre."
+        ],
+        "present": [
+          "J’écris une lettre."
+        ],
+        "participle": [
+          "J’ai écrit une lettre."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "écris"
+        },
+        {
+          "pronoun": "tu",
+          "form": "écris"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "écrit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "écrivons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "écrivez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "écrivent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: J’écris une lettre. → Escribo una carta.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "J’écris une lettre.",
+          "explanation": "Presente: Escribo una carta. Traducción: Escribo una carta."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai écrit une lettre.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Escribí una carta."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’écrivais une lettre.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Escribía una carta."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais écrire une lettre.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a escribir una carta."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "J’écrirai une lettre.",
+          "explanation": "Futuro simple: radical écrir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Escribiré una carta."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "J’écrirais une lettre.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Escribiría una carta."
+        }
+      ]
+    },
+    {
+      "id": "fr-boire",
+      "language": "fr",
+      "lemma": "boire",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "boire"
+          ],
+          "ipa": "/bwaʁ/",
+          "spanishSoundGuide": "«buár», una sílaba."
+        },
+        "present": {
+          "accepted": [
+            "bois"
+          ],
+          "ipa": "/bwa/",
+          "spanishSoundGuide": "«buá», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "bu"
+          ],
+          "ipa": "/by/",
+          "spanishSoundGuide": "/by/: lengua de i, labios de u."
+        }
+      },
+      "spanishMeanings": [
+        "beber"
+      ],
+      "image": {
+        "src": "/images/verbs/bring-30622044.jpg",
+        "alt": "Un camarero sostiene una bandeja con un plato de comida y una bebida en un restaurante. La bandeja incluye una bebida; imagina tomar ese líquido por la boca. La acción de beber no está capturada.",
+        "attribution": "Photo: Anil Sharma / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère boire de l’eau."
+        ],
+        "present": [
+          "Je bois de l’eau."
+        ],
+        "participle": [
+          "J’ai bu de l’eau."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "bois"
+        },
+        {
+          "pronoun": "tu",
+          "form": "bois"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "boit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "buvons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "buvez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "boivent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je bois de l’eau. → Bebo agua.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je bois de l’eau.",
+          "explanation": "Presente: Bebo agua. Traducción: Bebo agua."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai bu de l’eau.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Bebí agua."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je buvais de l’eau.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Bebía agua."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais boire de l’eau.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a beber agua."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je boirai de l’eau.",
+          "explanation": "Futuro simple: radical boir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Beberé agua."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je boirais de l’eau.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Bebería agua."
+        }
+      ]
+    },
+    {
+      "id": "fr-ouvrir",
+      "language": "fr",
+      "lemma": "ouvrir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "ouvrir"
+          ],
+          "ipa": "/u.vʁiʁ/",
+          "spanishSoundGuide": "«uvrir», con v labiodental y r francesa."
+        },
+        "present": {
+          "accepted": [
+            "ouvre"
+          ],
+          "ipa": "/uvʁ/",
+          "spanishSoundGuide": "«uvr», sin e final audible."
+        },
+        "participle": {
+          "accepted": [
+            "ouvert"
+          ],
+          "ipa": "/u.vɛʁ/",
+          "spanishSoundGuide": "«uver», e abierta; t final muda."
+        }
+      },
+      "spanishMeanings": [
+        "abrir"
+      ],
+      "image": {
+        "src": "/images/verbs/do-5303500.jpg",
+        "alt": "Un niño trabaja con un lápiz en un cuaderno abierto sobre un escritorio. El cuaderno o libro está abierto; imagina abrirlo para empezar la tarea. La foto muestra el resultado, no el movimiento.",
+        "attribution": "Photo: Tima Miroshnichenko / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère ouvrir la porte."
+        ],
+        "present": [
+          "J’ouvre la porte."
+        ],
+        "participle": [
+          "J’ai ouvert la porte."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "ouvre"
+        },
+        {
+          "pronoun": "tu",
+          "form": "ouvres"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "ouvre"
+        },
+        {
+          "pronoun": "nous",
+          "form": "ouvrons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "ouvrez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "ouvrent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: J’ouvre la porte. → Abro la puerta.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Aunque el presente singular termina como los verbos en -er, es un verbo del tercer grupo con participio irregular."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "J’ouvre la porte.",
+          "explanation": "Presente: Abro la puerta. Traducción: Abro la puerta."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai ouvert la porte.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Abrí la puerta."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’ouvrais la porte.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Abría la puerta."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais ouvrir la porte.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a abrir la puerta."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "J’ouvrirai la porte.",
+          "explanation": "Futuro simple: radical ouvrir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Abriré la puerta."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "J’ouvrirais la porte.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Abriría la puerta."
+        }
+      ]
+    },
+    {
+      "id": "fr-offrir",
+      "language": "fr",
+      "lemma": "offrir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "offrir"
+          ],
+          "ipa": "/ɔ.fʁiʁ/",
+          "spanishSoundGuide": "«ofrir», o abierta."
+        },
+        "present": {
+          "accepted": [
+            "offre"
+          ],
+          "ipa": "/ɔfʁ/",
+          "spanishSoundGuide": "«ofr», o abierta, sin e final audible."
+        },
+        "participle": {
+          "accepted": [
+            "offert"
+          ],
+          "ipa": "/ɔ.fɛʁ/",
+          "spanishSoundGuide": "«ofer», o y e abiertas; t final muda."
+        }
+      },
+      "spanishMeanings": [
+        "ofrecer",
+        "regalar"
+      ],
+      "image": {
+        "src": "/images/verbs/buy-6720588.jpg",
+        "alt": "Una persona entrega dinero a una florista que sostiene un ramo de flores. Imagina que las flores son un regalo para alguien: ofrecer o regalar. La foto muestra una compra; el regalo es el contexto.",
+        "attribution": "Photo: Gustavo Fring / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère offrir des fleurs."
+        ],
+        "present": [
+          "J’offre des fleurs."
+        ],
+        "participle": [
+          "J’ai offert des fleurs."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "offre"
+        },
+        {
+          "pronoun": "tu",
+          "form": "offres"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "offre"
+        },
+        {
+          "pronoun": "nous",
+          "form": "offrons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "offrez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "offrent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: J’offre des fleurs. → Regalo flores.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Aunque el presente singular termina como los verbos en -er, es un verbo del tercer grupo con participio irregular."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "J’offre des fleurs.",
+          "explanation": "Presente: Regalo flores. Traducción: Regalo flores."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai offert des fleurs.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Regalé flores."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "J’offrais des fleurs.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Regalaba flores."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais offrir des fleurs.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a regalar flores."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "J’offrirai des fleurs.",
+          "explanation": "Futuro simple: radical offrir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Regalaré flores."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "J’offrirais des fleurs.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Regalaría flores."
+        }
+      ]
+    },
+    {
+      "id": "fr-courir",
+      "language": "fr",
+      "lemma": "courir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "courir"
+          ],
+          "ipa": "/ku.ʁiʁ/",
+          "spanishSoundGuide": "«kurir», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "cours"
+          ],
+          "ipa": "/kuʁ/",
+          "spanishSoundGuide": "«kur», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "couru"
+          ],
+          "ipa": "/ku.ʁy/",
+          "spanishSoundGuide": "«kurü»: última vocal /y/."
+        }
+      },
+      "spanishMeanings": [
+        "correr"
+      ],
+      "image": {
+        "src": "/images/verbs/come-4871792.jpg",
+        "alt": "Una niña corre hacia una persona que la espera con los brazos abiertos. La niña avanza corriendo por el césped. Piensa en correr, no en el destino.",
+        "attribution": "Photo: Gustavo Fring / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère courir dans le parc."
+        ],
+        "present": [
+          "Je cours dans le parc."
+        ],
+        "participle": [
+          "J’ai couru dans le parc."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "cours"
+        },
+        {
+          "pronoun": "tu",
+          "form": "cours"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "court"
+        },
+        {
+          "pronoun": "nous",
+          "form": "courons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "courez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "courent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je cours dans le parc. → Corro en el parque.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je cours dans le parc.",
+          "explanation": "Presente: Corro en el parque. Traducción: Corro en el parque."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai couru dans le parc.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Corrí en el parque."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je courais dans le parc.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Corría en el parque."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais courir dans le parc.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a correr en el parque."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je courrai dans le parc.",
+          "explanation": "Futuro simple: radical courr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Correré en el parque."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je courrais dans le parc.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Correría en el parque."
+        }
+      ]
+    },
+    {
+      "id": "fr-partir",
+      "language": "fr",
+      "lemma": "partir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "partir"
+          ],
+          "ipa": "/paʁ.tiʁ/",
+          "spanishSoundGuide": "«partir», r francesa."
+        },
+        "present": {
+          "accepted": [
+            "pars"
+          ],
+          "ipa": "/paʁ/",
+          "spanishSoundGuide": "«par», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "parti"
+          ],
+          "ipa": "/paʁ.ti/",
+          "spanishSoundGuide": "«parti»."
+        }
+      },
+      "spanishMeanings": [
+        "irse",
+        "partir"
+      ],
+      "image": {
+        "src": "/images/verbs/begin-12585940.jpg",
+        "alt": "Una atleta apoya las manos en la pista y prepara los pies en los bloques de salida. La atleta está a punto de dejar la salida: partir. La foto muestra la preparación, no la salida completa.",
+        "attribution": "Photo: BOOM 💥 Photography / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère partir à huit heures."
+        ],
+        "present": [
+          "Je pars à huit heures."
+        ],
+        "participle": [
+          "Je suis parti à huit heures."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "pars"
+        },
+        {
+          "pronoun": "tu",
+          "form": "pars"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "part"
+        },
+        {
+          "pronoun": "nous",
+          "form": "partons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "partez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "partent"
+        }
+      ],
+      "auxiliary": "être",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo).",
+        "Presente: Je pars à huit heures. → Salgo a las ocho.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je pars à huit heures.",
+          "explanation": "Presente: Salgo a las ocho. Traducción: Salgo a las ocho."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "Je suis parti à huit heures.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo). Traducción: Salí a las ocho."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je partais à huit heures.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Salía a las ocho."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais partir à huit heures.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a salir a las ocho."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je partirai à huit heures.",
+          "explanation": "Futuro simple: radical partir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Saldré a las ocho."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je partirais à huit heures.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Saldría a las ocho."
+        }
+      ]
+    },
+    {
+      "id": "fr-sortir",
+      "language": "fr",
+      "lemma": "sortir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "sortir"
+          ],
+          "ipa": "/sɔʁ.tiʁ/",
+          "spanishSoundGuide": "«sortir», o abierta."
+        },
+        "present": {
+          "accepted": [
+            "sors"
+          ],
+          "ipa": "/sɔʁ/",
+          "spanishSoundGuide": "«sor», o abierta, sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "sorti"
+          ],
+          "ipa": "/sɔʁ.ti/",
+          "spanishSoundGuide": "«sorti»."
+        }
+      },
+      "spanishMeanings": [
+        "salir",
+        "sacar"
+      ],
+      "image": {
+        "src": "/images/verbs/be-1882246.jpg",
+        "alt": "Una persona está sentada en un banco de un parque arbolado. Imagina que la persona ha salido de casa para estar al aire libre: salir. El movimiento de salir no aparece.",
+        "attribution": "Photo: Sheep . / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère sortir avec mes amis."
+        ],
+        "present": [
+          "Je sors avec mes amis."
+        ],
+        "participle": [
+          "Je suis sorti avec mes amis."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "sors"
+        },
+        {
+          "pronoun": "tu",
+          "form": "sors"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "sort"
+        },
+        {
+          "pronoun": "nous",
+          "form": "sortons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "sortez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "sortent"
+        }
+      ],
+      "auxiliary": "avoir / être",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo).",
+        "Presente: Je sors avec mes amis. → Salgo con mis amigos.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "Sortir usa être al salir uno mismo (elle est sortie), y avoir con objeto directo: elle a sorti les clés (sacó las llaves)."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je sors avec mes amis.",
+          "explanation": "Presente: Salgo con mis amigos. Traducción: Salgo con mis amigos."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "Je suis sorti avec mes amis.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa être y concuerda con el sujeto (allé/allée, venu/venue, parti/partie, sorti/sortie según el verbo). Traducción: Salí con mis amigos."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je sortais avec mes amis.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Salía con mis amigos."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais sortir avec mes amis.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a salir con mis amigos."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je sortirai avec mes amis.",
+          "explanation": "Futuro simple: radical sortir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Saldré con mis amigos."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je sortirais avec mes amis.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Saldría con mis amigos."
+        }
+      ]
+    },
+    {
+      "id": "fr-dormir",
+      "language": "fr",
+      "lemma": "dormir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "dormir"
+          ],
+          "ipa": "/dɔʁ.miʁ/",
+          "spanishSoundGuide": "«dormir», o abierta y r francesa."
+        },
+        "present": {
+          "accepted": [
+            "dors"
+          ],
+          "ipa": "/dɔʁ/",
+          "spanishSoundGuide": "«dor», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "dormi"
+          ],
+          "ipa": "/dɔʁ.mi/",
+          "spanishSoundGuide": "«dormi»."
+        }
+      },
+      "spanishMeanings": [
+        "dormir"
+      ],
+      "image": {
+        "src": "/images/verbs/dream-9787922.jpg",
+        "alt": "Una mujer duerme bajo las sábanas de una cama. La persona está acostada en la cama con los ojos cerrados: dormir. No se puede saber qué sueña.",
+        "attribution": "Photo: Marcus Aurelius / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère dormir huit heures."
+        ],
+        "present": [
+          "Je dors huit heures."
+        ],
+        "participle": [
+          "J’ai dormi huit heures."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "dors"
+        },
+        {
+          "pronoun": "tu",
+          "form": "dors"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "dort"
+        },
+        {
+          "pronoun": "nous",
+          "form": "dormons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "dormez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "dorment"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je dors huit heures. → Duermo ocho horas.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je dors huit heures.",
+          "explanation": "Presente: Duermo ocho horas. Traducción: Duermo ocho horas."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai dormi huit heures.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Dormí ocho horas."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je dormais huit heures.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Dormía ocho horas."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais dormir huit heures.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a dormir ocho horas."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je dormirai huit heures.",
+          "explanation": "Futuro simple: radical dormir- y terminación -ai para je. No usa aller como auxiliar. Traducción: Dormiré ocho horas."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je dormirais huit heures.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Dormiría ocho horas."
+        }
+      ]
+    },
+    {
+      "id": "fr-recevoir",
+      "language": "fr",
+      "lemma": "recevoir",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "recevoir"
+          ],
+          "ipa": "/ʁə.sə.vwaʁ/",
+          "spanishSoundGuide": "«resevuár», con e central breve."
+        },
+        "present": {
+          "accepted": [
+            "reçois"
+          ],
+          "ipa": "/ʁə.swa/",
+          "spanishSoundGuide": "«resuá», sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "reçu"
+          ],
+          "ipa": "/ʁə.sy/",
+          "spanishSoundGuide": "«resü»: ç suena /s/ y u suena /y/."
+        }
+      },
+      "spanishMeanings": [
+        "recibir"
+      ],
+      "image": {
+        "src": "/images/verbs/bring-15761595.jpg",
+        "alt": "Un camarero acerca una bandeja de pequeños bocadillos a unos comensales. Piensa en quien recibe la comida, no en quien la lleva. El contexto determina la dirección de la entrega.",
+        "attribution": "Photo: Elias Jara / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je préfère recevoir un cadeau."
+        ],
+        "present": [
+          "Je reçois un cadeau."
+        ],
+        "participle": [
+          "J’ai reçu un cadeau."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "reçois"
+        },
+        {
+          "pronoun": "tu",
+          "form": "reçois"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "reçoit"
+        },
+        {
+          "pronoun": "nous",
+          "form": "recevons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "recevez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "reçoivent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je reçois un cadeau. → Recibo un regalo.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je reçois un cadeau.",
+          "explanation": "Presente: Recibo un regalo. Traducción: Recibo un regalo."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai reçu un cadeau.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Recibí un regalo."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je recevais un cadeau.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Recibía un regalo."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais recevoir un cadeau.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a recibir un regalo."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je recevrai un cadeau.",
+          "explanation": "Futuro simple: radical recevr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Recibiré un regalo."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je recevrais un cadeau.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Recibiría un regalo."
+        }
+      ]
+    },
+    {
+      "id": "fr-connaitre",
+      "language": "fr",
+      "lemma": "connaître",
+      "forms": {
+        "infinitive": {
+          "accepted": [
+            "connaître",
+            "connaitre"
+          ],
+          "ipa": "/kɔ.nɛtʁ/",
+          "spanishSoundGuide": "«konetr», e abierta; ai suena /ɛ/."
+        },
+        "present": {
+          "accepted": [
+            "connais"
+          ],
+          "ipa": "/kɔ.nɛ/",
+          "spanishSoundGuide": "«koné», con e abierta, sin s audible."
+        },
+        "participle": {
+          "accepted": [
+            "connu"
+          ],
+          "ipa": "/kɔ.ny/",
+          "spanishSoundGuide": "«konü»: última vocal /y/."
+        }
+      },
+      "spanishMeanings": [
+        "conocer"
+      ],
+      "image": {
+        "src": "/images/verbs/come-4871811.jpg",
+        "alt": "Una niña corre por el césped hacia su madre, que la espera agachada. Imagina que la niña conoce a la persona que la espera. La familiaridad no es observable; conocer a alguien no equivale a saber un dato.",
+        "attribution": "Photo: Gustavo Fring / Pexels"
+      },
+      "examples": {
+        "infinitive": [
+          "Je voudrais connaître ce quartier."
+        ],
+        "present": [
+          "Je connais ce quartier."
+        ],
+        "participle": [
+          "J’ai connu ce quartier."
+        ]
+      },
+      "presentConjugation": [
+        {
+          "pronoun": "je",
+          "form": "connais"
+        },
+        {
+          "pronoun": "tu",
+          "form": "connais"
+        },
+        {
+          "pronoun": "il / elle / on",
+          "form": "connaît"
+        },
+        {
+          "pronoun": "nous",
+          "form": "connaissons"
+        },
+        {
+          "pronoun": "vous",
+          "form": "connaissez"
+        },
+        {
+          "pronoun": "ils / elles",
+          "form": "connaissent"
+        }
+      ],
+      "auxiliary": "avoir",
+      "notes": [
+        "Escribe el infinitivo, la forma de presente para je/j’ sin pronombre y el participio pasado en masculino singular. No son tres tiempos equivalentes al inglés.",
+        "El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia.",
+        "Presente: Je connais ce quartier. → Conozco este barrio.",
+        "La guía sonora aproxima el francés desde el español; no reemplaza escuchar ni es una lista de acentos permitidos.",
+        "La grafía rectificada connaitre también es válida. Se conserva connaître como referencia tradicional."
+      ],
+      "tenseExamples": [
+        {
+          "tense": "fr-present",
+          "family": "present",
+          "text": "Je connais ce quartier.",
+          "explanation": "Presente: Conozco este barrio. Traducción: Conozco este barrio."
+        },
+        {
+          "tense": "fr-passe-compose",
+          "family": "participle",
+          "text": "J’ai connu ce quartier.",
+          "explanation": "Pasado compuesto: auxiliar en presente y participio para un hecho terminado. El participio no es un tiempo: para el passé composé usa avoir en presente + participio. Con objeto directo después del verbo no hay concordancia con el sujeto; si el objeto directo va antes, revisa la concordancia. Traducción: Conocí este barrio."
+        },
+        {
+          "tense": "fr-imparfait",
+          "text": "Je connaissais ce quartier.",
+          "explanation": "Imperfecto: una situación, hábito o acción en curso en el pasado; no presenta por sí mismo sus límites. Traducción: Conocía este barrio."
+        },
+        {
+          "tense": "fr-futur-proche",
+          "family": "infinitive",
+          "text": "Je vais connaître ce quartier.",
+          "explanation": "Futuro próximo: aller en presente + infinitivo; presenta una intención o hecho conectado con el presente. Traducción: Voy a conocer este barrio."
+        },
+        {
+          "tense": "fr-futur-simple",
+          "text": "Je connaîtrai ce quartier.",
+          "explanation": "Futuro simple: radical connaîtr- y terminación -ai para je. No usa aller como auxiliar. Traducción: Conoceré este barrio."
+        },
+        {
+          "tense": "fr-conditionnel-present",
+          "text": "Je connaîtrais ce quartier.",
+          "explanation": "Condicional presente: radical del futuro + terminación -ais para je; expresa hipótesis, deseo o cortesía según el contexto. Traducción: Conocería este barrio."
+        }
+      ]
+    }
+  ]
+}

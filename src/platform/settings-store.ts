@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, TENSES, type LearnerSettings } from '../contracts';
+import { DEFAULT_SETTINGS, TENSES, tensesForLanguage, type LearnerSettings } from '../contracts';
 
 export const SETTINGS_KEY = 'lang-lessons.settings.v1';
 export interface StoragePort {
@@ -18,6 +18,7 @@ function isLevel(value: unknown): value is 1 | 2 | 3 {
 /** Reconstruct allowed fields so extra stored values are never propagated. */
 export function parseSettings(value: unknown): LearnerSettings | null {
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.helpEnabled !== 'boolean'
+    || (value.learningLanguage !== undefined && value.learningLanguage !== 'en' && value.learningLanguage !== 'fr')
     || (value.untimedHelp !== undefined && typeof value.untimedHelp !== 'boolean')
     || (value.theme !== undefined && (typeof value.theme !== 'string' || !['system', 'light', 'dark'].includes(value.theme)))
     || (value.sentenceTense !== undefined && value.sentenceTense !== 'all' && !TENSES.some(tense => tense === value.sentenceTense))
@@ -25,11 +26,11 @@ export function parseSettings(value: unknown): LearnerSettings | null {
     || !isLevel(value.difficulty.vocabulary)
     || typeof value.preferredMode !== 'string' || !['verb-image', 'verb-visible', 'sentence'].includes(value.preferredMode)) return null;
   return {
-    schemaVersion: 1, helpEnabled: value.helpEnabled, untimedHelp: value.untimedHelp === true,
+    schemaVersion: 1, learningLanguage: value.learningLanguage === 'fr' ? 'fr' : 'en', helpEnabled: value.helpEnabled, untimedHelp: value.untimedHelp === true,
     difficulty: { grammar: value.difficulty.grammar, vocabulary: value.difficulty.vocabulary },
     preferredMode: value.preferredMode as LearnerSettings['preferredMode'],
     theme: (value.theme as LearnerSettings['theme'] | undefined) ?? 'system',
-    sentenceTense: (value.sentenceTense as LearnerSettings['sentenceTense'] | undefined) ?? 'all',
+    sentenceTense: tensesForLanguage(value.learningLanguage === 'fr' ? 'fr' : 'en').some(tense => tense === value.sentenceTense) ? value.sentenceTense as LearnerSettings['sentenceTense'] : 'all',
   };
 }
 export function browserStorage(): StoragePort | undefined {

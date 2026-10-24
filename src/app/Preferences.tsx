@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { LearnerSettings } from '../contracts';
-import { TENSE_GUIDE } from '../content/tense-guide';
+import { getTenseGuide } from '../content/tense-guide';
 import { LearningCredits } from './LearningCredits';
 
 type MicrophonePermission = PermissionState | 'unknown' | 'unavailable';
@@ -98,7 +98,7 @@ export function Preferences({ settings, onChange, onClose, notice, profile, onSi
       </div>
       </div>
       <div id="preferences-content" className="preferences-content">
-        {section === 'credits' && <LearningCredits />}
+        {section === 'credits' && <LearningCredits language={settings.learningLanguage} />}
         {section === 'profile' && <section className="preferences-section" aria-labelledby="profile-title">
           <h3 id="profile-title">Profile</h3>
           {profile}
@@ -121,13 +121,18 @@ export function Preferences({ settings, onChange, onClose, notice, profile, onSi
         </section>}
         {section === 'learning' && <section className="preferences-section" aria-labelledby="learning-title">
           <h3 id="learning-title">Learning</h3>
+          <label className="setting-row"><span>Idioma de aprendizaje</span><select aria-label="Idioma de aprendizaje" value={settings.learningLanguage}
+            onChange={event => onChange({ ...settings, learningLanguage: event.target.value as LearnerSettings['learningLanguage'], sentenceTense: 'all' })}>
+            <option value="en">Inglés</option><option value="fr">Francés</option>
+          </select></label>
+          <p className="muted">Idioma base: español. Cada idioma conserva sus ejercicios y progreso.</p>
           <p className="muted">Choose your pace and the help you want along the way.</p>
           <label className="setting-row"><span>Sentence tenses</span><select aria-label="Sentence tenses" value={settings.sentenceTense}
             onChange={event => onChange({ ...settings, sentenceTense: event.target.value as LearnerSettings['sentenceTense'] })}>
-            <option value="all">All eight tenses</option>
-            {TENSE_GUIDE.map(item => <option key={item.tense} value={item.tense}>{item.label}</option>)}
+            <option value="all">{settings.learningLanguage === 'fr' ? 'Todos los tiempos franceses' : 'All eight tenses'}</option>
+            {getTenseGuide(settings.learningLanguage).map(item => <option key={item.tense} value={item.tense}>{item.label}</option>)}
           </select></label>
-          <p className="muted">Applies to the next sentence prompt. Verb lessons keep all three form families.</p>
+          <p className="muted">{settings.learningLanguage === 'fr' ? 'Se aplica al siguiente ejercicio. Los verbos trabajan infinitivo, presente con je y participio, con auxiliares y concordancia.' : 'Applies to the next sentence prompt. Verb lessons keep all three form families.'}</p>
           <div className="settings-grid">{(['grammar', 'vocabulary'] as const).map(dimension => <label key={dimension}>
             <span className="label-title">{dimension === 'grammar' ? 'Grammar' : 'Vocabulary'} difficulty</span>
             <select aria-label={`${dimension === 'grammar' ? 'Grammar' : 'Vocabulary'} difficulty`} value={settings.difficulty[dimension]} onChange={event => onChange({ ...settings, difficulty: { ...settings.difficulty, [dimension]: Number(event.target.value) as 1 | 2 | 3 } })}>

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { DEFAULT_SETTINGS, PAST_TENSES, PRESENT_TENSES, TENSES } from '../src/contracts';
+import { DEFAULT_SETTINGS, PAST_TENSES, PRESENT_TENSES, ENGLISH_TENSES as TENSES } from '../src/contracts';
 import { VERBS } from '../src/content';
 import { matchingSentences, createSentenceSession, TRANSLATION_HINTS } from '../src/features/sentences/session';
 import { SentenceFixtureVoice } from '../src/features/sentences/__fixtures__/voice';

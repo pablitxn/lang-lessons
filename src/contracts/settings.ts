@@ -1,8 +1,9 @@
-import type { Difficulty, LessonMode, SentenceTenseSelection } from './curriculum';
+import type { Difficulty, LearningLanguage, LessonMode, SentenceTenseSelection } from './curriculum';
 import type { VoiceAdapter } from './voice';
 
 export interface LearnerSettings {
   schemaVersion: 1;
+  learningLanguage: LearningLanguage;
   helpEnabled: boolean;
   untimedHelp: boolean;
   difficulty: Difficulty;
@@ -18,7 +19,7 @@ export const TIMING = {
   maxVoiceSessionSeconds: 600,
 } as const;
 export const DEFAULT_SETTINGS: LearnerSettings = {
-  schemaVersion: 1, helpEnabled: false, untimedHelp: false,
+  schemaVersion: 1, learningLanguage: 'en', helpEnabled: false, untimedHelp: false,
   difficulty: { grammar: 1, vocabulary: 1 }, preferredMode: 'verb-image', theme: 'system', sentenceTense: 'all',
 };
 /** Feature entry points own their exercise state; root owns one continuous adapter. */

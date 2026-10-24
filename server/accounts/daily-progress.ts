@@ -2,7 +2,7 @@ import { clientCallTimeForWindows } from '../data/client-call-time';
 import type { Pool } from 'pg';
 import type { PracticeEvent } from '../../src/contracts/progress';
 import type { FeedbackState, ProfessorComment } from '../../src/contracts/feedback';
-import type { LessonMode } from '../../src/contracts/curriculum';
+import type { LearningLanguage, LessonMode } from '../../src/contracts/curriculum';
 import { parsePracticeEvent } from '../../src/foundation/progress-batch';
 import { authorize } from './authorization';
 import type { AuthenticatedIdentity } from './authorization';
@@ -15,9 +15,9 @@ import { RepositoryError, requireId, transaction } from '../data/database';
 
 /** Student timezone is read from its versioned configuration, never this legacy runtime field. */
 export interface DailyGroupingPolicy { readonly timeZone?: string; readonly eventAttribution: 'server-received'; readonly clientCallTime?: boolean }
-export interface DailyResult { readonly event: PracticeEvent; readonly receivedAt: string; readonly committedRevision: number; readonly timeZone: string }
+export interface DailyResult { readonly event: PracticeEvent; readonly language?: LearningLanguage; readonly receivedAt: string; readonly committedRevision: number; readonly timeZone: string }
 export interface DailySession {
-  readonly sessionId: string; readonly mode: LessonMode; readonly startedAt: string | null; readonly closedAt: string | null;
+  readonly sessionId: string; readonly mode: LessonMode; readonly language?: LearningLanguage; readonly startedAt: string | null; readonly closedAt: string | null;
   readonly feedback: FeedbackState | null; readonly comment: ProfessorComment | null;
 }
 export interface DailyProgressPage {
@@ -68,23 +68,23 @@ export function createDailyProgressRepository(pool: Pool, grouping?: DailyGroupi
         const zones = [...new Set(attribution.windows.map(window => window.timeZone))];
         const zone = zones.length === 1 ? zones[0]! : attribution.currentTimeZone;
         const windowCte = 'WITH windows AS (SELECT * FROM jsonb_to_recordset($2::jsonb) AS w(start timestamptz,"end" timestamptz,"timeZone" text)) ';
-        const events = await client.query<{ event_payload: unknown; received_at: Date; committed_revision: number; time_zone: string }>(
-          windowCte + `SELECT e.event_payload,e.received_at,e.committed_revision,w."timeZone" AS time_zone FROM learning_events e JOIN learning_sessions s ON s.id=e.session_id
+        const events = await client.query<{ event_payload: unknown; language: LearningLanguage; received_at: Date; committed_revision: number; time_zone: string }>(
+          windowCte + `SELECT e.event_payload,s.language,e.received_at,e.committed_revision,w."timeZone" AS time_zone FROM learning_events e JOIN learning_sessions s ON s.id=e.session_id
            JOIN windows w ON e.received_at >= w.start AND e.received_at < w."end"
            WHERE s.user_id=$1 AND e.event_payload->>'source'='typed'
            AND (e.session_id,e.event_id)>($3,$4) ORDER BY e.session_id,e.event_id LIMIT $5`, [studentId, windows, eventSession, eventId, limit + 1]);
         const written = events.rows.map(row => {
           const event = parsePracticeEvent(row.event_payload);
           if (!event || event.source !== 'typed') throw new RepositoryError('invalid-input');
-          return { event, receivedAt: row.received_at.toISOString(), committedRevision: row.committed_revision, timeZone: row.time_zone };
+          return { event, ...(row.language === 'fr' ? { language: row.language } : {}), receivedAt: row.received_at.toISOString(), committedRevision: row.committed_revision, timeZone: row.time_zone };
         });
-        const sessions = await client.query<{ id: string; mode: LessonMode; started_at: Date | null; closed_at: Date | null; state: FeedbackState | null; text: string | null; provenance_version: string | null }>(
-          windowCte + `SELECT s.id,s.mode,s.started_at,s.closed_at,j.state,c.text,c.provenance_version FROM learning_sessions s
+        const sessions = await client.query<{ id: string; mode: LessonMode; language: LearningLanguage; started_at: Date | null; closed_at: Date | null; state: FeedbackState | null; text: string | null; provenance_version: string | null }>(
+          windowCte + `SELECT s.id,s.mode,s.language,s.started_at,s.closed_at,j.state,c.text,c.provenance_version FROM learning_sessions s
            LEFT JOIN learning_feedback_jobs j ON j.session_id=s.id LEFT JOIN learning_comments c ON c.session_id=s.id
            WHERE s.user_id=$1 AND EXISTS (SELECT 1 FROM windows w WHERE (s.started_at < w."end" AND (s.status='open' OR s.closed_at >= w.start))
              OR EXISTS (SELECT 1 FROM learning_events e WHERE e.session_id=s.id AND e.received_at >= w.start AND e.received_at < w."end"))
            AND s.id>$3 ORDER BY s.id LIMIT $4`, [studentId, windows, sessionAfter, limit + 1]);
-        const sessionViews: DailySession[] = sessions.rows.map(row => ({ sessionId: row.id, mode: row.mode,
+        const sessionViews: DailySession[] = sessions.rows.map(row => ({ sessionId: row.id, mode: row.mode, ...(row.language === 'fr' ? { language: row.language } : {}),
           startedAt: row.started_at?.toISOString() ?? null, closedAt: row.closed_at?.toISOString() ?? null,
           feedback: disclosure?.allowStudentFeedback ? row.state ?? 'not-requested' : null,
           comment: disclosure?.allowStudentFeedback && row.state === 'succeeded' && row.text !== null && row.provenance_version !== null

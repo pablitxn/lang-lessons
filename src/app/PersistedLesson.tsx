@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { ActivePractice, LearnerSettings, LessonMode, ProgressSink, SessionCommands } from '../contracts';
+import type { ActivePractice, LearnerSettings, LearningLanguage, LessonMode, ProgressSink, SessionCommands } from '../contracts';
 import { LessonSession, type LessonRenderer } from './LessonSession';
 import type { SessionLifecycle } from './session-lifecycle';
 import { useRootExitRegistration } from './navigation-context';
@@ -13,17 +13,18 @@ export interface SessionProgressBinding {
 export interface PersistedSessionServices {
   readonly actorId: string;
   readonly commands: SessionCommands;
-  enter?(input: { mode: LessonMode; operationId: string }): Promise<ActivePractice>;
+  enter?(input: { mode: LessonMode; language?: LearningLanguage; operationId: string }): Promise<ActivePractice>;
   current?(): Promise<ActivePractice | null>;
   reconcileClose?(sessionId: string): Promise<void>;
   reportCall?(segment: import('../contracts').CallSegmentRef, intervals: readonly { start: string; end: string }[]): Promise<void>;
-  progress(sessionId: string, mode?: LessonMode): SessionProgressBinding | Promise<SessionProgressBinding>;
+  progress(sessionId: string, mode?: LessonMode, language?: LearningLanguage): SessionProgressBinding | Promise<SessionProgressBinding>;
 }
 /** Enter atomically selects the saved practice before mounting any producer. */
 export function PersistedLesson({ mode, services, ...props }: {
   mode: LessonMode; services: PersistedSessionServices; settings: LearnerSettings; preferencesOpen: boolean;
   voiceStatusTarget: HTMLElement | null; renderLesson?: LessonRenderer | undefined; fallback: ReactNode;
 }) {
+  const language = props.settings.learningLanguage;
   const [operationId, setOperationId] = useState(() => crypto.randomUUID());
   const [prepared, setPrepared] = useState<ActivePractice & { progress: SessionProgressBinding } | null>(null);
   const [blockingCall, setBlockingCall] = useState<ActivePractice | null>(null);
@@ -33,14 +34,14 @@ export function PersistedLesson({ mode, services, ...props }: {
   const lifetime = useRef(0);
   useEffect(() => {
     let current = true; const generation = ++lifetime.current; setFailed(false); setBlockingCall(null);
-    pending.current ??= (services.enter ? services.enter({ mode, operationId }) : services.commands.create({ mode, operationId }).then(session => ({ session, callState: 'none' as const }))).then(async entry => {
+    pending.current ??= (services.enter ? services.enter({ mode, language, operationId }) : services.commands.create({ mode, language, operationId }).then(session => ({ session, callState: 'none' as const }))).then(async entry => {
       const { session } = entry;
-      if (session.mode !== mode || session.status !== 'open' || !session.sessionId) throw new Error('Canonical session mismatch');
-      return { ...entry, progress: await services.progress(session.sessionId, mode) };
+      if (session.mode !== mode || (session.language ?? 'en') !== language || session.status !== 'open' || !session.sessionId) throw new Error('Canonical session mismatch');
+      return { ...entry, progress: await services.progress(session.sessionId, mode, session.language ?? 'en') };
     });
     const work = pending.current;
     void work.then(({ session: value, progress, callState }) => {
-      if (value.mode !== mode || value.status !== 'open' || !value.sessionId) throw new Error('Canonical session mismatch');
+      if (value.mode !== mode || (value.language ?? 'en') !== language || value.status !== 'open' || !value.sessionId) throw new Error('Canonical session mismatch');
       if (current) setPrepared({ session: value, progress, callState });
     }).catch(async () => {
       if (!current) return;
@@ -54,7 +55,7 @@ export function PersistedLesson({ mode, services, ...props }: {
     return () => { current = false; queueMicrotask(() => {
       if (generation === lifetime.current) void work.then(value => value.progress.dispose?.()).catch(() => {});
     }); };
-  }, [services, mode, operationId]);
+  }, [services, mode, language, operationId]);
   function retryEntry() { pending.current = null; setOperationId(crypto.randomUUID()); }
   const register = useRootExitRegistration();
   useEffect(() => {

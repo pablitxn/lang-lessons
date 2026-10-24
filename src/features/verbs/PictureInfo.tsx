@@ -1,8 +1,9 @@
+import type { LearningLanguage } from '../../contracts';
 import { useEffect, useId, useRef, useState } from 'react';
 
 /** A hover/focus tooltip with tap support; reading it holds the current exercise. */
-export function PictureInfo({ text, holdId, onHoldChange, label = 'Picture information' }: {
-  text: string; holdId: string; onHoldChange: (id: string, held: boolean) => void; label?: string;
+export function PictureInfo({ text, holdId, onHoldChange, label = 'Picture information', language = 'en' }: {
+  text: string; holdId: string; onHoldChange: (id: string, held: boolean) => void; label?: string; language?: LearningLanguage;
 }) {
   const id = useId();
   const root = useRef<HTMLSpanElement>(null);
@@ -28,6 +29,6 @@ export function PictureInfo({ text, holdId, onHoldChange, label = 'Picture infor
         <circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" />
       </svg>
     </button>
-    {open && <span id={id} role="tooltip" lang="en" className="verbs-info-tooltip">{text}</span>}
+    {open && <span id={id} role="tooltip" lang={language === 'fr' ? 'es' : 'en'} className="verbs-info-tooltip">{text}</span>}
   </span>;
 }

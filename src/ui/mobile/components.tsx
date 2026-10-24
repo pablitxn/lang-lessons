@@ -1,5 +1,5 @@
 import { useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import type { EvidenceLedger, ExerciseIdentity, LessonMode, SentenceStage } from '../../contracts';
+import type { EvidenceLedger, ExerciseIdentity, LessonMode, SentenceStage, LearningLanguage } from '../../contracts';
 import { LessonToolsVisible } from './lesson-tools-context';
 import { progressItems, STATUS_TEXT } from './presentation';
 
@@ -28,25 +28,27 @@ export function ExerciseCue({ image, base, spanish, imageInfo }: {
   </div>;
 }
 
-export function ObligationProgress({ mode, identity, evidence }: { mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger }) {
-  const items = progressItems(mode, identity, evidence);
+export function ObligationProgress({ mode, identity, evidence, language = 'en' }: { mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger; language?: LearningLanguage }) {
+  const text = (en: string, es: string) => language === 'fr' ? es : en;
+  const statuses = language === 'fr' ? { 'not-attempted': 'Pendiente', processing: 'Comprobando', uncertain: 'Necesita aclaración', incorrect: 'Intentá de nuevo', accepted: 'Hecho' } : STATUS_TEXT;
+  const items = progressItems(mode, identity, evidence, language);
   const accepted = items.filter(item => item.status === 'accepted').length;
-  const groups = mode === 'sentence' ? [{ title: 'Translation and explanation', items }]
+  const groups = mode === 'sentence' ? [{ title: text('Translation and explanation', 'Traducción y explicación'), items }]
     : [
-      { title: 'Meaning', items: items.filter(item => item.obligation === 'meaning') },
-      { title: 'Pronunciation', items: items.filter(item => item.obligation.startsWith('pronunciation:')) },
-      { title: 'Original sentences', items: items.filter(item => item.obligation.startsWith('sentence:')) },
-      { title: 'Spelling', items: items.filter(item => item.obligation.startsWith('spelling:')) },
+      { title: text('Meaning', 'Significado'), items: items.filter(item => item.obligation === 'meaning') },
+      { title: text('Pronunciation', 'Pronunciación'), items: items.filter(item => item.obligation.startsWith('pronunciation:')) },
+      { title: text('Original sentences', 'Oraciones propias'), items: items.filter(item => item.obligation.startsWith('sentence:')) },
+      { title: text('Spelling', 'Escritura'), items: items.filter(item => item.obligation.startsWith('spelling:')) },
     ];
   return <section className="ll-progress" aria-label="Your progress">
-    <h3>Your progress</h3>
-    <p className="ll-progress-count">{accepted} <span>of {items.length} requirements accepted</span></p>
+    <h3>{text('Your progress', 'Tu progreso')}</h3>
+    <p className="ll-progress-count">{accepted} <span>{text('of', 'de')} {items.length} {text('requirements accepted', 'requisitos aceptados')}</span></p>
     <progress value={accepted} max={items.length} aria-label="Accepted requirements" />
     {groups.map(group => <details key={group.title} className="ll-obligations"><summary>{group.title}
       <span>{group.items.filter(item => item.status === 'accepted').length} / {group.items.length}</span></summary>
       <ul>{group.items.map(item => <li key={item.obligation}>
         <span className={item.status === 'accepted' ? 'll-correct' : undefined} aria-hidden="true">{item.status === 'accepted' ? '✓' : item.status === 'incorrect' ? '!' : item.status === 'uncertain' ? '?' : '○'}</span>
-        <div>{item.label}<span className="ll-obligation-state">{STATUS_TEXT[item.status]}</span>
+        <div>{item.label}<span className="ll-obligation-state">{statuses[item.status]}</span>
           {item.feedback && <p>{item.feedback}</p>}</div>
       </li>)}</ul>
     </details>)}
@@ -54,6 +56,7 @@ export function ObligationProgress({ mode, identity, evidence }: { mode: LessonM
 }
 
 export interface ReferenceTableProps {
+  language?: LearningLanguage;
   title: string;
   caption: string;
   columns: readonly string[];
@@ -115,20 +118,20 @@ export function LessonDialog({ title, triggerLabel, closeLabel, children, onHold
   </div>;
 }
 
-export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls, children }: {
-  mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger;
+export function ProgressDialog({ mode, identity, evidence, onHoldChange, controls, children, language = 'en' }: {
+  mode: LessonMode; identity: ExerciseIdentity; evidence: EvidenceLedger; language?: LearningLanguage;
   onHoldChange: LessonDialogProps['onHoldChange']; controls?: ReactNode; children?: ReactNode;
 }) {
-  return <LessonDialog title="Lesson progress" triggerLabel="Your progress" triggerText="Progress" triggerIcon="progress"
-    closeLabel="Close progress" onHoldChange={onHoldChange} controls={controls}>
+  return <LessonDialog title={language === 'fr' ? 'Progreso de la clase' : 'Lesson progress'} triggerLabel={language === 'fr' ? 'Tu progreso' : 'Your progress'} triggerText={language === 'fr' ? 'Progreso' : 'Progress'} triggerIcon="progress"
+    closeLabel={language === 'fr' ? 'Cerrar progreso' : 'Close progress'} onHoldChange={onHoldChange} controls={controls}>
     {children}
-    <ObligationProgress mode={mode} identity={identity} evidence={evidence} />
+    <ObligationProgress language={language} mode={mode} identity={identity} evidence={evidence} />
   </LessonDialog>;
 }
 
-export function ReferenceTable({ title, caption, columns, rows, onHoldChange, controls }: ReferenceTableProps) {
-  return <LessonDialog title={title} triggerLabel="Reference table" triggerText="Reference" triggerIcon="reference"
-    closeLabel="Close table" onHoldChange={onHoldChange} controls={controls}>
+export function ReferenceTable({ title, caption, columns, rows, onHoldChange, controls, language = 'en' }: ReferenceTableProps) {
+  return <LessonDialog title={title} triggerLabel={language === 'fr' ? 'Tabla de referencia' : 'Reference table'} triggerText={language === 'fr' ? 'Referencia' : 'Reference'} triggerIcon="reference"
+    closeLabel={language === 'fr' ? 'Cerrar tabla' : 'Close table'} onHoldChange={onHoldChange} controls={controls}>
       <div className="ll-table-scroll" role="region" aria-label={caption} tabIndex={0}>
         <table><caption>{caption}</caption><thead><tr>{columns.map((column, index) => <th scope="col" key={index}>{column}</th>)}</tr></thead>
           <tbody>{rows.map((row, index) => <tr key={index}>{row.map((cell, column) => column === 0
@@ -137,12 +140,13 @@ export function ReferenceTable({ title, caption, columns, rows, onHoldChange, co
   </LessonDialog>;
 }
 
-export function SentencePrompt({ stage, onHint, onNext, showHint = true }: { stage: SentenceStage; onHint: () => void; onNext: () => void; showHint?: boolean }) {
+export function SentencePrompt({ stage, onHint, onNext, showHint = true, language = 'en' }: { stage: SentenceStage; onHint: () => void; onNext: () => void; showHint?: boolean; language?: LearningLanguage }) {
+  const text = (en: string, es: string) => language === 'fr' ? es : en;
   if (stage === 'translation' && !showHint) return null;
   return <section className="ll-sentence-stage" aria-label="Current sentence stage">
     {stage !== 'translation' && <p role="status">{stage === 'explanation'
-      ? 'Translation accepted. Name the tense and explain its structure, meaning, and why it fits.' : 'Translation and explanation accepted.'}</p>}
+      ? text('Translation accepted. Name the tense and explain its structure, meaning, and why it fits.', 'Traducción aceptada. Nombrá el tiempo y explicá su estructura, significado y por qué corresponde.') : text('Translation and explanation accepted.', 'Traducción y explicación aceptadas.')}</p>}
     {stage === 'complete' ? <button type="button" className="ll-button ll-primary ll-next" aria-label="Next exercise" title="Next exercise" onClick={onNext}><span aria-hidden="true">→</span></button>
-      : showHint && <button type="button" className="ll-button" onClick={onHint}>Ask voice coach for a hint</button>}
+      : showHint && <button type="button" className="ll-button" onClick={onHint}>{text('Ask voice coach for a hint', 'Pedir una pista al tutor')}</button>}
   </section>;
 }

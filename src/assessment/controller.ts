@@ -1,6 +1,6 @@
 import {
   TIMING, canAdvanceVerb, hasAllEvidence, hasValidEvidenceSource, isCurrentAttempt,
-  isQuiet, requiredObligations, sameExercise,
+  isQuiet, requiredObligations, sameExercise, getLanguage,
   type AdvanceTicket, type AssessmentBatch, type AttemptRef, type EvidenceRecord,
   type EvidenceResult, type ExerciseContext, type HintRequest, type HintResult,
   type InteractionState, type LearningSnapshot, type Obligation, type VoiceEvent,
@@ -113,7 +113,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     if (context.mode !== 'sentence') return;
     const translationAccepted = evidence.translation?.status === 'accepted';
     const stage = !translationAccepted ? 'translation'
-      : hasAllEvidence('sentence', context, evidence, allowMock) ? 'complete' : 'explanation';
+      : hasAllEvidence('sentence', context, evidence, allowMock, getLanguage(context)) ? 'complete' : 'explanation';
     if (context.stage !== stage) {
       context = { ...context, stage };
       invalidateHint();
@@ -125,13 +125,13 @@ export function createAssessmentController(options: AssessmentControllerOptions)
     interaction = { ...interaction, processingCount:
       Object.values(evidence).filter(record => record.status === 'processing').length + (pendingHint ? 1 : 0) + providerPending + transcriptionsPending };
     if (!disposed && !completed && context.mode !== 'sentence' && isQuiet(interaction)
-      && hasAllEvidence(context.mode, context, evidence, allowMock) && !ticket) {
+      && hasAllEvidence(context.mode, context, evidence, allowMock, getLanguage(context)) && !ticket) {
       ticket = { sessionId: context.sessionId, exerciseId: context.exerciseId, generation: context.generation,
         activityRevision: interaction.activityRevision, dueAt: interaction.lastActivityAt + TIMING.verbQuietPeriodMs };
       const scheduled = ticket;
       timer = clock.setTimeout(() => {
         if (disposed || completed || ticket !== scheduled || context.mode === 'sentence') return;
-        if (canAdvanceVerb(context.mode, context, evidence, interaction, scheduled, clock.now(), allowMock)) {
+        if (canAdvanceVerb(context.mode, context, evidence, interaction, scheduled, clock.now(), allowMock, getLanguage(context))) {
           cancelTimer(); completed = true; emit(); options.onAdvance?.(snapshot);
         }
       }, Math.max(0, scheduled.dueAt - clock.now()));
@@ -143,10 +143,10 @@ export function createAssessmentController(options: AssessmentControllerOptions)
       ...(context.mode === 'sentence' ? { sentenceStage: context.stage } : {}),
       hint, hintPending: pendingHint !== null, systemError, advancePending: ticket !== null,
       canContinue: !completed && context.mode === 'sentence' && context.stage === 'complete'
-        && isQuiet(interaction) && hasAllEvidence('sentence', context, evidence, allowMock), completed });
+        && isQuiet(interaction) && hasAllEvidence('sentence', context, evidence, allowMock, getLanguage(context)), completed });
     for (const listener of listeners) listener();
   }
-  function applicable(obligation: Obligation) { return requiredObligations(context.mode).includes(obligation); }
+  function applicable(obligation: Obligation) { return requiredObligations(context.mode, getLanguage(context)).includes(obligation); }
   function allowedNow(obligation: Obligation) {
     return applicable(obligation) && (context.mode !== 'sentence' || obligation === 'translation' || context.stage !== 'translation');
   }
@@ -172,7 +172,7 @@ export function createAssessmentController(options: AssessmentControllerOptions)
         intent: interaction.intent };
       options.onContextChange?.(context); emit();
     },
-    getOpenObligations: () => requiredObligations(context.mode).filter(key => allowedNow(key) && evidence[key]?.status !== 'accepted'),
+    getOpenObligations: () => requiredObligations(context.mode, getLanguage(context)).filter(key => allowedNow(key) && evidence[key]?.status !== 'accepted'),
     beginAttempt(obligations, attemptId = `attempt-${++sequence}`) {
       if (disposed || completed) return [];
       const unique = [...new Set(obligations)];

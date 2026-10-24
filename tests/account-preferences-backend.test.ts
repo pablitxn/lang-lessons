@@ -131,3 +131,26 @@ test('invalid, disabled and cross-account preference changes cannot mutate persi
     assert.equal((await f.pool.query("SELECT revision FROM learning_user_preferences WHERE user_id='student'")).rows[0].revision, 1);
   } finally { await f.cleanup(); }
 });
+
+
+test('legacy account preferences adopt English and French selection remains an exact validated preference', () => {
+  const { learningLanguage: _language, ...legacy } = DEFAULT_SETTINGS;
+  assert.equal(validateLearnerPreferences(legacy).learningLanguage, 'en');
+  assert.equal(validateLearnerPreferences({ ...DEFAULT_SETTINGS, learningLanguage: 'fr' }).learningLanguage, 'fr');
+  assert.throws(() => validateLearnerPreferences({ ...DEFAULT_SETTINGS, learningLanguage: 'de' }), /invalid-input/);
+});
+
+
+test('French preferences survive repository recreation and legacy account snapshots remain readable', isolated, async () => {
+  const f = await fixture(); const identity = { userId: 'student' };
+  try {
+    const { learningLanguage: _language, ...legacy } = DEFAULT_SETTINGS;
+    await f.pool.query('INSERT INTO learning_user_preferences(user_id,revision,settings) VALUES ($1,1,$2)', [identity.userId, JSON.stringify(legacy)]);
+    assert.equal((await f.repository.read(identity)).settings?.learningLanguage, 'en');
+    const settings = { ...DEFAULT_SETTINGS, learningLanguage: 'fr' as const };
+    assert.deepEqual(await f.repository.update(identity, { settings, expectedRevision: 1 }), { settings, revision: 2 });
+    assert.deepEqual(await createLearnerPreferencesRepository(f.pool).read(identity), { settings, revision: 2 });
+    await assert.rejects(f.repository.update(identity, { settings: DEFAULT_SETTINGS, expectedRevision: 1 }), /conflict/);
+    assert.equal((await f.repository.read(identity)).settings?.learningLanguage, 'fr');
+  } finally { await f.cleanup(); }
+});

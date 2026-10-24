@@ -8,7 +8,9 @@ export interface AccountPreferences { readonly settings: LearnerSettings | null;
 
 /** Storage migration can repair legacy browser values; account writes require the complete current shape. */
 export function validateLearnerPreferences(value: unknown): LearnerSettings {
-  exactKeys(value, ['schemaVersion', 'theme', 'helpEnabled', 'untimedHelp', 'difficulty', 'preferredMode', 'sentenceTense']);
+  const fields = ['schemaVersion', 'theme', 'helpEnabled', 'untimedHelp', 'difficulty', 'preferredMode', 'sentenceTense'];
+  exactKeys(value, value && typeof value === 'object' && Object.hasOwn(value, 'learningLanguage') ? [...fields, 'learningLanguage'] : fields);
+  if (Object.hasOwn(value, 'learningLanguage') && value.learningLanguage !== 'en' && value.learningLanguage !== 'fr') throw new RepositoryError('invalid-input');
   exactKeys(value.difficulty, ['grammar', 'vocabulary']);
   if (value.theme === undefined || value.untimedHelp === undefined || value.sentenceTense === undefined || typeof value.preferredMode !== 'string') throw new RepositoryError('invalid-input');
   const settings = parseSettings(value);

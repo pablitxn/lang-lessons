@@ -16,7 +16,7 @@ async function fixture() {
   const guard = await admin.connect(); await guard.query("SELECT pg_advisory_lock(hashtextextended('p2-disposable-fixture',0))"); const schema = `p2_daily_${randomUUID().replaceAll('-', '')}`;
   await admin.query(`CREATE SCHEMA ${schema}`);
   const pool = new Pool({ connectionString: database, options: `-c search_path=${schema}` });
-  for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage', 'p2-student-timezone']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
+  for (const file of ['p2-learning', 'p2-day-projection', 'p2-usage', 'p2-student-timezone', 'learning-language']) await pool.query(await readFile(new URL(`../server/data/migrations/${file}.sql`, import.meta.url), 'utf8'));
   await pool.query("INSERT INTO learning_users(id,role) VALUES ('student','student'),('other','student'),('prof','professor'),('admin','administrator')");
   await pool.query("INSERT INTO learning_student_timezones VALUES ('student',1,'UTC','2000-01-01T00:00:00Z'),('other',1,'UTC','2000-01-01T00:00:00Z')");
   const repo = createLearningRepository(pool, { userId: 'student' }, { allowStructuredStorage: true, access: { grants: () => ['practice:own'] }, evaluateClose: async () => 'not-requested' });
@@ -153,5 +153,26 @@ test('P2 timezone changes preserve past day attribution and union overlap across
     assert.equal(day.usageTime.writtenMs, 7_200_000); assert.equal(day.usageTime.tutorConnectedMs, 7_200_000); assert.equal(day.usageTime.totalMs, 10_800_000);
     const next = await daily.read({ userId: 'prof' }, 'student', { day: '2026-01-02' });
     assert.deepEqual(next.writtenEvents.items.map(item => item.event.ref.sessionId), [c.id]); assert.equal(next.usageTime.totalMs, 0);
+  } finally { await f.cleanup(); }
+});
+
+
+test('professor daily pages identify language on sessions and independently paginated written events', isolated, async () => {
+  const f = await fixture();
+  try {
+    const english = await f.visit(false);
+    const french = await f.repo.commands.create({ mode: 'sentence', language: 'fr', operationId: 'french-daily' });
+    await f.repo.registerInstance({ sessionId: french.sessionId, exerciseId: 'fr-sentence', generation: 0 });
+    const event: PracticeEvent = { schemaVersion: 1, eventId: 'fr-written', source: 'typed', trust: 'client-reported', kind: 'attempt-result', result: 'accepted',
+      ref: { sessionId: french.sessionId, exerciseId: 'fr-sentence', generation: 0, obligation: 'written:translation', attemptId: 'fr-attempt', revision: 1 } };
+    assert.equal((await f.repo.submit(french.sessionId, [event])).status, 'committed');
+    await f.pool.query("UPDATE learning_events SET received_at='2026-10-24T12:00:00Z'");
+    await f.pool.query("UPDATE learning_sessions SET started_at='2026-10-24T11:00:00Z'");
+    const daily = createDailyProgressRepository(f.pool, { timeZone: 'UTC', eventAttribution: 'server-received' });
+    const page = await daily.read({ userId: 'prof' }, 'student', { day: '2026-10-24' });
+    assert.equal(page.writtenEvents.items.find(row => row.event.ref.sessionId === french.sessionId)?.language, 'fr');
+    assert.equal(page.sessions.items.find(row => row.sessionId === french.sessionId)?.language, 'fr');
+    assert.equal(page.writtenEvents.items.find(row => row.event.ref.sessionId === english.id)?.language ?? 'en', 'en');
+    assert.equal(page.sessions.items.find(row => row.sessionId === english.id)?.language ?? 'en', 'en');
   } finally { await f.cleanup(); }
 });
