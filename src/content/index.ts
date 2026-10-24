@@ -81,6 +81,11 @@ function authoredTense(value: string): Tense {
     case 'past_continuous': return 'past-continuous';
     case 'past_perfect': return 'past-perfect';
     case 'past_perfect_continuous': return 'past-perfect-continuous';
+    case 'future_simple': return 'future-simple';
+    case 'future_going_to': return 'future-going-to';
+    case 'future_continuous': return 'future-continuous';
+    case 'future_perfect': return 'future-perfect';
+    case 'future_perfect_continuous': return 'future-perfect-continuous';
     default: throw new Error(`Unsupported authored tense: ${value}`);
   }
 }

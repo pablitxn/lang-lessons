@@ -59,8 +59,9 @@ test('sentence selection keeps grammar and vocabulary independent without a sile
   const demandingVocabulary = matchingSentences({ grammar: 1, vocabulary: 3 });
   assert.ok(demandingVocabulary.length >= 4);
   assert.ok(demandingVocabulary.every(s => s.difficulty.grammar === 1 && s.difficulty.vocabulary === 3));
-  assert.deepEqual(matchingSentences({ grammar: 3, vocabulary: 3 }), []);
-  assert.throws(() => createSentenceSession({ voice: new SentenceFixtureVoice(), sessionId: 'none', difficulty: { grammar: 3, vocabulary: 3 }, onComplete() {} }), /No authored sentence/);
+  assert.deepEqual(matchingSentences({ grammar: 3, vocabulary: 3 }, demandingVocabulary), []);
+  assert.throws(() => createSentenceSession({ voice: new SentenceFixtureVoice(), sessionId: 'none', sentences: demandingVocabulary,
+    difficulty: { grammar: 3, vocabulary: 3 }, onComplete() {} }), /No authored sentence/);
 });
 test('final current utterances allocate translation only; partial, duplicate and stale transcripts do not resubmit', () => {
   const f = setup(); const initial = f.voice.context;

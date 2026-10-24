@@ -44,7 +44,7 @@ const authored = require('../content/en-wp-03/sentences.json');
         await page.getByRole('button', { name: 'Preferences', exact: true }).click();
         await page.getByRole('navigation', { name: 'Preferences sections' }).getByRole('button', { name: 'Learning', exact: true }).click();
         const selector = page.getByLabel('Sentence tenses', { exact: true });
-        assert.equal(await selector.locator('option').count(), 9);
+        assert.equal(await selector.locator('option').count(), authored.scope.length + 1);
         await selector.selectOption(choice);
         if (tense === 'past_perfect_continuous' && viewport.width === 390) await page.screenshot({ path: join(output, 'preferences-past-perfect-continuous.png'), fullPage: true });
         await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
@@ -126,14 +126,14 @@ const authored = require('../content/en-wp-03/sentences.json');
         await context.close();
       }
     }
-    // The shared eight-tense reference is available only from home.
+    // The shared tense reference is available only from home.
     {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
       const transport = await installBrowserTransport(context, origin);
       const page = await context.newPage(); await page.goto(`${origin}/`, { waitUntil: 'networkidle' });
       await page.getByRole('button', { name: 'Reference table', exact: true }).click();
       const guide = page.getByRole('dialog', { name: 'Reference', exact: true });
-      assert.equal(await guide.locator('tbody tr').count(), 8);
+      assert.equal(await guide.locator('tbody tr').count(), authored.scope.length);
       for (const label of ['Past simple', 'Past continuous', 'Past perfect', 'Past perfect continuous']) {
         assert.equal(await guide.getByRole('rowheader', { name: label, exact: true }).count(), 1);
       }

@@ -1,0 +1,177 @@
+{
+  "base": "b562273e1a45fd31bd23a523a6ca4ebc379f0030",
+  "languages": {
+    "en": {
+      "before": 33,
+      "after": 150,
+      "added": 117,
+      "original_records_unchanged": true,
+      "sha256": "86d2a1ffb366efdcc30e827e47a4c75c4ac20180f08df77a61bfd4bada9a881b",
+      "constructions": [
+        {
+          "key": "present_simple",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "present_continuous",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "present_perfect",
+          "before": 5,
+          "added": 9,
+          "after": 14,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "present_perfect_continuous",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "past_simple",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "past_continuous",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "past_perfect",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "past_perfect_continuous",
+          "before": 4,
+          "added": 9,
+          "after": 13,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "future_simple",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "future_going_to",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "future_continuous",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "future_perfect",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "future_perfect_continuous",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        }
+      ]
+    },
+    "fr": {
+      "before": 54,
+      "after": 135,
+      "added": 81,
+      "original_records_unchanged": true,
+      "sha256": "2727f2902f3b5b62a2f6a2ae1bbf76d7b67e026f99cf7b65cf0bb89ac4bb7f11",
+      "constructions": [
+        {
+          "key": "fr-present",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-passe-compose",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-imparfait",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-futur-proche",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-futur-simple",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-conditionnel-present",
+          "before": 9,
+          "added": 9,
+          "after": 18,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-passe-recent",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-plus-que-parfait",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        },
+        {
+          "key": "fr-futur-anterieur",
+          "before": 0,
+          "added": 9,
+          "after": 9,
+          "difficulty_pairs": 9
+        }
+      ]
+    }
+  }
+}

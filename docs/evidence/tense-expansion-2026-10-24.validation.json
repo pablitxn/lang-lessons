@@ -1,0 +1,28 @@
+{
+  "base": "b562273e1a45fd31bd23a523a6ca4ebc379f0030",
+  "scope": "final worktree after integrated content refinements; pre-commit",
+  "commands": {
+    "npm run check": "passed:456 Node,88 optional skips,28 Python,tsc,Vite",
+    "production smoke5190": "passed:4 viewport/language scenarios,44 filter/picker cases,16 new-construction reloads"
+  },
+  "files": {
+    "content/en-wp-03/sentences.json": "86d2a1ffb366efdcc30e827e47a4c75c4ac20180f08df77a61bfd4bada9a881b",
+    "content/fr/sentences.json": "2727f2902f3b5b62a2f6a2ae1bbf76d7b67e026f99cf7b65cf0bb89ac4bb7f11",
+    "src/contracts/curriculum.ts": "b03fdf083f3c9996c89e5383b62b8d500512bd658d6af00a278fd0555f6b9565",
+    "src/content/index.ts": "2140c5cb5b46596519f193f92fea61e54a34a5713a3f2d7963bc828047d577bf",
+    "src/content/tense-guide.ts": "55ee4fa5b98e55cf48c12c371b00b43bcb5873a01ca7c293491c2e9e50edbbfd",
+    "src/features/sentences/WrittenTense.tsx": "25dc73fc0610ddcb43ca6193956bee04491b786053121be490e7f26b6bfa8cce",
+    "tests/tense-expansion.test.ts": "4f19015dd277b9a3d6ffdff77c215e5181f5f2f48552f559c8af7dd9d25e30d4",
+    "scripts/smoke-tense-expansion.cjs": "5630639305e504e70c4620c1c33585c6b381af001e9710898d1c18bc121a6f4e"
+  },
+  "build": {
+    "path": "dist/assets/index-Bg2vRJxR.js",
+    "sha256": "fd54c981fe2ee392d44f5c230dc538048bf3af7a3c03d696e0665bb5e6d5489c"
+  },
+  "limitations": [
+    "simulated authenticated HTTP; no actual database/provider/audio/device",
+    "88 optional fixtures skipped",
+    "existing >500kB bundle advisory",
+    "root independently reproduced pre-existing200percent written-layout failure on baseline"
+  ]
+}

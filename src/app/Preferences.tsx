@@ -129,7 +129,7 @@ export function Preferences({ settings, onChange, onClose, notice, profile, onSi
           <p className="muted">Choose your pace and the help you want along the way.</p>
           <label className="setting-row"><span>Sentence tenses</span><select aria-label="Sentence tenses" value={settings.sentenceTense}
             onChange={event => onChange({ ...settings, sentenceTense: event.target.value as LearnerSettings['sentenceTense'] })}>
-            <option value="all">{settings.learningLanguage === 'fr' ? 'Todos los tiempos franceses' : 'All eight tenses'}</option>
+            <option value="all">{settings.learningLanguage === 'fr' ? 'Todos los tiempos franceses' : 'All English tenses'}</option>
             {getTenseGuide(settings.learningLanguage).map(item => <option key={item.tense} value={item.tense}>{item.label}</option>)}
           </select></label>
           <p className="muted">{settings.learningLanguage === 'fr' ? 'Se aplica al siguiente ejercicio. Los verbos trabajan infinitivo, presente con je y participio, con auxiliares y concordancia.' : 'Applies to the next sentence prompt. Verb lessons keep all three form families.'}</p>

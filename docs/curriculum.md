@@ -1,6 +1,33 @@
 # EN-WP-03 curriculum integration
 
-## EN-WP-08 eight-tense extension
+## Present, past and future expansion (2026-10-24)
+
+The current Spanish-based sentence bank contains 150 English prompts across 13
+constructions and 135 French prompts across nine constructions. Every construction
+covers all nine independently selected grammar/vocabulary pairs. Levels measure
+relative task/vocabulary complexity within a construction, not CEFR proficiency;
+a level-one future perfect task still introduces a compound construction.
+
+English adds will, going to, future continuous, future perfect and future perfect
+continuous. French adds passé récent, plus-que-parfait and futur antérieur. French
+présent already covers habits, states and ongoing actions; conditionnel présent
+remains a distinct construction. The existing 87 records, verb inventories,
+photographs, dictionaries and persisted content IDs remain intact.
+
+Examples vary subjects, settings, polarity and questions, with temporal contrasts
+visible in the Spanish prompt. Accepted examples remain open-set rubric guidance;
+the filter does not force its label on a different valid construction. Written
+recognition uses the actual matched alternative. Future time reference alone does
+not turn an English present-continuous arrangement into a future-continuous form.
+
+The integration owner extends the shared tense inventory and guides, including
+non-revealing verb guides, and adds a Future group to written recognition. Existing
+language-specific settings and session persistence consume the expanded inventory;
+no migration or storage format change is needed. Counts and verification evidence
+are in the [expansion receipt](evidence/tense-expansion-2026-10-24.md). The dated
+checkpoints below retain their original scope and results.
+
+## Historical EN-WP-08 eight-tense extension
 
 The curriculum includes past simple, past continuous, past perfect and past
 perfect continuous alongside all four present tenses. Existing 17 prompts and

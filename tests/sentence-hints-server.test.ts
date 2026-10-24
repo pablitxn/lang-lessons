@@ -107,6 +107,19 @@ test('provider output must be completed, small structured coaching without obvio
   assert.match((await valid.json()).hint, /más de una forma válida/);
 });
 
+test('new future and French anteriority names cannot leak through written hints', async t => {
+  let leaked = '';
+  const app = await server(t, async () => Response.json(envelope({ hint: leaked })));
+  for (const text of ['Use the future simple.', 'Use future continuous.', 'Use future perfect continuous.',
+    'Use going to.', 'Use will.', 'Usa shall.', 'Usa venir de.', 'Usa vient d’ouvrir.',
+    'Usa el passé récent.', 'Usa el plus-que-parfait.', 'Usa el futur antérieur.']) {
+    leaked = text;
+    const response = await app.post();
+    assert.equal(response.status, 502, text);
+    assert.deepEqual(await response.json(), { error: 'Sentence help is unavailable. Please try again.' });
+  }
+});
+
 test('provider failures remain generic and never retry or echo secrets or draft text', async t => {
   let calls = 0;
   const app = await server(t, async () => { calls++; throw new Error('injected-test-secret private draft and provider details'); });

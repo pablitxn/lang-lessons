@@ -1,5 +1,9 @@
 # EN-WP-03 coverage matrix
 
+Current expansion inventory and validation are recorded in the
+[2026-10-24 receipt](../../docs/evidence/tense-expansion-2026-10-24.md).
+The dated checkpoints below describe their original revisions.
+
 ## EN-WP-08 extension
 
 Current feature totals: 25 original verbs/SVGs; the original 75 form-family

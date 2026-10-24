@@ -41,3 +41,15 @@ would improve provenance but does not justify bypassing TLS or sandbox controls.
 No paid provider, generated audio or real learner evaluation was run. The later
 asset follow-up performed actual local browser rendering/load checks as recorded
 in VALIDATION-ASSETS.md, without speech, provider or physical-device evidence.
+
+## Future construction references (2026-10-24)
+
+The 117 additional prompts are original course content. These references support
+the new constructions; they do not certify every authored sentence.
+
+| source_id | Reference and supported use | Access evidence |
+| --- | --- | --- |
+| british-council-future-forms | [British Council: Future forms](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous) and [Talking about the future](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/talking-about-future): offers, promises, predictions, prior intentions, evidence-based going-to predictions and present-continuous arrangements | Both lesson bodies retrieved and read; original exercises are not source quotations. |
+| british-council-future-aspect | [British Council: Future continuous and future perfect](https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-continuous-future-perfect): activity in progress at a future point versus completion by a deadline | Lesson body retrieved and read; original exercises are not source quotations. |
+| british-council-time-clauses | [British Council: Verbs in time clauses and if-clauses](https://learnenglish.britishcouncil.org/free-resources/grammar/english-grammar-reference/verbs-time-clauses-if-clauses): ordinary future time/condition clauses use present forms | Lesson body retrieved and read; the exceptional willingness use of will is not presented as ordinary future time marking. |
+| cambridge-future-perfect-continuous | [Cambridge: Future perfect continuous](https://dictionary.cambridge.org/grammar/british-grammar/future-perfect-continuous-i-will-have-been-working-here-ten-years): will/shall + have + been + -ing and duration viewed from a future point | Official search-result excerpts support the formation and duration use; full-page retrieval returned HTTP 403. No full-page or exhaustive source audit is claimed. |

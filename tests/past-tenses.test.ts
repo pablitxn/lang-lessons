@@ -1,19 +1,20 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { DEFAULT_SETTINGS, PAST_TENSES, PRESENT_TENSES, ENGLISH_TENSES as TENSES } from '../src/contracts';
-import { VERBS } from '../src/content';
+import { DEFAULT_SETTINGS, PAST_TENSES, PRESENT_TENSES, FUTURE_TENSES, ENGLISH_TENSES as TENSES } from '../src/contracts';
+import { VERBS, SENTENCES } from '../src/content';
 import { matchingSentences, createSentenceSession, TRANSLATION_HINTS } from '../src/features/sentences/session';
 import { SentenceFixtureVoice } from '../src/features/sentences/__fixtures__/voice';
 import { parseSettings } from '../src/platform/settings-store';
 import { FakeClock } from './helpers/assessment-fixtures';
 
-test('old preferences migrate to all eight tenses without losing independent difficulty or theme', () => {
+test('old preferences migrate to all supported English tenses without losing independent difficulty or theme', () => {
   const { sentenceTense: _new, ...old } = { ...DEFAULT_SETTINGS, theme: 'dark' as const, difficulty: { grammar: 2 as const, vocabulary: 1 as const } };
   assert.deepEqual(parseSettings(old), { ...old, sentenceTense: 'all' });
   for (const sentenceTense of TENSES) assert.equal(parseSettings({ ...old, sentenceTense })?.sentenceTense, sentenceTense);
-  for (const sentenceTense of ['', 'future-perfect', ['past-simple'], null, 1]) assert.equal(parseSettings({ ...old, sentenceTense }), null);
+  for (const sentenceTense of ['', 'future-unknown', ['past-simple'], null, 1]) assert.equal(parseSettings({ ...old, sentenceTense }), null);
   assert.deepEqual(TENSES.slice(0, 4), PRESENT_TENSES);
-  assert.deepEqual(TENSES.slice(4), PAST_TENSES);
+  assert.deepEqual(TENSES.slice(4, 8), PAST_TENSES);
+  assert.deepEqual(TENSES.slice(8), FUTURE_TENSES);
 });
 
 test('tense selection retains contextually valid alternatives and never substitutes another difficulty', () => {
@@ -21,7 +22,8 @@ test('tense selection retains contextually valid alternatives and never substitu
     const pool = matchingSentences({ grammar: 1, vocabulary: 1 }, undefined, tense);
     assert.ok(pool.length > 0, tense);
     assert.ok(pool.every(s => s.alternatives.some(a => a.tense === tense)), tense);
-    assert.deepEqual(matchingSentences({ grammar: 3, vocabulary: 3 }, undefined, tense), []);
+    assert.ok(matchingSentences({ grammar: 3, vocabulary: 3 }, undefined, tense).every(s => s.difficulty.grammar === 3 && s.difficulty.vocabulary === 3));
+    assert.deepEqual(matchingSentences({ grammar: 3, vocabulary: 3 }, pool, tense), []);
   }
   assert.ok(matchingSentences({ grammar: 2, vocabulary: 1 }, undefined, 'present-perfect-continuous')
     .some(s => s.id === 'sentence-since-2020'));
@@ -72,7 +74,7 @@ test('changing tense mid-explanation preserves accepted work, then invalidates o
     assert.equal(during.exerciseId, before.exerciseId);
     assert.equal(during.sentenceStage, 'explanation');
     assert.deepEqual(during.evidence, before.evidence);
-    assert.equal(session.getSnapshot().nextPoolSize, 1);
+    assert.equal(session.getSnapshot().nextPoolSize, matchingSentences({ grammar: 1, vocabulary: 1 }, undefined, 'past-perfect-continuous').length);
     voice.transcript('Habit with subject agreement.'); voice.assess();
     assert.equal(session.next(), true);
     const after = session.getSnapshot().assessment;
@@ -122,7 +124,8 @@ test('both verb modes receive past constructions without changing spelling famil
 test('an empty requested tense/difficulty pool cannot skip or erase current completed work', () => {
   const voice = new SentenceFixtureVoice();
   const session = createSentenceSession({ voice, sessionId: 'empty-selection', difficulty: { grammar: 1, vocabulary: 1 },
-    tense: 'present-simple', random: () => 0, connectionState: 'ready', onComplete() {} });
+    tense: 'present-simple', sentences: SENTENCES.filter(sentence => sentence.difficulty.grammar === 1 && sentence.difficulty.vocabulary === 1),
+    random: () => 0, connectionState: 'ready', onComplete() {} });
   try {
     voice.transcript('He buys bread every morning.'); voice.assess();
     voice.transcript('A present habit with agreement.'); voice.assess();

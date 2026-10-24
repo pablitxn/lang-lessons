@@ -91,9 +91,10 @@ function validatedHint(value: unknown, examples: readonly { text: string }[]): s
   if (!hint || hint.length > 180 || /[\u0000-\u001f\u007f]/u.test(hint)) throw new RequestFailure(502);
   const normalized = words(hint);
   // This rejects obvious leaks; it does not prove semantic safety or grammar accuracy.
-  const forbidden = /\b(?:(?:present|past) (?:simple|continuous|progressive|perfect)|(?:simple|continuous|progressive|perfect) (?:present|past)|(?:presente|pasado) (?:simple|continuo|continuado|perfecto|imperfecto|progresivo)|preterito|pluscuamperfecto|passe compose|imparfait|futur proche|futur simple|conditionnel(?: present)?|presente de indicativo|condicional(?: simple)?|futuro(?: proximo|simple)?|ipa|fonetica|pronunciacion|pronunciation)\b/u;
+  const forbidden = /\b(?:(?:present|past|future) (?:simple|continuous|progressive|perfect)|(?:simple|continuous|progressive|perfect) (?:present|past|future)|(?:presente|pasado) (?:simple|continuo|continuado|perfecto|imperfecto|progresivo)|preterito|pluscuamperfecto|passe compose|passe recent|plus que parfait|imparfait|futur proche|futur simple|futur anterieur|going to|conditionnel(?: present)?|presente de indicativo|condicional(?: simple)?|futuro(?: proximo|simple)?|ipa|fonetica|pronunciacion|pronunciation)\b/u;
   const casingAdvice = /\b(?:mayusculas?|minusculas?|capitali[sz][a-z]*|(?:upper|lower) ?case|(?:letter|sentence|title) case|(?:capital|small) letters?|capital i|(?:a|initial) capital|caja (?:alta|baja))\b/u;
-  if (forbidden.test(normalized) || casingAdvice.test(normalized) || /[+=→]|\b(?:sujeto|subject)\s*[:+]/iu.test(hint)
+  const futureOrRecentFormula = /\b(?:will|shall|(?:venir|viens|vient|venons|venez|viennent) (?:de|d))\b/u;
+  if (forbidden.test(normalized) || futureOrRecentFormula.test(normalized) || casingAdvice.test(normalized) || /[+=→]|\b(?:sujeto|subject)\s*[:+]/iu.test(hint)
     || /\b(?:cambia|sustituye|reemplaza)\b.+\bpor\b|\b(?:escribe|write|respuesta|answer)\s*:/iu.test(hint)
     || /[əɜɝɪʊʌæɑɔŋʃʒθðˈˌ]/u.test(hint)) throw new RequestFailure(502);
   for (const example of examples) {

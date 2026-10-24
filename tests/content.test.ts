@@ -60,7 +60,7 @@ test('sentence adapter preserves both residence constructions and contractions w
   assert.ok(sentence.alternatives.some(a => a.text === 'We have been living here since 2020.'));
   assert.ok(sentence.alternatives.some(a => a.text.startsWith("We've")));
   for (const alternative of sentence.alternatives) assert.ok(alternative.explanation);
-  assert.equal(SENTENCES.length, 33);
+  assert.equal(SENTENCES.length, 150);
   const authored = JSON.parse(readFileSync(new URL('../content/en-wp-03/sentences.json', import.meta.url), 'utf8'));
   for (const entry of SENTENCES) {
     assert.equal(entry.spanish, authored.sentences.find((s: { id: string }) => s.id === entry.id).prompt_es);

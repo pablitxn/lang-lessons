@@ -1,0 +1,80 @@
+{
+  "status": "complete-clean",
+  "repository": "pablitxn/lang-lessons",
+  "worktree": "/workspace/lang-lessons-exercises",
+  "branch": "feat/tense-practice-expansion",
+  "base_sha": "b562273e1a45fd31bd23a523a6ca4ebc379f0030",
+  "head_binding": "Uncommitted reviewed content snapshot, bound by exact SHA-256 below; final commit applicability requires the same file hashes.",
+  "file_sha256": {
+    "content/en-wp-03/sentences.json": "86d2a1ffb366efdcc30e827e47a4c75c4ac20180f08df77a61bfd4bada9a881b",
+    "content/fr/sentences.json": "2727f2902f3b5b62a2f6a2ae1bbf76d7b67e026f99cf7b65cf0bb89ac4bb7f11",
+    "src/content/tense-guide.ts": "55ee4fa5b98e55cf48c12c371b00b43bcb5873a01ca7c293491c2e9e50edbbfd"
+  },
+  "counts": {
+    "content/en-wp-03/sentences.json": {
+      "before": 33,
+      "after": 150,
+      "added": 117,
+      "preserved_exactly": 33
+    },
+    "content/fr/sentences.json": {
+      "before": 54,
+      "after": 135,
+      "added": 81,
+      "preserved_exactly": 54
+    }
+  },
+  "reviewed_new_prompts": 198,
+  "reviewed_new_alternatives": 260,
+  "scope": [
+    "All117 new English and81 new French Spanish prompts, reference answers, tense labels, structure/meaning guidance and hints.",
+    "All added tense-guide construction explanations.",
+    "Baseline records preserved by exact object equality; prompt uniqueness checked per language; whole-corpus similarity check at0.87 had no pairs."
+  ],
+  "resolved_findings": [
+    {
+      "id": "EN-HINT-01",
+      "severity": "low",
+      "records": [
+        "sentence-future-perfect-continuous-air-quality",
+        "sentence-future-continuous-pressure"
+      ],
+      "issue": "Hint seeds contained target auxiliary wording or wording close to the reference answer.",
+      "resolution": "Replaced with neutral duration/reference-event or task-overlap questions; verified in integrated English file."
+    },
+    {
+      "id": "FR-DIFFICULTY-01",
+      "severity": "low",
+      "records": [
+        "fr-sentence-futur-proche-exp-g1-v1",
+        "fr-sentence-futur-simple-exp-g1-v1"
+      ],
+      "issue": "Level1 prompts initially combined multiple finite clauses.",
+      "resolution": "Converted to single affirmative clause while retaining evidence/commitment context; verified."
+    },
+    {
+      "id": "FR-AMBIGUITY-01",
+      "severity": "low",
+      "records": [
+        "fr-sentence-futur-anterieur-exp-g1-v1"
+      ],
+      "issue": "Explanation assumed reading although finishing a book could also refer to writing.",
+      "resolution": "Explanation now explicitly accepts either activity and avoids an unstated starting-time assumption; verified."
+    }
+  ],
+  "remaining_findings": [],
+  "sources": [
+    "https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-forms-will-be-going-present-continuous",
+    "https://learnenglish.britishcouncil.org/free-resources/grammar/b1-b2/future-continuous-future-perfect",
+    "https://www.laits.utexas.edu/tex/gr/tap1.html",
+    "https://www.laits.utexas.edu/tex/gr/tap9.html",
+    "https://www.laits.utexas.edu/tex/gr/taf5.html"
+  ],
+  "limits": [
+    "Independent AI pedagogical review, not a learner study or qualified-human language certification.",
+    "No real provider, acoustic/pronunciation, database, deployment or production validation.",
+    "Automated duplicate/similarity checks support review and do not prove semantic uniqueness or linguistic correctness.",
+    "Some unsupported literary/modal constructions remain outside this core present/past/future expansion; grammatical alternatives remain open-set."
+  ],
+  "tool_usage": "Read-only repository/primary grammar reference inspection plus local JSON equality/hash/uniqueness checks. Only this /tmp receipt was written by the reviewer. Exact model and token/cost telemetry unavailable."
+}

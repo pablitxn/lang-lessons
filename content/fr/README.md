@@ -1,9 +1,9 @@
 # French curriculum for Spanish-speaking learners
 
 This pack adds French to the existing three lesson modes. It has 25 useful
-third-group/irregular verbs and 54 sentence prompts: all nine independently
-selectable grammar/vocabulary pairs for each of six constructions. These local
-levels describe task complexity, not CEFR certification.
+third-group/irregular verbs and 135 sentence prompts across nine constructions.
+Every construction covers all nine independently selectable grammar/vocabulary
+pairs. These local levels describe task complexity, not CEFR certification.
 
 ## Pedagogical contract
 
@@ -16,12 +16,46 @@ translations. A sentence using an infinitive must be a complete natural
 construction, not an infinitive misidentified as a tense. A participle sentence
 must include the appropriate finite construction.
 
-The six sentence constructions are présent, passé composé, imparfait, futur
-proche, futur simple and conditionnel présent. The conditional is named as a
+The nine sentence constructions are présent, passé composé, imparfait, passé
+récent, plus-que-parfait, futur proche, futur simple, futur antérieur and
+conditionnel présent. The conditional is named as a
 French construction with its own uses; the pack does not equate them mechanically with English form families. The course introduces affirmative clauses,
 negation/questions, agreement, pronouns, and subordinate clauses while keeping
 vocabulary selection independent. Authored translations are examples, not an
 exhaustive whitelist of valid oral answers.
+
+The October 24 exercise expansion preserves the original 54 entries and adds
+81 authored prompts. The six original constructions each gain nine prompts,
+one for each grammar/vocabulary pair; the three added constructions each start
+with nine prompts. The new sets vary subjects, household/travel/work/research
+contexts, affirmative clauses, negation or contrasts, and questions or linked
+clauses. Vocabulary level is independent of grammatical complexity.
+
+| Construction | Before | Added | After |
+| --- | ---: | ---: | ---: |
+| Présent | 9 | 9 | 18 |
+| Passé composé | 9 | 9 | 18 |
+| Imparfait | 9 | 9 | 18 |
+| Futur proche | 9 | 9 | 18 |
+| Futur simple | 9 | 9 | 18 |
+| Conditionnel présent | 9 | 9 | 18 |
+| Passé récent | 0 | 9 | 9 |
+| Plus-que-parfait | 0 | 9 | 9 |
+| Futur antérieur | 0 | 9 | 9 |
+| **Total** | **54** | **81** | **135** |
+
+New contrast examples distinguish French present with `depuis` from English
+perfect aspect, ongoing past duration with `depuis` + imparfait from completed
+anterior events, and future completion from a future event or state. Recent
+past uses `venir de` + infinitive; negative contrasts do not misrepresent
+`ne vient pas de` as "has not yet." Compound forms include both auxiliaries
+and explicit agreement examples. Temporal anchors appear in the visible
+Spanish prompts. Questions accept natural inversion and `est-ce que`
+formulations; unspecified speaker gender is not restricted by one example.
+
+Sentence practice remains broader than the fixed verb-form inventory. Literary
+passé simple/passé antérieur and subjunctive paradigms are outside this everyday
+practice expansion. The six existing reference examples per verb remain intact.
 
 The inventory is: être, avoir, aller, faire, dire, pouvoir, vouloir, devoir,
 savoir, voir, venir, tenir, prendre, mettre, lire, écrire, boire, ouvrir, offrir,
@@ -50,6 +84,17 @@ Grammar reference checks include the Office québécois de la langue française:
 - [Passé composé](https://vitrinelinguistique.oqlf.gouv.qc.ca/24218/la-grammaire/le-verbe/temps-grammaticaux/passe/generalites-sur-le-passe-compose)
 - [Participle agreement with être](https://vitrinelinguistique.oqlf.gouv.qc.ca/21547/la-grammaire/le-verbe/accord-du-participe-passe/avec-lauxiliaire-etre/accord-du-participe-passe-employe-avec-lauxiliaire-etre)
 - [Simple and compound forms](https://vitrinelinguistique.oqlf.gouv.qc.ca/24658/la-grammaire/le-verbe/temps-grammaticaux/temps-simples-et-temps-composes)
+
+Additional construction references checked on 2026-10-24 for the expansion:
+
+- [University of Texas at Austin: recent past](https://www.laits.utexas.edu/tex/gr/tap1.html), including the distinction between present and imperfect `venir de`.
+- [University of Texas at Austin: plus-que-parfait](https://laits.utexas.edu/tex/gr/tap9.html), including auxiliary formation, anteriority and the different treatment of ongoing duration with `depuis`.
+- [Office québécois de la langue française: futur antérieur](https://vitrinelinguistique.oqlf.gouv.qc.ca/24129/la-grammaire/le-verbe/temps-grammaticaux/futur/le-futur-anterieur), for completion by a future point or before another future event.
+- [University of Texas at Austin: passé composé versus imparfait](https://www.laits.utexas.edu/tex/gr/tap8.html), for completed events versus narrative background.
+
+These sources support the grammar design. The new Spanish prompts, French
+translations and explanations are original teaching material, not reproduced
+source exercises; source checks do not establish live assessment quality.
 
 The dictionary's selected definitions are Spanish adaptations of Wiktionnaire
 under CC BY-SA 4.0. Each original course example has separate attribution in the
