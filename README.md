@@ -198,6 +198,7 @@ node scripts/smoke-tense-expansion.cjs 5174
 node scripts/smoke-written-sentences.cjs 5174
 node scripts/smoke-preferences-layout.cjs 5174
 node scripts/smoke-session-continuity.cjs 5174
+node scripts/smoke-voice-start-failures.cjs 5174
 ```
 
 The helpers check 320x640, 390x844, 844x390 and 1024x768 viewport rendering,
@@ -213,6 +214,9 @@ behavior. Screenshots are saved to `/tmp/lang-lessons-preferences-layout`.
 The continuity helper checks direct entry, reload and return for all three
 exercises, including draft/identity/photo preservation and no written-only
 resume/finalize controls or audio requests.
+The voice-start failure helper renders safe provider-error messages with
+simulated transport, verifies microphone cleanup and preserves written progress.
+It never contacts a provider or validates real audio.
 `SCREENSHOT_PATH=/tmp/lang-lessons-home.png` optionally captures the home screen.
 Owned UI and feature fixtures run independently with
 `UX_BROWSER=1 node --import tsx --test tests/ux-browser.test.ts`,

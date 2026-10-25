@@ -131,6 +131,32 @@ provider during live sessions; provider retention, account controls, exact costs
 physical mobile support and acoustic/latency quality have not been verified.
 No public deployment, auth system, analytics, CI or database is installed here.
 
+## Startup failure diagnostics
+
+The authenticated readiness endpoint checks configuration presence. A ready
+response does not prove that the provider will accept a call, that credits or
+spending allowance remain, or that a microphone can connect.
+
+Local broker authentication and provider authentication are separate. A rejected
+provider request remains broker HTTP 502. Its optional `failure` envelope contains
+only a validated category and numeric upstream status; the browser chooses a
+static message. Provider messages, response bodies, arbitrary codes and request
+identifiers are never displayed or exported. Unknown or mismatched diagnostics
+retain the generic startup error.
+
+Known provider credit, spending, quota, rate, access, configuration and model
+failures follow the [official API error codes](https://developers.openai.com/api/docs/guides/error-codes#api-errors).
+Only a 429 or 404 diagnostic body is inspected, with a 4 KiB byte limit and a
+one-second deadline. Rejected canonical reservations and local leases are
+released before diagnostic parsing. A failed diagnostic stream cannot keep a
+rejected call reserved. Upstream network failures still retain their existing
+conservative ambiguous-call behavior.
+
+When Phoenix is configured, the server-observed creation span records upstream
+HTTP status and the allowlisted failure category. Configuring diagnostics does
+not enable telemetry, transcript capture, calls or automatic retries. A startup
+failure never creates learner assessment evidence.
+
 ## Validation categories
 
 Unit tests use deterministic fixtures and a fake clock. Protocol tests inject

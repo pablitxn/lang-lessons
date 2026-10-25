@@ -1,4 +1,5 @@
-import { TIMING, sameExercise, type ExerciseContext, type VoiceAdapter, type VoiceEvent } from '../contracts';
+import { TIMING, sameExercise, parseVoiceStartFailure, type ExerciseContext, type VoiceAdapter, type VoiceEvent, type VoiceStartFailureCategory } from '../contracts';
+import { readBoundedJsonResponse } from '../platform/bounded-json';
 import { assessSpelling } from '../assessment/spelling';
 import { createRealtimeTelemetry, type RealtimeTelemetry } from './telemetry';
 import { createRealtimeProtocol, isObject, type RealtimeProtocol } from './protocol';
@@ -28,14 +29,35 @@ class PreviousCallCloseError extends Error {
 class VoiceStartError extends Error {
   constructor(message: string, readonly code: Extract<VoiceEvent, { type: 'error' }>['code'] = 'connection') { super(message); }
 }
-function brokerStartError(status: number) {
-  // Status codes are the broker contract. Never reflect untrusted provider or
-  // proxy response bodies into the lesson, logs, or diagnostics.
+const providerFailureMessages: Record<VoiceStartFailureCategory, string> = {
+  authentication: 'The voice service could not authenticate with its provider. Ask the administrator to check its credentials.',
+  permission: 'The voice service is not permitted to create calls. Ask the administrator to check provider access.',
+  quota: 'The voice service has reached its usage allowance. Ask the administrator to check credits and limits before retrying.',
+  'credits-exhausted': 'The voice service has no API credit available. Ask the administrator to check billing before retrying.',
+  'project-spend-limit': 'The voice service has reached its project spending limit. Ask the administrator to review it before retrying.',
+  'organization-spend-limit': 'The voice service has reached its organization spending limit. Ask the administrator to review it before retrying.',
+  'usage-limit': 'The voice service has reached its provider usage limit. Ask the administrator to review it before retrying.',
+  'rate-limit': 'The voice provider is limiting requests right now. Wait before starting another call.',
+  configuration: 'The voice provider rejected the call configuration. Ask the administrator to review the voice service.',
+  'model-unavailable': 'The configured voice model is unavailable to this service. Ask the administrator to check model access.',
+  unavailable: 'The voice provider is temporarily unavailable. Try again later.',
+  rejected: 'The voice provider rejected this call. Ask the administrator to check the voice service before retrying.',
+};
+async function brokerStartError(response: Response) {
+  // Only an allowlisted diagnostic can select a static message. Provider and
+  // proxy text never enters the lesson, logs, or learning evidence.
+  const status = response.status;
   if (status === 401) return new VoiceStartError('Your sign-in expired. Sign in again before starting the tutor.', 'configuration');
   if (status === 403) return new VoiceStartError('Your account does not have access to tutor calls.', 'configuration');
   if (status === 400 || status === 409) return new VoiceStartError('This lesson has changed. Reopen it before starting the tutor again.', 'configuration');
   if (status === 429) return new VoiceStartError('Another tutor call is still active. End it before starting a new call.');
   if (status === 503) return new VoiceStartError('Tutor calls are unavailable right now. Try again when the voice service is ready.', 'configuration');
+  if (status === 502) {
+    const body = await readBoundedJsonResponse(response);
+    const failure = isObject(body) ? parseVoiceStartFailure(body.failure) : null;
+    if (failure) return new VoiceStartError(providerFailureMessages[failure.category],
+      ['rate-limit', 'unavailable', 'rejected'].includes(failure.category) ? 'connection' : 'configuration');
+  }
   return new VoiceStartError('The voice service could not start this call. Please try again.');
 }
 interface ReleaseTask { endpoint: string; run(): Promise<void> }
@@ -188,7 +210,7 @@ export function createRealtimeVoiceAdapter(options: RealtimeVoiceOptions = {}): 
         const response = await deps.fetch(endpoint.href, { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sdp: offer.sdp, ...(options.segment ? { segment: options.segment } : {}) }), credentials: 'same-origin',
           signal: AbortSignal.any([resource.controller.signal, AbortSignal.timeout(15000)]) });
-        if (!response.ok) throw brokerStartError(response.status);
+        if (!response.ok) throw await brokerStartError(response);
         const payload: unknown = await response.json();
         if (!isObject(payload) || typeof payload.sdp !== 'string' || !payload.sdp.startsWith('v=0')
           || payload.sdp.length > 60000 || !Number.isInteger(payload.maxDurationSeconds)
