@@ -13,7 +13,7 @@ function setup(clock?: FakeClock) {
   protocol.setContext(verbContext());
   const receive = (event: object) => protocol.receive(JSON.stringify(event));
   const requestId = () => ((sent.filter(event => event.type === 'response.create').at(-1)!.response as Record<string, unknown>).metadata as { request_id: string }).request_id;
-  const finish = (id: string, payload: object) => receive({ type: 'response.done', response: { id: `r-${id}`, metadata: { request_id: id }, status: 'completed', output: [{ type: 'message', content: [{ type: 'text', text: JSON.stringify(payload) }] }] } });
+  const finish = (id: string, payload: object) => receive({ type: 'response.done', response: { id: `r-${id}`, metadata: { request_id: id }, status: 'completed', output: [{ type: 'function_call', name: 'report_lesson_result', arguments: JSON.stringify(payload) }] } });
   return { protocol, sent, events, output, receive, requestId, finish };
 }
 const ref: AttemptRef = { sessionId: 's1', exerciseId: 'e1', generation: 1, obligation: 'pronunciation:base', attemptId: 'a1', revision: 1 };
