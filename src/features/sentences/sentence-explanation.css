@@ -1,0 +1,15 @@
+.sentences-explanation { margin-top: 24px; padding: clamp(18px, 3vw, 24px); border: 1px solid var(--line, #d9dfd5); border-radius: 16px; background: var(--surface, #eef0e7); overflow-wrap: anywhere; }
+.sentences-explanation-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 18px; }
+.sentences-explanation h2 { margin: 0; font-size: .8125rem; font-weight: 650; line-height: 1.5; }
+.sentences-explanation .sentences-explanation-tense { display: inline-block; padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--primary, #08675f) 28%, transparent); border-radius: 999px; color: var(--primary, #08675f); font-size: .75rem; font-weight: 600; line-height: 1.5; }
+.sentences-explanation .sentences-explanation-example { margin: 0 0 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line, #d9dfd5); font-size: 1.125rem; line-height: 1.6; }
+.sentences-explanation-details { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.sentences-explanation .sentences-explanation-details h3 { margin: 0 0 8px; color: var(--muted, #5c6d65); font-size: .75rem; font-weight: 600; line-height: 1.5; letter-spacing: 0; }
+.sentences-explanation .sentences-explanation-details p { margin: 8px 0 0; font-size: .875rem; line-height: 1.7; }
+.sentences-explanation .sentences-explanation-formula { display: flex; flex-wrap: wrap; gap: 6px 0; padding: 10px 12px; border-radius: 9px; background: color-mix(in srgb, var(--paper, #fffefa) 70%, transparent); color: var(--primary, #08675f); font-weight: 600; }
+.sentences-explanation-formula-part { display: inline-flex; align-items: baseline; min-width: 0; }
+.sentences-explanation-plus { flex: none; margin-inline: 8px; color: var(--muted, #5c6d65); font-weight: 400; }
+.sentences-explanation-notes { margin: 18px 0 0; padding: 14px 0 0 18px; border-top: 1px solid var(--line, #d9dfd5); color: var(--muted, #5c6d65); font-size: .8125rem; line-height: 1.65; }
+.sentences-explanation-notes li + li { margin-top: 6px; }
+.sentences-explanation .sentences-explanation-reference { margin: 0 0 8px; color: var(--muted, #5c6d65); font-size: .75rem; }
+@media (min-width: 720px) { .sentences-explanation-details { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; } }

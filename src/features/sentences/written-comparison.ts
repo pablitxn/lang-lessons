@@ -1,10 +1,11 @@
 import { alignGraphemes } from '../../assessment/spelling';
-import type { LearningLanguage, SentenceEntry } from '../../contracts';
+import type { LearningLanguage, SentenceEntry, WrittenTranslationReview } from '../../contracts';
 
 /** UTF-16 code units, matching the native input maxLength attribute. */
 export const MAX_WRITTEN_TRANSLATION_LENGTH = 1000;
 type Alternative = SentenceEntry['alternatives'][number];
 export interface WrittenComparisonSegment { text: string; different: boolean; gap: boolean }
+export interface ReviewedComparisonSegment extends WrittenComparisonSegment { hint?: string }
 export interface WrittenComparisonResult {
   status: 'empty' | 'matched' | 'different' | 'too-long';
   submittedText: string;
@@ -80,6 +81,23 @@ function plainSegments(text: string): WrittenComparisonSegment[] {
   return text ? [{ text, different: false, gap: false }] : [];
 }
 
+/** Reference distance is not an error verdict; mark only reviewed, grounded issues. */
+export function reviewedFeedbackSegments(result: WrittenComparisonResult, review?: WrittenTranslationReview): ReviewedComparisonSegment[] {
+  if (result.status !== 'different' || review?.status !== 'needs-revision') return plainSegments(result.submittedText);
+  const issues = review.issues.map(issue => ({ ...issue, start: result.submittedText.indexOf(issue.text) })).sort((a, b) => a.start - b.start);
+  const segments: ReviewedComparisonSegment[] = [];
+  let offset = 0;
+  for (const issue of issues) {
+    // The boundary parser normally guarantees this; rendering still fails neutral.
+    if (issue.start < offset || !issue.text || result.submittedText.indexOf(issue.text, issue.start + 1) !== -1) return plainSegments(result.submittedText);
+    if (issue.start > offset) segments.push({ text: result.submittedText.slice(offset, issue.start), different: false, gap: false });
+    segments.push({ text: issue.text, different: true, gap: false, hint: issue.hint });
+    offset = issue.start + issue.text.length;
+  }
+  if (offset < result.submittedText.length) segments.push({ text: result.submittedText.slice(offset), different: false, gap: false });
+  return segments;
+}
+
 /** Compare with authored examples; a different wording is not a linguistic rejection. */
 export function compareWrittenTranslation(text: string, alternatives: SentenceEntry['alternatives'], language: LearningLanguage = alternatives.some(item => item.tense.startsWith('fr-')) ? 'fr' : 'en'): WrittenComparisonResult {
   const result = { submittedText: text, segments: plainSegments(text) };
@@ -107,4 +125,38 @@ export function compareWrittenTranslation(text: string, alternatives: SentenceEn
   });
   if (gaps.has(input.graphemes.length)) segments.push({ text: '', different: true, gap: true });
   return { submittedText: text, status: 'different', segments, closestAlternative: closest.alternative };
+}
+
+/** Show complete learner words and explicit omission positions without supplying answers. */
+export function writtenFeedbackSegments(result: WrittenComparisonResult, language: LearningLanguage = 'en'): WrittenComparisonSegment[] {
+  if (result.status !== 'different' || !result.closestAlternative) return result.segments;
+  const input = normalize(result.submittedText, language);
+  const words: Unit[] = [];
+  let word: Unit | undefined;
+  for (const unit of input.units) {
+    if (unit.value === ' ') { word = undefined; continue; }
+    if (!word) { word = { value: '', indices: [] }; words.push(word); }
+    word.value += unit.value;
+    word.indices.push(...unit.indices);
+  }
+  let closest: ReturnType<typeof alignGraphemes> | undefined;
+  for (const variant of targetVariants(result.closestAlternative.text, language)) {
+    const target = variant.join('').split(/\s+/u).filter(Boolean);
+    const alignment = alignGraphemes(words.map(item => item.value), target);
+    if (!closest || alignment.distance < closest.distance) closest = alignment;
+  }
+  if (!closest) return result.segments;
+  const different = new Set(closest.incorrectGraphemeIndices.flatMap(index => words[index]!.indices));
+  const gaps = new Set(closest.missingGraphemeIndices.map(index =>
+    words[index]?.indices[0] ?? ((words.at(-1)?.indices.at(-1) ?? -1) + 1)));
+  const segments: WrittenComparisonSegment[] = [];
+  input.graphemes.forEach((part, index) => {
+    if (gaps.has(index)) segments.push({ text: '', different: true, gap: true });
+    const previous = segments.at(-1);
+    const marked = different.has(index);
+    if (previous && !previous.gap && previous.different === marked) previous.text += part;
+    else segments.push({ text: part, different: marked, gap: false });
+  });
+  if (gaps.has(input.graphemes.length)) segments.push({ text: '', different: true, gap: true });
+  return segments;
 }

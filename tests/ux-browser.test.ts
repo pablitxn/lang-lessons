@@ -242,7 +242,7 @@ test('answer keyboard navigation skips passive feedback and retains actionable h
     for (const mode of ['verb-image', 'verb-visible', 'sentence']) {
       const context = await browser.newContext({ viewport: { width: 320, height: 640 } });
       const transport = await installBrowserTransport(context, origin, { enabled: false });
-      await context.route(`${origin}/api/realtime/sentence-hint`, (route: any) => route.fulfill({ json: { hint: 'Revisa la forma del verbo.' } }));
+      await context.route(`${origin}/api/realtime/sentence-hint`, (route: any) => route.fulfill({ json: { status: 'needs-revision', tense: null, grammar: '', hint: '', issues: [{ text: 'wrong', hint: 'Revisa la forma del verbo.' }] } }));
       const page = await context.newPage(); const errors: string[] = [];
       page.on('pageerror', (error: Error) => errors.push(error.message));
       await page.goto(`${origin}/#/${mode}`, { waitUntil: 'networkidle' });
@@ -272,8 +272,11 @@ test('answer keyboard navigation skips passive feedback and retains actionable h
         await translation.fill('He buys bread every morning.'); await translation.press('Enter');
         const tense = page.getByRole('combobox', { name: 'Verb tense', exact: true }); await tense.waitFor();
         const next = page.getByRole('button', { name: 'Next sentence', exact: true });
+        const dictionary = page.getByRole('button', { name: 'Diccionario', exact: true });
         await translation.focus(); await page.keyboard.press('Tab'); await focused(next);
+        await page.keyboard.press('Tab'); await focused(dictionary);
         await page.keyboard.press('Tab'); await focused(tense);
+        await page.keyboard.press('Shift+Tab'); await focused(dictionary);
         await page.keyboard.press('Shift+Tab'); await focused(next);
         await page.keyboard.press('Shift+Tab'); await focused(translation);
       }

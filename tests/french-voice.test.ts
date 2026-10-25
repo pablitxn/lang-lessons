@@ -92,7 +92,7 @@ test('French audio assessment keeps audio provenance and discards a prior exerci
 
 const origin = 'http://127.0.0.1:5174';
 const envelope = (hint: string) => Response.json({ status: 'completed', output: [
-  { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify({ hint }) }] },
+  { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: JSON.stringify({ status: 'uncertain', tense: null, grammar: '', hint, issues: [] }) }] },
 ] });
 async function hintRequest(body: object, fetcher: typeof fetch, authorize?: (sessionId: string, language: LearningLanguage) => Promise<void>) {
   const handler = createSentenceHintHandler({ apiKey: 'fixture-only', model: 'fixture-model', allowedOrigins: [origin] }, fetcher);
@@ -134,6 +134,26 @@ test('French written hints suppress tense leaks and complete target answers', as
   for (const text of ['Usa el passé composé.', 'Usa el imparfait.', 'Usa el futur proche.', 'Usa el conditionnel présent.', sentence.alternatives[0]!.text]) {
     assert.equal((await hintRequest(body, async () => envelope(text))).status, 502);
   }
+});
+
+test('accepted French written reviews use only authoritative French tense values', async () => {
+  const sentence = ALL_SENTENCES.find(item => item.language === 'fr'); assert.ok(sentence);
+  const body = { helpEnabled: true, sentenceId: sentence.id, draft: sentence.alternatives[0]!.text };
+  let tense: string = sentence.alternatives[0]!.tense;
+  const fetcher: typeof fetch = async (_url, init) => {
+    const request = JSON.parse(String(init?.body));
+    const data = JSON.parse(request.input[0].content[0].text);
+    assert.ok(data.allowedTenses.every((value: string) => value.startsWith('fr-')));
+    assert.deepEqual(request.text.format.schema.properties.tense.enum, [...data.allowedTenses, null]);
+    return Response.json({ status: 'completed', output: [{ type: 'message', role: 'assistant', content: [{ type: 'output_text',
+      text: JSON.stringify({ status: 'accepted', tense, grammar: 'La construcción expresa en francés la situación de la consigna.', hint: '', issues: [] }),
+    }] }] });
+  };
+  const result = await hintRequest(body, fetcher);
+  assert.equal(result.status, 200);
+  assert.deepEqual(result.body, { status: 'accepted', tense, grammar: 'La construcción expresa en francés la situación de la consigna.', hint: '', issues: [] });
+  tense = 'present-simple';
+  assert.equal((await hintRequest(body, fetcher)).status, 502, 'An English tense cannot classify a French translation');
 });
 
 test('provider session defaults to English and accepts only the canonical French binding', () => {

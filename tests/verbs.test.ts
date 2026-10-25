@@ -331,7 +331,7 @@ test('fresh lesson launches use a fresh injected shuffle and reject invalid rand
   }
 });
 
-test('both verb modes require every oral gate plus only their editable spelling fields, then Pictures awaits Next while visible verbs advance once after quiet', async () => {
+test('both verb modes report full completion once after quiet and retain the dictionary until explicit Next', async () => {
   for (const mode of ['verb-image', 'verb-visible'] as const) {
     const { session, voice, clock, completed } = setup(mode);
     const initial = session.getSnapshot().assessment;
@@ -341,12 +341,11 @@ test('both verb modes require every oral gate plus only their editable spelling 
     await oral(session, voice);
     clock.advance(1799); assert.equal(completed.length, 0);
     clock.advance(1); assert.deepEqual(completed, [initial.exerciseId]);
-    if (mode === 'verb-image') {
-      clock.advance(10000);
-      assert.equal(session.getSnapshot().assessment.exerciseId, initial.exerciseId);
-      session.nextPicture(initial.exerciseId);
-      session.nextPicture(initial.exerciseId); // A stale second click cannot skip generation 2.
-    }
+    clock.advance(10000);
+    assert.equal(session.getSnapshot().writtenComplete, true);
+    assert.equal(session.getSnapshot().assessment.exerciseId, initial.exerciseId);
+    assert.equal(session.nextVerb(initial.exerciseId), true);
+    assert.equal(session.nextVerb(initial.exerciseId), false, 'A stale second click cannot skip generation 2');
     const next = session.getSnapshot();
     assert.equal(next.assessment.generation, 2);
     assert.notEqual(next.assessment.context.mode === 'sentence' ? '' : next.assessment.context.verb.id, 'be');

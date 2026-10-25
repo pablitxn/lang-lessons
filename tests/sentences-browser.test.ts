@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
+import { SENTENCES } from '../src/content';
+import { matchingSentences } from '../src/features/sentences/session';
 
 test('sentence feature browser flow preserves controller stages, alternatives, no spoilers and lifecycle', {
   skip: process.env.SENTENCES_BROWSER !== '1', timeout: 90000,
@@ -24,7 +26,10 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       const errors: string[] = []; const external: string[] = [];
       page.on('pageerror', (error: Error) => errors.push(error.message));
       page.on('request', (request: { url(): string }) => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
-      await page.addInitScript(() => { Math.random = () => 0.999; });
+      const pool = matchingSentences({ grammar: 2, vocabulary: 1 }, SENTENCES, 'present-perfect');
+      const targetIndex = pool.findIndex(sentence => sentence.id === 'sentence-since-2020');
+      assert.ok(targetIndex >= 0);
+      await page.addInitScript((sample: number) => { Math.random = () => sample; }, (targetIndex + .5) / pool.length);
       await page.goto(`http://127.0.0.1:${port}/src/features/sentences/__fixtures__/preview.html`, { waitUntil: 'networkidle' });
       const lesson = page.locator('.ll-sentences[data-exercise-id]');
       await lesson.waitFor();
@@ -41,6 +46,26 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       assert.doesNotMatch(await sheet.innerText(), /present perfect|present simple|have\/has|We have/i);
       await page.getByRole('button', { name: 'Close table', exact: true }).click();
       assert.equal(await lesson.getAttribute('data-exercise-id'), oldId);
+      const grammar = lesson.getByRole('region', { name: 'La gramática de esta frase', exact: true });
+      const writtenAnswer = lesson.getByRole('textbox', { name: 'English translation', exact: true });
+      assert.equal(await grammar.count(), 0, 'Grammar must not reveal the tense before completion');
+      await writtenAnswer.fill("We've been living here since 2020.");
+      await writtenAnswer.press('Enter');
+      const writtenTense = lesson.getByRole('combobox', { name: 'Verb tense', exact: true });
+      await writtenTense.waitFor();
+      assert.equal(await grammar.count(), 0, 'The learner still needs to identify the matched construction');
+      await writtenTense.click();
+      await page.getByRole('option', { name: 'Present perfect', exact: true }).click();
+      assert.equal(await grammar.count(), 0, 'An incorrect tense must not reveal the explanation');
+      await writtenTense.click();
+      await page.getByRole('option', { name: 'Present perfect continuous', exact: true }).click();
+      await grammar.waitFor();
+      assert.match(await grammar.innerText(), /Present perfect continuous/);
+      assert.match(await grammar.innerText(), /have\/has been/i);
+      assert.equal(await grammar.getAttribute('lang'), 'es');
+      assert.equal(await lesson.getAttribute('data-stage'), 'translation', 'Written explanation must not create oral evidence');
+      await writtenAnswer.fill('');
+      await grammar.waitFor({ state: 'detached' });
       await page.getByRole('button', { name: 'Ask voice coach for a hint', exact: true }).click();
       await page.evaluate(() => window.sentenceFixture.voice.hint('The answer is We have lived here since 2020. Use present perfect.'));
       await lesson.locator('.ll-hint').waitFor();
@@ -67,6 +92,8 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       await page.evaluate(() => window.sentenceFixture.voice.assess());
       const next = page.getByRole('button', { name: 'Next exercise', exact: true });
       await next.waitFor(); assert.equal(await page.getByTestId('completion-count').innerText(), '0');
+      await grammar.waitFor();
+      assert.match(await grammar.innerText(), /Ejemplo de referencia/, 'Oral completion does not claim an exact authored match');
       await page.evaluate(() => window.sentenceFixture.voice.speech(true)); assert.equal(await next.isDisabled(), true);
       await page.evaluate(() => window.sentenceFixture.voice.speech(false));
       await page.evaluate(() => {
@@ -89,17 +116,20 @@ test('sentence feature browser flow preserves controller stages, alternatives, n
       await page.waitForFunction((id: string) => document.querySelector('.ll-sentences')?.getAttribute('data-exercise-id') !== id, oldId);
       assert.equal(await page.getByTestId('completion-count').innerText(), '1');
       assert.equal(await lesson.getAttribute('data-stage'), 'translation');
+      assert.equal(await grammar.count(), 0, 'A new exercise must not retain the previous explanation');
       await page.getByText('Fixture controls', { exact: true }).click();
-      await page.getByRole('button', { name: 'Set unsupported pair', exact: true }).click();
+      await page.getByRole('button', { name: 'Set advanced pair', exact: true }).click();
       await page.getByText('New difficulty settings apply to the next prompt. Your current work is preserved.', { exact: true }).waitFor();
       assert.equal(await lesson.getAttribute('data-stage'), 'translation');
       await page.getByRole('button', { name: 'Unmount lesson', exact: true }).click();
       assert.equal(await page.evaluate(() => window.sentenceFixture.voice.listeners.size), 0);
       assert.equal(await page.evaluate(() => window.sentenceFixture.voice.disconnects), 0);
       await page.getByRole('button', { name: 'Mount lesson', exact: true }).click();
-      await page.getByText(/No authored prompt matches grammar 3 and vocabulary 3/).waitFor();
-      assert.equal(await page.evaluate(() => window.sentenceFixture.voice.listeners.size), 0);
-      await page.getByRole('button', { name: 'Restore supported pair', exact: true }).click();
+      await lesson.waitFor();
+      assert.deepEqual(await page.evaluate(() => window.sentenceFixture.voice.context.mode === 'sentence'
+        ? window.sentenceFixture.voice.context.sentence.difficulty : null), { grammar: 3, vocabulary: 3 });
+      assert.equal(await page.evaluate(() => window.sentenceFixture.voice.listeners.size), 1);
+      await page.getByRole('button', { name: 'Restore initial pair', exact: true }).click();
       await lesson.waitFor(); assert.equal(await page.evaluate(() => window.sentenceFixture.voice.listeners.size), 1);
       assert.deepEqual(errors, []); assert.deepEqual(external, []);
       await context.close();

@@ -1,0 +1,6 @@
+.ll-info-tooltip-root { position: relative; display: flex; justify-content: flex-end; width: 100%; }
+.ll-button.ll-info-button { width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 11px; border: 0; border-radius: 50%; background: transparent; color: var(--muted, #5c6d65); pointer-events: auto; }
+.ll-button.ll-info-button:hover { background: color-mix(in srgb, var(--ink, #203b32) 8%, transparent); color: var(--ink, #203b32); }
+.ll-info-button svg { display: block; width: 20px; height: 20px; }
+.ll-info-tooltip { position: absolute; z-index: 5; bottom: 100%; right: 0; box-sizing: border-box; width: max-content; max-width: min(26rem, 100%, calc(100vw - 16px)); padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--line, #d9dfd5) 55%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--paper, #fffefa) 82%, transparent); backdrop-filter: blur(8px); color: var(--ink, #203b32); box-shadow: 0 3px 12px #00000010; font-size: .8125rem; line-height: 1.4; overflow-wrap: anywhere; overflow-y: auto; overscroll-behavior: contain; pointer-events: auto; }
+.ll-info-tooltip.ll-info-tooltip-portal { position: fixed; z-index: 80; inset: auto; max-width: min(22.5rem, calc(100vw - 16px)); background: var(--paper, #fffefa); }

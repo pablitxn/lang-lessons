@@ -3,6 +3,7 @@ import frenchSnapshot from '../features/verbs/dictionary/french.snapshot.json';
 import type { LearningLanguage } from '../contracts';
 import englishSnapshotUrl from '../features/verbs/dictionary/wiktionary.snapshot.json?url';
 import frenchSnapshotUrl from '../features/verbs/dictionary/french.snapshot.json?url';
+import { DictionaryCredits } from '../ui/dictionary/DictionaryCredits';
 
 /** Keep the full attribution available without interrupting a learning exercise. */
 export function LearningCredits({ language = 'en' }: { language?: LearningLanguage }) {
@@ -10,6 +11,7 @@ export function LearningCredits({ language = 'en' }: { language?: LearningLangua
   const snapshotUrl = language === 'fr' ? frenchSnapshotUrl : englishSnapshotUrl;
   return <section className="preferences-section learning-credits" aria-labelledby="credits-title">
     <h3 id="credits-title">Credits</h3>
+    <DictionaryCredits language={language} />
     <h4>Dictionary</h4>
     <p>Definitions, pronunciations and examples by {snapshot.attribution}, under <a href={snapshot.licenseUrl} target="_blank" rel="noreferrer">{snapshot.license}</a>.</p>
     <p>Selected {language === 'fr' ? 'French' : 'English'} verb senses. {snapshot.modifications}</p>

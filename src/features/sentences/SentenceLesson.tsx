@@ -1,16 +1,19 @@
 import { createWrittenPracticeBinding } from '../progress/written-practice-binding';
 import type { WrittenPracticeBinding } from '../progress/written-snapshot';
 import { useWrittenActivity, type WrittenActivityBinding } from '../progress/use-written-activity';
-import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { getLanguage, isQuiet, type LessonModuleProps, type VoiceState } from '../../contracts';
-import { PracticeLayout, ExerciseCue, ProgressDialog, ReferenceTable, SentencePrompt } from '../../ui/mobile';
+import { PracticeLayout, ProgressDialog, ReferenceTable, SentencePrompt } from '../../ui/mobile';
 import { createSentenceSession, matchingSentences, type SentenceSession } from './session';
 import './sentences.css';
 import { getTenseGuide } from '../../content/tense-guide';
 import { sentencesForLanguage } from '../../content';
 import { WrittenTranslation } from './WrittenTranslation';
 import { useWrittenHint } from './use-written-hint';
-import { WrittenTense } from './WrittenTense';
+import { WrittenTense, type WrittenTenseResult } from './WrittenTense';
+import { SentenceExplanation } from './SentenceExplanation';
+import { SentenceRewritePractice } from './SentenceRewritePractice';
+import { ReviewedTranslationPractice } from './ReviewedTranslationPractice';
 
 export interface SentenceLessonProps extends LessonModuleProps {
   /** Root-owned connection state can seed a feature mounted after connection. */
@@ -67,7 +70,17 @@ export function SentenceLesson(props: SentenceLessonProps) {
   const tenseResult = view?.written.selectedTense && writtenResult?.matchedAlternative
     ? { selected: view.written.selectedTense, correct: view.written.selectedTense === writtenResult.matchedAlternative.tense } : undefined;
   const hintSentenceId = view?.assessment.context.mode === 'sentence' && getLanguage(view.assessment.context) === language ? view.assessment.context.sentence.id : undefined;
-  const writtenHint = useWrittenHint(hintSentenceId, writtenResult, settings.helpEnabled, sessionId);
+  const writtenHint = useWrittenHint(hintSentenceId, writtenResult, settings.helpEnabled, sessionId, view?.assessment, language);
+  const acceptedReview = writtenResult?.status === 'different' && writtenHint?.status === 'ready' && writtenHint.review?.status === 'accepted'
+    ? writtenHint.review : undefined;
+  const reviewedPracticeKey = acceptedReview && writtenResult && view
+    ? JSON.stringify([view.assessment.sessionId, view.assessment.exerciseId, view.assessment.generation, view.writtenRestoreVersion, writtenResult.submittedText, acceptedReview.tense]) : '';
+  const [reviewedTense, setReviewedTense] = useState<{ key: string; result: WrittenTenseResult }>();
+  const currentReviewedKey = useRef(reviewedPracticeKey); currentReviewedKey.current = reviewedPracticeKey;
+  // Editing away and returning to the same text starts fresh transient practice.
+  useLayoutEffect(() => { setReviewedTense(undefined); }, [reviewedPracticeKey]);
+  const displayedTenseResult = acceptedReview
+    ? reviewedTense?.key === reviewedPracticeKey ? reviewedTense.result : undefined : tenseResult;
   if (!view || !session || view.assessment.context.mode !== 'sentence' || getLanguage(view.assessment.context) !== language) {
     return <div className="ll-sentences" role="status">{matchingSentences(settings.difficulty, sentences, settings.sentenceTense).length
       ? localize('Preparing your sentence…', 'Preparando tu frase…') : localize(`No authored prompt matches grammar ${settings.difficulty.grammar} and vocabulary ${settings.difficulty.vocabulary} with the selected sentence tense. Change difficulty or Sentence tenses in Preferences.`, `No hay frases para gramática ${settings.difficulty.grammar}, vocabulario ${settings.difficulty.vocabulary} y el tiempo elegido. Cambiá la dificultad o el tiempo verbal en Preferencias.`)}</div>;
@@ -76,6 +89,8 @@ export function SentenceLesson(props: SentenceLessonProps) {
   if (snapshot.context.mode !== 'sentence') return null;
   const sentence = snapshot.context.sentence;
   const stage = snapshot.context.stage;
+  const explainedAlternative = acceptedReview ? undefined : tenseResult?.correct ? writtenResult?.matchedAlternative
+    : stage === 'complete' ? sentence.alternatives[0] : undefined;
   const busy = snapshot.interaction.connection !== 'ready' || snapshot.interaction.intent !== 'practice'
     || snapshot.hintPending || snapshot.interaction.processingCount > 0;
   const changedDifficulty = sentence.difficulty.grammar !== view.requestedDifficulty.grammar
@@ -94,24 +109,29 @@ export function SentenceLesson(props: SentenceLessonProps) {
     <PracticeLayout controls={<div className="ll-actions">
       <ProgressDialog language={language} mode="sentence" identity={snapshot} evidence={snapshot.evidence}
         onHoldChange={session.setPresentationHold} controls={props.sessionControls}>
-        <p className="ll-written-progress">{localize('Written translation: ', 'Traducción escrita: ')}{writtenResult?.status === 'matched' ? localize('Checked', 'Comprobado') : writtenResult?.status === 'different' ? localize('Review the highlighted text', 'Revisá el texto resaltado') : localize('Not checked', 'Sin comprobar')}</p>
-        <p className="ll-written-progress">{localize('Written tense: ', 'Tiempo escrito: ')}{tenseResult?.correct ? localize('Checked', 'Comprobado') : tenseResult ? localize('Try another tense', 'Probá otro tiempo') : localize('Not checked', 'Sin comprobar')}</p>
+        <p className="ll-written-progress">{localize('Written translation: ', 'Traducción escrita: ')}{acceptedReview || writtenResult?.status === 'matched' ? localize('Checked', 'Comprobado') : writtenHint?.review?.status === 'needs-revision' ? localize('Review the highlighted text', 'Revisá el texto resaltado') : localize('Not checked', 'Sin comprobar')}</p>
+        <p className="ll-written-progress">{localize('Written tense: ', 'Tiempo escrito: ')}{displayedTenseResult?.correct ? localize('Checked', 'Comprobado') : displayedTenseResult ? localize('Try another tense', 'Probá otro tiempo') : localize('Not checked', 'Sin comprobar')}</p>
       </ProgressDialog>
       <ReferenceTable language={language} title={localize("Sentence practice guide", "Guía de práctica de frases")} caption={stage === 'translation' ? localize('Meaning-focused practice guide', 'Guía centrada en el significado') : localize('Structures for your explanation', 'Estructuras para tu explicación')}
         columns={language === 'fr' ? ['Objetivo', 'Orientación'] : ['Focus', 'Guidance']} rows={rows} onHoldChange={session.setPresentationHold} controls={props.sessionControls} />
     </div>}>
       {progressError && <p role="status">{localize('Progress could not be saved. Your current practice remains available.', 'No se pudo guardar el progreso. Tu práctica actual sigue disponible.')}</p>}
-      <ExerciseCue spanish={sentence.spanish} />
-      <div className="sentences-navigation">
-        <WrittenTranslation language={language} key={`${snapshot.exerciseId}:${view.writtenRestoreVersion}`} initialDraft={view.written.draft} initialFinalized={view.written.finalized} onDraftChange={session.editWritten} sentence={sentence} helpEnabled={settings.helpEnabled} hint={writtenHint}
-          onResultChange={result => { if (result) session.finalizeWritten(); else session.invalidateWritten(); }} />
-        {stage !== 'complete' && <button type="button" className="ll-button ll-next" data-skip-written-check onClick={() => session.skip()} disabled={view.nextPoolSize === 0} aria-label={localize("Next sentence", "Siguiente frase")} title={localize("Next sentence", "Siguiente frase")}>
+      <WrittenTranslation identity={snapshot} language={language} key={`${snapshot.exerciseId}:${view.writtenRestoreVersion}`} initialDraft={view.written.draft} initialFinalized={view.written.finalized} onDraftChange={session.editWritten} sentence={sentence} helpEnabled={settings.helpEnabled} hint={writtenHint}
+          onResultChange={result => { if (result) session.finalizeWritten(); else session.invalidateWritten(); }}
+        navigation={stage !== 'complete' && <button type="button" className="ll-button ll-next" data-skip-written-check onClick={() => session.skip()} disabled={view.nextPoolSize === 0} aria-label={localize("Next sentence", "Siguiente frase")} title={localize("Next sentence", "Siguiente frase")}>
           <span aria-hidden="true">→</span>
-        </button>}
-      </div>
+        </button>} />
       {writtenResult?.status === 'matched' && writtenResult.matchedAlternative && <WrittenTense language={language}
         key={`${snapshot.exerciseId}:${view.writtenRestoreVersion}:${writtenResult.submittedText}`} {...(view.written.selectedTense ? { initialSelected: view.written.selectedTense } : {})} expected={writtenResult.matchedAlternative.tense}
         onResultChange={result => session.selectWrittenTense(result.selected)} />}
+      {explainedAlternative && <SentenceExplanation sentence={sentence} alternative={explainedAlternative}
+        reference={!tenseResult?.correct} />}
+      {writtenResult?.status === 'matched' && <SentenceRewritePractice sentence={sentence} identity={snapshot} originalTranslation={writtenResult.submittedText} />}
+      {acceptedReview && writtenResult && <ReviewedTranslationPractice
+        key={reviewedPracticeKey} sentence={sentence} identity={snapshot} draft={writtenResult.submittedText} review={acceptedReview}
+        onTenseResult={result => {
+          if (currentReviewedKey.current === reviewedPracticeKey) setReviewedTense({ key: reviewedPracticeKey, result });
+        }} />}
       {changedDifficulty && <p role="status" className="ll-muted">{localize('New difficulty settings apply to the next prompt. Your current work is preserved.', 'La nueva dificultad se aplica a la próxima frase. Tu trabajo actual se conserva.')}</p>}
       {changedTense && <p role="status" className="ll-muted">{localize('The selected tense applies to the next prompt. Your current work is preserved.', 'El tiempo elegido se aplica a la próxima frase. Tu trabajo actual se conserva.')}</p>}
       {view.nextPoolSize === 0 && <p role="status" className="ll-muted">{localize('No authored prompt matches the selected difficulty and tense. Change either in Preferences; current work is preserved.', 'No hay una frase para la dificultad y el tiempo elegidos. Cambialos en Preferencias; tu trabajo actual se conserva.')}</p>}

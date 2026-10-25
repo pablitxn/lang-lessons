@@ -50,7 +50,9 @@ typed question form or independent call controls. Questions are spoken. Unclear
 oral input that is withheld from model assessment displays a concise repeat
 request, including an unclear queued turn after oral completion. Fresh clear
 speech, question resolution or a new exercise clears that notice. Internal
-fixtures retain explicit simulation controls and source markers.
+fixtures retain explicit simulation controls and source markers. The optional
+written sentence practice described below is separate from spoken questions and
+oral assessment.
 
 The 2026-10-16 integration request and verification receipt below describe the
 original checkpoint; they do not describe the current production interface.
@@ -145,8 +147,53 @@ The controller alone owns the 1,800ms quiet timer. Every applicable requirement
 must be accepted, with no speech, assistant output, processing, question, focused
 input, composition, active question draft, helper hold, pause/stop intent or
 connection problem. Stay here pauses rather than immediately advancing. After
-a genuine safe pause, `onComplete(exerciseId)` fires once and the next approved
-verb appears without a repeated permission-to-continue question.
+a genuine safe pause, `onComplete(exerciseId)` fires once. Both verb modes keep
+the current verb available for dictionary review until the learner selects Next.
+
+The local dictionary appears after all editable spelling fields are accepted:
+three fields in Pictures, two in the supplied-base Verb exercise. English and
+French reuse their reviewed, attributed snapshots without a runtime dictionary
+request. Dictionary visibility does not create oral evidence or report full
+completion. Editing a written form hides the card immediately; restored accepted
+writing can reveal it again. Next verifies the current exercise identity and
+written results, so a stale or repeated click cannot skip the following verb.
+
+`VerbCompletionCard` composes the shared dictionary, optional writing practice
+and explicit Next action for both verb modes. `VerbDictionaryEntry` presents the
+lemma, supplied pronunciation, Spanish curriculum meaning, unchanged sourced
+definitions and examples; `VerbFormSummary` displays the accepted forms.
+Source credits and licensing details remain in Preferences > Credits. These
+components reuse the same English and French curriculum contracts rather than fetching or
+generating dictionary content.
+
+After the spelling gate, learners can optionally open `VerbSentencePractice`
+and write a sentence using the current verb, in any tense or context. Only an
+explicit submit sends it to `/api/realtime/verb-writing`; opening, typing and
+reconnecting make no correction request, and failures have no automatic retry.
+The tutor returns brief Spanish feedback and, when needed, a corrected sentence
+in the lesson language. The learner's original draft stays editable, and a
+provider failure remains a retryable service error rather than a wrong answer.
+
+`VerbSentencePractice` is a contextual wrapper around the same `WrittenPractice`
+and `WrittenCoachingResult` used by Sentence. Both verb modes inherit the compact
+**Escribe otros ejemplos** disclosure, underline field, **Corregir** button and
+800/900/950 character-counter thresholds. The current verb is a short reference
+above the draft. No duplicate composer, optional badge, guidance paragraph or
+tutor/verdict heading remains. Shared prompts cover grammar, spelling, accents,
+capitalization and punctuation; the current verb requirement remains specific
+to verb practice. Corrections show case-sensitive word edits and plain Spanish
+feedback without changing the learner's intended meaning.
+For correct examples, the same prompt requests one or two brief grammatical
+observations grounded in the learner's actual wording, rather than generic praise.
+
+The broker reuses the existing server-only OpenAI key. Account authorization
+checks the owned, open verb session and current practice identity before the
+request; the server resolves the verb and language from curriculum. The client
+sends only the session, exercise and generation identity, verb ID and draft.
+Editing, closing practice or replacing the exercise cancels the request and
+invalidates late results. This optional coaching does not submit assessment
+evidence, satisfy oral obligations or write learner progress, and it never gates
+the explicit Next action.
 
 ## 2026-10-16 root integration request: live transcript reservation
 

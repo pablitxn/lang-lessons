@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { Pool } from 'pg';
-import type { CallSegmentRef, LearningLanguage } from '../../src/contracts';
+import type { CallSegmentRef, ExerciseIdentity, LearningLanguage } from '../../src/contracts';
 import type { createAuthAdapter } from '../auth/better-auth';
 import { authorize, type AuthenticatedIdentity, type AccessPolicy } from '../accounts/authorization';
 import { exactKeys, requireId, requireRevision, RepositoryError, transaction } from '../data/database';
@@ -12,6 +12,9 @@ export interface BrokerBinding { readonly identity: AuthenticatedIdentity; reado
 export interface BrokerAuthority {
   authenticate(request: IncomingMessage): Promise<AuthenticatedIdentity>;
   authorizeSentenceHint?(identity: AuthenticatedIdentity, sessionId: string, language: LearningLanguage): Promise<void>;
+  authorizeVerbWriting?(identity: AuthenticatedIdentity, exercise: ExerciseIdentity, language: LearningLanguage): Promise<void>;
+  authorizeSentenceRewrite?(identity: AuthenticatedIdentity, exercise: ExerciseIdentity, language: LearningLanguage): Promise<void>;
+  authorizeWordDictionary?(identity: AuthenticatedIdentity, exercise: ExerciseIdentity, language: LearningLanguage): Promise<void>;
   reserve(identity: AuthenticatedIdentity, segment: unknown, token: string): Promise<BrokerBinding>;
   isEnded(binding: BrokerBinding): Promise<boolean>;
   created(binding: BrokerBinding, providerCallId: string): Promise<void>;
@@ -28,6 +31,18 @@ export function createBrokerAuthority(options: {
   providerCallLifetimeMs?: number;
 }): BrokerAuthority {
   const { pool, access } = options;
+  async function authorizeSentenceSession(identity: AuthenticatedIdentity, exercise: ExerciseIdentity, language: LearningLanguage, requireCurrent: boolean) {
+    exactKeys(exercise, ['sessionId', 'exerciseId', 'generation']);
+    requireId(exercise.sessionId); requireId(exercise.exerciseId); requireRevision(exercise.generation);
+    if (language !== 'en' && language !== 'fr') throw new RepositoryError('invalid-input');
+    await transaction(pool, async client => {
+      await authorize(client, identity, access, 'practice:own');
+      const session = await client.query<{ language: LearningLanguage }>("SELECT language FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' AND mode='sentence' FOR SHARE", [exercise.sessionId, identity.userId]);
+      if (!session.rows[0]) throw new RepositoryError('not-found');
+      if (session.rows[0].language !== language) throw new RepositoryError('conflict');
+      if (requireCurrent && options.activePractice) await requireActivePractice(client, identity.userId, exercise.sessionId);
+    });
+  }
   async function change(binding: BrokerBinding, state: 'created' | 'ended' | 'rejected', providerCallId?: string) {
     // Internal provider cleanup can finish after logout/deactivation; it cannot
     // create new calls or promote browser observations into trusted evidence.
@@ -58,6 +73,28 @@ export function createBrokerAuthority(options: {
         if (session.rows[0].language !== language) throw new RepositoryError('conflict');
         if (options.activePractice) await requireActivePractice(client, identity.userId, sessionId);
       });
+    },
+    async authorizeVerbWriting(identity, exercise, language) {
+      exactKeys(exercise, ['sessionId', 'exerciseId', 'generation']);
+      requireId(exercise.sessionId); requireId(exercise.exerciseId); requireRevision(exercise.generation);
+      if (language !== 'en' && language !== 'fr') throw new RepositoryError('invalid-input');
+      await transaction(pool, async client => {
+        await authorize(client, identity, access, 'practice:own');
+        const session = await client.query<{ language: LearningLanguage }>("SELECT language FROM learning_sessions WHERE id=$1 AND user_id=$2 AND status='open' AND mode IN ('verb-image','verb-visible') FOR SHARE", [exercise.sessionId, identity.userId]);
+        if (!session.rows[0]) throw new RepositoryError('not-found');
+        if (session.rows[0].language !== language) throw new RepositoryError('conflict');
+        if (options.activePractice) await requireActivePractice(client, identity.userId, exercise.sessionId);
+        // Exercise IDs here are local presentation identities. Progress uses a separate
+        // issued-ID mapping; coaching neither reads nor writes that evidence ledger.
+      });
+    },
+    async authorizeSentenceRewrite(identity, exercise, language) {
+      await authorizeSentenceSession(identity, exercise, language, true);
+    },
+    async authorizeWordDictionary(identity, exercise, language) {
+      // Reference reading remains available when another tab becomes the active practice.
+      // This grants no model budget, progress mutation or oral-evidence authority.
+      await authorizeSentenceSession(identity, exercise, language, false);
     },
     reserve(identity, raw, token) {
       exactKeys(raw, ['sessionId', 'segmentId', 'connectionEpoch']); requireId(raw.sessionId); requireId(raw.segmentId); requireRevision(raw.connectionEpoch);

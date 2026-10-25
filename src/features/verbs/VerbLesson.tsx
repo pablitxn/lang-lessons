@@ -9,7 +9,7 @@ import { PictureCue } from './PictureCue';
 import { WordCue } from './WordCue';
 import { VERB_HINTS } from './verb-hints';
 import { createVerbSession, type VerbSession } from './session';
-import { PictureDictionaryCard } from './PictureDictionaryCard';
+import { VerbCompletionCard } from './VerbCompletionCard';
 import { createPicturePreload } from './picture-preload';
 import type { ProgressSink } from '../../contracts';
 import './verbs.css';
@@ -60,7 +60,7 @@ function VerbPractice({ session, settings, sessionControls, rootVoiceError, writ
   function navigate(direction: 'previous' | 'next') {
     const target = direction === 'previous' ? previousButton.current : nextButton.current;
     navigationFocus.current = document.activeElement === target ? direction : null;
-    const moved = direction === 'previous' ? session.previous() : state.pictureComplete ? session.nextPicture(snapshot.exerciseId) : session.skip();
+    const moved = direction === 'previous' ? session.previous() : state.writtenComplete ? session.nextVerb(snapshot.exerciseId) : session.skip();
     if (!moved) navigationFocus.current = null;
   }
   const context = snapshot.context;
@@ -134,8 +134,8 @@ function VerbPractice({ session, settings, sessionControls, rootVoiceError, writ
           {!snapshot.hintPending && snapshot.hint && <p role="status" className="ll-hint">{snapshot.hint.text}</p>}
         </div>
       </div>
-      {state.pictureComplete && <PictureDictionaryCard language={language} completion={{ identity: snapshot, dictionary: getPictureDictionaryEntry(context.verb.id) }}
-        onNext={() => session.nextPicture(snapshot.exerciseId)} />}
+      {state.writtenComplete && <VerbCompletionCard mode={context.mode} identity={snapshot} verb={context.verb} entry={getPictureDictionaryEntry(context.verb.id)}
+        onNext={() => session.nextVerb(snapshot.exerciseId)} />}
     </PracticeLayout>
   </div>;
 }

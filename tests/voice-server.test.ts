@@ -43,7 +43,7 @@ test('the broker routes written hints while voice is disabled using the configur
     assert.equal(sent.model, 'fixture-hint-model');
     assert.equal(sent.store, false);
     return Response.json({ status: 'completed', output: [{ type: 'message', role: 'assistant',
-      content: [{ type: 'output_text', text: JSON.stringify({ hint: 'Revisa la concordancia del verbo con quien realiza la acción.' }) }] }] });
+      content: [{ type: 'output_text', text: JSON.stringify({ status: 'needs-revision', tense: null, grammar: '', hint: '', issues: [{ text: 'buy', hint: 'Revisa la concordancia del verbo con quien realiza la acción.' }] }) }] }] });
   });
   assert.equal((await b.post()).status, 503);
   assert.equal(calls, 0);
@@ -54,7 +54,7 @@ test('the broker routes written hints while voice is disabled using the configur
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('cache-control'), 'no-store');
   const output = await response.text();
-  assert.deepEqual(JSON.parse(output), { hint: 'Revisa la concordancia del verbo con quien realiza la acción.' });
+  assert.deepEqual(JSON.parse(output), { status: 'needs-revision', tense: null, grammar: '', hint: '', issues: [{ text: 'buy', hint: 'Revisa la concordancia del verbo con quien realiza la acción.' }] });
   assert.doesNotMatch(output, /injected-test-secret|fixture-hint-model|Authorization/);
   assert.equal(calls, 1);
 });
@@ -85,7 +85,7 @@ test('the broker supplies the default text model and redacts hint provider failu
     body: JSON.stringify({ helpEnabled: true, sentenceId: 'sentence-ps-bread', draft: 'He buy bread every morning.' }),
   });
   assert.equal(response.status, 502);
-  assert.deepEqual(await response.json(), { error: 'Sentence help is unavailable. Please try again.' });
+  assert.deepEqual(await response.json(), { error: 'Sentence help is unavailable. Please try again.', reason: 'provider-unavailable' });
   assert.equal(calls, 1);
 });
 test('readiness distinguishes local opt-in from missing credentials without contacting the provider', async t => {
