@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 /** Test-only browser transport. No physical microphone or provider is used. */
 async function installBrowserTransport(context, origin, options = {}) {
   const fixture = {
-    enabled: options.enabled ?? true, sessionStatus: 200, statusRequests: 0,
+    enabled: options.enabled ?? true, sessionStatus: 200, sessionFailure: options.sessionFailure ?? null, statusRequests: 0,
     sessionRequests: 0, releaseRequests: 0, releaseStatus: 200, externalRequests: [],
     statusBarrier: null, sessionBarrier: null, releaseBarrier: null, progressBarrier: null, closeBarrier: null, learningCalls: [],
   };
@@ -99,7 +99,7 @@ async function installBrowserTransport(context, origin, options = {}) {
       if (fixture.sessionBarrier) await fixture.sessionBarrier;
       await route.fulfill({ status: fixture.sessionStatus, json: fixture.sessionStatus === 200
         ? { sdp: 'v=0\r\ns=Browser transport fixture\r\n', maxDurationSeconds: 600, releaseToken: 'fixture-release-token-00000000000000' }
-        : { error: 'Test transport rejected this session.' } }).catch(() => {}); return;
+        : fixture.sessionFailure ?? { error: 'Test transport rejected this session.' } }).catch(() => {}); return;
     }
     if (url.pathname === '/api/realtime/session/end') {
       fixture.releaseRequests += 1;

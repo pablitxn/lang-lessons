@@ -6,14 +6,14 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const args = process.argv.slice(2);
 if (args.includes('--help')) {
-  console.log('Usage: node scripts/dev-local.mjs [--voice]\nStarts the app and loopback voice broker. --voice enables paid sessions after browser consent.');
+  console.log('Usage: node scripts/dev-local.mjs [--voice | --no-voice]\nStarts the app and loopback voice broker using the saved server configuration. Optional flags override voice availability; calls still require Start tutor.');
   process.exit(0);
 }
-if (args.some(arg => arg !== '--voice') || args.length > 1) {
+if (args.some(arg => !['--voice', '--no-voice'].includes(arg)) || args.length > 1) {
   console.error('Unknown arguments. Use --help for local development options.');
   process.exit(1);
 }
-const live = args.includes('--voice');
+const voiceOverride = args.includes('--voice') ? '1' : args.includes('--no-voice') ? '0' : undefined;
 if (!existsSync(new URL('../node_modules/vite/bin/vite.js', import.meta.url))) {
   console.error('Dependencies are missing. Run npm ci first.');
   process.exit(1);
@@ -73,10 +73,10 @@ process.once('SIGINT', () => stop(0));
 process.once('SIGTERM', () => stop(0));
 
 // Load server credentials in the broker without reading them into this launcher.
-start('voice broker', ['--env-file-if-exists=.env.local', '--import', 'tsx', 'server/index.ts'], {
-  ...process.env, VOICE_BROKER_PORT: '8787', ALLOW_PAID_VOICE: live ? '1' : '0',
-});
+const brokerEnvironment = { ...process.env, VOICE_BROKER_PORT: '8787' };
+if (voiceOverride !== undefined) brokerEnvironment.ALLOW_PAID_VOICE = voiceOverride;
+start('voice broker', ['--env-file-if-exists=accounts.local/app.env', '--env-file-if-exists=.env.local', '--import', 'tsx', 'server/index.ts'], brokerEnvironment);
 const frontendEnvironment = { ...process.env };
 delete frontendEnvironment.OPENAI_API_KEY;
 start('frontend', ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1'], frontendEnvironment);
-console.log(`Local app: http://127.0.0.1:5174/ | paid voice ${live ? 'enabled; Start tutor initiates a call' : 'disabled'}. Ctrl-C stops both processes.`);
+console.log(`Local app: http://127.0.0.1:5174/ | voice ${voiceOverride === '1' ? 'enabled by --voice' : voiceOverride === '0' ? 'disabled by --no-voice' : 'uses saved server configuration'}. Start tutor initiates a call. Ctrl-C stops both processes.`);

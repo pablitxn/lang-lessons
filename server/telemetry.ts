@@ -6,6 +6,7 @@ import { resourceFromAttributes } from '@opentelemetry/resources';
 import { BasicTracerProvider, BatchSpanProcessor, type SpanExporter } from '@opentelemetry/sdk-trace-base';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { parseTelemetryReport, type Outcome, type TokenUsage } from '../src/voice/telemetry-schema';
+import { parseVoiceStartFailure, type VoiceStartFailure } from '../src/contracts';
 
 export interface PhoenixConfig { endpoint: string; project: string; apiKey?: string }
 export function readPhoenixConfig(env: NodeJS.ProcessEnv): PhoenixConfig | null {
@@ -36,7 +37,7 @@ interface Session {
   root: Span; receipt: string; id: string; model: string; startedAt: number; expiresAt: number; seen: Set<number>;
   timer: ReturnType<typeof setTimeout>; synthetic: boolean;
 }
-export interface SessionTrace { receipt: string; setup(outcome: 'completed' | 'failed', status?: number): void; end(outcome: Outcome): void }
+export interface SessionTrace { receipt: string; setup(outcome: 'completed' | 'failed', status?: number, failure?: VoiceStartFailure): void; end(outcome: Outcome): void }
 /** Server-only, content-free manual instrumentation; no global HTTP/SDK auto-instrumentation. */
 export class PhoenixTelemetry {
   private provider: BasicTracerProvider | undefined;
@@ -116,9 +117,11 @@ export class PhoenixTelemetry {
       timer: setTimeout(() => this.end(receipt, 'incomplete'), maxDurationSeconds * 1000 + 20_000) };
     session.timer.unref(); this.sessions.set(receipt, session);
     let setupEnded = false;
-    return { receipt, setup: (outcome, status) => {
+    return { receipt, setup: (outcome, status, failure) => {
       if (setupEnded) return; setupEnded = true;
-      if (status !== undefined) setup.setAttribute('http.response.status_code', status);
+      if (typeof status === 'number' && Number.isInteger(status) && status >= 100 && status <= 599) setup.setAttribute('http.response.status_code', status);
+      const safeFailure = parseVoiceStartFailure(failure);
+      if (outcome === 'failed' && safeFailure && safeFailure.status === status) setup.setAttribute('app.provider.failure_category', safeFailure.category);
       this.finish(setup, outcome);
     }, end: outcome => this.end(receipt, outcome) };
   }

@@ -65,6 +65,49 @@ test('session creation and browser metrics form one trace without duplicating us
   assert.equal(hint.attributes['app.usage.reported'], false); assert.equal(hint.attributes['llm.token_count.total'], undefined);
   assert.doesNotMatch(JSON.stringify(spans.map(span => span.attributes)), new RegExp(session.receipt));
 });
+test('a rejected provider startup exports its safe category and upstream status without creating assessment evidence', async t => {
+  const exporter = new InMemorySpanExporter(); const telemetry = new PhoenixTelemetry(collector, exporter);
+  let calls = 0; const origin = 'http://127.0.0.1:5174';
+  const server = createRealtimeServer({ ...readBrokerConfig({}), enabled: true, apiKey: 'PRIVATE_PROVIDER_KEY' }, async () => {
+    calls++;
+    return Response.json({ error: { code: 'project_spend_limit_exceeded', message: 'PRIVATE_PROVIDER_MESSAGE', request_id: 'PRIVATE_REQUEST_ID' } }, { status: 429 });
+  }, telemetry);
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(async () => { server.closeAllConnections(); await new Promise<void>(resolve => server.close(() => resolve())); await telemetry.shutdown(); });
+  const response = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}/api/realtime/session`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: origin }, body: JSON.stringify({ sdp: 'v=0\r\nfixture-offer' }),
+  });
+  assert.equal(response.status, 502);
+  assert.deepEqual((await response.json()).failure, { category: 'project-spend-limit', status: 429 });
+  await telemetry.flush(); const spans = exporter.getFinishedSpans();
+  assert.deepEqual(spans.map(span => span.name).sort(), ['realtime.session', 'realtime.session.create']);
+  const setup = spans.find(span => span.name === 'realtime.session.create')!;
+  assert.equal(setup.attributes['http.response.status_code'], 429);
+  assert.equal(setup.attributes['app.provider.failure_category'], 'project-spend-limit');
+  assert.equal(setup.attributes['app.outcome'], 'failed');
+  assert.equal(setup.attributes['app.evidence.source'], 'server-observed');
+  assert.doesNotMatch(JSON.stringify(spans.map(span => span.attributes)), /PRIVATE|project_spend_limit_exceeded|fixture-offer/);
+  assert.equal(calls, 1, 'Telemetry never retries rejected provider startup');
+});
+test('startup diagnostics omit untrusted categories, incompatible statuses and arbitrary fields at the telemetry boundary', async t => {
+  const exporter = new InMemorySpanExporter(); const telemetry = new PhoenixTelemetry(collector, exporter);
+  t.after(() => telemetry.shutdown());
+  const failures = [
+    { category: 'PRIVATE_CATEGORY', status: 429 }, { category: 'quota', status: 401 },
+    { category: 'quota', status: 429, message: 'PRIVATE_MESSAGE' }, { category: 'quota', status: 400 },
+  ];
+  for (const failure of failures) {
+    const session = telemetry.open('fixture-model', 600)!;
+    session.setup('failed', 429, failure as any); session.end('failed');
+  }
+  const invalidStatus = telemetry.open('fixture-model', 600)!;
+  invalidStatus.setup('failed', 'PRIVATE_STATUS' as any); invalidStatus.end('failed');
+  await telemetry.flush(); const setups = exporter.getFinishedSpans().filter(span => span.name === 'realtime.session.create');
+  assert.equal(setups.length, failures.length + 1);
+  for (const setup of setups) assert.equal(setup.attributes['app.provider.failure_category'], undefined);
+  assert.equal(setups.at(-1)!.attributes['http.response.status_code'], undefined);
+  assert.doesNotMatch(JSON.stringify(setups.map(span => span.attributes)), /PRIVATE/);
+});
 test('browser observation correlates out-of-order responses, redacts payloads and finalizes interrupted work once', async () => {
   let now = 100; const reports: TelemetryReport[] = [];
   const telemetry = createRealtimeTelemetry({ endpoint: 'http://127.0.0.1/api/realtime/telemetry', receipt: 'a'.repeat(64), now: () => now,

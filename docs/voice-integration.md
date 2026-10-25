@@ -17,8 +17,8 @@ stale-stage/attempt guards and no-spoiler envelopes remain required.
 
 `createMockVoiceAdapter()` and `createRealtimeVoiceAdapter()` implement
 `VoiceAdapter`. Root `LessonSession` supplies a memory-only `sessionId`, adapter,
-settings and completion callback through `LessonModuleProps`. It owns automatic
-startup on lesson entry, mute, pause/resume, lesson replacement and unmount cleanup.
+settings and completion callback through `LessonModuleProps`. It owns explicit
+phone-button startup, mute, pause/resume, lesson replacement and unmount cleanup.
 The application composes only the live adapter; test adapters stay in fixtures.
 Preference changes preserve the mounted session. Opening preferences emits a
 scoped `presentation-hold`; helper holds stay independent. The optional
@@ -87,16 +87,17 @@ accepted learner translation in memory and retains valid alternative constructio
 
 ## Local setup and limits
 
-`node scripts/dev-local.mjs` starts the frontend and broker together, explicitly
-disabling paid voice. It supplies `.env.local` to the broker through Node's env-file
-loader. Use `node scripts/dev-local.mjs --voice` for an explicit local paid-voice
-opt-in. Opening a lesson automatically requests microphone permission and starts
-the call; there is no separate session mode or Start step.
+`npm run dev` (or `node scripts/dev-local.mjs`) starts the frontend and broker
+together. The broker loads the optional `accounts.local/app.env` and then
+`.env.local` through Node's env-file loader; inherited variables take precedence.
+The launcher honors saved `ALLOW_PAID_VOICE`, with `--voice` / `--no-voice`
+overrides for one run. The credential example enables availability after a key is
+configured. Opening a lesson only checks availability. The phone button requests
+microphone permission and starts the call after the learner explicitly selects it.
 Ctrl-C stops both processes, and occupied ports are preserved. See the README's
 [credential setup](../README.md#credentials-and-live-voice).
 
-`npm run dev:voice` also binds `127.0.0.1:8787`, but reads only its process
-environment; that standalone command does not automatically load `.env.local`.
+`npm run dev:voice` also binds `127.0.0.1:8787` and loads the same optional env files.
 Without both server-only
 `OPENAI_API_KEY` and `ALLOW_PAID_VOICE=1`, session creation returns 503 and makes
 no provider call. The normal dev/preview servers proxy `/api/realtime` locally.
@@ -129,6 +130,32 @@ results, tokens and provider choice stay out of storage. Audio reaches the
 provider during live sessions; provider retention, account controls, exact costs,
 physical mobile support and acoustic/latency quality have not been verified.
 No public deployment, auth system, analytics, CI or database is installed here.
+
+## Startup failure diagnostics
+
+The authenticated readiness endpoint checks configuration presence. A ready
+response does not prove that the provider will accept a call, that credits or
+spending allowance remain, or that a microphone can connect.
+
+Local broker authentication and provider authentication are separate. A rejected
+provider request remains broker HTTP 502. Its optional `failure` envelope contains
+only a validated category and numeric upstream status; the browser chooses a
+static message. Provider messages, response bodies, arbitrary codes and request
+identifiers are never displayed or exported. Unknown or mismatched diagnostics
+retain the generic startup error.
+
+Known provider credit, spending, quota, rate, access, configuration and model
+failures follow the [official API error codes](https://developers.openai.com/api/docs/guides/error-codes#api-errors).
+Only a 429 or 404 diagnostic body is inspected, with a 4 KiB byte limit and a
+one-second deadline. Rejected canonical reservations and local leases are
+released before diagnostic parsing. A failed diagnostic stream cannot keep a
+rejected call reserved. Upstream network failures still retain their existing
+conservative ambiguous-call behavior.
+
+When Phoenix is configured, the server-observed creation span records upstream
+HTTP status and the allowlisted failure category. Configuring diagnostics does
+not enable telemetry, transcript capture, calls or automatic retries. A startup
+failure never creates learner assessment evidence.
 
 ## Validation categories
 

@@ -7,6 +7,7 @@ import type { LearningLanguage } from '../src/contracts';
 import { createSentenceHintHandler } from './sentence-hints';
 import type { BrokerAuthority, BrokerBinding } from './broker/authority';
 import { RepositoryError } from './data/database';
+import { providerStartupFailure } from './provider-start-failure';
 
 export interface BrokerConfig {
   enabled: boolean;
@@ -195,8 +196,9 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       if (!upstream.ok) {
         if (created.binding) await authority!.rejected(created.binding);
         if (lease === created) lease = null;
-        sessionTrace?.setup('failed', upstream.status); sessionTrace?.end('failed'); setupComplete = true;
-        reply(response, 502, { error: 'The voice provider could not create a session.' }); return;
+        const failure = await providerStartupFailure(upstream);
+        sessionTrace?.setup('failed', upstream.status, failure); sessionTrace?.end('failed'); setupComplete = true;
+        reply(response, 502, { error: 'The voice provider could not create a session.', failure }); return;
       }
       // A successful upstream exchange may already incur cost, even if its body is invalid.
       created.callId = callId(upstream.headers.get('location'));

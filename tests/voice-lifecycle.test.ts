@@ -111,6 +111,66 @@ test('broker startup failures retain safe actionable errors without exposing res
     assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1);
   }
 });
+test('provider startup diagnostics distinguish service failures from learner sign-in and release media without retrying', async () => {
+  for (const [failure, expected] of [
+    [{ category: 'authentication', status: 401 }, /service.*authenticate.*administrator/i],
+    [{ category: 'permission', status: 403 }, /provider access/i],
+    [{ category: 'quota', status: 429 }, /usage allowance/i],
+    [{ category: 'credits-exhausted', status: 429 }, /no API credit/i],
+    [{ category: 'project-spend-limit', status: 429 }, /project spending limit/i],
+    [{ category: 'organization-spend-limit', status: 429 }, /organization spending limit/i],
+    [{ category: 'usage-limit', status: 429 }, /provider usage limit/i],
+    [{ category: 'rate-limit', status: 429 }, /limiting requests/i],
+    [{ category: 'configuration', status: 400 }, /rejected the call configuration/i],
+    [{ category: 'model-unavailable', status: 404 }, /model.*unavailable/i],
+    [{ category: 'unavailable', status: 503 }, /provider.*temporarily unavailable/i],
+  ] as const) {
+    const f = fixture(); let requests = 0;
+    f.dependencies.fetch = async () => { requests++; return Response.json({ error: 'PRIVATE_PROVIDER_RESPONSE', failure }, { status: 502 }); };
+    const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+    adapter.subscribe(event => f.events.push(event));
+    await assert.rejects(adapter.connect({ sessionId: 'provider-failure', signal: new AbortController().signal }), expected);
+    assert.match(f.events.find(event => event.type === 'error')!.message, expected);
+    assert.doesNotMatch(JSON.stringify(f.events), /PRIVATE_PROVIDER_RESPONSE|Sign in again/i);
+    assert.equal(f.events.some(event => event.type === 'assessment'), false);
+    assert.equal(f.events.some(event => event.type === 'state' && event.state === 'ready'), false);
+    assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1); assert.equal(f.channel.closes, 1);
+    assert.equal(requests, 1);
+  }
+});
+test('untrusted diagnostic text and mismatched categories cannot replace static voice errors', async () => {
+  for (const failure of [
+    { category: 'PRIVATE_PROVIDER_RESPONSE', status: 429 }, { category: 'quota', status: 401 },
+    { category: 'quota', status: 429, message: 'PRIVATE_PROVIDER_RESPONSE' },
+  ]) {
+    const f = fixture();
+    f.dependencies.fetch = async () => Response.json({ error: 'PRIVATE_PROVIDER_RESPONSE', failure }, { status: 502 });
+    const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+    adapter.subscribe(event => f.events.push(event));
+    await assert.rejects(adapter.connect({ sessionId: 'invalid-failure', signal: new AbortController().signal }), /voice service could not start/i);
+    assert.doesNotMatch(JSON.stringify(f.events), /PRIVATE_PROVIDER_RESPONSE/);
+    assert.equal(f.track.stops, 1);
+  }
+});
+test('cancelling during diagnostic parsing cannot revive the failed call or emit a late error', async () => {
+  const f = fixture(); let beginRead!: () => void; let finishRead!: () => void;
+  const reading = new Promise<void>(resolve => { beginRead = resolve; });
+  f.dependencies.fetch = async () => new Response(new ReadableStream<Uint8Array>({ pull(controller) {
+    beginRead(); return new Promise<void>(resolve => { finishRead = () => {
+      controller.enqueue(new TextEncoder().encode(JSON.stringify({ failure: { category: 'quota', status: 429 } })));
+      controller.close(); resolve();
+    }; });
+  } }), { status: 502 });
+  const adapter = createRealtimeVoiceAdapter({ dependencies: f.dependencies });
+  adapter.subscribe(event => f.events.push(event));
+  const abort = new AbortController();
+  const connection = adapter.connect({ sessionId: 'cancel-diagnostic', signal: abort.signal });
+  const rejected = assert.rejects(connection);
+  await reading; abort.abort(); finishRead(); await rejected;
+  assert.equal(f.events.some(event => event.type === 'error'), false);
+  assert.equal(f.events.some(event => event.type === 'state' && event.state === 'ready'), false);
+  assert.equal(f.track.stops, 1); assert.equal(f.peer.closes, 1);
+});
 test('SDP preparation and broker exchange do not consume the data channel connection timeout', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const f = fixture();

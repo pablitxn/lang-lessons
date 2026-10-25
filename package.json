@@ -7,8 +7,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "dev:voice": "node --import tsx server/index.ts",
+    "dev": "node scripts/dev-local.mjs",
+    "dev:frontend": "vite --host 127.0.0.1",
+    "dev:voice": "node --env-file-if-exists=accounts.local/app.env --env-file-if-exists=.env.local --import tsx server/index.ts",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --import tsx --test tests/*.test.ts",

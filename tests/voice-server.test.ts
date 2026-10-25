@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import type { AddressInfo } from 'node:net';
 import { request } from 'node:http';
 import { createRealtimeServer, readBrokerConfig, type BrokerConfig } from '../server/realtime';
+import type { BrokerAuthority } from '../server/broker/authority';
+import type { CallSegmentRef } from '../src/contracts';
 
 const origin = 'http://127.0.0.1:5174';
 const config: BrokerConfig = { enabled: true, apiKey: 'injected-test-secret', model: 'fixture-model', allowedOrigins: [origin], maxDurationSeconds: 600 };
 const answer = () => new Response('v=0\r\nfixture-answer', { headers: { Location: '/v1/realtime/calls/rtc_fixture' } });
-async function broker(t: TestContext, configuration = config, fetcher: typeof fetch = async () => answer()) {
-  const server = createRealtimeServer(configuration, fetcher);
+async function broker(t: TestContext, configuration = config, fetcher: typeof fetch = async () => answer(), authority?: BrokerAuthority) {
+  const server = createRealtimeServer(configuration, fetcher, undefined, undefined, authority);
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   t.after(() => { server.closeAllConnections(); server.close(); });
   const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -140,6 +142,71 @@ test('broker redacts upstream failures and leases a successful but invalid excha
   assert.equal(response.status, 502); assert.doesNotMatch(await response.text(), /secret|provider-detail/);
   const invalid = await broker(t, config, async () => new Response('invalid SDP'));
   assert.equal((await invalid.post()).status, 502); assert.equal((await invalid.post()).status, 429);
+});
+
+test('provider rejections keep broker authentication separate and expose only bounded startup categories', async t => {
+  const cases = [
+    [401, 'insufficient_quota', 'authentication'], [403, '', 'permission'],
+    [429, 'insufficient_quota', 'quota'], [429, 'credit_balance_exhausted', 'credits-exhausted'],
+    [429, 'project_spend_limit_exceeded', 'project-spend-limit'],
+    [429, 'organization_spend_limit_exceeded', 'organization-spend-limit'],
+    [429, 'organization_usage_limit_exceeded', 'usage-limit'], [429, 'rate_limit_exceeded', 'rate-limit'],
+    [429, 'slow_down', 'rate-limit'], [429, '__proto__', 'rejected'], [429, 'unknown', 'rejected'],
+    [400, '', 'configuration'], [422, '', 'configuration'],
+    [404, 'model_not_found', 'model-unavailable'], [404, 'private-code', 'rejected'],
+    [500, '', 'unavailable'], [503, '', 'unavailable'], [402, '', 'rejected'],
+  ] as const;
+  for (const [status, code, category] of cases) {
+    let calls = 0;
+    const b = await broker(t, config, async () => {
+      calls++;
+      return Response.json({ error: { code, message: 'injected-test-secret PRIVATE_PROVIDER_MESSAGE', request_id: 'PRIVATE_REQUEST_ID' } }, { status });
+    });
+    const response = await b.post();
+    assert.equal(response.status, 502, `Provider ${status} must not become learner authentication or lease status`);
+    const body = await response.json();
+    assert.deepEqual(body, { error: 'The voice provider could not create a session.', failure: { category, status } });
+    assert.doesNotMatch(JSON.stringify(body), /injected-test-secret|PRIVATE|releaseToken|sdp|private-code/);
+    assert.equal(calls, 1, 'A rejection never retries provider startup automatically');
+  }
+});
+
+test('legacy quota types are a fallback while specific provider codes keep their category', async t => {
+  for (const [code, category] of [[null, 'quota'], ['unknown-code', 'quota'], ['credit_balance_exhausted', 'credits-exhausted']] as const) {
+    const b = await broker(t, config, async () => Response.json({ error: { code, type: 'insufficient_quota', message: 'PRIVATE' } }, { status: 429 }));
+    const response = await b.post();
+    assert.equal(response.status, 502);
+    assert.deepEqual((await response.json()).failure, { category, status: 429 });
+  }
+});
+
+test('unusable rejection diagnostics cannot retain a rejected canonical receipt or retry a provider call', { timeout: 6000 }, async t => {
+  let stalledCancelled = false;
+  const unusable = [
+    () => new Response('not JSON PRIVATE', { status: 429 }),
+    () => new Response(JSON.stringify({ error: { code: 'insufficient_quota', message: 'PRIVATE'.repeat(1000) } }), { status: 429 }),
+    () => new Response(new ReadableStream({ start(controller) { controller.error(new Error('PRIVATE_STREAM_FAILURE')); } }), { status: 429 }),
+    () => new Response(new ReadableStream({ cancel() { stalledCancelled = true; } }), { status: 429 }),
+  ];
+  for (const makeResponse of unusable) {
+    let calls = 0; let reservations = 0; let rejected = 0; let created = 0; let ended = 0;
+    const authority: BrokerAuthority = {
+      authenticate: async () => ({ userId: 'fixture-student' }),
+      reserve: async (identity, segment, token) => { reservations++; return { identity, segment: segment as CallSegmentRef, tokenDigest: token }; },
+      isEnded: async () => false, created: async () => { created++; }, ended: async () => { ended++; },
+      rejected: async () => { rejected++; }, authorizeRelease: async () => { throw new Error('Unused fixture path'); },
+    };
+    const b = await broker(t, config, async () => ++calls === 1 ? makeResponse() : answer(), authority);
+    const segment = { sessionId: 'fixture-session', segmentId: 'first-segment', connectionEpoch: 1 };
+    const response = await b.post({ sdp: 'v=0\r\nfixture-offer', segment });
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { error: 'The voice provider could not create a session.', failure: { category: 'rejected', status: 429 } });
+    assert.deepEqual({ calls, reservations, rejected, created, ended }, { calls: 1, reservations: 1, rejected: 1, created: 0, ended: 0 });
+    const retry = await b.post({ sdp: 'v=0\r\nfixture-offer', segment: { ...segment, segmentId: 'second-segment', connectionEpoch: 2 } });
+    assert.equal(retry.status, 200, 'Only a later explicit call creates a new provider request');
+    assert.deepEqual({ calls, reservations, rejected, created, ended }, { calls: 2, reservations: 2, rejected: 1, created: 1, ended: 0 });
+  }
+  assert.equal(stalledCancelled, true, 'Diagnostic timeout cancels the unusable response stream');
 });
 
 test('release requires the matching token and a confirmed provider hangup before another call', async t => {
