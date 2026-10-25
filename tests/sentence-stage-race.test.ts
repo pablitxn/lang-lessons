@@ -32,9 +32,9 @@ test('speech begun before translation acceptance cannot acquire explanation obli
   const receive = (event: object) => protocol.receive(JSON.stringify(event));
   const lastRequest = () => ((requests.filter(event => event.type === 'response.create').at(-1)!.response as Record<string, unknown>).metadata as { request_id: string }).request_id;
   const finish = (requestId: string, obligations: readonly string[]) => receive({ type: 'response.done', response: {
-    metadata: { request_id: requestId }, status: 'completed', output: [{ type: 'message', content: [{ type: 'text', text: JSON.stringify({
+    metadata: { request_id: requestId }, status: 'completed', output: [{ type: 'function_call', name: 'report_lesson_result', arguments: JSON.stringify({
       requestId, intent: 'practice', results: obligations.map(obligation => ({ obligation, status: 'accepted', audioClear: true, feedback: 'Injected verdict.' })),
-    }) }] }],
+    }) }],
   } });
   const capture = (item_id: string) => { receive({ type: 'input_audio_buffer.speech_started', item_id }); receive({ type: 'input_audio_buffer.speech_stopped', item_id }); };
   const final = (item_id: string, transcript: string) => receive({ type: 'conversation.item.input_audio_transcription.completed', item_id, transcript });

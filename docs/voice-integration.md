@@ -73,6 +73,16 @@ requires a captured audio item and the provider's `audioClear` flag. Transcripti
 is an ancillary signal. A model can still misjudge pronunciation, grammar, intent
 or whether a sentence is original: those judgments need real evaluation.
 
+Assessment, hint and question responses force the `report_lesson_result` function
+with a bounded JSON Schema. A prompt asking for JSON alone is insufficient:
+Realtime can return ordinary prose, including a text preamble alongside a forced
+function. The protocol ignores assistant text preambles and validates the single
+expected function's arguments. Other functions, duplicate calls, malformed
+arguments and mismatched request identifiers fail closed. Existing attempt,
+audio and coaching checks still apply. The function only carries a result; it
+executes no external action and does not trigger a tool continuation. Validated
+speech uses a separate audio response with tools explicitly disabled.
+
 Hints are requested per level and stage. Before sentence translation acceptance,
 text and speech use the same strict reviewed prompt envelope in
 `src/assessment/coaching-policy.ts`. Rejected provider coaching, questions and

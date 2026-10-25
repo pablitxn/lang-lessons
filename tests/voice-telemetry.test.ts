@@ -248,7 +248,7 @@ test('the actual adapter observes question and speech calls through mocked WebRT
   const requestId = JSON.parse(sent.at(-1)!).response.metadata.request_id;
   channel.onmessage!({ data: JSON.stringify({ type: 'response.created', response: { id: 'response', metadata: { request_id: requestId } } }) });
   channel.onmessage!({ data: JSON.stringify({ type: 'response.done', response: { id: 'response', metadata: { request_id: requestId }, status: 'completed',
-    output: [{ type: 'message', content: [{ type: 'text', text: JSON.stringify({ requestId, text: 'Please ask again.' }) }] }], usage: { input_tokens: 5, output_tokens: 2, total_tokens: 7 } } }) });
+    output: [{ type: 'function_call', name: 'report_lesson_result', arguments: JSON.stringify({ requestId, text: 'Please ask again.' }) }], usage: { input_tokens: 5, output_tokens: 2, total_tokens: 7 } } }) });
   adapter.disconnect();
   for (let i = 0; i < 5 && reports.at(-1)?.kind !== 'session'; i++) await new Promise<void>(resolve => setImmediate(resolve));
   assert.deepEqual(reports.map(report => report.kind === 'response' ? report.operation : report.kind), ['question', 'speak', 'session']);

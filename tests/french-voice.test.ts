@@ -30,7 +30,7 @@ function protocolFixture() {
   const request = () => sent.filter(event => event.type === 'response.create').at(-1)?.response;
   const finish = (requestId: string, payload: object) => receive({ type: 'response.done', response: {
     id: `response-${requestId}`, metadata: { request_id: requestId }, status: 'completed',
-    output: [{ type: 'message', content: [{ type: 'text', text: JSON.stringify(payload) }] }],
+    output: [{ type: 'function_call', name: 'report_lesson_result', arguments: JSON.stringify(payload) }],
   } });
   return { protocol, sent, events, receive, request, finish };
 }
