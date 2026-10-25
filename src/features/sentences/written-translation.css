@@ -1,14 +1,26 @@
-.sentences-written { flex: 1 1 auto; min-width: 0; margin: 0; }
-.sentences-written-controls { min-width: 0; border-bottom: 1px solid var(--line, #84988d); }
+.sentences-written { min-width: 0; margin: 0 0 24px; }
+.sentences-written-controls { flex: 1 1 auto; min-width: 0; border-bottom: 1px solid var(--line, #84988d); }
+.sentences-written .sentences-navigation { margin-bottom: 0; }
 .sentences-written-controls:focus-within { border-color: var(--primary, #08675f); box-shadow: 0 1px 0 var(--primary, #08675f); }
 .sentences-written input { display: block; box-sizing: border-box; width: 100%; min-width: 0; min-height: 52px; border: 0; border-radius: 0; background: transparent; color: var(--ink, #203b32); font: inherit; font-size: 1rem; line-height: 1.5; padding: 12px 2px; }
 .sentences-written input::placeholder { color: var(--muted, #5c6d65); }
 .sentences-written input:focus-visible { outline: none; }
-.sentences-written .ll-spelling { white-space: pre-wrap; }
-.sentences-written [data-gap] { display: inline-block; min-width: .35em; }
-.sentences-written-feedback { position: relative; }
-.sentences-error-trigger { position: relative; display: inline; border: 0; border-radius: 3px; padding: 0; background: transparent; font: inherit; letter-spacing: inherit; line-height: inherit; cursor: help; }
-.sentences-error-trigger::before { content: ''; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); width: 100%; min-width: 24px; height: 100%; min-height: 32px; }
+.sentences-written .ll-spelling { white-space: pre-wrap; overflow-wrap: anywhere; }
+.sentences-written-feedback { min-width: 0; }
+.sentences-feedback-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.sentences-error-trigger { display: inline; border: 0; border-radius: 3px; padding: 0; background: transparent; font: inherit; letter-spacing: inherit; line-height: inherit; cursor: help; }
 .sentences-error-trigger:hover { text-decoration-thickness: 3px; }
-.sentences-error-tooltip { position: absolute; z-index: 5; bottom: calc(100% + 8px); left: 0; box-sizing: border-box; width: max-content; max-width: min(26rem, 100%); padding: 7px 10px; border: 1px solid color-mix(in srgb, var(--error, #b42318) 35%, transparent); border-radius: 8px; background: color-mix(in srgb, var(--paper, #fffefa) 90%, transparent); backdrop-filter: blur(8px); color: var(--ink, #203b32); box-shadow: 0 3px 12px #00000010; font-size: .8125rem; line-height: 1.4; overflow-wrap: anywhere; }
-.sentences-hint-open::before { content: ''; position: absolute; top: -9px; left: 0; width: 100%; height: 10px; }
+.sentences-missing-text { display: inline-block; margin-inline: .25em; padding: 2px 6px; border: 1px dashed color-mix(in srgb, var(--error, #b42318) 55%, var(--line, #84988d)); border-radius: 5px; color: var(--error, #b42318); font-size: .6875rem; font-weight: 500; line-height: 1.5; vertical-align: middle; white-space: normal; }
+.sentences-dictionary-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px; margin-left: auto; padding: 11px; border: 1px solid transparent; border-radius: 9px; background: transparent; color: var(--muted, #5c6d65); font: inherit; cursor: pointer; }
+.sentences-dictionary-toggle svg { width: 20px; height: 20px; }
+.sentences-dictionary-toggle:is(:hover, [aria-pressed="true"]) { color: var(--primary, #08675f); background: var(--surface, #eef0e7); border-color: var(--line, #84988d); }
+.sentence-dictionary-word { display: inline; padding: 2px 0; border: 0; border-radius: 3px; color: inherit; background: transparent; font: inherit; line-height: inherit; cursor: pointer; text-decoration: underline dotted; text-underline-offset: 5px; }
+.sentence-dictionary-word:is(:hover, :focus-visible, [aria-pressed="true"]) { background: var(--surface, #eef0e7); text-decoration-style: solid; }
+.sentence-dictionary { margin: 0 0 24px; min-width: 0; overflow-wrap: anywhere; }
+.sentence-dictionary-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--muted, #5c6d65); font-size: .8125rem; }
+.sentence-dictionary-close { width: 44px; height: 44px; border: 1px solid transparent; border-radius: 50%; background: transparent; color: inherit; font: inherit; font-size: 1.5rem; cursor: pointer; }
+.sentence-dictionary-close:hover { background: var(--surface, #eef0e7); border-color: var(--line, #84988d); }
+.sentence-dictionary-message { padding: 20px; border: 1px solid var(--line, #84988d); border-radius: 16px; font-size: .875rem; line-height: 1.6; }
+.sentence-cue-help { position: relative; box-sizing: border-box; min-height: 132px; padding-right: 72px; }
+.sentence-cue-information { position: absolute; inset: auto 8px 8px; pointer-events: none; }
+.sentence-cue-information :is(button, [role="tooltip"]) { pointer-events: auto; }

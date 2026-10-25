@@ -27,6 +27,9 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
     await page.getByRole('listbox').waitFor({ state: 'hidden' });
   }
 
+  const needsRevision = (text, hint) => ({ status: 'needs-revision', tense: null, grammar: '', hint: '', issues: [{ text, hint }] });
+  const uncertainReview = hint => ({ status: 'uncertain', tense: null, grammar: '', hint, issues: [] });
+
   async function installHintFixture(context) {
     const requests = []; const waiters = [];
     await context.route(`${origin}/api/realtime/sentence-hint`, async route => {
@@ -38,7 +41,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       requests.push({ ...body, reply });
       waiters.splice(0).forEach(resolve => resolve());
       const result = await response;
-      await route.fulfill({ status: result.status, json: result.status === 200 ? { hint: result.hint } : { error: 'Injected hint service failure.' } }).catch(() => {});
+      await route.fulfill({ status: result.status, json: result.status === 200 ? result.review : { error: 'Injected hint service failure.' } }).catch(() => {});
     });
     return {
       requests,
@@ -84,15 +87,18 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
   }
 
   async function assertLayout(page) {
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'The translation field must not create horizontal overflow');
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true,
-      'The exercise remains reachable at the bottom of the page');
-    await page.evaluate(() => { document.documentElement.style.fontSize = '200%'; });
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'Written practice must reflow at 200% text size');
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    assert.equal(await page.evaluate(() => document.querySelector('.ll-exercise').getBoundingClientRect().bottom <= innerHeight), true);
-    await page.evaluate(() => { document.documentElement.style.fontSize = ''; window.scrollTo(0, 0); });
+    for (const size of ['', '200%']) {
+      await page.evaluate(size => { document.documentElement.style.fontSize = size; }, size);
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
+        'Written practice must fit the viewport, including at 200% text size');
+      await page.evaluate(() => { const panel = document.querySelector('.lesson-panel'); panel.scrollTop = panel.scrollHeight; });
+      assert.equal(await page.evaluate(() => {
+        const panel = document.querySelector('.lesson-panel').getBoundingClientRect();
+        const exercise = document.querySelector('.ll-exercise').getBoundingClientRect();
+        return exercise.bottom <= panel.bottom && panel.bottom <= innerHeight;
+      }), true, 'The exercise remains reachable inside its scrolling practice card');
+    }
+    await page.evaluate(() => { document.documentElement.style.fontSize = ''; document.querySelector('.lesson-panel').scrollTop = 0; });
   }
 
   try {
@@ -122,14 +128,31 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await tenseChoice.count(), 0, 'The tense exercise appears only after a matched translation');
         assert.equal(await lesson.locator('.ll-kicker').count(), 0, 'The Spanish cue does not repeat an instruction heading');
         const before = await responseCount(page);
+        const explanation = page.locator('.sentences-explanation');
+        const help = page.getByRole('button', { name: 'Ayuda para traducir', exact: true });
+        await field.focus(); await field.press('Shift+Tab');
+        assert.equal(await help.evaluate(element => element === document.activeElement), true, 'Help has a normal keyboard stop');
+        await page.getByRole('tooltip').waitFor();
+        assert.match(await page.getByRole('tooltip').innerText(), /quién realiza la acción/);
+        assert.equal(hints.requests.length, 0, 'General help does not request a provider hint');
+        await help.press('Escape'); await page.getByRole('tooltip').waitFor({ state: 'hidden' });
+        await field.focus(); await field.press('Alt+ArrowDown');
+        const keyboardHint = page.getByRole('tooltip'); await keyboardHint.waitFor();
+        const hintId = await keyboardHint.getAttribute('id');
+        assert.ok((await field.getAttribute('aria-describedby')).split(' ').includes(hintId), 'Keyboard-opened help is described by the focused input');
+        assert.equal(await page.locator(`[id="${hintId}"]`).count(), 1);
+        await field.press('Escape'); await keyboardHint.waitFor({ state: 'hidden' });
+        assert.equal(await explanation.count(), 0, 'Grammar stays hidden before translation and tense acceptance');
 
         await field.fill(typo);
-        await written.locator('.ll-incorrect').first().waitFor();
-        assert.ok(await written.locator('[data-gap]').count(), 'Missing characters are represented by gaps');
+        await written.locator('.ll-spelling').waitFor();
+        assert.equal(await written.locator('.ll-spelling').innerText(), typo);
+        assert.equal(await written.locator('.ll-incorrect, [data-gap]').count(), 0, 'Help off leaves unmatched wording neutral instead of inventing reference errors');
+        assert.doesNotMatch(await written.innerText(), /▴/, 'Feedback uses words instead of unexplained triangle markers');
         assert.doesNotMatch(await written.innerText(), /He buys bread every morning\./, 'A correction must not reveal the full expected translation');
         assert.doesNotMatch(await written.innerText(), /Phonetics:|Pronunciation/i, 'Written help must not become pronunciation guidance');
-        assert.doesNotMatch(await written.innerText(), /Check the highlighted differences\.|Other translations may also be valid\./, 'Static correction instructions must not remain below the error markers');
-        assert.equal(await page.getByRole('button', { name: 'Translation hint', exact: true }).count(), 0, 'Help off leaves plain error markers');
+        assert.equal(await written.locator('.sentences-comparison-note, .sentences-feedback-label').count(), 0, 'Annotation omits the removed explanatory captions');
+        assert.equal(await page.getByRole('button', { name: 'Translation hint', exact: true }).count(), 0, 'Help off does not label an unreviewed draft as incorrect');
         assert.equal(await field.inputValue(), typo, 'Feedback must not replace the learner draft');
         assert.equal(await tenseChoice.count(), 0, 'An unmatched draft must not expose the tense exercise');
         if (viewport.width === 390) await page.screenshot({ path: join(output, `sentence-written-${enabled ? 'call' : 'offline'}-errors.png`), fullPage: true });
@@ -137,6 +160,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await field.fill(answer); await field.press('Enter');
         await written.locator('.ll-correct').first().waitFor();
         await tenseChoice.waitFor();
+        assert.equal(await explanation.count(), 0, 'Matching a translation does not reveal the tense answer');
         assert.equal(await page.getByRole('listbox').count(), 0);
         await tenseChoice.click();
         const tenseOptions = page.getByRole('listbox');
@@ -150,11 +174,15 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await tense.getAttribute('data-status'), 'empty');
         await chooseTense(page, 'Past simple');
         assert.equal(await tense.getAttribute('data-status'), 'incorrect');
+        assert.equal(await explanation.count(), 0, 'An incorrect tense does not reveal the grammar explanation');
         assert.equal(await tenseChoice.getAttribute('aria-invalid'), 'true');
         assert.equal(await tenseChoice.getAttribute('data-value'), 'past-simple', 'An incorrect selection remains available to retry');
         await chooseTense(page, 'Present simple');
         assert.equal(await tense.getAttribute('data-status'), 'correct');
         assert.equal(await tenseChoice.getAttribute('aria-invalid'), null);
+        await explanation.waitFor();
+        assert.equal(await explanation.getAttribute('lang'), 'es');
+        assert.match(await explanation.innerText(), /Present simple|presente simple/i);
         assert.equal(await lesson.getAttribute('data-stage'), 'translation', 'Written comparison must not manufacture oral evidence');
         assert.equal(await responseCount(page), before, 'Typing and local checks do not request a voice response');
         assert.equal(await page.getByRole('button', { name: 'Your progress', exact: true }).count(), 0);
@@ -164,6 +192,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         await field.fill('');
         await tenseChoice.waitFor({ state: 'detached' });
         assert.equal(await tenseChoice.count(), 0, 'Editing invalidates the earlier tense selection');
+        assert.equal(await explanation.count(), 0, 'Editing clears the explanation with the earlier accepted answer');
         await field.dispatchEvent('compositionstart', { data: '' });
         await field.fill(answer);
         await field.dispatchEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 229, isComposing: true });
@@ -205,12 +234,13 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
         assert.equal(await field.inputValue(), '', 'Changing the exercise clears its old written draft');
         assert.equal(await feedback.count(), 0, 'Changing the exercise clears its old written feedback');
         assert.equal(await tenseChoice.count(), 0, 'Changing the exercise clears its old tense answer');
+        assert.equal(await explanation.count(), 0, 'Next sentence clears the previous grammar explanation');
         assert.equal(await lesson.getAttribute('data-stage'), 'translation');
         assert.equal(transport.sessionRequests, enabled ? 1 : 0);
         assert.equal(hints.requests.length, 0, 'Global help off prevents written-hint requests');
         assert.deepEqual(errors, []); assert.deepEqual(transport.externalRequests, []);
         console.log(JSON.stringify({ status: 'passed', viewport, voice: enabled ? 'mocked active call' : 'disabled service',
-          checks: ['inline input', 'automatic feedback without a check button', 'Enter finalization', 'local error markers', 'no answer disclosure', 'local tense retry and correction', 'no invented oral evidence', 'IME', 'draft and tense lifecycle', '200% reflow',
+          checks: ['inline input', 'automatic feedback without a check button', 'Enter finalization', 'neutral unreviewed annotation', 'no answer disclosure', 'local tense retry and correction', 'no invented oral evidence', 'IME', 'draft and tense lifecycle', '200% reflow',
             ...(enabled ? ['independent spoken stages', 'same call'] : ['no voice session or media request'])],
           evidence: 'actual Chromium rendering; injected media and verdicts; no physical microphone or provider' }));
         await context.close();
@@ -261,7 +291,7 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await choice.press('Escape'); await listbox.waitFor({ state: 'hidden' });
       await page.setViewportSize({ width: 607, height: 390 });
       await choice.scrollIntoViewIfNeeded(); await choice.click(); await listbox.waitFor();
-      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.evaluate(() => { document.querySelector('.lesson-panel').scrollTop = 0; });
       await listbox.waitFor({ state: 'hidden' });
       assert.equal(await choice.getAttribute('data-value'), 'present-simple', 'Scrolling the trigger out of view dismisses without changing selection');
       assert.equal(transport.sessionRequests, 0); assert.equal(hints.requests.length, 0);
@@ -320,6 +350,39 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await context.close();
     }
 
+    // Help off does not fabricate word errors or gaps from reference differences.
+    {
+      const context = await browser.newContext({ viewport: { width: 663, height: 924 }, colorScheme: 'dark' });
+      await installBrowserTransport(context, origin, { enabled: false });
+      const hints = await installHintFixture(context);
+      const page = await context.newPage();
+      await page.goto(`${origin}/#/sentence`, { waitUntil: 'networkidle' });
+      await page.getByRole('button', { name: 'Preferences', exact: true }).click();
+      await page.getByRole('navigation', { name: 'Preferences sections', exact: true }).getByRole('button', { name: 'Learning', exact: true }).click();
+      await page.getByLabel('Grammar difficulty', { exact: true }).selectOption('1');
+      await page.getByLabel('Sentence tenses', { exact: true }).selectOption('present-perfect');
+      await page.getByRole('button', { name: 'Close preferences', exact: true }).click();
+      for (let attempts = 0; attempts < 10 && !(await page.locator('.ll-spanish').innerText()).includes('hecho la tarea'); attempts++) {
+        await page.getByRole('button', { name: 'Next sentence', exact: true }).click();
+      }
+      assert.match(await page.locator('.ll-spanish').innerText(), /hecho la tarea/);
+      const field = page.getByRole('textbox', { name: 'English translation', exact: true });
+      const written = page.locator('.sentences-written');
+      await field.fill('I has done homework'); await field.press('Enter');
+      await written.locator('.ll-spelling').waitFor();
+      assert.equal(await written.locator('.ll-incorrect, [data-gap]').count(), 0);
+      await field.fill('I have done homework'); await field.press('Enter');
+      assert.equal(await written.locator('.ll-incorrect').count(), 0, 'The valid auxiliary is not falsely marked as a typo');
+      assert.equal(await written.locator('[data-gap]').count(), 0);
+      assert.doesNotMatch(await written.innerText(), /▴|already|my homework/);
+      await page.getByRole('button', { name: 'Ayuda para traducir', exact: true }).click();
+      const inputBounds = await field.boundingBox(); const helpBounds = await page.getByRole('tooltip').boundingBox();
+      assert.ok(inputBounds && helpBounds && helpBounds.y + helpBounds.height <= inputBounds.y, 'Prompt help stays above the input');
+      await page.screenshot({ path: join(output, 'sentence-written-homework-help.png'), fullPage: true });
+      assert.equal(hints.requests.length, 0, 'Generic help respects the disabled model hint preference');
+      await context.close();
+    }
+
     // Hint races are independent of viewport and use a fully intercepted text endpoint.
     {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' });
@@ -353,15 +416,19 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       assert.equal(first.draft, draft); assert.equal(first.sentenceId, 'sentence-ps-bread');
       await page.waitForTimeout(100); assert.equal(hints.requests.length, 1, 'Only the finalized draft is sent');
       assert.equal(await hint.count(), 0, 'A generated hint must not create a persistent panel');
-      first.reply({ status: 200, hint: 'Revisa la concordancia entre el sujeto y el verbo principal.' });
+      first.reply({ status: 200, review: needsRevision('buy', 'Revisa la concordancia entre el sujeto y el verbo principal.') });
+      await errorTrigger.waitFor();
       await errorTrigger.hover();
       await hint.waitFor();
       await page.getByText('Revisa la concordancia entre el sujeto y el verbo principal.', { exact: true }).waitFor();
       const triggerBox = await errorTrigger.boundingBox(); const hintBox = await hint.boundingBox();
       assert.ok(triggerBox && hintBox);
       const hoverX = triggerBox.x + triggerBox.width / 2;
-      await page.mouse.move(hoverX, hintBox.y + hintBox.height + 2, { steps: 12 });
-      assert.equal(await hint.isVisible(), true, 'The hint stays open while crossing the space above the error');
+      assert.ok(hintBox.y >= triggerBox.y + triggerBox.height, 'Error help is anchored below the annotation');
+      await page.mouse.move(hoverX, hintBox.y - 2, { steps: 12 });
+      assert.equal(await hint.isVisible(), true, 'The hint stays open while crossing the gap below the annotation');
+      const fieldBox = await field.boundingBox();
+      assert.ok(fieldBox && (hintBox.y >= fieldBox.y + fieldBox.height || hintBox.y + hintBox.height <= fieldBox.y), 'The hint never covers the input');
       await page.mouse.move(hoverX, hintBox.y + hintBox.height / 2, { steps: 12 });
       assert.equal(await hint.isVisible(), true, 'A pointer can reach the tooltip without dismissing it');
       await page.screenshot({ path: join(output, 'sentence-written-mocked-hint.png'), fullPage: true });
@@ -373,32 +440,33 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       await field.fill('He buys bread morning.');
       assert.equal(await hint.count(), 0, 'Editing immediately hides a hint for the previous draft');
       const second = await hints.waitForCount(2);
-      await errorTrigger.hover(); await hint.waitFor();
+      assert.equal(await errorTrigger.count(), 0, 'Pending reviews leave the annotation neutral');
+      await field.press('Alt+ArrowDown'); await hint.waitFor();
       const editedAbort = page.waitForEvent('requestfailed', { predicate: request => request.url().endsWith('/api/realtime/sentence-hint') && request.postDataJSON().draft === second.draft });
       await field.fill('He buys bread each mornin.');
       assert.equal(await hint.count(), 0, 'Editing immediately hides pending help');
       await editedAbort;
-      second.reply({ status: 200, hint: 'Pista anterior a la edición.' });
+      second.reply({ status: 200, review: uncertainReview('Pista anterior a la edición.') });
       const third = await hints.waitForCount(3);
       assert.doesNotMatch(await lesson.innerText(), /Pista anterior a la edición/);
-      await errorTrigger.focus(); await hint.waitFor();
+      await field.press('Alt+ArrowDown'); await hint.waitFor();
 
       const exerciseId = await lesson.getAttribute('data-exercise-id');
       const nextAbort = page.waitForEvent('requestfailed', { predicate: request => request.url().endsWith('/api/realtime/sentence-hint') && request.postDataJSON().draft === third.draft });
       await page.getByRole('button', { name: 'Next sentence', exact: true }).click();
       await nextAbort;
-      third.reply({ status: 200, hint: 'Pista anterior al cambio de ejercicio.' });
+      third.reply({ status: 200, review: uncertainReview('Pista anterior al cambio de ejercicio.') });
       await page.waitForFunction(id => document.querySelector('.ll-sentences').dataset.exerciseId !== id, exerciseId);
       assert.equal(await hint.count(), 0); assert.equal(await field.inputValue(), '');
       assert.doesNotMatch(await lesson.innerText(), /Pista anterior/);
 
       await field.fill('A fresh different draft.');
       const fourth = await hints.waitForCount(4);
-      await errorTrigger.focus(); await hint.waitFor();
+      await field.press('Alt+ArrowDown'); await hint.waitFor();
       const disabledAbort = page.waitForEvent('requestfailed', { predicate: request => request.url().endsWith('/api/realtime/sentence-hint') && request.postDataJSON().draft === fourth.draft });
       await setHelp(page, false);
       await disabledAbort;
-      fourth.reply({ status: 200, hint: 'Pista anterior a desactivar la ayuda.' });
+      fourth.reply({ status: 200, review: uncertainReview('Pista anterior a desactivar la ayuda.') });
       assert.equal(await hint.count(), 0);
       assert.equal(await errorTrigger.count(), 0);
       await field.fill('A second different draft.');
@@ -409,9 +477,10 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const failed = await hints.waitForCount(5);
       failed.reply({ status: 503 });
       assert.equal(await hint.count(), 0, 'Hint failure is not a persistent error panel');
-      await errorTrigger.hover();
-      await page.getByText('Hint unavailable right now.', { exact: true }).waitFor();
+      await field.press('Alt+ArrowDown');
+      await page.getByText('El servicio de pistas no está disponible ahora. Podés volver a intentarlo.', { exact: true }).waitFor();
       assert.equal(await written.getAttribute('data-status'), 'different');
+      assert.equal(await written.locator('.ll-incorrect, .sentences-error-trigger, [data-gap]').count(), 0, 'Unavailable review is not a learner error');
       assert.equal(await field.inputValue(), 'A second different draft.');
       assert.equal(await lesson.getAttribute('data-stage'), 'translation');
       assert.equal(await field.getAttribute('aria-invalid'), null, 'Provider failure must not turn the written field into a learner error');
@@ -446,12 +515,12 @@ const { installBrowserTransport, inspectTransport } = require('../tests/helpers/
       const request = await hints.waitForCount(1);
       const hint = page.getByRole('tooltip');
       assert.equal(await hint.count(), 0);
-      request.reply({ status: 200, hint: 'Revisa el verbo que acompaña al sujeto.' });
-      const trigger = page.getByRole('button', { name: 'Translation hint', exact: true }).first();
-      await trigger.tap();
+      request.reply({ status: 200, review: needsRevision('bux', 'Revisa el verbo que acompaña al sujeto.') });
+      const trigger = page.getByRole('button', { name: 'Translation hint', exact: true });
+      await trigger.waitFor(); await trigger.tap();
       await page.getByText('Revisa el verbo que acompaña al sujeto.', { exact: true }).waitFor();
       await page.screenshot({ path: join(output, 'sentence-written-mobile-tooltip.png'), fullPage: true });
-      await page.locator('.ll-cue').tap(); await hint.waitFor({ state: 'hidden' });
+      await page.getByRole('heading', { name: 'Sentence practice', exact: true }).tap(); await hint.waitFor({ state: 'hidden' });
       await trigger.tap(); await hint.waitFor();
       await page.getByRole('textbox', { name: 'English translation', exact: true }).fill(answer);
       await hint.waitFor({ state: 'hidden' });

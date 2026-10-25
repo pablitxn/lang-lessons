@@ -1,0 +1,8 @@
+.writing-result { margin-top: 20px; padding: 18px; border-radius: 12px; background: var(--surface, #eef1e8); border-left: 3px solid var(--primary, #08675f); overflow-wrap: anywhere; }
+.writing-result .writing-correction { margin: 0 0 12px; color: var(--ink, #203b32); font-size: 1.0625rem; line-height: 1.9; white-space: pre-wrap; }
+.writing-correction del { color: var(--error, #b42318); text-decoration-thickness: 1px; background: color-mix(in srgb, var(--error, #b42318) 8%, transparent); }
+.writing-correction ins { color: var(--primary, #08675f); font-weight: 650; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.writing-correction del + ins { margin-inline-start: .3em; }
+.writing-result .writing-result-explanation { margin: 0; color: var(--ink, #203b32); font-size: .875rem; line-height: 1.65; white-space: pre-line; }
+.writing-result-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 420px) { .writing-result { padding: 14px; } }

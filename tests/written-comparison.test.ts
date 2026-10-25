@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { SentenceEntry } from '../src/contracts';
 import { SENTENCES } from '../src/content';
-import { compareWrittenTranslation, MAX_WRITTEN_TRANSLATION_LENGTH } from '../src/features/sentences/written-comparison';
+import { compareWrittenTranslation, MAX_WRITTEN_TRANSLATION_LENGTH, writtenFeedbackSegments } from '../src/features/sentences/written-comparison';
 
 const example = (text: string): SentenceEntry['alternatives'][number] => ({ text, tense: 'present-simple', explanation: 'Test example.' });
 
@@ -92,4 +92,30 @@ test('empty and oversized drafts are bounded using native maxLength units', () =
   assert.equal(result.submittedText, long);
   assert.equal(result.closestAlternative, undefined);
   assert.equal(compareWrittenTranslation('🌳'.repeat(MAX_WRITTEN_TRANSLATION_LENGTH / 2 + 1), []).status, 'too-long');
+});
+
+test('word feedback marks whole submitted words without suggesting that unchanged words are wrong', () => {
+  const alternatives = [example('I have already done my homework.')];
+  const draft = 'I has done homework';
+  const result = writtenFeedbackSegments(compareWrittenTranslation(draft, alternatives));
+  assert.equal(result.filter(segment => !segment.gap).map(segment => segment.text).join(''), draft);
+  assert.deepEqual(result.filter(segment => segment.different && !segment.gap).map(segment => segment.text), ['has']);
+  assert.ok(result.some(segment => segment.gap));
+  assert.ok(result.filter(segment => segment.gap).every(segment => segment.text === ''));
+  const corrected = writtenFeedbackSegments(compareWrittenTranslation('I have done homework', alternatives));
+  assert.equal(corrected.filter(segment => segment.different && !segment.gap).length, 0);
+  assert.equal(corrected.filter(segment => segment.gap).length, 2);
+  assert.doesNotMatch(corrected.map(segment => segment.text).join(''), /already|my/);
+});
+
+test('word feedback preserves contractions, accents and learner punctuation', () => {
+  const contracted = "I've done homework.";
+  const result = writtenFeedbackSegments(compareWrittenTranslation(contracted, [example('I have already done my homework.')]));
+  assert.equal(result.filter(segment => !segment.gap).map(segment => segment.text).join(''), contracted);
+  assert.equal(result.filter(segment => segment.different && !segment.gap).length, 0);
+  const french = [{ text: 'Nous avons déjà mangé.', tense: 'fr-passe-compose', explanation: 'Test example.' }] as const;
+  const draft = 'Nous avons deja mangé.';
+  const feedback = writtenFeedbackSegments(compareWrittenTranslation(draft, french), 'fr');
+  assert.deepEqual(feedback.filter(segment => segment.different && !segment.gap).map(segment => segment.text), ['deja']);
+  assert.equal(feedback.filter(segment => !segment.gap).map(segment => segment.text).join(''), draft);
 });

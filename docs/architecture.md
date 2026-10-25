@@ -4,6 +4,128 @@ Date: 2026-10-16. Owner: EN-WP-01 foundation/integration executor.
 Status: selected reversible implementation defaults under the delegated roadmap
 launch. These are implementation decisions, not retroactive product approvals.
 
+## Exercise feedback update (2026-10-24)
+
+Both verb modes show the sourced local dictionary after every editable spelling
+field is accepted. The learner advances explicitly with Next so the definition
+remains available to read. The existing quiet-period scheduler still reports
+full oral completion once; it no longer navigates away from the visible-base
+verb. Dictionary visibility and written navigation never satisfy oral obligations.
+
+`VerbCompletionCard` composes `VerbDictionaryEntry`, `VerbFormSummary`, optional
+`VerbSentencePractice` and the explicit Next action. The same components serve
+both verb modes and languages, preserving the reviewed definitions and examples.
+Source and license attribution remain in Preferences > Credits. Dictionary
+content remains local.
+
+Optional current-verb writing uses an explicit submit to the same-origin
+`/api/realtime/verb-writing` endpoint. Opening or editing the composer never
+requests correction, and no automatic retries occur. The account broker requires
+an owned, open verb session with the current practice identity; the server
+resolves the verb and lesson language from curriculum and uses the existing
+server-only OpenAI key. A validated response supplies brief Spanish feedback
+and an optional corrected sentence in the target language. Editing, closing or
+replacing the exercise aborts pending work and invalidates stale results. This
+coaching path writes no assessment evidence or learner progress, satisfies no
+oral obligations and adds no completion gate.
+
+Sentence writing uses whole-word highlights and readable missing-text cues.
+An information icon inside the Spanish prompt reuses `InfoTooltip`, the same
+floating hover/focus/tap component as both verb exercises. It opens above its
+trigger without changing cue or input geometry. The existing per-attempt hint request remains
+subject to the help preference; generic instructions need no provider request.
+After a matched translation and correct tense selection, a brief Spanish
+explanation describes that alternative's construction and the authored context.
+The explanation separates a tense badge, reference sentence, construction
+formula, contextual use and any specific notes. English alternatives retain
+their original contextual caveats; French retains its authored explanation.
+Editing or switching exercises removes it. Completed oral exercises can show a
+clearly labelled reference example, without claiming it matches an unlisted
+spoken translation. These presentation changes create no assessment evidence.
+
+## Sentence dictionary and rewriting update (2026-10-25)
+
+### Written translation review amendment
+
+Authored matching remains a fast local acceptance path. Unmatched wording stays
+neutral until the existing sentence-hint request returns a structured review.
+One validated result controls acceptance, actual issue spans and their individual
+Spanish hints. Word order or synonyms alone never generate red reference-distance
+marks or guessed missing-text markers. Provider failures and uncertainty stay
+neutral. The same request returns the actual tense and brief grammar for accepted
+variants; neither is revealed before the learner completes the tense choice.
+
+`parseWrittenTranslationReview` validates the verdict, language-specific tense,
+field limits and unique, whole-word, nonoverlapping issue excerpts against the
+exact draft. Hint spoiler guards apply to pre-acceptance hints. Request/cache
+identity includes session, exercise, generation, sentence, language and draft.
+Edits, IME, replacement and unmount remove obsolete feedback and abort requests.
+
+`ReviewedTranslationPractice` renders the actual accepted draft, a transient tense
+choice, completion-only grammar and the shared optional writing component. It
+does not impersonate an authored alternative or mutate its snapshot/progress
+contract. Existing persisted reference comparison remains unchanged (unmatched
+text is uncertain); no model review creates durable grades or oral evidence.
+Reviewed acceptance and tense selection are transient and rechecked after reload.
+The existing help preference controls these model requests; disabled help leaves
+unmatched wording neutral and still permits local authored matches.
+
+The written annotation can enable dictionary mode and open a word's entry within
+the exercise. `DictionaryEntryCard` is the shared presentation for sentence and
+verb dictionaries. Exact, unambiguous curriculum verb-form matches reuse the
+reviewed local entry; other words use `/api/realtime/word-dictionary`. The broker
+derives language from the authored sentence, validates owned open sentence
+access and sends only the selected word to the public Wiktionary endpoint.
+Provider markup becomes inert text, never executable content. Internal editorial
+references and duplicate excerpts are omitted. Dynamic source/license attribution
+and adaptation details appear in Preferences > Credits, with links for entries
+consulted in the current page session; French word entries
+explicitly retain the source's English definitions. No pronunciation is inferred.
+Structurally valid Translingual groups can appear alongside English groups;
+the reader selects the requested language instead of rejecting the whole entry.
+Dictionary access uses a separate read authorization: another tab's active
+practice does not revoke access to public reference content. Paid rewriting
+still requires the active practice pointer, and neither path grants new progress
+or oral-evidence authority.
+
+The [Wikimedia REST API documentation](https://www.mediawiki.org/wiki/Wikimedia_REST_API)
+identifies Wiktionary's structured definition endpoint as experimental. Lookup
+failures stay operational errors with manual retry, distinct from missing words.
+Bounded cache, request/response size, rate, concurrency and total-duration limits
+apply. Editing, disabling dictionary mode or changing the exercise cancels
+pending lookups and removes stale results.
+
+After a matched written translation, **Escribe otros ejemplos** accepts further
+examples in the lesson language. The accepted sentence is optional inspiration;
+the learner can choose another topic or tense without preserving its meaning.
+The existing `/api/realtime/sentence-rewrite` URL is retained. The broker resolves
+the authoritative language and validates the owned, open, active session.
+
+`SentenceRewritePractice` and `VerbSentencePractice` are thin contextual wrappers
+around one `WrittenPractice` composer and one `WrittenCoachingResult`. Both verb
+modes and Sentence share the disclosure, underline input, character counter,
+submit action, draft lifetime and feedback styles. Verb examples still require
+the current verb in a legitimate form. Shared server instructions and schema
+request corrections for grammar, spelling, accents, capitalization, punctuation
+and word choice while preserving the learner's intended meaning. Sentence
+examples are not assessed as translations of the reference.
+
+Validated corrections are compared with the original draft using case-sensitive
+word alignment: deleted text is struck through and replacement text underlined,
+with concise Spanish explanation and no tutor/status headings. This local
+comparison displays supplied corrections; it makes no independent grammar claim.
+Both server and client reject a revision that returns the unchanged draft.
+`WritingLineField`, `CharacterCount` and `useWrittenCoaching` provide the shared
+field and request behavior. The counter is hidden below 800 characters, neutral
+from 800, orange from 900 and red from 950, retaining the 1,000-character limit.
+Only explicit submission requests coaching; editing, closing or changing identity
+invalidates late responses, and failures retain the draft without automatic retries.
+
+These paths do not change assessment or progress, satisfy oral obligations or
+add a completion gate. Automated tests use intercepted dictionary/model
+transport and make no paid inference calls; public dictionary API readback is
+separate validation evidence.
+
 ## Product flow update (2026-10-19)
 
 The 2026-10-19 browser review supersedes automatic voice startup: the header has
@@ -143,8 +265,10 @@ accepted evidence. Statuses are not-attempted, processing, uncertain, incorrect
 and accepted. Transport failures are connection errors, never incorrect answers.
 Malformed or uncorrelated provider events cannot create accepted evidence.
 
-Spelling must originate from typed input. Meaning, pronunciation, own sentences
-and sentence-mode completion require audio, except explicitly labelled mock fixtures.
+Spelling must originate from typed input. Assessed meaning, pronunciation,
+original-sentence obligations and sentence-mode completion require audio, except
+explicitly labelled mock fixtures. Optional typed verb sentences receive coaching
+through a separate request and cannot satisfy those obligations.
 The sentence writing field runs alongside a call or independently while offline.
 Its debounced local comparison is separate practice feedback, never oral evidence
 or a semantic rejection of wording outside the authored alternatives.
@@ -199,8 +323,8 @@ Written sentence hints use a separate same-origin broker request after the local
 700 ms typing debounce, only while global help is enabled and the draft differs
 from the authored examples. The server resolves curriculum by sentence ID and
 asks the model for a brief Spanish hint about this attempt, allowing valid
-paraphrases and ignoring capitalization. Hints appear on hover, focus or tap of
-the highlighted differences rather than in a persistent panel. It requests
+paraphrases and ignoring capitalization. Hints appear below the answer when the
+learner opens the information button or highlighted differences. It requests
 neither pronunciation nor an answer reveal. Editing,
 exercise replacement and disabling help invalidate the current response and
 abort its request. Text feedback cannot advance or overwrite the audio ledger.

@@ -5,6 +5,9 @@ import type { PhoenixTelemetry, SessionTrace } from './telemetry';
 import { TIMING } from '../src/contracts/settings';
 import type { LearningLanguage } from '../src/contracts';
 import { createSentenceHintHandler } from './sentence-hints';
+import { createVerbWritingHandler } from './verb-writing';
+import { createSentenceRewriteHandler } from './sentence-rewrite';
+import { createWordDictionaryHandler } from './word-dictionary';
 import type { BrokerAuthority, BrokerBinding } from './broker/authority';
 import { RepositoryError } from './data/database';
 import { providerStartupFailure } from './provider-start-failure';
@@ -51,6 +54,11 @@ async function readBody(request: IncomingMessage, limit = 65536): Promise<unknow
 export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch = fetch, telemetry?: PhoenixTelemetry, application?: (request: IncomingMessage, response: ServerResponse) => Promise<boolean>, authority?: BrokerAuthority, capture?: ProviderCapture) {
   const sentenceHint = createSentenceHintHandler({ apiKey: config.apiKey,
     model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
+  const verbWriting = createVerbWritingHandler({ apiKey: config.apiKey,
+    model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
+  const sentenceRewrite = createSentenceRewriteHandler({ apiKey: config.apiKey,
+    model: config.hintModel || 'gpt-6-luna', allowedOrigins: config.allowedOrigins }, fetcher);
+  const wordDictionary = createWordDictionaryHandler({ allowedOrigins: config.allowedOrigins }, fetcher);
   let pending = false;
   interface Lease { binding?: BrokerBinding; token: string; until: number; callId: string | null; closing?: Promise<boolean>; ended?: boolean; capture?: { stop(): Promise<void> } }
   let lease: Lease | null = null;
@@ -94,8 +102,24 @@ export function createRealtimeServer(config: BrokerConfig, fetcher: typeof fetch
       catch (error) { reply(response, error instanceof RepositoryError && error.code === 'unauthenticated' ? 401 : 403, { error: 'Voice access denied.' }); return; }
     }
     if (request.url === '/api/realtime/sentence-hint') {
+      if (authority && (!actor || !authority.authorizeSentenceHint)) { reply(response, 403, { error: 'Sentence help access denied.', reason: 'access-denied' }); return; }
       await sentenceHint(request, response, authority?.authorizeSentenceHint && actor
         ? (sessionId, language) => authority.authorizeSentenceHint!(actor!, sessionId, language) : undefined);
+      return;
+    }
+    if (request.url === '/api/realtime/verb-writing') {
+      if (authority && (!actor || !authority.authorizeVerbWriting)) { reply(response, 403, { error: 'Written practice access denied.' }); return; }
+      await verbWriting(request, response, authority && actor
+        ? (identity, language) => authority.authorizeVerbWriting!(actor!, identity, language) : undefined);
+      return;
+    }
+    if (request.url === '/api/realtime/sentence-rewrite' || request.url === '/api/realtime/word-dictionary') {
+      const rewriting = request.url === '/api/realtime/sentence-rewrite';
+      const authorize = rewriting ? authority?.authorizeSentenceRewrite : authority?.authorizeWordDictionary;
+      if (authority && (!actor || !authorize)) { reply(response, 403, { error: 'Written practice access denied.' }); return; }
+      const handler = rewriting ? sentenceRewrite : wordDictionary;
+      await handler(request, response, authority && actor
+        ? (identity, language) => authorize!(actor!, identity, language) : undefined);
       return;
     }
     if (request.url === '/api/realtime/status' && request.method === 'GET') {

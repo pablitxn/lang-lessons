@@ -1,0 +1,9 @@
+.writing-line-field { min-width: 0; border-bottom: 1px solid var(--line, #84988d); }
+.writing-line-field:focus-within { border-color: var(--primary, #08675f); box-shadow: 0 1px 0 var(--primary, #08675f); }
+.writing-line-field > textarea.writing-line-input { display: block; box-sizing: border-box; width: 100%; min-width: 0; min-height: 52px; max-height: none; height: auto; field-sizing: content; padding: 12px 2px; overflow: hidden; resize: none; border: 0; border-radius: 0; background: transparent; color: var(--ink, #203b32); font: inherit; font-size: 1rem; line-height: 1.5; }
+.writing-line-field > textarea.writing-line-input::placeholder { color: var(--muted, #5c6d65); }
+.writing-line-field > textarea.writing-line-input:focus-visible { outline: none; }
+.writing-character-count { color: var(--muted, #5c6d65); font-size: .6875rem; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.writing-character-count[data-level="warning"] { color: #a34b00; }
+:root[data-theme="dark"] .writing-character-count[data-level="warning"] { color: #ffb86b; }
+.writing-character-count[data-level="danger"] { color: var(--error, #b42318); }

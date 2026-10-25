@@ -9,6 +9,10 @@ export * from './progress';
 export * from './session';
 export * from './feedback';
 export * from './dictionary';
+export * from './word-dictionary';
+export * from './verb-writing';
+export * from './written-coaching';
+export * from './written-translation-review';
 export * from './activity';
 export type { DailyProgressPage, DailyPageRequest, DailyResult, DailySession, ResultPage } from './daily';
 

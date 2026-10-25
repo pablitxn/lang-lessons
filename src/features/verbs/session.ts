@@ -15,6 +15,7 @@ export interface VerbSessionSnapshot {
   question: string;
   muted: boolean;
   canGoBack: boolean;
+  writtenComplete: boolean;
   pictureComplete: boolean;
   nextPicture: import("../../contracts").NextPicture | null;
 }
@@ -239,8 +240,7 @@ export function createVerbSession(options: VerbSessionOptions) {
     publish(); return true;
   }
   // Dictionary presentation is written-only; it must not alter the oral completion ledger.
-  function pictureWrittenComplete() {
-    if (mode !== 'verb-image') return false;
+  function writtenComplete() {
     const snapshot = controller.getSnapshot();
     return fields.every(form => {
       const obligation = `spelling:${form}` as const;
@@ -253,8 +253,9 @@ export function createVerbSession(options: VerbSessionOptions) {
   function publish() {
     if (disposed || !initialized) return;
     if (options.canWrite?.() !== false) reportProgress(progressLedger(), controller.getSnapshot().exerciseId, !restoring);
+    const acceptedWriting = writtenComplete();
     view = { assessment: controller.getSnapshot(), drafts: Object.freeze({ ...drafts }), coachText, clarification, lastUtterance, question, muted, canGoBack: historyIndex > 0,
-      pictureComplete: pictureWrittenComplete(),
+      writtenComplete: acceptedWriting, pictureComplete: mode === 'verb-image' && acceptedWriting,
       nextPicture: mode === 'verb-image' && history[historyIndex + 1] ? { key: `${namespace}:${generation}:${historyIndex + 1}`, src: history[historyIndex + 1]!.verb.image.src } : null };
     if (!restoring) { const saved = snapshotWrittenPractice(); if (saved) options.onWrittenPracticeChange?.(saved); }
     for (const listener of listeners) listener();
@@ -372,9 +373,8 @@ export function createVerbSession(options: VerbSessionOptions) {
       if (entry.completed) return;
       entry.completed = true;
       options.onComplete(snapshot.exerciseId);
-      if (disposed || controller.getSnapshot().interaction.intent !== 'practice') return;
-      if (mode === 'verb-image') { publish(); return; }
-      startNext();
+      // Both modes keep the completed verb's dictionary available until Next.
+      if (!disposed) publish();
     },
   });
   const unsubscribeController = controller.subscribe(() => { publish(); scheduleDrain(); });
@@ -394,6 +394,11 @@ export function createVerbSession(options: VerbSessionOptions) {
       inputId: `spelling-${form}-${++sequence}`, kind: 'typed', text: value, attempts: refs });
   }
 
+  function nextVerb(expectedExerciseId: string) {
+    if (disposed || controller.getSnapshot().exerciseId !== expectedExerciseId || !writtenComplete()) return false;
+    return startNext();
+  }
+
   return {
     mode, language, sessionId, voice, fields, controller, snapshotWrittenPractice, restoreWrittenPractice,
     getSnapshot: () => view,
@@ -404,11 +409,9 @@ export function createVerbSession(options: VerbSessionOptions) {
       draftRevisions[form] = (draftRevisions[form] ?? 0) + 1;
       controller.invalidate(`spelling:${form}`);
     },
-    finalize,
+    finalize, nextVerb,
     nextPicture(expectedExerciseId: string) {
-      if (disposed || mode !== 'verb-image' || controller.getSnapshot().exerciseId !== expectedExerciseId
-        || !pictureWrittenComplete()) return false;
-      return startNext();
+      return mode === 'verb-image' && nextVerb(expectedExerciseId);
     },
     // Explicit history navigation never reports completion.
     skip: startNext,

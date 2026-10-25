@@ -5,6 +5,8 @@ import { VerbFixtureAdapter } from '../src/features/verbs/__fixtures__/adapter';
 import { FakeClock } from './helpers/assessment-fixtures';
 import { createRealtimeVoiceAdapter } from '../src/voice';
 import { createPicturePreload } from '../src/features/verbs/picture-preload';
+import { getFormGuidance } from '../src/contracts';
+import { getPictureDictionaryEntry } from '../src/features/verbs/dictionary';
 
 const flush = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
 test('Pictures card depends on written gates while oral completion remains independent', async () => {
@@ -87,4 +89,46 @@ test('offline Pictures reveals the card after three written forms without audio 
   assert.equal(session.getSnapshot().assessment.completed, false);
   assert.equal(session.getSnapshot().assessment.evidence.meaning, undefined);
   session.dispose();
+});
+
+test('both languages reveal the visible verb dictionary after two written forms and invalidate stale Next actions', () => {
+  for (const language of ['en', 'fr'] as const) {
+    const completed: string[] = [];
+    const clock = new FakeClock();
+    const session = createVerbSession({ voice: createRealtimeVoiceAdapter(), clock, mode: 'verb-visible', language,
+      sessionId: `offline-visible-${language}`, random: () => 0, onComplete: id => completed.push(id) });
+    try {
+      const original = session.getSnapshot().assessment;
+      if (original.context.mode === 'sentence') throw new Error('Expected verb context');
+      assert.equal(session.fields.length, 2);
+      assert.equal(session.getSnapshot().writtenComplete, false);
+      assert.equal(session.nextVerb(original.exerciseId), false);
+      for (const [index, form] of session.fields.entries()) {
+        const answer = getFormGuidance(original.context.verb, form)!.accepted[0]!;
+        session.edit(form, answer); session.finalize(form, answer);
+        assert.equal(session.getSnapshot().writtenComplete, index === session.fields.length - 1);
+      }
+      assert.ok(getPictureDictionaryEntry(original.context.verb.id)?.senses[0]?.definition.text);
+      assert.equal(session.getSnapshot().pictureComplete, false, 'The picture-only compatibility flag retains its meaning');
+      assert.equal(session.getSnapshot().assessment.completed, false);
+      assert.ok(Object.keys(session.getSnapshot().assessment.evidence).every(key => key.startsWith('spelling:')));
+      clock.advance(20000);
+      assert.equal(session.getSnapshot().assessment.exerciseId, original.exerciseId);
+      assert.deepEqual(completed, []);
+      const editedForm = session.fields[0]!;
+      const answer = getFormGuidance(original.context.verb, editedForm)!.accepted[0]!;
+      session.edit(editedForm, 'incorrect');
+      assert.equal(session.getSnapshot().writtenComplete, false);
+      assert.equal(session.nextVerb(original.exerciseId), false);
+      session.edit(editedForm, answer); session.finalize(editedForm, answer);
+      assert.equal(session.getSnapshot().writtenComplete, true);
+      assert.equal(session.nextVerb(original.exerciseId), true);
+      assert.equal(session.nextVerb(original.exerciseId), false);
+      assert.equal(session.getSnapshot().writtenComplete, false);
+      assert.deepEqual(completed, [], 'Written dictionary navigation does not manufacture oral completion');
+      assert.equal(session.previous(), true);
+      assert.equal(session.getSnapshot().writtenComplete, true);
+      assert.equal(session.getSnapshot().assessment.evidence.meaning, undefined);
+    } finally { session.dispose(); }
+  }
 });

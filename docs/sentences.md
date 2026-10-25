@@ -9,6 +9,140 @@ branches and published receipts remain unchanged. This task owns only
 
 ## Current application flow, 2026-10-17
 
+### Coherent translation review amendment, 2026-10-25
+
+Reference wording differences no longer appear as grammatical errors. Local
+authored matches still complete immediately; other drafts remain neutral while
+the existing hint request assesses their meaning and grammar. One structured
+response accepts a valid paraphrase, identifies up to three actual problems, or
+expresses uncertainty. Every highlighted excerpt must occur exactly once in the
+draft and has its own Spanish hint. Omissions point to an existing incomplete
+phrase rather than a guessed insertion. Pending, disabled and failed reviews
+never produce red annotations or **Falta** markers.
+
+An accepted variant unlocks its actual tense exercise and optional examples.
+After the tense is identified, the grammar card quotes the learner's sentence
+and the review's brief explanation. This branch is explicitly separate from
+authored explanations and uses transient state; it changes neither persisted
+written grades nor oral assessment. Editing, changing exercise/account/language
+or restoring another draft invalidates old results. Cache keys include the full
+exercise identity and exact draft. Reloading rechecks an unmatched variant.
+
+See `docs/evidence/2026-10-25-semantic-translation-review.md` for test boundaries
+and integration handoff. This supersedes the reference-marking behavior below.
+
+### Dictionary and rewriting amendment, 2026-10-25
+
+The information icon now belongs inside the Spanish prompt, matching the other
+exercise cues. `SentenceCueHelp` wraps the shared `InfoTooltip` used by verb
+information. Cue guidance floats outside the Spanish prompt; annotation and
+Alt+Down guidance anchor to the actual marked word or input. A viewport-clamped
+portal avoids the prompt, input, annotation and dock without moving layout.
+It retains keyboard, pointer and touch access, dismissal and
+the existing per-attempt hint preference. This supersedes the earlier in-flow
+help presentation and the 2026-10-24 button location below.
+
+The written annotation has an icon-only **Diccionario** control with an accessible
+name and 44-pixel target. Enabling it makes the
+learner's words keyboard-accessible buttons; selecting one opens an inline
+`SentenceDictionaryCard` within the exercise. The annotation retains its original
+wording, punctuation and comparison feedback. Dictionary mode never changes an
+answer or declares that an unlisted translation is incorrect.
+Missing text uses the compact **Falta** marker, with a complete accessible name.
+The old feedback heading and comparison note are omitted.
+
+Generated hint failures use fixed Spanish messages for access, rate, timeout,
+configuration and invalid-provider-output cases. Raw provider errors are never
+rendered. General temporal clues mentioning `futuro` are accepted while explicit
+tense answers remain withheld. Paid hints still require the owned, open, active
+sentence practice; another tab can change that active pointer. Re-entering
+Sentence restores its canonical practice and saved draft.
+
+Completed grammar guidance separates the example, tense badge, construction
+formula, contextual use and any specific notes. `getSentenceExplanationDetails`
+provides that presentation while preserving `getSentenceExplanation` plain-text
+compatibility. English mixed-tense caveats and French authored copy remain
+intact; the layout stacks on narrow screens and separates structure/context
+into columns when space permits.
+
+Dictionary presentation is shared with verb completion through
+`DictionaryEntryCard`. An unambiguous exact match to a reviewed curriculum verb
+form reuses its local entry and form summary. Other words use the same-origin
+`/api/realtime/word-dictionary` broker, which derives the requested language from
+the sentence curriculum and queries the official English Wiktionary definition
+endpoint. Only the selected word goes to Wiktionary, never the full sentence or
+account/exercise identity. Contractions and French elisions remain whole words;
+typographic apostrophes are normalized for lookup.
+Valid groups for another language or Translingual symbols are filtered out;
+they do not invalidate matching-language definitions of words such as `my`, `I`
+or `it`. Malformed provider structures still fail validation.
+
+Dynamic entries contain attributed dictionary excerpts, stripped to plain text.
+Source and license links and the adaptation notice live in Preferences > Credits
+alongside local dictionary credits, with direct links for entries consulted in
+the current page session. Internal editorial references and duplicate excerpts
+are omitted from exercise text. Their
+definitions are in English, including entries for French words; the interface
+explicitly identifies that language. The lookup supplies no invented
+pronunciation or model-generated definition and does not select a supposedly
+contextual sense.
+The [official Wikimedia REST API documentation](https://www.mediawiki.org/wiki/Wikimedia_REST_API)
+describes Wiktionary's definition endpoint as experimental. Missing words and
+temporary lookup failures remain distinct, with manual retry for failures.
+Requests and response sizes, rate, concurrency and duration are bounded, and
+public entries have a bounded server cache.
+
+Once the written translation matches an authored alternative, **Escribe otros ejemplos** is available by default as optional practice. It opens a separate draft
+for an example in the lesson language, with any topic or tense. The accepted
+sentence is optional inspiration, not a meaning or translation constraint.
+Only explicit submission calls
+`/api/realtime/sentence-rewrite`; opening, typing or reconnecting sends no
+correction request. `SentenceRewritePractice` and `VerbSentencePractice` wrap the
+same `WrittenPractice`, `WrittenCoachingResult` and `useWrittenCoaching`, retaining
+cancellation, stale-result rejection, bounded same-draft caching and manual retry.
+Shared server instructions request grammar, spelling, capitalization, accents,
+punctuation and word-choice corrections while preserving the learner's intent.
+Feedback shows removed/replacement text and a concise Spanish explanation, with
+no tutor label or verdict heading. The original exercise answer stays intact.
+For correct examples, the shared prompt requests one or two useful grammatical
+observations about the learner's actual construction, in at most two short
+Spanish sentences, without imposing the reference sentence's tense or context.
+The disclosure omits redundant subtitle and optional labels; its input retains
+an accessible label while matching the main exercise's underline styling.
+`WritingLineField` grows with multiline content; **Corregir** has no arrow.
+`CharacterCount` stays hidden below 800 characters, uses neutral styling at 800,
+orange at 900 and red at 950, with a maximum of 1,000 characters. The dictionary
+toggle aligns with the exercise's right edge and has no instructional paragraph.
+
+Both endpoints require the account's owned, open sentence session and matching
+language. Rewriting also requires the active-practice pointer and reuses the
+existing server-only model credential. Read-only dictionary access remains
+available when another tab becomes active. Editing the original
+answer, closing the feature or changing exercise removes obsolete results and
+cancels pending work. Neither dictionary lookup nor optional rewriting writes
+assessment evidence or progress, satisfies oral obligations or gates Next.
+Automated provider tests use simulated transports; no paid model call is part of
+that validation. Public dictionary readback is separate from model evidence.
+
+### Written feedback amendment, 2026-10-24
+
+The written answer now has an explicit Spanish **Ayuda** information button.
+Its hover, focus and tap guidance occupies normal flow below the input instead
+of covering the learner's text. Escape, outside interaction and editing dismiss
+it. Differences are grouped as readable words, with explicit missing-text
+indicators instead of individual triangle markers. These comparisons remain
+reference differences, not semantic rejection of alternative translations.
+
+Completing a written translation and correctly identifying its actual tense
+reveals a short Spanish grammar explanation. It uses the matched alternative's
+construction and the prompt's authored context, including distinct guidance for
+the two accepted since-2020 constructions. Editing resets it along with the
+tense selection. Oral completion can show a labelled reference example without
+claiming an exact authored match. Neither explanation nor help creates oral
+evidence or makes a new provider request.
+
+### Earlier application flow
+
 The root starts the voice call after the selected lesson has established an
 exercise context; an unsupported difficulty pair waits for corrected settings.
 The lesson presents its Spanish prompt, current stage, requested hint and

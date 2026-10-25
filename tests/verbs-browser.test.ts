@@ -26,6 +26,12 @@ test('both verb lessons render real images and enforce their shared-controller g
         await context.addInitScript(() => { Math.random = () => 0; });
         const page: any = await context.newPage();
         const errors: string[] = []; const external: string[] = [];
+        const writingRequests: unknown[] = [];
+        await page.route('**/api/realtime/verb-writing', async (route: any) => {
+          writingRequests.push(route.request().postDataJSON());
+          await route.fulfill({ status: 200, json: { status: 'correct', correctedSentence: null,
+            explanation: 'La frase usa am, una forma del verbo be, de manera natural.' } });
+        });
         page.on('pageerror', (error: Error) => errors.push(error.message));
         page.on('request', (request: { url(): string }) => { if (!request.url().startsWith(`http://127.0.0.1:${port}/`)) external.push(request.url()); });
         // Freeze before navigation; a cross-process Date.now() + 10ms can expire in transit.
@@ -41,6 +47,9 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getByRole('region', { name: 'Your progress' }).count(), 0);
         assert.equal(await lesson.getByRole('button', { name: /^Check / }).count(), 0);
         assert.equal(await lesson.getByRole('button', { name: 'Give me a hint', exact: true }).count(), 0);
+        assert.equal(await lesson.locator('.picture-dictionary').count(), 0, 'Dictionary content is hidden before accepted writing');
+        assert.equal(await lesson.getByRole('button', { name: 'Escribe otros ejemplos', exact: true }).count(), 0, 'Optional sentence practice is hidden before the written forms pass');
+        assert.equal(writingRequests.length, 0);
         if (mode === 'image') assert.equal(await lesson.getByRole('button', { name: 'Previous image', exact: true }).isDisabled(), true);
         else assert.equal(await lesson.getByRole('button', { name: 'Previous word', exact: true }).count(), 0);
         assert.doesNotMatch(await lesson.innerText(), /Mock|simulated|microphone or provider requests/);
@@ -206,9 +215,42 @@ test('both verb lessons render real images and enforce their shared-controller g
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         const observations = page.getByTestId('observations');
         assert.equal(await observations.getAttribute('data-spelling-submissions'), mode === 'image' ? '4' : '2');
+        const card = page.getByRole('region', { name: mode === 'image' ? 'Completed picture dictionary' : 'Completed verb dictionary' });
+        await card.waitFor();
+        const acceptedPast = page.getByRole('textbox', { name: 'Past', exact: true });
+        const practice = card.getByRole('button', { name: 'Escribe otros ejemplos', exact: true });
+        await practice.click();
+        const ownSentence = card.getByRole('textbox', { name: 'Tu frase con be', exact: true });
+        await ownSentence.waitFor();
+        assert.equal(writingRequests.length, 0, 'Opening optional practice never calls the model');
+        await ownSentence.fill('I am at home.');
+        await page.clock.runFor(800);
+        assert.equal(writingRequests.length, 0, 'Typing an optional sentence does not dispatch a correction');
+        assert.equal(await card.locator('.writing-practice').count(), 1);
+        assert.equal(await card.locator('.writing-line-field').count(), 1);
+        await card.getByRole('button', { name: 'Corregir', exact: true }).click();
+        await card.locator('.verb-practice-result').waitFor();
+        assert.equal(writingRequests.length, 1);
+        assert.deepEqual(writingRequests[0], { identity: { sessionId: 'verbs-browser', exerciseId: original, generation: 1 }, verbId: 'be', draft: 'I am at home.' });
+        assert.equal(await ownSentence.inputValue(), 'I am at home.');
+        const completedBeforePracticeEdit = await observations.getAttribute('data-completed');
+        await acceptedPast.fill('wa');
+        assert.equal(await card.count(), 0, 'Editing an accepted verb form unmounts its dictionary and optional practice');
+        assert.equal(await lesson.locator('.verb-practice-result').count(), 0);
+        await acceptedPast.fill('was');
+        await page.clock.runFor(800);
+        await card.waitFor();
+        assert.equal(await ownSentence.count(), 0, 'Restored written acceptance starts with optional practice collapsed');
+        await practice.click();
+        await ownSentence.waitFor();
+        assert.equal(await ownSentence.inputValue(), '', 'Restored completion cannot retain a draft from invalidated writing');
+        assert.equal(await card.locator('.verb-practice-result').count(), 0);
+        assert.equal(await observations.getAttribute('data-completed'), completedBeforePracticeEdit, 'Optional coaching never reports completion');
+        await practice.click();
+        const spellingSubmissions = Number(await observations.getAttribute('data-spelling-submissions'));
         await page.getByRole('button', { name: 'Send oral then uncertain fixture', exact: true }).click();
         await lesson.locator('.verbs-clarification').filter({ hasText: /Please clarify before we move on/ }).waitFor();
-        assert.equal(Number(await observations.getAttribute('data-submissions')), (mode === 'image' ? 4 : 2) + 1);
+        assert.equal(Number(await observations.getAttribute('data-submissions')), spellingSubmissions + 1);
         await page.getByRole('button', { name: 'Answer question fixture', exact: true }).click();
         assert.equal(await lesson.locator('.verbs-clarification').count(), 0);
         await page.getByRole('button', { name: 'Your progress', exact: true }).click();
@@ -271,17 +313,22 @@ test('both verb lessons render real images and enforce their shared-controller g
         await page.clock.runFor(1799);
         assert.equal(await lesson.getAttribute('data-exercise'), original);
         await page.clock.runFor(1);
-        if (mode === 'image') {
-          const card = page.getByRole('region', { name: 'Completed picture dictionary' });
-          await card.waitFor();
-          await page.clock.runFor(10000);
-          assert.equal(await lesson.getAttribute('data-exercise'), original, 'Completed Pictures wait for explicit Next');
-          await card.getByRole('button', { name: 'Next picture', exact: true }).click();
+        await card.waitFor();
+        assert.equal(await card.getByRole('heading', { name: 'be', exact: true }).count(), 1);
+        assert.ok((await card.locator('.dictionary-definition').innerText()).length > 0);
+        if (viewport.width === 390 && mode === 'visible') {
+          await card.evaluate((element: HTMLElement) => element.scrollIntoView({ block: 'center' }));
+          await card.screenshot({ path: '/tmp/lang-lessons-verb-completion-mobile.png' });
         }
+        await page.clock.runFor(10000);
+        assert.equal(await lesson.getAttribute('data-exercise'), original, 'Completed verbs retain the definition until explicit Next');
+        await card.getByRole('button', { name: mode === 'image' ? 'Next picture' : 'Next verb', exact: true }).click();
         await page.waitForFunction(() => document.querySelector('.verbs-lesson')?.getAttribute('data-generation') === '2');
         assert.equal(await lesson.getAttribute('data-verb'), 'beat');
         assert.equal(await observations.getAttribute('data-completed'), '1');
         assert.equal(await page.getByRole('textbox', { name: 'Past', exact: true }).inputValue(), '');
+        assert.equal(await lesson.locator('.verb-sentence-practice').count(), 0, 'Next exercise removes the previous optional practice');
+        assert.equal(writingRequests.length, 1, 'Closing and navigating never make additional coaching requests');
         const next = lesson.getByRole('button', { name: mode === 'image' ? 'Next image' : 'Next word', exact: true });
         const secondPhoto = mode === 'image' ? await lesson.locator('.verbs-picture').getAttribute('src') : undefined;
         await past.fill('bea');
@@ -346,7 +393,7 @@ test('both verb lessons render real images and enforce their shared-controller g
           await page.screenshot({ path: `/tmp/en-wp-05-${mode}.png`, fullPage: true });
         }
         assert.deepEqual(errors, []); assert.deepEqual(external, []);
-        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'automatic checking without buttons', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/information/question/speech/pause holds', 'quiet completion; Pictures explicit Next', ...(mode === 'image' ? ['photo overlay navigation', 'back/forward photo and draft restoration', 'completed review'] : ['word cue hover/touch/focus navigation', 'English verb information', 'next-only navigation and reset']), 'reflow', '200% text', 'no external requests'] }));
+        console.log(JSON.stringify({ mode, viewport, gate: 'shared controller', evidence: 'explicit mock only', checks: ['image/two or three fields', 'stable feedback/help', 'automatic checking without buttons', 'deduplicated finalization', 'full oral/written gate', 'progress/reference/information/question/speech/pause holds', 'quiet completion; dictionary and explicit Next', ...(mode === 'image' ? ['photo overlay navigation', 'back/forward photo and draft restoration', 'completed review'] : ['word cue hover/touch/focus navigation', 'English verb information', 'next-only navigation and reset']), 'reflow', '200% text', 'no external requests'] }));
         await context.close();
       }
     }
