@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "verb-completion": {
+      "targetKind": "existing-ui",
+      "projectId": "5d70e86e-5a49-451e-8193-cfe5ec514283",
+      "activeDraftId": "e8501508-8fb5-4c7b-9859-c3c7ca997505",
+      "contextFiles": [
+        "src/features/verbs/VerbCompletionCard.tsx",
+        "src/features/verbs/VerbDictionaryEntry.tsx",
+        "src/features/verbs/VerbFormSummary.tsx",
+        "src/features/verbs/VerbSentencePractice.tsx",
+        "src/features/verbs/picture-dictionary.css",
+        "src/features/verbs/verb-sentence-practice.css"
+      ],
+      "fingerprints": {
+        "src/features/verbs/VerbCompletionCard.tsx": "b989223f62f57f6fe02635d339e30d3263c66bfd740a4fb37b532182af161f08",
+        "src/features/verbs/VerbDictionaryEntry.tsx": "b0ced46e830612d6e4bb1e8d05f3f83cf02667c100d6d42cd6fcd6194ce87c9e",
+        "src/features/verbs/VerbFormSummary.tsx": "7ad4795668bc0b02e73f8c93a7a4ce9b09b660b6e3cbd7cf127085f5fb232771",
+        "src/features/verbs/VerbSentencePractice.tsx": "5052c34e918cc4d77932014580b7e29a66a8de3321fdfc682ddab68c88ed2ea1",
+        "src/features/verbs/picture-dictionary.css": "cbdce1f077df873f0f14220febcba6fb3e652dbe501d4f62240346ffb95b2c8d",
+        "src/features/verbs/verb-sentence-practice.css": "0f7d5d4d7f7c4ddaf38d19dbfc2047f0e3e816b1a2dfae7a938bf1b20b6d0baa"
+      },
+      "drafts": {
+        "e8501508-8fb5-4c7b-9859-c3c7ca997505": {
+          "title": "Verb completion \u2014 dictionary and optional writing",
+          "visualDirection": "Quiet dictionary typography, compact form strip, optional writing disclosure",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-10-25T00:05:42.078856+00:00"
+    }
+  }
+}

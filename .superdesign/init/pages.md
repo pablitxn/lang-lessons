@@ -1,0 +1,456 @@
+# Page dependency trees
+
+Generated 2026-10-24 from the local working tree on `codex/exercise-feedback`, base `b1f76feb88813a1efad2b5a8f574c3e5bbec165d`. This discovery snapshot includes in-progress changes. It is design context, not a release or runtime receipt. No secrets, local account configuration, model generation, or external assets were inspected.
+
+These are static local import/export dependency closures. External packages are excluded. Repeated modules are listed once with subsequent occurrences marked as already expanded; JSON curriculum and dictionary sources are listed as data leaves without copying their contents. This is a candidate context inventory, not a recommendation to upload the whole graph. Shared shell code lives in layouts.md.
+
+## / (authenticated home and shared shell)
+
+Entry: `src/app/App.tsx`
+
+```text
+- src/app/App.tsx
+  - src/contracts/index.ts
+    - src/contracts/curriculum.ts
+    - src/contracts/evidence.ts
+      - src/contracts/curriculum.ts (already expanded above)
+    - src/contracts/voice.ts
+      - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/evidence.ts (already expanded above)
+      - src/contracts/session.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/progress.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/evidence.ts (already expanded above)
+          - src/contracts/feedback.ts
+        - src/contracts/feedback.ts (already expanded above)
+    - src/contracts/settings.ts
+      - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/voice.ts (already expanded above)
+    - src/contracts/policy.ts
+      - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/evidence.ts (already expanded above)
+      - src/contracts/settings.ts (already expanded above)
+    - src/contracts/accounts.ts
+    - src/contracts/progress.ts (already expanded above)
+    - src/contracts/session.ts (already expanded above)
+    - src/contracts/feedback.ts (already expanded above)
+    - src/contracts/dictionary.ts
+      - src/contracts/curriculum.ts (already expanded above)
+    - src/contracts/verb-writing.ts
+      - src/contracts/curriculum.ts (already expanded above)
+    - src/contracts/activity.ts
+      - src/contracts/session.ts (already expanded above)
+    - src/contracts/daily.ts
+      - src/contracts/progress.ts (already expanded above)
+      - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/feedback.ts (already expanded above)
+    - src/contracts/student-timezone.ts
+  - src/platform/settings-store.ts
+    - src/contracts/index.ts (already expanded above)
+  - src/platform/account-settings.ts
+    - src/contracts/index.ts (already expanded above)
+    - src/platform/settings-store.ts (already expanded above)
+  - src/app/routes.ts
+    - src/contracts/index.ts (already expanded above)
+  - src/app/LessonSession.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/voice/realtime.ts
+      - src/contracts/index.ts (already expanded above)
+      - src/assessment/spelling.ts
+        - src/contracts/index.ts (already expanded above)
+      - src/voice/telemetry.ts
+        - src/voice/protocol.ts
+          - src/contracts/index.ts (already expanded above)
+          - src/voice/telemetry-schema.ts
+          - src/assessment/spelling.ts (already expanded above)
+          - src/assessment/coaching-policy.ts
+        - src/voice/telemetry-schema.ts (already expanded above)
+      - src/voice/protocol.ts (already expanded above)
+    - src/app/session-runtime.ts
+      - src/assessment/spelling.ts (already expanded above)
+      - src/contracts/index.ts (already expanded above)
+    - src/app/session-lifecycle.ts
+      - src/contracts/index.ts (already expanded above)
+      - src/foundation/exit-coordinator.ts
+        - src/contracts/session.ts (already expanded above)
+        - src/contracts/progress.ts (already expanded above)
+      - src/app/session-runtime.ts (already expanded above)
+    - src/app/SessionExitDialog.tsx
+      - src/app/session-lifecycle.ts (already expanded above)
+    - src/app/VoiceStatus.tsx
+    - src/features/progress/written-snapshot.ts
+      - src/contracts/index.ts (already expanded above)
+    - src/features/progress/use-written-activity.ts
+      - src/features/progress/written-usage-store.ts
+        - src/features/progress/pending-progress-store.ts
+          - src/contracts/index.ts (already expanded above)
+          - src/foundation/progress-batch.ts
+            - src/contracts/progress.ts (already expanded above)
+  - src/app/PersistedLesson.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/app/LessonSession.tsx (already expanded above)
+    - src/app/session-lifecycle.ts (already expanded above)
+    - src/app/navigation-context.tsx
+    - src/features/progress/use-written-activity.ts (already expanded above)
+    - src/features/progress/written-snapshot.ts (already expanded above)
+  - src/app/Preferences.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/content/tense-guide.ts
+      - src/contracts/index.ts (already expanded above)
+    - src/app/LearningCredits.tsx
+      - src/features/verbs/dictionary/wiktionary.snapshot.json (authored data leaf; contents intentionally omitted)
+      - src/features/verbs/dictionary/french.snapshot.json (authored data leaf; contents intentionally omitted)
+      - src/contracts/index.ts (already expanded above)
+  - src/ui/mobile/index.ts
+    - src/ui/mobile/mobile.css
+    - src/ui/mobile/components.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/lesson-tools-context.ts
+      - src/ui/mobile/presentation.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/ui/mobile/SpellingField.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/presentation.ts (already expanded above)
+    - src/ui/mobile/presentation.ts (already expanded above)
+  - src/ui/mobile/lesson-tools-context.ts (already expanded above)
+  - src/content/tense-guide.ts (already expanded above)
+  - src/app/root-navigation.ts
+    - src/app/routes.ts (already expanded above)
+  - src/app/navigation-context.tsx (already expanded above)
+  - src/app/global.css
+```
+
+## /#/verb-image (mode=verb-image)
+
+Entry: `src/features/verbs/VerbLesson.tsx`
+
+```text
+- src/features/verbs/VerbLesson.tsx
+  - src/features/verbs/dictionary/index.ts
+    - src/contracts/index.ts
+      - src/contracts/curriculum.ts
+      - src/contracts/evidence.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/voice.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/evidence.ts (already expanded above)
+        - src/contracts/session.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/progress.ts
+            - src/contracts/curriculum.ts (already expanded above)
+            - src/contracts/evidence.ts (already expanded above)
+            - src/contracts/feedback.ts
+          - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/settings.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/voice.ts (already expanded above)
+      - src/contracts/policy.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/evidence.ts (already expanded above)
+        - src/contracts/settings.ts (already expanded above)
+      - src/contracts/accounts.ts
+      - src/contracts/progress.ts (already expanded above)
+      - src/contracts/session.ts (already expanded above)
+      - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/dictionary.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/verb-writing.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/activity.ts
+        - src/contracts/session.ts (already expanded above)
+      - src/contracts/daily.ts
+        - src/contracts/progress.ts (already expanded above)
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/student-timezone.ts
+    - src/features/verbs/dictionary/wiktionary.snapshot.json (authored data leaf; contents intentionally omitted)
+    - src/features/verbs/dictionary/french.snapshot.json (authored data leaf; contents intentionally omitted)
+  - src/features/progress/written-practice-binding.ts
+    - src/features/progress/written-snapshot.ts
+      - src/contracts/index.ts (already expanded above)
+  - src/features/progress/written-snapshot.ts (already expanded above)
+  - src/features/progress/use-written-activity.ts
+    - src/features/progress/written-usage-store.ts
+      - src/features/progress/pending-progress-store.ts
+        - src/contracts/index.ts (already expanded above)
+        - src/foundation/progress-batch.ts
+          - src/contracts/progress.ts (already expanded above)
+  - src/contracts/index.ts (already expanded above)
+  - src/ui/mobile/index.ts
+    - src/ui/mobile/mobile.css
+    - src/ui/mobile/components.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/lesson-tools-context.ts
+      - src/ui/mobile/presentation.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/ui/mobile/SpellingField.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/presentation.ts (already expanded above)
+    - src/ui/mobile/presentation.ts (already expanded above)
+  - src/features/verbs/PictureCue.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/PictureInfo.tsx
+      - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/WordCue.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/PictureInfo.tsx (already expanded above)
+  - src/features/verbs/verb-hints.ts
+    - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/session.ts
+    - src/features/progress/written-snapshot.ts (already expanded above)
+    - src/contracts/index.ts (already expanded above)
+    - src/features/progress/assessment-progress.ts
+      - src/contracts/index.ts (already expanded above)
+    - src/assessment/index.ts
+      - src/assessment/controller.ts
+        - src/contracts/index.ts (already expanded above)
+      - src/assessment/spelling.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/content/index.ts
+      - src/contracts/index.ts (already expanded above)
+      - content/en-wp-03/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/asset-ledger.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/fr/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/asset-ledger.json (authored data leaf; contents intentionally omitted)
+  - src/features/verbs/PictureDictionaryCard.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/picture-dictionary.css
+  - src/features/verbs/picture-preload.ts
+    - src/foundation/picture-decode.ts
+      - src/contracts/dictionary.ts (already expanded above)
+    - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/verbs.css
+  - src/features/verbs/writing-lines.css
+  - src/content/index.ts (already expanded above)
+  - src/content/tense-guide.ts
+    - src/contracts/index.ts (already expanded above)
+```
+
+## /#/verb-visible (mode=verb-visible)
+
+Entry: `src/features/verbs/VerbLesson.tsx`
+
+```text
+- src/features/verbs/VerbLesson.tsx
+  - src/features/verbs/dictionary/index.ts
+    - src/contracts/index.ts
+      - src/contracts/curriculum.ts
+      - src/contracts/evidence.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/voice.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/evidence.ts (already expanded above)
+        - src/contracts/session.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/progress.ts
+            - src/contracts/curriculum.ts (already expanded above)
+            - src/contracts/evidence.ts (already expanded above)
+            - src/contracts/feedback.ts
+          - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/settings.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/voice.ts (already expanded above)
+      - src/contracts/policy.ts
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/evidence.ts (already expanded above)
+        - src/contracts/settings.ts (already expanded above)
+      - src/contracts/accounts.ts
+      - src/contracts/progress.ts (already expanded above)
+      - src/contracts/session.ts (already expanded above)
+      - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/dictionary.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/verb-writing.ts
+        - src/contracts/curriculum.ts (already expanded above)
+      - src/contracts/activity.ts
+        - src/contracts/session.ts (already expanded above)
+      - src/contracts/daily.ts
+        - src/contracts/progress.ts (already expanded above)
+        - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/feedback.ts (already expanded above)
+      - src/contracts/student-timezone.ts
+    - src/features/verbs/dictionary/wiktionary.snapshot.json (authored data leaf; contents intentionally omitted)
+    - src/features/verbs/dictionary/french.snapshot.json (authored data leaf; contents intentionally omitted)
+  - src/features/progress/written-practice-binding.ts
+    - src/features/progress/written-snapshot.ts
+      - src/contracts/index.ts (already expanded above)
+  - src/features/progress/written-snapshot.ts (already expanded above)
+  - src/features/progress/use-written-activity.ts
+    - src/features/progress/written-usage-store.ts
+      - src/features/progress/pending-progress-store.ts
+        - src/contracts/index.ts (already expanded above)
+        - src/foundation/progress-batch.ts
+          - src/contracts/progress.ts (already expanded above)
+  - src/contracts/index.ts (already expanded above)
+  - src/ui/mobile/index.ts
+    - src/ui/mobile/mobile.css
+    - src/ui/mobile/components.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/lesson-tools-context.ts
+      - src/ui/mobile/presentation.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/ui/mobile/SpellingField.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/presentation.ts (already expanded above)
+    - src/ui/mobile/presentation.ts (already expanded above)
+  - src/features/verbs/PictureCue.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/PictureInfo.tsx
+      - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/WordCue.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/PictureInfo.tsx (already expanded above)
+  - src/features/verbs/verb-hints.ts
+    - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/session.ts
+    - src/features/progress/written-snapshot.ts (already expanded above)
+    - src/contracts/index.ts (already expanded above)
+    - src/features/progress/assessment-progress.ts
+      - src/contracts/index.ts (already expanded above)
+    - src/assessment/index.ts
+      - src/assessment/controller.ts
+        - src/contracts/index.ts (already expanded above)
+      - src/assessment/spelling.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/content/index.ts
+      - src/contracts/index.ts (already expanded above)
+      - content/en-wp-03/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/asset-ledger.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/fr/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/asset-ledger.json (authored data leaf; contents intentionally omitted)
+  - src/features/verbs/PictureDictionaryCard.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/verbs/picture-dictionary.css
+  - src/features/verbs/picture-preload.ts
+    - src/foundation/picture-decode.ts
+      - src/contracts/dictionary.ts (already expanded above)
+    - src/contracts/index.ts (already expanded above)
+  - src/features/verbs/verbs.css
+  - src/features/verbs/writing-lines.css
+  - src/content/index.ts (already expanded above)
+  - src/content/tense-guide.ts
+    - src/contracts/index.ts (already expanded above)
+```
+
+## /#/sentence
+
+Entry: `src/features/sentences/SentenceLesson.tsx`
+
+```text
+- src/features/sentences/SentenceLesson.tsx
+  - src/features/progress/written-practice-binding.ts
+    - src/features/progress/written-snapshot.ts
+      - src/contracts/index.ts
+        - src/contracts/curriculum.ts
+        - src/contracts/evidence.ts
+          - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/voice.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/evidence.ts (already expanded above)
+          - src/contracts/session.ts
+            - src/contracts/curriculum.ts (already expanded above)
+            - src/contracts/progress.ts
+              - src/contracts/curriculum.ts (already expanded above)
+              - src/contracts/evidence.ts (already expanded above)
+              - src/contracts/feedback.ts
+            - src/contracts/feedback.ts (already expanded above)
+        - src/contracts/settings.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/voice.ts (already expanded above)
+        - src/contracts/policy.ts
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/evidence.ts (already expanded above)
+          - src/contracts/settings.ts (already expanded above)
+        - src/contracts/accounts.ts
+        - src/contracts/progress.ts (already expanded above)
+        - src/contracts/session.ts (already expanded above)
+        - src/contracts/feedback.ts (already expanded above)
+        - src/contracts/dictionary.ts
+          - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/verb-writing.ts
+          - src/contracts/curriculum.ts (already expanded above)
+        - src/contracts/activity.ts
+          - src/contracts/session.ts (already expanded above)
+        - src/contracts/daily.ts
+          - src/contracts/progress.ts (already expanded above)
+          - src/contracts/curriculum.ts (already expanded above)
+          - src/contracts/feedback.ts (already expanded above)
+        - src/contracts/student-timezone.ts
+  - src/features/progress/written-snapshot.ts (already expanded above)
+  - src/features/progress/use-written-activity.ts
+    - src/features/progress/written-usage-store.ts
+      - src/features/progress/pending-progress-store.ts
+        - src/contracts/index.ts (already expanded above)
+        - src/foundation/progress-batch.ts
+          - src/contracts/progress.ts (already expanded above)
+  - src/contracts/index.ts (already expanded above)
+  - src/ui/mobile/index.ts
+    - src/ui/mobile/mobile.css
+    - src/ui/mobile/components.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/lesson-tools-context.ts
+      - src/ui/mobile/presentation.ts
+        - src/contracts/index.ts (already expanded above)
+    - src/ui/mobile/SpellingField.tsx
+      - src/contracts/index.ts (already expanded above)
+      - src/ui/mobile/presentation.ts (already expanded above)
+    - src/ui/mobile/presentation.ts (already expanded above)
+  - src/features/sentences/session.ts
+    - src/features/sentences/written-practice.ts
+      - src/contracts/index.ts (already expanded above)
+      - src/foundation/progress-batch.ts (already expanded above)
+      - src/features/sentences/written-comparison.ts
+        - src/assessment/spelling.ts
+          - src/contracts/index.ts (already expanded above)
+        - src/contracts/index.ts (already expanded above)
+      - src/features/progress/written-snapshot.ts (already expanded above)
+    - src/features/progress/written-snapshot.ts (already expanded above)
+    - src/contracts/index.ts (already expanded above)
+    - src/features/progress/assessment-progress.ts
+      - src/contracts/index.ts (already expanded above)
+    - src/assessment/index.ts
+      - src/assessment/controller.ts
+        - src/contracts/index.ts (already expanded above)
+      - src/assessment/spelling.ts (already expanded above)
+    - src/content/index.ts
+      - src/contracts/index.ts (already expanded above)
+      - content/en-wp-03/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/asset-ledger.json (authored data leaf; contents intentionally omitted)
+      - content/en-wp-03/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/verbs.json (authored data leaf; contents intentionally omitted)
+      - content/fr/sentences.json (authored data leaf; contents intentionally omitted)
+      - content/fr/asset-ledger.json (authored data leaf; contents intentionally omitted)
+    - src/assessment/coaching-policy.ts
+  - src/features/sentences/sentences.css
+  - src/content/tense-guide.ts
+    - src/contracts/index.ts (already expanded above)
+  - src/content/index.ts (already expanded above)
+  - src/features/sentences/WrittenTranslation.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/features/sentences/written-comparison.ts (already expanded above)
+    - src/features/sentences/written-translation.css
+  - src/features/sentences/use-written-hint.ts
+    - src/features/sentences/written-comparison.ts (already expanded above)
+  - src/features/sentences/WrittenTense.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/content/tense-guide.ts (already expanded above)
+    - src/features/sentences/written-tense.css
+  - src/features/sentences/SentenceExplanation.tsx
+    - src/contracts/index.ts (already expanded above)
+    - src/content/sentence-explanations.ts
+      - src/contracts/index.ts (already expanded above)
+      - content/en-wp-03/sentences.json (already expanded above)
+    - src/content/tense-guide.ts (already expanded above)
+    - src/features/sentences/sentence-explanation.css
+```
+
+## Feature composition and source-data boundaries
+
+`src/main.tsx` composes the shared LearningApplication and dispatches VerbLesson or SentenceLesson. Each lesson tree above is the actual feature closure under that shared shell. Local photographic files are served from `public/images/verbs/`, selected by the authored content ledger; no image assets are replaced or synthesized for this UI task. Dictionary excerpts preserve their local snapshots and source attribution.
+
+The two Vite `?url` imports in LearningCredits resolve to the same French/English dictionary JSON leaves already listed in its tree. They request downloadable asset URLs, not additional source modules. All discovered relative module references resolve locally.
